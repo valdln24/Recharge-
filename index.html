@@ -117,14 +117,14 @@ section.block{padding:110px 0}
 .ic.k{background:var(--ink)}
 
 /* ---------- Bloc sombre ---------- */
-.dark{position:relative;margin:0 14px;border-radius:40px;color:#fff;overflow:hidden;
+.band{position:relative;margin:0 14px;border-radius:40px;color:#fff;overflow:hidden;
   background:radial-gradient(60% 70% at 0% 0%,rgba(255,106,42,.45),transparent 70%),radial-gradient(60% 70% at 100% 100%,rgba(95,123,255,.42),transparent 70%),#101312}
-.dark::before{content:"";position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.08) 1px,transparent 1.3px);background-size:16px 16px;
+.band::before{content:"";position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.08) 1px,transparent 1.3px);background-size:16px 16px;
   -webkit-mask-image:linear-gradient(180deg,#000,transparent 80%);mask-image:linear-gradient(180deg,#000,transparent 80%)}
-.dark .wrap{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:50px;align-items:center;padding-top:100px;padding-bottom:100px}
-.dark h2{font-size:clamp(2rem,4.2vw,3.1rem);margin:16px 0}
-.dark p{color:#c3c7c5;font-size:1.06rem}
-.dark .kicker{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.12);color:#e9ece9}
+.band .wrap{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:50px;align-items:center;padding-top:100px;padding-bottom:100px}
+.band h2{font-size:clamp(2rem,4.2vw,3.1rem);margin:16px 0}
+.band p{color:#c3c7c5;font-size:1.06rem}
+.band .kicker{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.12);color:#e9ece9}
 .panel{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:32px;padding:26px 24px 22px;backdrop-filter:blur(10px)}
 .dial{position:relative;max-width:340px;margin:0 auto}
 .dial svg{width:100%;height:auto}
@@ -153,17 +153,32 @@ section.block{padding:110px 0}
 .feat p{margin:0;color:var(--ink-2);font-size:.96rem}
 
 /* ---------- Tarifs ---------- */
-.plans{display:grid;grid-template-columns:1fr 1fr;gap:18px;max-width:860px;margin:0 auto}
+.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;align-items:stretch}
 .plan{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:32px;padding:32px;box-shadow:var(--shadow);display:flex;flex-direction:column}
 .plan.hot{background:radial-gradient(80% 60% at 100% 0%,rgba(255,106,42,.35),transparent 70%),radial-gradient(70% 60% at 0% 100%,rgba(95,123,255,.3),transparent 70%),#101312;color:#fff;border-color:#101312}
 .plan .badge{position:absolute;top:22px;right:22px;font-size:.74rem;font-weight:750;padding:6px 12px;border-radius:99px;background:var(--grad);color:#fff}
+.plan .badge.blue{background:var(--gradB)}
+.plan.team{background:radial-gradient(90% 55% at 100% 0%,rgba(95,123,255,.16),transparent 70%),var(--surface)}
+.plan.team li svg{color:var(--b1)}
+.btn.blue{background:var(--gradB);color:#fff;box-shadow:0 14px 30px -14px rgba(79,108,247,.8)}
+.calc{margin-top:14px;padding:16px;border-radius:20px;background:var(--b-soft)}
+.calc label{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:.86rem;font-weight:650;color:var(--ink-2)}
+.calc label b{color:var(--ink);font-size:1rem}
+.calc input{width:100%;margin:14px 0 10px;-webkit-appearance:none;appearance:none;height:8px;border-radius:9px;outline:none;background:linear-gradient(90deg,#6f86ff 0%,#ff6a2a var(--p,18%),rgba(79,108,247,.18) var(--p,18%))}
+.calc input::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;border-radius:50%;background:#fff;border:3px solid var(--b1);box-shadow:0 4px 12px rgba(79,108,247,.45);cursor:grab}
+.calc input::-moz-range-thumb{width:24px;height:24px;border-radius:50%;background:#fff;border:3px solid var(--b1);box-shadow:0 4px 12px rgba(79,108,247,.45);cursor:grab}
+.calc .per{font-size:.84rem;color:var(--ink-2);font-weight:600}
+.calc .per b{color:var(--b-text)}
+.bump{animation:bump .35s ease}
+@keyframes bump{40%{transform:scale(1.08)}}
+@media (max-width:1040px) and (min-width:901px){.plans{grid-template-columns:1fr 1fr}.plan.team{grid-column:1/-1}}
 .plan h3{font-size:1.3rem}
 .plan .price{display:flex;align-items:baseline;gap:6px;margin:18px 0 4px}
 .plan .price b{font-size:3.4rem;font-weight:750;letter-spacing:-.06em;line-height:1}
 .plan .price span{color:var(--ink-3);font-weight:650}
 .plan.hot .price span,.plan.hot .muted{color:#a7acaa}
 .plan .muted{color:var(--ink-3);font-size:.92rem;font-weight:600;min-height:2.8em}
-.plan ul{list-style:none;padding:0;margin:22px 0 28px;display:grid;gap:11px;flex:1}
+.plan ul{list-style:none;padding:0;margin:22px 0 28px;display:grid;gap:11px;flex:1;align-content:start}
 .plan li{display:flex;gap:10px;align-items:flex-start;font-weight:600;font-size:.96rem}
 .plan li svg{flex:none;width:20px;height:20px;color:var(--o1);margin-top:2px}
 .plan.hot li svg{color:#ffa25a}
@@ -205,7 +220,7 @@ footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:2
 @media (max-width:900px){
   .nav .links{display:none}
   .hero{padding:104px 0 60px}
-  .hero .grid,.dark .wrap{grid-template-columns:1fr}
+  .hero .grid,.band .wrap{grid-template-columns:1fr}
   .hero .copy{text-align:center}
   .hero .copy .lead{margin-left:auto;margin-right:auto}
   .hero .ctas,.hero .note{justify-content:center}
@@ -215,8 +230,8 @@ footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:2
   .chipf.c1{left:-2%}.chipf.c2{right:-3%}.chipf.c3{left:0}
   .steps,.feats,.plans{grid-template-columns:1fr}
   section.block{padding:80px 0}
-  .dark .wrap{padding-top:70px;padding-bottom:70px;gap:34px}
-  .dark,.final{margin:0 10px;border-radius:32px}
+  .band .wrap{padding-top:70px;padding-bottom:70px;gap:34px}
+  .band,.final{margin:0 10px;border-radius:32px}
 }
 @media (max-width:420px){
   .nav .btn .full{display:none}
@@ -290,7 +305,7 @@ footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:2
 </div></section>
 
 <!-- ---------- Bloc sombre : résultats ---------- -->
-<section class="dark" id="resultats"><div class="wrap">
+<section class="band" id="resultats"><div class="wrap">
   <div class="reveal">
     <span class="kicker"><i>€</i>Votre indicateur clé</span>
     <h2>Voyez ce que vos relances vous rapportent.</h2>
@@ -334,7 +349,7 @@ footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:2
 
 <!-- ---------- Tarifs ---------- -->
 <section class="block" id="tarifs" style="padding-top:20px"><div class="wrap">
-  <div class="head reveal"><span class="kicker"><i>€</i>Tarifs simples</span><h2>Commencez gratuitement.</h2><p>Passez à l'offre complète quand votre clientèle grandit. Plus vous restez, moins vous payez.</p></div>
+  <div class="head reveal"><span class="kicker"><i>€</i>Tarifs simples</span><h2>Commencez gratuitement.</h2><p>Passez à l'offre complète quand votre clientèle grandit, ou équipez toute votre équipe d'un coup.</p></div>
   <div class="plans">
     <div class="plan reveal d1">
       <h3>Découverte</h3>
@@ -361,6 +376,23 @@ footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:2
       </ul>
       <a class="btn dark" href="app/">Essayer Recharge</a>
     </div>
+    <div class="plan team reveal d3">
+      <span class="badge blue">Pour les responsables</span>
+      <h3>Équipe</h3>
+      <div class="price"><b id="teamPrice" style="display:inline-block">49 €</b><span>/ mois</span></div>
+      <div class="muted">Jusqu'à 10 filleuls, puis 4 € par filleul en plus.</div>
+      <div class="calc">
+        <label for="teamSize"><span>Taille de votre équipe</span><b><span id="teamSizeOut">10</span> filleuls</b></label>
+        <input type="range" id="teamSize" min="1" max="50" value="10" aria-label="Nombre de filleuls">
+        <div class="per">soit <b id="teamPer">4,90 €</b> par personne et par mois</div>
+      </div>
+      <ul>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l4.5 4.5L19.5 6.5"/></svg>Recharge complet pour chaque filleul</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l4.5 4.5L19.5 6.5"/></svg>Clients illimités pour toute l'équipe</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l4.5 4.5L19.5 6.5"/></svg>Un seul abonnement, payé par la responsable</li>
+      </ul>
+      <a class="btn blue" href="app/">Essayer avec mon équipe</a>
+    </div>
   </div>
 </div></section>
 
@@ -372,6 +404,7 @@ footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:2
     <details class="reveal"><summary>Ça marche avec quelle marque ?<i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></i></summary><p>Avec toutes. Vous ajoutez vos propres produits et la durée de chacun : bien-être, cosmétiques, entretien…</p></details>
     <details class="reveal"><summary>Où sont enregistrés mes clients ?<i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></i></summary><p>Uniquement dans votre téléphone. Pensez à faire une sauvegarde de temps en temps depuis les réglages de l'appli.</p></details>
     <details class="reveal"><summary>Et si mon client n'a pas WhatsApp ?<i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></i></summary><p>Le bouton « Copier » met le message dans votre presse-papiers : vous le collez dans un SMS ou la messagerie de votre choix.</p></details>
+    <details class="reveal"><summary>Comment fonctionne l'offre Équipe ?<i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></i></summary><p>La responsable paie un seul abonnement pour son équipe : 49 € par mois jusqu'à 10 filleuls, puis 4 € par filleul supplémentaire. Par exemple, 15 filleuls = 69 € par mois, 20 filleuls = 89 € par mois.</p></details>
     <details class="reveal"><summary>Comment l'avoir comme une appli sur mon téléphone ?<i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></i></summary><p>Ouvrez l'appli, puis sur iPhone : Partager › « Sur l'écran d'accueil ». Sur Android : menu ⋮ › « Ajouter à l'écran d'accueil ».</p></details>
   </div>
 </div></section>
@@ -431,6 +464,23 @@ function countUp(el) {
     el.textContent = Math.round(to * e).toLocaleString("fr-FR"); if (k < 1) requestAnimationFrame(step); };
   requestAnimationFrame(step);
 }
+
+/* Calculateur de l'offre Équipe : 49 € jusqu'à 10 filleuls, puis 4 € par filleul en plus */
+const TEAM_BASE = 49, TEAM_INCLUDED = 10, TEAM_EXTRA = 4;
+const teamSize = document.getElementById("teamSize");
+const eur = n => n.toLocaleString("fr-FR", { style: "currency", currency: "EUR", minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 });
+function updateTeam(animate) {
+  const n = Number(teamSize.value);
+  const price = TEAM_BASE + Math.max(0, n - TEAM_INCLUDED) * TEAM_EXTRA;
+  const priceEl = document.getElementById("teamPrice");
+  priceEl.textContent = eur(price);
+  document.getElementById("teamSizeOut").textContent = n;
+  document.getElementById("teamPer").textContent = eur(Math.round(price / n * 100) / 100);
+  teamSize.style.setProperty("--p", ((n - 1) / 49 * 100) + "%");
+  if (animate) { priceEl.classList.remove("bump"); void priceEl.offsetWidth; priceEl.classList.add("bump"); }
+}
+teamSize.addEventListener("input", () => updateTeam(true));
+updateTeam(false);
 
 /* Apparitions au défilement */
 const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
