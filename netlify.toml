@@ -1,0 +1,9 @@
+# Mise en ligne : pas de construction, les fichiers sont publiés tels quels
+[build]
+  publish = "."
+
+# Le fichier d'installation de l'appli doit être servi avec le bon type
+[[headers]]
+  for = "/app/manifest.webmanifest"
+  [headers.values]
+    Content-Type = "application/manifest+json"
