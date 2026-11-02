@@ -251,6 +251,7 @@ nav.tabs .tab.on{color:var(--ink)}
 
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(98px + var(--badge) + env(safe-area-inset-bottom));z-index:60;background:var(--btn);color:var(--btn-ink);
   border-radius:99px;padding:11px 18px;display:flex;gap:14px;align-items:center;max-width:calc(100% - 32px);width:max-content;font-size:.88rem;font-weight:650;box-shadow:0 12px 30px rgba(0,0,0,.25);animation:up .2s}
+.sheet-open .toast{bottom:auto;top:calc(14px + env(safe-area-inset-top))}
 .toast button{background:none;border:0;color:var(--o2);font-weight:800;padding:4px}
 
 .enter>*{animation:rise .34s cubic-bezier(.2,.8,.2,1) both}
@@ -346,6 +347,7 @@ function seed() {
     const p = s.products.find(x => x.id === pid);
     s.sales.push(makeSale(c.id, p, qty, addDays(t, ago), true));
   }
+  s.clients[3].referredBy = s.clients[0].id; // Julie a été recommandée par Marie
   return s;
 }
 function makeSale(clientId, p, qty, date, example) {
@@ -389,6 +391,23 @@ const TEMPLATES = {
     "Bonjour {p} ! Je passe ma commande cette semaine 😊 Voulez-vous que j'ajoute de quoi continuer votre cure {de} ? Dites-moi simplement combien il vous en faut."
   ]
 };
+const REF_TEMPLATES = {
+  tu: [
+    "Ça me fait plaisir que ta cure {de} te plaise, {p} ! 😊 Si tu connais quelqu'un autour de toi à qui ça pourrait faire du bien, n'hésite pas à lui donner mon numéro : je lui donnerai des conseils avec plaisir.",
+    "Merci pour ta confiance {p} 🌿 Petite question : tu penses à quelqu'un de ton entourage que ça pourrait intéresser ? Je peux lui faire découvrir, sans engagement.",
+    "{p}, ça me fait vraiment plaisir que tu continues ! Si une amie ou quelqu'un de ta famille cherche ce genre de produit, tu peux lui parler de moi 😊"
+  ],
+  vous: [
+    "Cela me fait plaisir que votre cure {de} vous plaise, {p} ! 😊 Si vous connaissez quelqu'un à qui cela pourrait faire du bien, n'hésitez pas à lui donner mon numéro : je lui donnerai des conseils avec plaisir.",
+    "Merci pour votre confiance {p} 🌿 Pensez-vous à quelqu'un de votre entourage que cela pourrait intéresser ? Je peux lui faire découvrir, sans engagement.",
+    "{p}, cela me fait vraiment plaisir que vous continuiez ! Si une amie ou un proche cherche ce genre de produit, vous pouvez lui parler de moi 😊"
+  ]
+};
+function refMessage(s, k) {
+  const list = REF_TEMPLATES[S.tone] || REF_TEMPLATES.tu;
+  const c = client(s.clientId);
+  return list[k % list.length].replace("{p}", firstName(c ? c.name : "")).replace("{de}", deProd(s.product));
+}
 function message(s) {
   const list = TEMPLATES[S.tone] || TEMPLATES.tu;
   const c = client(s.clientId);
@@ -433,7 +452,9 @@ function stats(p) {
   const relances = ev.filter(e => e.type === "relance").length;
   const recos = ev.filter(e => e.type === "recommande");
   const ca = recos.reduce((t, e) => t + (e.amount || 0), 0);
-  return { relances, recos: recos.length, rate: relances ? Math.round(recos.length / relances * 100) : 0, ca, list: recos };
+  const asks = ev.filter(e => e.type === "bouche").length;
+  const referred = S.clients.filter(c => (c.referredBy || c.referredByName) && (c.createdAt || "0000") >= from).length;
+  return { relances, recos: recos.length, rate: relances ? Math.round(recos.length / relances * 100) : 0, ca, list: recos, asks, referred };
 }
 
 /* Jauge en segments : l'élément signature de Recharge */
@@ -594,6 +615,9 @@ function viewResults() {
   h += `<div class="card bars">
     <div class="b"><div class="t"><span>Relances faites</span><b class="num" id="kpiRel">${st.relances}</b></div><div class="line blue"><span style="width:${st.relances ? 100 : 0}%"></span></div></div>
     <div class="b"><div class="t"><span>Recommandes obtenues</span><b class="num" id="kpiReco">${st.recos}</b></div><div class="line"><span style="width:${Math.round(st.recos / maxv * 100)}%"></span></div></div></div>`;
+  h += section("Bouche-à-oreille") + `<div class="card bars">
+    <div class="b"><div class="t"><span>Demandes envoyées</span><b class="num" id="kpiAsk">${st.asks}</b></div><div class="line blue"><span style="width:${st.asks ? 100 : 0}%"></span></div></div>
+    <div class="b"><div class="t"><span>Nouveaux clients amenés par vos clients</span><b class="num" id="kpiRef">${st.referred}</b></div><div class="line"><span style="width:${Math.round(Math.min(1, st.referred / Math.max(1, st.asks)) * 100)}%"></span></div></div></div>`;
   h += `<p class="hint">Taux de recommande : sur 10 clients relancés, combien ont racheté. Les montants viennent des prix indiqués dans Réglages › Mes produits.</p>`;
   if (st.list.length) {
     h += section("Dernières recommandes", st.list.length) + `<div class="card"><ul class="hist">`;
@@ -642,9 +666,9 @@ function viewSettings() {
 const sheetEl = document.getElementById("sheet");
 function openSheet(html) {
   sheetEl.innerHTML = `<div class="sheet-bg" data-act="closeBg"><div class="sheet" role="dialog" aria-modal="true"><div class="grab"></div>${html}</div></div>`;
-  document.body.style.overflow = "hidden";
+  document.body.style.overflow = "hidden"; document.body.classList.add("sheet-open");
 }
-function closeSheet() { sheetEl.innerHTML = ""; document.body.style.overflow = ""; }
+function closeSheet() { sheetEl.innerHTML = ""; document.body.style.overflow = ""; document.body.classList.remove("sheet-open"); }
 const closeBtn = `<button class="close" data-act="close" aria-label="Fermer">${I.x}</button>`;
 
 let form = null; // état du formulaire de vente
@@ -657,6 +681,7 @@ function openNewSale(clientId) {
       <label class="field"><span>Client</span><input class="input" id="fName" list="clientNames" required placeholder="Prénom Nom" value="${c ? esc(c.name) : ""}" enterkeyhint="next"></label>
       <datalist id="clientNames">${names}</datalist>
       <label class="field"><span>Téléphone <i>· facultatif</i></span><input class="input" id="fPhone" type="tel" inputmode="tel" placeholder="06 12 34 56 78" value="${c ? esc(c.phone) : ""}"></label>
+      <label class="field ${c ? "hidden" : ""}" id="fRefWrap"><span>Recommandé par <i>· facultatif, si un client vous l'a amené</i></span><input class="input" id="fRef" list="clientNames" placeholder="Nom du client qui vous l'a présenté"></label>
       <div class="field"><span>Produit</span><div class="pchips" id="chips"></div></div>
       <div id="newProd" class="subform hidden">
         <label class="field"><span>Nom du produit</span><input class="input" id="npName" placeholder="ex. : Dentifrice aloe vera"></label>
@@ -703,8 +728,14 @@ function submitSale() {
   if (!p) return toast("Choisissez un produit.");
   const snap = snapshot();
   let c = S.clients.find(x => x.name.toLowerCase() === name.toLowerCase());
-  if (!c) { c = { id: uid(), name, phone, example: false }; S.clients.push(c); }
+  const refName = (document.getElementById("fRef") || {}).value?.trim() || "";
+  let isNew = false;
+  if (!c) { c = { id: uid(), name, phone, example: false, createdAt: today() }; S.clients.push(c); isNew = true; }
   else if (phone) c.phone = phone;
+  if (isNew && refName) {
+    const r = S.clients.find(x => x !== c && x.name.toLowerCase() === refName.toLowerCase());
+    if (r) c.referredBy = r.id; else c.referredByName = refName;
+  }
   // Une nouvelle vente du même produit remplace la précédente en cours
   let counted = false;
   for (const old of S.sales) {
@@ -715,20 +746,30 @@ function submitSale() {
   }
   S.sales.push(makeSale(c.id, p, form.qty, date, c.example));
   save(); closeSheet(); render();
-  toast(counted ? `Vente enregistrée et comptée comme recommande` : `Vente enregistrée pour ${firstName(c.name)}`, snap);
+  toast(counted ? `Vente enregistrée et comptée comme recommande`
+    : isNew && (c.referredBy || c.referredByName) ? `Nouveau client grâce au bouche-à-oreille !` : `Vente enregistrée pour ${firstName(c.name)}`, snap);
 }
 
+function refLine(c) {
+  const by = c.referredBy ? client(c.referredBy) : null;
+  const brought = S.clients.filter(x => x.referredBy === c.id);
+  let h = "";
+  if (by || c.referredByName) h += `<div class="notice" style="margin-top:14px"><span>Recommandé par <b>${esc(by ? by.name : c.referredByName)}</b></span></div>`;
+  if (brought.length) h += `<div class="notice" style="margin-top:10px"><span>A amené ${plural(brought.length, "client", "clients")} : <b>${brought.map(x => esc(x.name)).join(", ")}</b></span></div>`;
+  return h;
+}
 function openFiche(id) {
   const c = client(id); if (!c) return;
   const sales = S.sales.filter(s => s.clientId === id).sort((a, b) => b.date.localeCompare(a.date));
   const evs = S.events.filter(e => e.clientId === id).sort((a, b) => b.date.localeCompare(a.date));
   const STATUS = { open: ["En cours", ""], relance: ["Relancé", "done"], recommande: ["A recommandé", "done"], rachete: ["Racheté", "done"], sanssuite: ["Sans suite", ""] };
-  const EV = { relance: "Relancé", recommande: "A recommandé", report: "Reporté de 3 jours", sanssuite: "Classé sans suite" };
+  const EV = { relance: "Relancé", recommande: "A recommandé", report: "Reporté de 3 jours", sanssuite: "Classé sans suite", bouche: "Demande de bouche-à-oreille" };
   const total = sales.reduce((t, s) => t + (s.price || 0) * s.qty, 0);
   openSheet(`<div class="shead"><div style="display:flex;gap:12px;align-items:center;min-width:0"><span class="avatar">${esc(initials(c.name))}</span>
       <div style="min-width:0"><h3>${esc(c.name)}${exTag(c)}</h3><div class="meta2">${plural(sales.length, "achat", "achats")} · ${euro(total)}</div></div></div>${closeBtn}</div>
     <label class="field"><span>Nom</span><input class="input" data-cfield="name" data-id="${c.id}" value="${esc(c.name)}"></label>
     <label class="field"><span>Téléphone</span><input class="input" type="tel" inputmode="tel" data-cfield="phone" data-id="${c.id}" value="${esc(c.phone)}" placeholder="Aucun numéro"></label>
+    ${refLine(c)}
     <button class="btn primary" style="margin-top:14px" data-act="newSaleFor" data-id="${c.id}">Nouvelle vente pour ${esc(firstName(c.name))}</button>
     <div class="section"><h2>Achats</h2><span class="pill num">${sales.length}</span></div>
     <div class="card"><ul class="hist">${sales.map(s => `<li><span style="min-width:0"><b>${esc(s.product)} × ${s.qty}</b><br><small>Acheté le ${fmt(s.date)} · fin ${fmt(s.end)}${s.price ? " · " + euro(s.price * s.qty) : ""}</small></span>
@@ -738,13 +779,34 @@ function openFiche(id) {
     <button class="btn danger" style="margin-top:22px" data-act="delClient" data-id="${c.id}">Supprimer ce client</button>`);
 }
 
+/* Bouche-à-oreille : le meilleur moment pour demander, c'est juste après une recommande */
+let refK = 0;
+function openReferral(saleId) {
+  const s = sale(saleId), c = client(s.clientId);
+  refK = Math.floor(Math.random() * 3);
+  const hasPhone = !!waNumber(c.phone);
+  openSheet(`<div class="shead"><h3>Bravo, ${esc(firstName(c.name))} a recommandé !</h3>${closeBtn}</div>
+    <p class="lede" style="margin-top:8px">Un client content, c'est le meilleur moment pour lui demander de parler de vous autour de lui.</p>
+    <div class="bubble"><div class="top"><span class="small">Message proposé</span><button class="vary" data-act="nextRef" data-id="${s.id}">${I.redo} Autre</button></div>
+      <textarea class="msg" id="msg-ref" rows="4" aria-label="Message de bouche-à-oreille">${esc(refMessage(s, refK))}</textarea></div>
+    ${hasPhone
+      ? `<a class="btn primary send" href="#" target="_blank" rel="noopener" data-act="refWa" data-id="${s.id}">${I.wa} Envoyer sur WhatsApp</a>`
+      : `<button class="btn primary send" data-act="refCopy" data-id="${s.id}">${I.copy} Copier le message</button>`}
+    <button class="btn soft" style="margin-top:8px" data-act="close">Pas maintenant</button>`);
+  fitAreas(sheetEl);
+}
+function logAsk(saleId) {
+  const s = sale(saleId);
+  if (!S.events.some(e => e.type === "bouche" && e.saleId === s.id)) { logEvent("bouche", s); save(); }
+}
+
 /* ---------- Annuler & messages ---------- */
 const snapshot = () => JSON.stringify(S);
 let toastTimer;
 function toast(text, snap) {
   const el = document.getElementById("toast");
   el.innerHTML = `<div class="toast" role="status"><span>${esc(text)}</span>${snap ? `<button id="undo">Annuler</button>` : ""}</div>`;
-  if (snap) document.getElementById("undo").onclick = () => { S = JSON.parse(snap); save(); render(); el.innerHTML = ""; };
+  if (snap) document.getElementById("undo").onclick = () => { S = JSON.parse(snap); save(); closeSheet(); render(); el.innerHTML = ""; };
   clearTimeout(toastTimer); toastTimer = setTimeout(() => el.innerHTML = "", 4500);
 }
 async function copyText(t) {
@@ -797,6 +859,19 @@ const actions = {
     S.sales.push(n);
     logEvent("recommande", s, { amount: p.price * s.qty, newSaleId: n.id });
     save(); render(); toast(`Bravo ! Nouvelle vente créée pour ${firstName(client(s.clientId).name)}`, snap);
+    openReferral(s.id);
+  },
+  nextRef: el => { refK++; const ta = document.getElementById("msg-ref"); ta.value = refMessage(sale(el.dataset.id), refK); fitAreas(ta.parentNode); },
+  refWa: el => {
+    const s = sale(el.dataset.id), c = client(s.clientId);
+    el.href = `https://wa.me/${waNumber(c.phone)}?text=${encodeURIComponent(document.getElementById("msg-ref").value)}`;
+    logAsk(s.id); setTimeout(() => { closeSheet(); render(); toast("Demande de bouche-à-oreille notée"); }, 300);
+    return true;
+  },
+  refCopy: async el => {
+    const ok = await copyText(document.getElementById("msg-ref").value);
+    if (ok) { logAsk(el.dataset.id); closeSheet(); render(); }
+    toast(ok ? "Message copié. Collez-le dans votre messagerie." : "Impossible de copier : sélectionnez le texte à la main.");
   },
   later: el => {
     const s = sale(el.dataset.id), snap = snapshot();
@@ -870,6 +945,8 @@ document.addEventListener("input", ev => {
   if (t.classList.contains("msg")) fitAreas(t.parentNode);
   if (t.id === "fDate") updateEnd();
   if (t.id === "fName") {
+    const known = S.clients.some(x => x.name.toLowerCase() === t.value.trim().toLowerCase());
+    document.getElementById("fRefWrap").classList.toggle("hidden", known);
     const c = S.clients.find(x => x.name.toLowerCase() === t.value.trim().toLowerCase());
     const ph = document.getElementById("fPhone");
     if (c && c.phone && !ph.value) ph.value = c.phone;
