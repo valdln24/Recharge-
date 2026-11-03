@@ -182,6 +182,37 @@ header.nav.solid{background:rgba(247,245,242,.82);backdrop-filter:blur(16px) sat
 }
 @media (max-width:520px){.pains{grid-template-columns:1fr}.sim .col,.sim .top{padding:20px}}
 
+/* ---------- Prospects ---------- */
+#prospects{overflow:hidden}
+.pros{display:grid;grid-template-columns:1fr 1fr;gap:clamp(28px,5vw,64px);align-items:center}
+.pros h2{font-size:clamp(2rem,4.2vw,3rem);margin:16px 0 14px}
+.pros .intro{color:var(--ink-2);font-size:1.06rem;margin:0 0 26px}
+.tl{list-style:none;padding:0;margin:0;display:grid;gap:0}
+.tl li{position:relative;display:grid;grid-template-columns:44px 1fr;gap:14px;padding-bottom:22px}
+.tl li:last-child{padding-bottom:0}
+.tl li:not(:last-child)::before{content:"";position:absolute;left:21px;top:44px;bottom:0;width:2px;background:linear-gradient(var(--line),var(--line)) ;border-radius:2px}
+.tl .dot{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:800;font-size:.9rem}
+.tl .when{display:block;font-size:.76rem;font-weight:750;color:var(--b-text);letter-spacing:.02em;text-transform:uppercase}
+.tl b{display:block;font-size:1.08rem;letter-spacing:-.025em;margin:1px 0 3px}
+.tl p{margin:0;color:var(--ink-2);font-size:.95rem}
+.pcard{position:relative;max-width:400px;margin:0 auto;background:var(--surface);border:1px solid var(--line);border-radius:28px;padding:20px;
+  box-shadow:0 30px 60px -30px rgba(40,50,120,.35),var(--shadow)}
+.pcard::before{content:"";position:absolute;inset:-40px 0;z-index:-1;border-radius:50%;background:radial-gradient(closest-side,rgba(95,123,255,.22),transparent)}
+.pcard .hd{display:flex;gap:12px;align-items:center}
+.pcard .av{width:52px;height:52px;border-radius:50%;background:var(--b-soft);color:var(--b-text);display:grid;place-items:center;font-weight:800}
+.pcard .nm{font-weight:750;font-size:1.08rem;letter-spacing:-.025em}
+.pcard .st{font-size:.82rem;font-weight:700;color:var(--b-text)}
+.pcard .mt{font-size:.8rem;color:var(--ink-3);font-weight:600}
+.pcard .msg{margin-top:14px;background:var(--surface-2);border-radius:18px 18px 18px 6px;padding:12px 14px;font-size:.92rem;line-height:1.5}
+.pcard .msg small{display:block;font-size:.72rem;font-weight:700;color:var(--ink-3);margin-bottom:4px}
+.pcard .wa{margin-top:12px;display:flex;align-items:center;justify-content:center;gap:8px;min-height:46px;border-radius:99px;background:var(--ink);color:#fff;font-weight:700;font-size:.92rem}
+.pcard .wa svg{width:18px;height:18px}
+.pcard .ac{display:grid;grid-template-columns:repeat(3,1fr);margin-top:14px;text-align:center;font-size:.74rem;font-weight:700}
+.pcard .ac i{display:grid;place-items:center;width:42px;height:42px;border-radius:50%;margin:0 auto 6px;color:#fff;font-style:normal}
+.pcard .ac i svg{width:18px;height:18px}
+.pcard .ribbon{position:absolute;top:-14px;right:18px;background:var(--gradB);color:#fff;font-size:.74rem;font-weight:750;padding:7px 12px;border-radius:99px;box-shadow:0 10px 20px -10px rgba(79,108,247,.8)}
+@media (max-width:900px){.pros{grid-template-columns:1fr}.pros .txt{text-align:left}}
+
 /* ---------- Sections ---------- */
 section.block{padding:clamp(64px,9vw,104px) 0}
 #probleme{padding-top:clamp(8px,2vw,24px)}
@@ -336,7 +367,7 @@ footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:2
 
 <header class="nav" id="nav"><div class="wrap">
   <a class="logo" href="#top" aria-label="Recharge, accueil"><svg viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="gL" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffa25a"/><stop offset="1" stop-color="#ff5e1f"/></linearGradient></defs><rect width="32" height="32" rx="10" fill="url(#gL)"/><path d="M16 7.5A8.5 8.5 0 1 1 8.64 11.75" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round"/><circle cx="16" cy="7.5" r="2.3" fill="#fff"/></svg>Recharge</a>
-  <nav class="links"><a href="#comment">Comment ça marche</a><a href="#resultats">Résultats</a><a href="#tarifs">Tarifs</a><a href="#questions">Questions</a></nav>
+  <nav class="links"><a href="#comment">Comment ça marche</a><a href="#prospects">Prospects</a><a href="#resultats">Résultats</a><a href="#tarifs">Tarifs</a><a href="#questions">Questions</a></nav>
   <a class="btn dark" href="app/"><span class="full">Ouvrir l'appli</span><span class="short">Ouvrir</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
 </div></header>
 
@@ -451,6 +482,33 @@ footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:2
   </div>
 </div></section>
 
+<!-- ---------- Prospects ---------- -->
+<section class="block" id="prospects"><div class="wrap pros">
+  <div class="txt reveal">
+    <span class="kicker"><i>+</i>Vos prospects</span>
+    <h2>Pas encore client ? Ne laissez pas filer la vente.</h2>
+    <p class="intro">Une personne rencontrée qui n'achète pas tout de suite, c'est souvent une vente qui attend le bon message.</p>
+    <ol class="tl">
+      <li><span class="dot" style="background:var(--ink)">1</span><div><span class="when">Aujourd'hui</span><b>Vous la notez en 5 secondes</b><p>Le nom, le lieu de la rencontre, ce qui l'intéresse.</p></div></li>
+      <li><span class="dot" style="background:var(--gradB)">2</span><div><span class="when">Le lendemain</span><b>Recharge vous rappelle</b><p>Avec un message chaleureux déjà rédigé, prêt à partir sur WhatsApp.</p></div></li>
+      <li><span class="dot" style="background:var(--grad)">3</span><div><span class="when">Le jour où elle achète</span><b>Un appui, la vente est créée</b><p>Elle devient cliente, et Recharge suit sa cure pour la prochaine recommande.</p></div></li>
+    </ol>
+  </div>
+  <div class="reveal d2">
+    <div class="pcard" aria-hidden="true">
+      <span class="ribbon">Prospect à recontacter</span>
+      <div class="hd"><span class="av">CP</span><div><div class="nm">Camille Petit</div><div class="st">Premier contact</div><div class="mt">Réunion · Intéressée par le gel aloe vera</div></div></div>
+      <div class="msg"><small>Message proposé</small>Bonjour Camille 😊 Ça m'a fait plaisir de te rencontrer à la réunion ! Si tu veux en savoir plus, je peux te conseiller ou te faire tester, sans aucune obligation.</div>
+      <div class="wa"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2c-1.5 0-3-.4-4.3-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2z"/></svg>Envoyer sur WhatsApp</div>
+      <div class="ac">
+        <div><i style="background:var(--ink)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l4.5 4.5L19.5 6.5"/></svg></i>Contacté</div>
+        <div><i style="background:var(--grad)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1 12H6L5 8z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg></i>A acheté</div>
+        <div><i style="background:var(--gradB)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg></i>Plus tard</div>
+      </div>
+    </div>
+  </div>
+</div></section>
+
 <!-- ---------- Bloc sombre : résultats ---------- -->
 <section class="band" id="resultats"><div class="wrap">
   <div class="reveal">
@@ -535,7 +593,7 @@ footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:2
     <div class="feat reveal d2"><div class="ic" style="background:var(--gradB)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg></div>
       <h3>Toutes marques</h3><p>Ajoutez vos propres produits et leur durée. Recharge s'adapte à votre catalogue.</p></div>
     <div class="feat reveal d3"><div class="ic" style="background:var(--ink)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v4.5h-4.5"/></svg></div>
-      <h3>Une rencontre, une vente de plus</h3><p>Quelqu'un d'intéressé n'achète pas tout de suite ? Notez-le : Recharge vous rappelle de le recontacter le lendemain, avec un message chaleureux.</p></div>
+      <h3>« Plus tard » en un geste</h3><p>Pas le bon moment ? Reportez de 3 jours, Recharge vous le rappellera.</p></div>
     <div class="feat reveal d1"><div class="ic" style="background:var(--ink)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg></div>
       <h3>Le bouche-à-oreille au bon moment</h3><p>Après chaque rachat, un message prêt pour demander à votre client de parler de vous.</p></div>
     <div class="feat reveal d2"><div class="ic" style="background:var(--grad)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1 12H6L5 8z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg></div>
