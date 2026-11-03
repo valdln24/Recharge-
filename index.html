@@ -361,6 +361,69 @@ footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:2
   .reveal,.hero .anim,.chipf{opacity:1;transform:none}
   .marquee .track{animation:none}
 }
+
+/* ---------- Téléphone : page plus courte ---------- */
+.dots-nav{display:none}
+.mcta{display:none}
+@media (max-width:720px){
+  section.block{padding:52px 0}
+  .band+section.block{padding-top:60px}
+  .head{margin-bottom:24px}
+  .head h2{margin:12px 0 10px}
+  .head p{font-size:.98rem}
+  .opt{display:none!important}
+  /* cartes à faire glisser */
+  .swipe{display:flex!important;overflow-x:auto;scroll-snap-type:x mandatory;gap:12px;margin:0 -20px!important;padding:6px 20px 14px;max-width:none!important;
+    scrollbar-width:none;-webkit-overflow-scrolling:touch;scroll-padding:0 20px}
+  .swipe::-webkit-scrollbar{display:none}
+  .swipe>*{flex:0 0 84%;scroll-snap-align:center;margin:0}
+  .pains.swipe>*{flex-basis:72%}
+  .plans.swipe>*{flex-basis:86%}
+  .dots-nav{display:flex;justify-content:center;gap:6px;margin-top:4px}
+  .dots-nav i{width:6px;height:6px;border-radius:9px;background:var(--line);transition:width .25s,background .25s}
+  .dots-nav i.on{width:18px;background:var(--o1)}
+  /* étapes compactes */
+  .steps{gap:10px!important}
+  .step{display:grid;grid-template-columns:44px 1fr;column-gap:14px;align-items:start;padding:16px 18px;border-radius:20px}
+  .step .n{display:none}
+  .step .ic{width:44px;height:44px;border-radius:14px;margin:0;grid-row:1 / span 2}
+  .step .ic svg{width:20px;height:20px}
+  .step h3{font-size:1.02rem;margin:2px 0 2px}
+  .step p{font-size:.9rem;grid-column:2}
+  /* simulateur et blocs compacts */
+  .sim .col{padding:18px 20px}
+  .sim .top{padding:18px 20px}
+  .row2{padding:9px 0}
+  .bao{padding:22px;gap:16px}
+  .bao .checks{margin-top:16px;gap:9px}
+  .promise{padding:26px 22px;gap:18px}
+  .pros .intro{margin-bottom:20px}
+  .tl li{padding-bottom:16px}
+  .band .wrap{padding-top:56px;padding-bottom:56px}
+  .faq summary{padding:13px 0;font-size:.98rem}
+  .final{padding:60px 20px}
+  /* bouton toujours visible */
+  .mcta{display:flex;flex-direction:column;align-items:center;gap:4px;position:fixed;left:12px;right:12px;bottom:calc(10px + var(--badge,0px) + env(safe-area-inset-bottom));z-index:40;
+    padding:10px 12px 8px;border-radius:26px;background:rgba(255,255,255,.86);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--line);
+    box-shadow:0 14px 34px -14px rgba(16,19,18,.35);transform:translateY(140%);transition:transform .35s cubic-bezier(.2,.8,.2,1)}
+  .mcta.show{transform:none}
+  .mcta .btn{width:100%;min-height:50px}
+  .mcta span{font-size:.74rem;color:var(--ink-3);font-weight:650}
+  footer{padding-bottom:120px}
+  .sim .cols.swipe{margin:0!important;padding:0;gap:0;scroll-padding:0}
+  .sim .cols.swipe>*{flex:0 0 100%}
+  .sim+.dots-nav,.sim .dots-nav{margin:10px 0 4px}
+  .tl p,.band .checks{display:none}
+  .tl li{padding-bottom:12px}
+  .faq .more{display:none}
+  .faq.open .more{display:block}
+  .faq-more{display:flex;margin:6px auto 0}
+  .bao-l>p,.bao .checks li:nth-child(n+3),.bao-note{display:none}
+  .bao h3{margin:12px 0 0}
+  .sim .disc{padding:12px 20px;font-size:.74rem}
+  .band .wrap>div:first-child>p{display:none}
+  .promise p{display:none}
+}
 </style>
 </head>
 <body>
@@ -410,7 +473,7 @@ footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:2
   <div class="head reveal"><span class="kicker"><i>!</i>Le vrai problème</span>
     <h2>Une recommande oubliée, c'est une vente qui part ailleurs.</h2>
     <p>Vos produits se terminent en 1 à 2 mois. Pour que le client recommande, il faut le relancer juste avant la fin. Aujourd'hui, tout repose sur votre mémoire, un carnet ou vos conversations WhatsApp.</p></div>
-  <div class="pains">
+  <div class="pains swipe">
     <div class="pain reveal d1"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg></div>
       <h3>Des clients oubliés, des relances trop tardives</h3><p>Entre deux journées chargées, certains passent entre les mailles.</p></div>
     <div class="pain reveal d2"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1 12H6L5 8z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/><path d="M10 13l4 4M14 13l-4 4"/></svg></div>
@@ -425,16 +488,16 @@ footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:2
     <div class="top"><h3>Ce que ça peut vous coûter, et ce que vous pouvez récupérer</h3>
       <div class="ctl"><label for="simN"><span>Vos clients réguliers</span><b><span id="simNOut">30</span> clients</b></label>
         <input type="range" id="simN" min="10" max="80" value="30" aria-label="Nombre de clients réguliers"></div></div>
-    <div class="cols">
+    <div class="cols swipe sim-swipe">
       <div class="col loss"><h4><i>−</i>Sans relance au bon moment</h4>
         <div class="row2"><span>Clients qui ne recommandent pas, chaque mois</span><b id="sLostN">7 à 8</b></div>
-        <div class="row2"><span>Ventes perdues par mois</span><b id="sLostM">≈ 375 €</b></div>
+        <div class="row2 opt"><span>Ventes perdues par mois</span><b id="sLostM">≈ 375 €</b></div>
         <div class="row2 big"><span>Ventes perdues par an</span><b id="sLostY">≈ 4 500 €</b></div>
         <div class="row2"><span>Votre bénéfice perdu par mois</span><b id="sLostP">95 à 110 €</b></div>
-        <div class="row2"><span>Un client fidèle, c'est par an</span><b>≈ 600 €</b></div></div>
+        <div class="row2 opt"><span>Un client fidèle, c'est par an</span><b>≈ 600 €</b></div></div>
       <div class="col gain"><h4><i>+</i>Si Recharge en récupère la moitié</h4>
         <div class="row2"><span>Recommandes en plus, chaque mois</span><b id="sGainN">3 à 4</b></div>
-        <div class="row2"><span>Ventes récupérées par mois</span><b id="sGainM">≈ 190 €</b></div>
+        <div class="row2 opt"><span>Ventes récupérées par mois</span><b id="sGainM">≈ 190 €</b></div>
         <div class="row2 big"><span>Bénéfice en plus par mois</span><b id="sGainP">47 à 56 €</b></div>
         <div class="row2"><span>Comparé à l'abonnement à 9,90 €</span><b id="sGainX">≈ 5 fois son prix</b></div></div>
     </div>
@@ -452,7 +515,7 @@ footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:2
         <li><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l4.5 4.5L19.5 6.5"/></svg></i>Vous voyez combien de clients vous arrivent par bouche-à-oreille</li>
       </ul></div>
     <div class="bao-r">
-      <div class="bubble-demo"><span>Message proposé</span>Ça me fait plaisir que ta cure de gel aloe vera te plaise, Marie ! 😊 Si tu connais quelqu'un autour de toi à qui ça pourrait faire du bien, n'hésite pas à lui donner mon numéro.</div>
+      <div class="bubble-demo opt"><span>Message proposé</span>Ça me fait plaisir que ta cure de gel aloe vera te plaise, Marie ! 😊 Si tu connais quelqu'un autour de toi à qui ça pourrait faire du bien, n'hésite pas à lui donner mon numéro.</div>
       <div class="bao-stat"><b>≈ 600 €</b><span>de ventes sur un an pour un seul nouveau client fidèle. Son bénéfice couvre plus d'une année d'abonnement.</span></div>
       <div class="bao-note">Hypothèse : panier moyen de 50 € par mois, marge de 25 à 30 %. Pas un résultat mesuré.</div>
     </div>
@@ -537,7 +600,7 @@ footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:2
 <!-- ---------- Tarifs ---------- -->
 <section class="block" id="tarifs"><div class="wrap">
   <div class="head reveal"><span class="kicker"><i>€</i>Tarifs simples</span><h2>Commencez gratuitement.</h2><p>Passez à l'offre complète quand votre clientèle grandit, ou équipez toute votre équipe d'un coup.</p></div>
-  <div class="plans">
+  <div class="plans swipe" data-start="1">
     <div class="plan reveal d1">
       <h3>Découverte</h3>
       <div class="price"><b>0 €</b><span>pour toujours</span></div>
@@ -587,7 +650,7 @@ footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:2
 <!-- ---------- Atouts ---------- -->
 <section class="block"><div class="wrap">
   <div class="head reveal"><span class="kicker"><i>✦</i>Pensé pour votre quotidien</span><h2>Simple, discret, toujours dans votre poche.</h2></div>
-  <div class="feats">
+  <div class="feats swipe">
     <div class="feat reveal d1"><div class="ic" style="background:var(--grad)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10" width="14" height="10" rx="2.5"/><path d="M8 10V7.5a4 4 0 0 1 8 0V10"/></svg></div>
       <h3>Vos données restent chez vous</h3><p>Pas de compte, pas de serveur : vos clients sont enregistrés uniquement dans votre téléphone.</p></div>
     <div class="feat reveal d2"><div class="ic" style="background:var(--gradB)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg></div>
@@ -612,12 +675,13 @@ footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:2
     <details class="reveal"><summary>Où sont enregistrés mes clients ?<i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></i></summary><p>Uniquement dans votre téléphone. Pensez à faire une sauvegarde de temps en temps depuis les réglages de l'appli.</p></details>
     <details class="reveal"><summary>Et si mon client n'a pas WhatsApp ?<i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></i></summary><p>Le bouton « Copier » met le message dans votre presse-papiers : vous le collez dans un SMS ou la messagerie de votre choix.</p></details>
     <details class="reveal"><summary>Puis-je payer à l'année ?<i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></i></summary><p>Oui. L'offre Recharge coûte 9,90 € par mois sans engagement, ou 99 € par an, soit 2 mois offerts.</p></details>
-    <details class="reveal"><summary>Comment fonctionne le bouche-à-oreille ?<i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></i></summary><p>Juste après qu'un client a racheté, Recharge vous propose un message pour lui demander s'il connaît quelqu'un que vos produits pourraient intéresser. Quand vous enregistrez un nouveau client, vous pouvez noter qui vous l'a présenté, et vous voyez dans « Mes résultats » combien de clients vous arrivent ainsi.</p></details>
-    <details class="reveal"><summary>Puis-je suivre mes prospects ?<i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></i></summary><p>Oui. Ajoutez les personnes intéressées qui n'ont pas encore acheté : Recharge vous rappelle quand les recontacter, prépare le message (premier contact puis relance) et, quand elles achètent, crée la vente en un appui.</p></details>
-    <details class="reveal"><summary>Et entre deux achats, comment garder le contact ?<i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></i></summary><p>Recharge vous propose les bons prétextes : un message d'anniversaire avec votre cadeau (par exemple un bon de -10 %), une invitation personnelle quand vous organisez une présentation ou une offre, et un petit message de nouvelles pour chaque personne sans contact depuis 3 mois.</p></details>
-    <details class="reveal"><summary>Comment fonctionne l'offre Équipe ?<i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></i></summary><p>La responsable paie un seul abonnement pour son équipe : 49 € par mois jusqu'à 10 filleuls, puis 4 € par filleul supplémentaire. Par exemple, 15 filleuls = 69 € par mois, 20 filleuls = 89 € par mois.</p></details>
-    <details class="reveal"><summary>Comment l'avoir comme une appli sur mon téléphone ?<i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></i></summary><p>Ouvrez l'appli, puis sur iPhone : Partager › « Sur l'écran d'accueil ». Sur Android : menu ⋮ › « Ajouter à l'écran d'accueil ».</p></details>
+    <details class="reveal more"><summary>Comment fonctionne le bouche-à-oreille ?<i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></i></summary><p>Juste après qu'un client a racheté, Recharge vous propose un message pour lui demander s'il connaît quelqu'un que vos produits pourraient intéresser. Quand vous enregistrez un nouveau client, vous pouvez noter qui vous l'a présenté, et vous voyez dans « Mes résultats » combien de clients vous arrivent ainsi.</p></details>
+    <details class="reveal more"><summary>Puis-je suivre mes prospects ?<i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></i></summary><p>Oui. Ajoutez les personnes intéressées qui n'ont pas encore acheté : Recharge vous rappelle quand les recontacter, prépare le message (premier contact puis relance) et, quand elles achètent, crée la vente en un appui.</p></details>
+    <details class="reveal more"><summary>Et entre deux achats, comment garder le contact ?<i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></i></summary><p>Recharge vous propose les bons prétextes : un message d'anniversaire avec votre cadeau (par exemple un bon de -10 %), une invitation personnelle quand vous organisez une présentation ou une offre, et un petit message de nouvelles pour chaque personne sans contact depuis 3 mois.</p></details>
+    <details class="reveal more"><summary>Comment fonctionne l'offre Équipe ?<i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></i></summary><p>La responsable paie un seul abonnement pour son équipe : 49 € par mois jusqu'à 10 filleuls, puis 4 € par filleul supplémentaire. Par exemple, 15 filleuls = 69 € par mois, 20 filleuls = 89 € par mois.</p></details>
+    <details class="reveal more"><summary>Comment l'avoir comme une appli sur mon téléphone ?<i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></i></summary><p>Ouvrez l'appli, puis sur iPhone : Partager › « Sur l'écran d'accueil ». Sur Android : menu ⋮ › « Ajouter à l'écran d'accueil ».</p></details>
   </div>
+  <button class="btn ghost faq-more" type="button" id="faqMore">Voir toutes les questions</button>
 </div></section>
 
 <!-- ---------- Final ---------- -->
@@ -627,6 +691,8 @@ footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:2
   <a class="btn dark" href="app/">Commencer maintenant<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
 </section>
 </main>
+
+<div class="mcta" id="mcta" aria-hidden="true"><a class="btn orange" href="app/" tabindex="-1">Commencer gratuitement<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a><span>Gratuit jusqu'à 10 clients · sans compte</span></div>
 
 <footer><div class="wrap">
   <a class="logo" href="#top" style="font-size:1rem"><svg viewBox="0 0 32 32" style="width:26px;height:26px" aria-hidden="true"><rect width="32" height="32" rx="10" fill="#ff6a2a"/><path d="M16 7.5A8.5 8.5 0 1 1 8.64 11.75" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round"/><circle cx="16" cy="7.5" r="2.3" fill="#fff"/></svg>Recharge</a>
@@ -713,6 +779,36 @@ function updateSim() {
 }
 simN.addEventListener("input", updateSim);
 updateSim();
+
+const faqMore = document.getElementById("faqMore");
+faqMore.addEventListener("click", () => { document.querySelector(".faq").classList.add("open"); faqMore.remove(); });
+if (!matchMedia("(max-width:720px)").matches || !document.querySelector(".faq .more")) faqMore.remove();
+/* Téléphone : points sous les cartes à faire glisser, bouton toujours visible */
+document.querySelectorAll(".swipe").forEach(el => {
+  const nav = document.createElement("div"); nav.className = "dots-nav";
+  nav.innerHTML = [...el.children].map(() => "<i></i>").join("");
+  el.after(nav);
+  const update = () => {
+    const kids = [...el.children], mid = el.scrollLeft + el.clientWidth / 2;
+    let best = 0, bd = 1e9;
+    kids.forEach((k, i) => { const c = k.offsetLeft + k.offsetWidth / 2, d = Math.abs(c - mid); if (d < bd) { bd = d; best = i; } });
+    [...nav.children].forEach((d, i) => d.classList.toggle("on", i === best));
+  };
+  el.addEventListener("scroll", update, { passive: true });
+  if (el.dataset.start && matchMedia("(max-width:720px)").matches) {
+    const k = el.children[Number(el.dataset.start)];
+    requestAnimationFrame(() => { el.scrollLeft = k.offsetLeft - (el.clientWidth - k.offsetWidth) / 2; update(); });
+  } else update();
+});
+const mcta = document.getElementById("mcta"), heroEl = document.querySelector(".hero"), finalEl = document.querySelector(".final");
+function toggleCta() {
+  const past = heroEl.getBoundingClientRect().bottom < 0, atEnd = finalEl.getBoundingClientRect().top < innerHeight;
+  mcta.classList.toggle("show", past && !atEnd);
+}
+addEventListener("scroll", toggleCta, { passive: true }); toggleCta();
+/* Le badge ajouté par l'hébergeur ne doit pas cacher le bouton */
+function avoidHostBadge() { const bd = document.getElementById("nl-badge-frame"); document.documentElement.style.setProperty("--badge", bd && bd.offsetHeight ? "58px" : "0px"); }
+new MutationObserver(avoidHostBadge).observe(document.body, { childList: true }); avoidHostBadge();
 
 /* Apparitions au défilement */
 const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
