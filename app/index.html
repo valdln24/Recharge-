@@ -100,7 +100,22 @@ main{max-width:560px;margin:0 auto;padding:6px 16px 24px}
 
 /* ---------- Cartes client ---------- */
 .card{background:var(--surface);border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow);margin-top:12px}
-.rcard{padding:16px}
+.hero .dial{max-width:210px}
+.hero .dial .big{font-size:2.8rem}
+.hero{padding-top:16px}
+.hero .duo{margin-top:12px}
+.hero .duo div{padding:10px 18px 12px}
+.hero .sub{margin-top:4px}
+.rcard{padding:14px 16px}
+.rcard .rhead{grid-template-columns:auto 1fr auto;cursor:pointer}
+.rcard .ring,.rcard .ring svg{width:52px;height:52px}
+.chev{width:34px;height:34px;border-radius:50%;background:var(--surface-2);display:grid;place-items:center;color:var(--ink-2);transition:transform .25s}
+.chev svg{width:16px;height:16px}
+.rcard.open .chev{transform:rotate(180deg)}
+.rcard .more{display:none}
+.rcard.open .more{display:block;animation:rise .25s ease both}
+.rcard .line.mini{height:4px;margin-top:12px}
+.rcard.open .line.mini{display:none}
 .rhead{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center}
 .ring{position:relative;width:60px;height:60px;flex:none}
 .ring svg{width:60px;height:60px;transform:rotate(-90deg)}
@@ -615,6 +630,7 @@ function saleGauge(s) {
 
 /* ---------- Affichage ---------- */
 let tab = "today";
+let openCard = null; // carte de relance dépliée sur « Aujourd'hui »
 let period = "month";
 let query = "";
 const app = document.getElementById("app");
@@ -654,17 +670,22 @@ function viewToday() {
         <div><span class="small">Taux de recommande</span><b class="num">${st.rate} %</b></div></div></section>`;
   h += exampleNotice();
 
+  const keys = due.map(x => "s:" + x.id).concat(dueProspects().map(x => "p:" + x.id));
+  if (!keys.includes(openCard) && openCard !== "none") openCard = keys[0] || null;
   if (due.length) h += section("À relancer", due.length);
   for (const s of due) {
     const c = client(s.clientId) || { name: "?" };
     const tm = timing(s);
     const pct = Math.round(progress(s) * 100);
     const hasPhone = !!waNumber(c.phone);
-    h += `<article class="card rcard" data-sale="${s.id}">
-      <div class="rhead">${saleGauge(s)}
+    const open = openCard === "s:" + s.id;
+    h += `<article class="card rcard ${open ? "open" : ""}" data-sale="${s.id}">
+      <div class="rhead" data-act="toggleCard" data-k="s:${s.id}" role="button" aria-expanded="${open}">${saleGauge(s)}
         <div class="who"><button class="name" data-act="fiche" data-id="${c.id}">${esc(c.name)}</button>${exTag(c)}
           <div class="status ${tm.cls}">${tm.txt}</div>
-          <div class="meta2">${esc(s.product)} × ${s.qty}</div></div></div>
+          <div class="meta2">${esc(s.product)} × ${s.qty}</div></div><span class="chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></div>
+      <div class="line ${tm.cls} mini"><span style="width:${pct}%"></span></div>
+      <div class="more">
       <div class="track"><span>Acheté le ${fmt(s.date)}</span><span class="num">Cure ${pct} %</span><span>Fin ${fmt(s.end)}</span></div>
       <div class="line ${tm.cls}"><span style="width:${pct}%"></span></div>
       <div class="bubble"><div class="top"><span class="small">Message proposé</span><button class="vary" data-act="nextMsg" data-id="${s.id}">${I.redo} Autre</button></div>
@@ -678,6 +699,7 @@ function viewToday() {
         <button class="reco" data-act="reco" data-id="${s.id}"><span class="ic">${I.bag}</span>A recommandé</button>
         <button class="later" data-act="later" data-id="${s.id}"><span class="ic">${I.clock}</span>Plus tard · 3 j</button>
       </div>
+      </div>
     </article>`;
   }
 
@@ -685,11 +707,13 @@ function viewToday() {
   if (pdue.length) h += section("Prospects à recontacter", pdue.length);
   for (const pr of pdue) {
     const ref = refNameOf(pr), hasPhone = !!waNumber(pr.phone);
-    h += `<article class="card rcard" data-prospect="${pr.id}">
-      <div class="rhead"><span class="avatar blue" style="width:60px;height:60px;font-size:1.05rem">${esc(initials(pr.name))}</span>
+    const open = openCard === "p:" + pr.id;
+    h += `<article class="card rcard ${open ? "open" : ""}" data-prospect="${pr.id}">
+      <div class="rhead" data-act="toggleCard" data-k="p:${pr.id}" role="button" aria-expanded="${open}"><span class="avatar blue" style="width:52px;height:52px;font-size:.98rem">${esc(initials(pr.name))}</span>
         <div class="who"><button class="name" data-act="pfiche" data-id="${pr.id}">${esc(pr.name)}</button>${exTag(pr)}
           <div class="status ok">${pr.contacts ? `Déjà ${plural(pr.contacts, "contact", "contacts")} · à relancer` : "Premier contact"}</div>
-          <div class="meta2">${[pr.where && pr.where !== "bao" ? whereLabel(pr.where) : "", pr.interest ? "Intéressé par " + esc(pr.interest) : "", ref ? "de la part de " + esc(ref) : ""].filter(Boolean).join(" · ") || "Prospect"}</div></div></div>
+          <div class="meta2">${[pr.where && pr.where !== "bao" ? whereLabel(pr.where) : "", pr.interest ? "Intéressé par " + esc(pr.interest) : "", ref ? "de la part de " + esc(ref) : ""].filter(Boolean).join(" · ") || "Prospect"}</div></div><span class="chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></div>
+      <div class="more">
       ${pr.note ? `<div class="alt" style="text-align:left;margin-top:10px">📝 ${esc(pr.note)}</div>` : ""}
       <div class="bubble"><div class="top"><span class="small">Message proposé</span><button class="vary" data-act="nextPMsg" data-id="${pr.id}">${I.redo} Autre</button></div>
         <textarea class="msg" id="pmsg-${pr.id}" rows="4" aria-label="Message pour ${esc(pr.name)}">${esc(prospectMessage(pr))}</textarea></div>
@@ -702,6 +726,7 @@ function viewToday() {
         <button class="later" data-act="pLater" data-id="${pr.id}"><span class="ic">${I.clock}</span>Plus tard · 3 j</button>
       </div>
       <div class="alt"><button data-act="pLost" data-id="${pr.id}">Pas intéressé</button></div>
+      </div>
     </article>`;
   }
 
@@ -1220,6 +1245,12 @@ const actions = {
     toast(ok ? "Message copié. Collez-le dans votre messagerie." : "Impossible de copier : sélectionnez le texte à la main.");
   },
   ctab: el => { ctab = el.dataset.c; render(); },
+  toggleCard: el => {
+    openCard = openCard === el.dataset.k ? "none" : el.dataset.k;
+    render(); app.firstElementChild.classList.remove("enter");
+    const card = document.querySelector(`[data-act=toggleCard][data-k="${el.dataset.k}"]`);
+    if (card && openCard !== "none") { const r = card.getBoundingClientRect(); if (r.top < 70 || r.top > innerHeight * .6) scrollBy({ top: r.top - 80, behavior: "smooth" }); }
+  },
   occOpen: el => openOccasion(el.dataset.k, el.dataset.pk, el.dataset.id),
   occNext: () => { occK++; const ta = document.getElementById("msg-occ"); ta.value = occMessage(occCur, occK); fitAreas(ta.parentNode); },
   occWa: el => {
