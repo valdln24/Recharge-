@@ -353,6 +353,7 @@ function seed() {
     s.sales.push(makeSale(c.id, p, qty, addDays(t, ago), true));
   }
   s.clients[3].referredBy = s.clients[0].id; // Julie a été recommandée par Marie
+  s.clients[3].birthday = "1990" + addDays(t, 1).slice(4);  // et son anniversaire est demain
   // Un prospect d'exemple : un contact donné par Marie
   s.prospects = [{ id: uid(), name: "Léa Moreau", phone: "06 00 00 00 05", interest: "Gel aloe vera", referredBy: s.clients[0].id,
     note: "Cherche quelque chose pour la digestion", next: t, contacts: 0, status: "open", createdAt: t, msg: 0, example: true }];
@@ -465,6 +466,64 @@ function prospectMessage(pr) {
     .replace(/\{sujet\}/g, it ? `ce dont on avait parlé (${it})` : "mes produits")
     .replace(/\{prod\}/g, it ? ` (notamment ${it})` : "");
 }
+const O_TEMPLATES = {
+  tu: {
+    anniv: ["Joyeux anniversaire {p} ! 🎉 Pour l'occasion, je t'offre {gift} sur ta prochaine commande, valable tout le mois. Belle journée à toi 🌿"],
+    presentation: ["Coucou {p} 😊 J'organise une présentation {quand}{lieu} : découverte des produits, conseils et un moment convivial. Tu veux venir ? Tu peux aussi venir avec quelqu'un !"],
+    offre: ["Hello {p} ! 🌿 En ce moment : {offre}{until}. Si ça te tente, dis-le-moi, je te prépare ça 😊"],
+    nouvelles: [
+      "Coucou {p} ! Ça fait un moment, j'espère que tu vas bien 😊 Je voulais prendre de tes nouvelles. Si tu as besoin de quoi que ce soit, je suis là !",
+      "Hello {p} 🌿 Petit coucou pour prendre de tes nouvelles ! Il y a quelques nouveautés en ce moment, je peux t'en parler si tu veux."
+    ]
+  },
+  vous: {
+    anniv: ["Joyeux anniversaire {p} ! 🎉 Pour l'occasion, je vous offre {gift} sur votre prochaine commande, valable tout le mois. Très belle journée 🌿"],
+    presentation: ["Bonjour {p} 😊 J'organise une présentation {quand}{lieu} : découverte des produits, conseils et un moment convivial. Seriez-vous disponible ? Vous pouvez aussi venir avec quelqu'un !"],
+    offre: ["Bonjour {p} ! 🌿 En ce moment : {offre}{until}. Si cela vous tente, dites-le-moi, je vous prépare cela 😊"],
+    nouvelles: [
+      "Bonjour {p} ! Cela fait un moment, j'espère que vous allez bien 😊 Je voulais prendre de vos nouvelles. Si vous avez besoin de quoi que ce soit, je suis là !",
+      "Bonjour {p} 🌿 Petit message pour prendre de vos nouvelles ! Il y a quelques nouveautés en ce moment, je peux vous en parler si vous le souhaitez."
+    ]
+  }
+};
+const giftText = () => (S.gift || "").trim() || "un bon de -10 %";
+const activeEvent = () => S.occasion && S.occasion.date && S.occasion.date >= today() ? S.occasion : null;
+function occMessage(o, k = 0) {
+  const t = O_TEMPLATES[S.tone] || O_TEMPLATES.tu, ev = activeEvent();
+  const kind = o.kind === "event" ? ev.type : o.kind;
+  const list = t[kind] || t.nouvelles;
+  return list[k % list.length].replace(/\{p\}/g, firstName(o.name)).replace(/\{gift\}/g, giftText())
+    .replace(/\{quand\}/g, ev && ev.date ? "le " + fmtLong(ev.date) : "").replace(/\{lieu\}/g, ev && ev.place ? " " + ev.place.trim().replace(/^(à|a)\s+/i, "à ") .replace(/^(?!à |au |aux |chez |en )/i, "à ") : "")
+    .replace(/\{offre\}/g, ev && ev.offer ? ev.offer.trim() : "").replace(/\{until\}/g, ev && ev.date ? ", jusqu'au " + parse(ev.date).toLocaleDateString("fr-FR", { day: "numeric", month: "long" }) : "");
+}
+/* Les personnes à qui envoyer un message d'occasion aujourd'hui */
+function lastTouch(kind, x) {
+  let d = x.createdAt || "0000";
+  for (const e of S.events) if ((kind === "c" ? e.clientId : e.prospectId) === x.id && e.date > d) d = e.date;
+  if (kind === "c") for (const sl of S.sales) if (sl.clientId === x.id && sl.date > d) d = sl.date;
+  return d;
+}
+const occSent = (kind, x, test) => S.events.some(e => e.type === "occasion" && (kind === "c" ? e.clientId : e.prospectId) === x.id && test(e));
+function dueOccasions() {
+  const t = today(), year = t.slice(0, 4), ev = activeEvent(), out = [];
+  const busy = new Set(dueSales().map(sl => sl.clientId).concat(waitingSales().map(sl => sl.clientId)));
+  const people = S.clients.map(c => ["c", c]).concat(S.prospects.filter(x => x.status !== "client").map(x => ["p", x]));
+  for (const [kind, x] of people) {
+    if (x.occSnooze && x.occSnooze > t) continue;
+    const base = { pk: kind, id: x.id, name: x.name, phone: x.phone, example: x.example };
+    if (x.birthday) {
+      const d = diff(year + x.birthday.slice(4), t);
+      if (d >= -1 && d <= 2 && !occSent(kind, x, e => e.kind === "anniv" && e.date.slice(0, 4) === year)) { out.push({ ...base, kind: "anniv", days: d }); continue; }
+    }
+    if (ev && ev.invited && !occSent(kind, x, e => e.occId === ev.id)) { out.push({ ...base, kind: "event" }); continue; }  // une invitation : tout le monde
+    if (kind === "p" && x.status === "open") continue;          // les prospects en cours ont déjà leurs rappels
+    if (busy.has(x.id)) continue;                                 // déjà à relancer aujourd'hui
+    const active = kind === "c" && S.sales.some(sl => sl.clientId === x.id && sl.status === "open" && sl.end >= t);
+    if (!active && diff(t, lastTouch(kind, x)) >= 90) out.push({ ...base, kind: ev ? "event" : "nouvelles" });
+  }
+  const order = { anniv: 0, event: 1, nouvelles: 2 };
+  return out.sort((a, b) => order[a.kind] - order[b.kind] || a.name.localeCompare(b.name, "fr"));
+}
 const dueProspects = () => S.prospects.filter(x => x.status === "open" && x.next && x.next <= today()).sort((a, b) => a.next.localeCompare(b.next));
 function refMessage(s, k) {
   const list = REF_TEMPLATES[S.tone] || REF_TEMPLATES.tu;
@@ -562,7 +621,7 @@ const app = document.getElementById("app");
 
 function render() {
   document.querySelectorAll("nav.tabs .tab").forEach(b => b.classList.toggle("on", b.dataset.tab === tab));
-  const n = new Set(dueSales().map(s => s.clientId)).size + dueProspects().length;
+  const n = new Set(dueSales().map(s => s.clientId)).size + dueProspects().length + dueOccasions().filter(o => o.kind !== "nouvelles").length;
   document.getElementById("tabDot").innerHTML = n ? `<span class="dot num">${n}</span>` : "";
   document.getElementById("topMeta").textContent = cap(parse(today()).toLocaleDateString("fr-FR", { weekday: "short", day: "numeric", month: "short" }));
   app.innerHTML = `<div class="enter">${({ today: viewToday, clients: viewClients, results: viewResults, settings: viewSettings })[tab]()}</div>`;
@@ -646,6 +705,20 @@ function viewToday() {
     </article>`;
   }
 
+  const occ = dueOccasions();
+  if (occ.length) {
+    h += section("Occasions de garder le lien", occ.length) + `<div class="card list">`;
+    const ev = activeEvent();
+    for (const o of occ) {
+      const label = o.kind === "anniv" ? `🎂 Anniversaire ${o.days === 0 ? "aujourd'hui" : o.days === -1 ? "hier" : o.days === 1 ? "demain" : "dans 2 jours"}`
+        : o.kind === "event" ? (ev.type === "presentation" ? `📣 Invitation à votre présentation du ${fmt(ev.date)}` : `🏷️ Offre du moment`) : "💬 Pas de nouvelles depuis 3 mois";
+      h += `<div class="row"><div style="min-width:0"><button class="name" style="font-size:1rem" data-act="${o.pk === "c" ? "fiche" : "pfiche"}" data-id="${o.id}">${esc(o.name)}</button>${exTag(o)}
+        <div class="meta2">${label}</div></div>
+        <div class="btns"><button class="btn sm ${o.kind === "anniv" ? "orange" : "primary"}" data-act="occOpen" data-k="${o.kind}" data-pk="${o.pk}" data-id="${o.id}">Message</button><button class="x" data-act="occLater" data-pk="${o.pk}" data-id="${o.id}" aria-label="Plus tard">${I.x}</button></div></div>`;
+    }
+    h += `</div>`;
+  }
+
   const wait = waitingSales();
   if (wait.length) {
     h += section("En attente de réponse", wait.length) + `<div class="card list">`;
@@ -658,6 +731,8 @@ function viewToday() {
     }
     h += `</div>`;
   }
+
+  if (!activeEvent()) h += `<button class="btn outline" style="margin-top:22px" data-act="newEvent">📣 Annoncer une présentation ou une offre</button>`;
 
   if (!due.length) {
     const next = S.sales.filter(s => s.status === "open" && (diff(s.end, today()) > 3 || (s.snooze && s.snooze > today())))
@@ -735,6 +810,7 @@ function viewResults() {
   h += section("Prospects") + `<div class="card bars">
     <div class="b"><div class="t"><span>Prospects ajoutés</span><b class="num" id="kpiPAdd">${st.pAdded}</b></div><div class="line blue"><span style="width:${st.pAdded ? 100 : 0}%"></span></div></div>
     <div class="b"><div class="t"><span>Ont acheté</span><b class="num" id="kpiPWon">${st.pWon}</b></div><div class="line"><span style="width:${Math.round(Math.min(1, st.pWon / Math.max(1, st.pAdded)) * 100)}%"></span></div></div></div>`;
+  h += `<div class="card bars"><div class="b"><div class="t"><span>Messages d'occasion envoyés</span><b class="num" id="kpiOcc">${S.events.filter(e => e.type === "occasion" && e.date >= (period === "month" ? today().slice(0, 8) + "01" : "0000")).length}</b></div></div></div>`;
   h += `<p class="hint">Taux de recommande : sur 10 clients relancés, combien ont racheté. Les montants viennent des prix indiqués dans Réglages › Mes produits.</p>`;
   if (st.list.length) {
     h += section("Dernières recommandes", st.list.length) + `<div class="card"><ul class="hist">`;
@@ -762,6 +838,21 @@ function viewSettings() {
   }
   h += `<p class="hint" style="margin:10px 0 0">Jours = durée d'un produit. Prix = prix de vente au client.</p>
     <button class="btn soft" style="margin-top:12px" data-act="addProductRow">Ajouter un produit</button></div>`;
+
+  const ev = activeEvent();
+  const invitable = S.clients.length + S.prospects.filter(x => x.status !== "client").length;
+  const sentEv = ev ? S.events.filter(e => e.type === "occasion" && e.occId === ev.id).length : 0;
+  h += section("Occasions") + `<div class="card pad">
+    <label class="field" style="margin-top:0"><span>Cadeau d'anniversaire</span><input class="input" id="setGift" value="${esc(giftText())}" placeholder="un bon de -10 %"></label>
+    <p class="hint" style="margin:8px 0 0">Ajoutez la date d'anniversaire dans la fiche d'un client : Recharge vous préviendra le jour J avec le message prêt.</p>
+    <div style="border-top:1px solid var(--line);margin:16px -16px 0;padding:16px 16px 0">
+      ${ev ? `<div class="small">Votre événement</div><b style="display:block;margin:4px 0 2px;font-size:1.02rem">${ev.type === "presentation" ? "Présentation le " + fmtLong(ev.date) + (ev.place ? " · " + esc(ev.place) : "") : esc(ev.offer) + " · jusqu'au " + fmt(ev.date)}</b>
+        <div class="hint" style="margin:0 0 12px">${ev.invited ? `Invitations envoyées : ${sentEv} sur ${invitable}` : "Les invitations ne sont pas encore lancées."}</div>
+        ${ev.invited ? "" : `<button class="btn orange" data-act="evInvite">Inviter tout le monde (${invitable})</button>`}
+        <button class="btn soft" style="margin-top:8px" data-act="newEvent">Modifier l'événement</button>`
+      : `<div class="small">Présentation ou offre du moment</div><p class="hint" style="margin:4px 0 12px">Recharge prépare une invitation personnelle pour chacun de vos clients et prospects.</p>
+        <button class="btn soft" data-act="newEvent">+ Créer un événement</button>`}
+    </div></div>`;
 
   h += section("Ton des messages") + `<div class="seg" style="margin-top:0">
     <button class="${S.tone === "tu" ? "on" : ""}" data-act="tone" data-t="tu">Tutoiement</button>
@@ -893,12 +984,13 @@ function openFiche(id) {
   const sales = S.sales.filter(s => s.clientId === id).sort((a, b) => b.date.localeCompare(a.date));
   const evs = S.events.filter(e => e.clientId === id).sort((a, b) => b.date.localeCompare(a.date));
   const STATUS = { open: ["En cours", ""], relance: ["Relancé", "done"], recommande: ["A recommandé", "done"], rachete: ["Racheté", "done"], sanssuite: ["Sans suite", ""] };
-  const EV = { relance: "Relancé", recommande: "A recommandé", report: "Reporté de 3 jours", sanssuite: "Classé sans suite", bouche: "Demande de bouche-à-oreille" };
+  const EV = { relance: "Relancé", recommande: "A recommandé", report: "Reporté de 3 jours", sanssuite: "Classé sans suite", bouche: "Demande de bouche-à-oreille", occasion: "Message d'occasion" };
   const total = sales.reduce((t, s) => t + (s.price || 0) * s.qty, 0);
   openSheet(`<div class="shead"><div style="display:flex;gap:12px;align-items:center;min-width:0"><span class="avatar">${esc(initials(c.name))}</span>
       <div style="min-width:0"><h3>${esc(c.name)}${exTag(c)}</h3><div class="meta2">${plural(sales.length, "achat", "achats")} · ${euro(total)}</div></div></div>${closeBtn}</div>
     <label class="field"><span>Nom</span><input class="input" data-cfield="name" data-id="${c.id}" value="${esc(c.name)}"></label>
     <label class="field"><span>Téléphone</span><input class="input" type="tel" inputmode="tel" data-cfield="phone" data-id="${c.id}" value="${esc(c.phone)}" placeholder="Aucun numéro"></label>
+    <label class="field"><span>Anniversaire <i>· facultatif, pour lui envoyer un petit cadeau</i></span><input class="input" type="date" data-cfield="birthday" data-id="${c.id}" value="${esc(c.birthday || "")}"></label>
     ${refLine(c)}
     <button class="btn primary" style="margin-top:14px" data-act="newSaleFor" data-id="${c.id}">Nouvelle vente pour ${esc(firstName(c.name))}</button>
     <div class="section"><h2>Achats</h2><span class="pill num">${sales.length}</span></div>
@@ -938,7 +1030,7 @@ function openProspectForm(id, opts = {}) {
   const names = S.clients.map(c => `<option value="${esc(c.name)}">`).join("");
   const prods = S.products.map(pp => `<option value="${esc(pp.name)}">`).join("");
   const hist = x ? S.events.filter(e => e.prospectId === x.id).sort((a, b) => b.date.localeCompare(a.date)) : [];
-  const EVP = { pcontact: "Contacté", pclient: "A acheté", plater: "Reporté de 3 jours", plost: "Pas intéressé" };
+  const EVP = { pcontact: "Contacté", pclient: "A acheté", plater: "Reporté de 3 jours", plost: "Pas intéressé", occasion: "Message d'occasion" };
   openSheet(`<div class="shead"><h3>${x ? esc(x.name) + exTag(x) : opts.refId ? "Nouveau prospect" : "Nouvelle rencontre"}</h3>${closeBtn}</div>
     ${x || opts.refId ? "" : `<div class="seg" style="margin:12px 0 0"><button type="button" data-act="toVente">Une vente</button><button type="button" class="on">Une rencontre</button></div>`}
     ${x ? "" : `<p class="lede" style="margin-top:10px">Quelqu'un d'intéressé qui n'a pas encore acheté ? Notez-le : Recharge vous rappellera de le recontacter, avec le message prêt.</p>`}
@@ -950,6 +1042,7 @@ function openProspectForm(id, opts = {}) {
       <datalist id="prodNames">${prods}</datalist>
       <label class="field"><span>Recommandé par <i>· facultatif</i></span><input class="input" id="pRef" list="pClientNames" placeholder="Nom du client qui vous l'a présenté" value="${esc(ref)}"></label>
       <datalist id="pClientNames">${names}</datalist>
+      <label class="field"><span>Anniversaire <i>· facultatif</i></span><input class="input" id="pBirth" type="date" value="${x ? esc(x.birthday || "") : ""}"></label>
       <label class="field"><span>Note <i>· facultatif</i></span><input class="input" id="pNote" placeholder="ex. : cherche un soin pour peau sèche" value="${x ? esc(x.note) : ""}"></label>
       <label class="field"><span>À recontacter le</span><input class="input" id="pNext" type="date" value="${x ? x.next || today() : opts.refId ? today() : addDays(today(), 1)}"></label>
       ${x ? "" : `<div class="alt" style="text-align:left;margin-top:6px">Conseil : un petit message dès le lendemain, tant que la rencontre est fraîche.</div>`}
@@ -976,6 +1069,7 @@ function submitProspect(formEl) {
   x.phone = document.getElementById("pPhone").value.trim();
   x.interest = document.getElementById("pInterest").value.trim();
   x.note = document.getElementById("pNote").value.trim();
+  x.birthday = document.getElementById("pBirth").value;
   x.next = document.getElementById("pNext").value || today();
   x.where = pform.where;
   const refName = document.getElementById("pRef").value.trim();
@@ -986,6 +1080,67 @@ function submitProspect(formEl) {
 }
 const pEvent = (type, x) => S.events.push({ id: uid(), type, prospectId: x.id, product: x.interest || "", date: today(), example: !!x.example });
 const currentPMsg = id => { const ta = document.getElementById("pmsg-" + id); return ta ? ta.value : prospectMessage(prospect(id)); };
+let occK = 0, occCur = null;
+const personOf = (pk, id) => pk === "c" ? client(id) : prospect(id);
+function openOccasion(kind, pk, id) {
+  const x = personOf(pk, id); if (!x) return;
+  occCur = { kind, pk, id, name: x.name }; occK = 0;
+  const ev = activeEvent();
+  const title = kind === "anniv" ? `Anniversaire de ${esc(firstName(x.name))} 🎂` : kind === "event" ? (ev.type === "presentation" ? "Invitation à votre présentation" : "Votre offre du moment") : `Prendre des nouvelles de ${esc(firstName(x.name))}`;
+  openSheet(`<div class="shead"><h3>${title}</h3>${closeBtn}</div>
+    <p class="lede" style="margin-top:8px">${kind === "nouvelles" ? "Pas de nouvelles depuis 3 mois : un petit message suffit à garder le lien." : "Un message personnel, prêt à envoyer."}</p>
+    <div class="bubble"><div class="top"><span class="small">Message proposé</span>${kind === "nouvelles" ? `<button class="vary" data-act="occNext">${I.redo} Autre</button>` : ""}</div>
+      <textarea class="msg" id="msg-occ" rows="4" aria-label="Message">${esc(occMessage(occCur))}</textarea></div>
+    ${waNumber(x.phone)
+      ? `<a class="btn primary send" href="#" target="_blank" rel="noopener" data-act="occWa">${I.wa} Envoyer sur WhatsApp</a>`
+      : `<button class="btn primary send" data-act="occCopy">${I.copy} Copier le message</button>`}
+    <button class="btn soft" style="margin-top:8px" data-act="occLaterSheet">Plus tard · dans 7 jours</button>`);
+  fitAreas(sheetEl);
+}
+function occDone() {
+  const o = occCur, ev = activeEvent();
+  S.events.push({ id: uid(), type: "occasion", kind: o.kind, occId: o.kind === "event" && ev ? ev.id : null,
+    [o.pk === "c" ? "clientId" : "prospectId"]: o.id, product: "", date: today(), example: !!(personOf(o.pk, o.id) || {}).example });
+  save();
+}
+/* Événement (présentation ou offre du moment) */
+let evForm = { type: "presentation" };
+function openEventForm() {
+  const ev = S.occasion || {};
+  evForm = { type: ev.type || "presentation" };
+  openSheet(`<div class="shead"><h3>${S.occasion ? "Votre événement" : "Créer un événement"}</h3>${closeBtn}</div>
+    <p class="lede" style="margin-top:8px">Une présentation ou une offre à annoncer ? Recharge prépare une invitation personnelle pour chacun de vos clients et prospects.</p>
+    <div class="seg" id="evSeg"></div>
+    <form id="eventForm" autocomplete="off">
+      <label class="field"><span id="evDateLbl"></span><input class="input" id="evDate" type="date" required value="${ev.date || addDays(today(), 7)}" min="${today()}"></label>
+      <label class="field" id="evPlaceWrap"><span>Où et à quelle heure ? <i>· facultatif</i></span><input class="input" id="evPlace" placeholder="ex. : chez moi à 19h" value="${esc(ev.place || "")}"></label>
+      <label class="field" id="evOfferWrap"><span>L'offre</span><input class="input" id="evOffer" placeholder="ex. : -15 % sur les coffrets de Noël" value="${esc(ev.offer || "")}"></label>
+      <button class="btn primary" style="margin-top:16px" type="submit">Enregistrer</button>
+    </form>
+    ${S.occasion ? `<button class="btn danger" style="margin-top:8px" data-act="evDelete">Supprimer l'événement</button>` : ""}`);
+  drawEvForm();
+}
+function drawEvForm() {
+  document.getElementById("evSeg").innerHTML = `<button type="button" class="${evForm.type === "presentation" ? "on" : ""}" data-act="evType" data-t="presentation">Une présentation</button><button type="button" class="${evForm.type === "offre" ? "on" : ""}" data-act="evType" data-t="offre">Une offre du moment</button>`;
+  document.getElementById("evDateLbl").textContent = evForm.type === "presentation" ? "Date de la présentation" : "Offre valable jusqu'au";
+  document.getElementById("evPlaceWrap").classList.toggle("hidden", evForm.type !== "presentation");
+  document.getElementById("evOfferWrap").classList.toggle("hidden", evForm.type !== "offre");
+}
+function submitEvent() {
+  const date = document.getElementById("evDate").value, offer = document.getElementById("evOffer").value.trim();
+  if (!date) return toast("Indiquez la date.");
+  if (evForm.type === "offre" && !offer) { document.getElementById("evOffer").focus(); return toast("Décrivez l'offre."); }
+  const snap = snapshot(), old = S.occasion;
+  const same = old && old.type === evForm.type;
+  S.occasion = { id: same ? old.id : uid(), type: evForm.type, date, place: document.getElementById("evPlace").value.trim(), offer, invited: same ? old.invited : false, createdAt: same ? old.createdAt : today() };
+  save(); render();
+  if (S.occasion.invited) { closeSheet(); return toast("Événement enregistré", snap); }
+  const n = S.clients.length + S.prospects.filter(x => x.status !== "client").length;
+  openSheet(`<div class="shead"><h3>Événement enregistré 📣</h3>${closeBtn}</div>
+    <p class="lede" style="margin-top:8px">Voulez-vous préparer une invitation personnelle pour vos ${plural(n, "client et prospect", "clients et prospects")} ? Elles apparaîtront dans « Aujourd'hui », prêtes à envoyer une par une.</p>
+    <button class="btn orange" style="margin-top:12px" data-act="evInvite">Inviter tout le monde (${n})</button>
+    <button class="btn soft" style="margin-top:8px" data-act="close">Plus tard</button>`);
+}
 function logAsk(saleId) {
   const s = sale(saleId);
   if (!S.events.some(e => e.type === "bouche" && e.saleId === s.id)) { logEvent("bouche", s); save(); }
@@ -1065,6 +1220,25 @@ const actions = {
     toast(ok ? "Message copié. Collez-le dans votre messagerie." : "Impossible de copier : sélectionnez le texte à la main.");
   },
   ctab: el => { ctab = el.dataset.c; render(); },
+  occOpen: el => openOccasion(el.dataset.k, el.dataset.pk, el.dataset.id),
+  occNext: () => { occK++; const ta = document.getElementById("msg-occ"); ta.value = occMessage(occCur, occK); fitAreas(ta.parentNode); },
+  occWa: el => {
+    const x = personOf(occCur.pk, occCur.id);
+    el.href = `https://wa.me/${waNumber(x.phone)}?text=${encodeURIComponent(document.getElementById("msg-occ").value)}`;
+    occDone(); setTimeout(() => { closeSheet(); render(); toast("Message d'occasion noté"); }, 300);
+    return true;
+  },
+  occCopy: async () => {
+    const ok = await copyText(document.getElementById("msg-occ").value);
+    if (ok) { occDone(); closeSheet(); render(); }
+    toast(ok ? "Message copié. Collez-le dans votre messagerie." : "Impossible de copier : sélectionnez le texte à la main.");
+  },
+  occLater: el => { const x = personOf(el.dataset.pk, el.dataset.id), snap = snapshot(); x.occSnooze = addDays(today(), 7); save(); render(); toast("On vous le rappellera dans 7 jours", snap); },
+  occLaterSheet: () => { const x = personOf(occCur.pk, occCur.id), snap = snapshot(); x.occSnooze = addDays(today(), 7); save(); closeSheet(); render(); toast("On vous le rappellera dans 7 jours", snap); },
+  newEvent: () => openEventForm(),
+  evType: el => { evForm.type = el.dataset.t; drawEvForm(); },
+  evInvite: () => { const snap = snapshot(); S.occasion.invited = true; save(); closeSheet(); tab = "today"; render(); window.scrollTo(0, 0); toast("Invitations prêtes dans « Aujourd'hui »", snap); },
+  evDelete: () => { if (!confirm("Supprimer cet événement ?")) return; const snap = snapshot(); S.occasion = null; save(); closeSheet(); render(); toast("Événement supprimé", snap); },
   toRencontre: () => { const name = document.getElementById("fName").value.trim(), phone = document.getElementById("fPhone").value.trim(); closeSheet(); openProspectForm(null, { name, phone }); },
   toVente: () => { closeSheet(); openNewSale(); },
   pickWhere: el => {
@@ -1172,6 +1346,7 @@ document.addEventListener("click", ev => {
   if (!keepDefault) ev.preventDefault();
 });
 document.addEventListener("submit", ev => {
+  if (ev.target.id === "eventForm") { ev.preventDefault(); submitEvent(); }
   if (ev.target.id === "saleForm") { ev.preventDefault(); submitSale(); }
   if (ev.target.id === "prospectForm") { ev.preventDefault(); submitProspect(ev.target); }
 });
@@ -1204,10 +1379,12 @@ document.addEventListener("change", ev => {
     if (f === "price") p.price = Math.max(0, num(t.value));
     save(); toast("Produit mis à jour"); return;
   }
+  if (t.id === "setGift") { S.gift = t.value.trim(); save(); toast("Cadeau d'anniversaire enregistré"); return; }
   if (t.dataset.cfield) {
     const c = client(t.dataset.id); if (!c) return;
     if (t.dataset.cfield === "name" && t.value.trim()) c.name = t.value.trim();
     if (t.dataset.cfield === "phone") c.phone = t.value.trim();
+    if (t.dataset.cfield === "birthday") c.birthday = t.value;
     save(); render(); toast("Fiche mise à jour");
   }
 });
