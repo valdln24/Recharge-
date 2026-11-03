@@ -348,6 +348,9 @@ function seed() {
     s.sales.push(makeSale(c.id, p, qty, addDays(t, ago), true));
   }
   s.clients[3].referredBy = s.clients[0].id; // Julie a été recommandée par Marie
+  // Un prospect d'exemple : un contact donné par Marie
+  s.prospects = [{ id: uid(), name: "Léa Moreau", phone: "06 00 00 00 05", interest: "Gel aloe vera", referredBy: s.clients[0].id,
+    note: "Cherche quelque chose pour la digestion", next: t, contacts: 0, status: "open", createdAt: t, msg: 0, example: true }];
   return s;
 }
 function makeSale(clientId, p, qty, date, example) {
@@ -364,9 +367,11 @@ function save() {
 }
 S = load();
 if (!S) { S = seed(); save(); }
+if (!Array.isArray(S.prospects)) S.prospects = [];
 
 const client = id => S.clients.find(c => c.id === id);
 const sale = id => S.sales.find(s => s.id === id);
+const prospect = id => S.prospects.find(x => x.id === id);
 const logEvent = (type, s, extra) => S.events.push({ id: uid(), type, clientId: s.clientId, saleId: s.id, product: s.product, date: today(), example: s.example, ...extra });
 
 /* ---------- Messages de relance ---------- */
@@ -403,6 +408,47 @@ const REF_TEMPLATES = {
     "{p}, cela me fait vraiment plaisir que vous continuiez ! Si une amie ou un proche cherche ce genre de produit, vous pouvez lui parler de moi 😊"
   ]
 };
+const P_TEMPLATES = {
+  tu: {
+    first: [
+      "Bonjour {p} 😊 Suite à notre échange, je te propose d'en savoir plus sur {sujet}. Tu as un moment cette semaine pour que je te présente tout ça ?",
+      "Hello {p} ! Comme promis, je reviens vers toi pour {sujet}. Tu veux que je t'envoie quelques infos, ou qu'on s'appelle cinq minutes ?"
+    ],
+    ref: [
+      "Bonjour {p} 😊 C'est {ref} qui m'a donné ton numéro. Je propose des produits{prod} et {ref} a pensé que ça pourrait te plaire. Tu veux que je t'en dise plus ?",
+      "Hello {p} ! {ref} m'a parlé de toi 😊 Si ça te dit, je peux te faire découvrir ce que je propose{prod}, sans aucune obligation."
+    ],
+    follow: [
+      "Coucou {p} ! Je me permets de revenir vers toi à propos de {sujet}. Tu as eu le temps d'y réfléchir ? Je peux te faire tester si tu veux 😊",
+      "Hello {p} 🌿 Petit message pour savoir si tu as des questions sur {sujet}. Je reste disponible, sans aucune obligation !"
+    ]
+  },
+  vous: {
+    first: [
+      "Bonjour {p} 😊 Suite à notre échange, je vous propose d'en savoir plus sur {sujet}. Auriez-vous un moment cette semaine pour que je vous présente tout cela ?",
+      "Bonjour {p} ! Comme promis, je reviens vers vous pour {sujet}. Souhaitez-vous que je vous envoie quelques informations, ou que l'on s'appelle cinq minutes ?"
+    ],
+    ref: [
+      "Bonjour {p} 😊 C'est {ref} qui m'a transmis votre numéro. Je propose des produits{prod} et {ref} a pensé que cela pourrait vous plaire. Voulez-vous que je vous en dise plus ?",
+      "Bonjour {p} ! {ref} m'a parlé de vous 😊 Si vous le souhaitez, je peux vous faire découvrir ce que je propose{prod}, sans aucune obligation."
+    ],
+    follow: [
+      "Bonjour {p} ! Je me permets de revenir vers vous à propos de {sujet}. Avez-vous eu le temps d'y réfléchir ? Je peux vous faire tester si vous le souhaitez 😊",
+      "Bonjour {p} 🌿 Petit message pour savoir si vous avez des questions sur {sujet}. Je reste disponible, sans aucune obligation !"
+    ]
+  }
+};
+const refNameOf = x => x.referredBy ? (client(x.referredBy) || {}).name || x.referredByName || "" : x.referredByName || "";
+function prospectMessage(pr) {
+  const t = P_TEMPLATES[S.tone] || P_TEMPLATES.tu, ref = refNameOf(pr);
+  const list = pr.contacts ? t.follow : ref ? t.ref : t.first;
+  const it = (pr.interest || "").trim().toLowerCase();
+  return list[(pr.msg || 0) % list.length]
+    .replace(/\{p\}/g, firstName(pr.name)).replace(/\{ref\}/g, firstName(ref))
+    .replace(/\{sujet\}/g, it ? `ce dont on avait parlé (${it})` : "mes produits")
+    .replace(/\{prod\}/g, it ? ` (notamment ${it})` : "");
+}
+const dueProspects = () => S.prospects.filter(x => x.status === "open" && x.next && x.next <= today()).sort((a, b) => a.next.localeCompare(b.next));
 function refMessage(s, k) {
   const list = REF_TEMPLATES[S.tone] || REF_TEMPLATES.tu;
   const c = client(s.clientId);
@@ -454,7 +500,9 @@ function stats(p) {
   const ca = recos.reduce((t, e) => t + (e.amount || 0), 0);
   const asks = ev.filter(e => e.type === "bouche").length;
   const referred = S.clients.filter(c => (c.referredBy || c.referredByName) && (c.createdAt || "0000") >= from).length;
-  return { relances, recos: recos.length, rate: relances ? Math.round(recos.length / relances * 100) : 0, ca, list: recos, asks, referred };
+  const pAdded = S.prospects.filter(x => (x.createdAt || "0000") >= from).length;
+  const pWon = ev.filter(e => e.type === "pclient").length;
+  return { relances, recos: recos.length, rate: relances ? Math.round(recos.length / relances * 100) : 0, ca, list: recos, asks, referred, pAdded, pWon };
 }
 
 /* Jauge en segments : l'élément signature de Recharge */
@@ -495,7 +543,7 @@ const app = document.getElementById("app");
 
 function render() {
   document.querySelectorAll("nav.tabs .tab").forEach(b => b.classList.toggle("on", b.dataset.tab === tab));
-  const n = new Set(dueSales().map(s => s.clientId)).size;
+  const n = new Set(dueSales().map(s => s.clientId)).size + dueProspects().length;
   document.getElementById("tabDot").innerHTML = n ? `<span class="dot num">${n}</span>` : "";
   document.getElementById("topMeta").textContent = cap(parse(today()).toLocaleDateString("fr-FR", { weekday: "short", day: "numeric", month: "short" }));
   app.innerHTML = `<div class="enter">${({ today: viewToday, clients: viewClients, results: viewResults, settings: viewSettings })[tab]()}</div>`;
@@ -506,7 +554,7 @@ function fitAreas(root = document) {
   root.querySelectorAll(".bubble textarea").forEach(ta => { ta.style.height = "auto"; ta.style.height = ta.scrollHeight + "px"; });
 }
 function exampleNotice() {
-  return S.clients.some(c => c.example)
+  return S.clients.some(c => c.example) || S.prospects.some(x => x.example)
     ? `<div class="notice"><span>Les fiches <span class="tag" style="margin:0">Exemple</span> servent à découvrir l'appli.</span><button class="btn sm primary" data-act="clearExamples">Les effacer</button></div>` : "";
 }
 const exTag = c => c && c.example ? `<span class="tag">Exemple</span>` : "";
@@ -555,6 +603,30 @@ function viewToday() {
     </article>`;
   }
 
+  const pdue = dueProspects();
+  if (pdue.length) h += section("Prospects à recontacter", pdue.length);
+  for (const pr of pdue) {
+    const ref = refNameOf(pr), hasPhone = !!waNumber(pr.phone);
+    h += `<article class="card rcard" data-prospect="${pr.id}">
+      <div class="rhead"><span class="avatar blue" style="width:60px;height:60px;font-size:1.05rem">${esc(initials(pr.name))}</span>
+        <div class="who"><button class="name" data-act="pfiche" data-id="${pr.id}">${esc(pr.name)}</button>${exTag(pr)}
+          <div class="status ok">${pr.contacts ? `Déjà ${plural(pr.contacts, "contact", "contacts")} · à relancer` : "Premier contact"}</div>
+          <div class="meta2">${[pr.interest ? "Intéressé par " + esc(pr.interest) : "", ref ? "de la part de " + esc(ref) : ""].filter(Boolean).join(" · ") || "Prospect"}</div></div></div>
+      ${pr.note ? `<div class="alt" style="text-align:left;margin-top:10px">📝 ${esc(pr.note)}</div>` : ""}
+      <div class="bubble"><div class="top"><span class="small">Message proposé</span><button class="vary" data-act="nextPMsg" data-id="${pr.id}">${I.redo} Autre</button></div>
+        <textarea class="msg" id="pmsg-${pr.id}" rows="4" aria-label="Message pour ${esc(pr.name)}">${esc(prospectMessage(pr))}</textarea></div>
+      ${hasPhone
+        ? `<a class="btn primary send" href="#" target="_blank" rel="noopener" data-act="pWa" data-id="${pr.id}">${I.wa} Envoyer sur WhatsApp</a>`
+        : `<button class="btn primary send" data-act="pCopy" data-id="${pr.id}">${I.copy} Copier le message</button>`}
+      <div class="acts">
+        <button data-act="pDone" data-id="${pr.id}"><span class="ic">${I.check}</span>Contacté</button>
+        <button class="reco" data-act="pConvert" data-id="${pr.id}"><span class="ic">${I.bag}</span>A acheté</button>
+        <button class="later" data-act="pLater" data-id="${pr.id}"><span class="ic">${I.clock}</span>Plus tard · 3 j</button>
+      </div>
+      <div class="alt"><button data-act="pLost" data-id="${pr.id}">Pas intéressé</button></div>
+    </article>`;
+  }
+
   const wait = waitingSales();
   if (wait.length) {
     h += section("En attente de réponse", wait.length) + `<div class="card list">`;
@@ -581,13 +653,36 @@ function viewToday() {
   return h;
 }
 
+let ctab = "clients";
+function viewProspects(q) {
+  const list = S.prospects.filter(x => !q || x.name.toLowerCase().includes(q) || (x.phone || "").replace(/\s/g, "").includes(q.replace(/\s/g, "")))
+    .sort((a, b) => (a.status === "open" ? 0 : 1) - (b.status === "open" ? 0 : 1) || (a.next || "9").localeCompare(b.next || "9") || a.name.localeCompare(b.name, "fr"));
+  let h = `<button class="btn soft" style="margin-top:12px" data-act="newProspect">+ Ajouter un prospect</button>`;
+  if (list.length) {
+    h += `<div class="card">`;
+    for (const x of list) {
+      const due = x.status === "open" && x.next && x.next <= today();
+      const chip = x.status === "client" ? `<span class="chip done">A acheté</span>` : x.status === "lost" ? `<span class="chip">Pas intéressé</span>`
+        : due ? `<span class="chip soon">À recontacter</span>` : `<span class="chip ok num">${x.next ? "Le " + fmt(x.next) : "En attente"}</span>`;
+      h += `<button class="crow" data-act="pfiche" data-id="${x.id}"><span class="avatar ${due ? "" : "blue"}">${esc(initials(x.name))}</span>
+        <span class="grow"><b>${esc(x.name)}</b>${exTag(x)}<div class="meta2">${x.interest ? esc(x.interest) : refNameOf(x) ? "De la part de " + esc(refNameOf(x)) : "Prospect"}</div></span>${chip}</button>`;
+    }
+    h += `</div>`;
+  }
+  if (!S.prospects.length) h += `<p class="empty">Aucun prospect pour l'instant.<br>Ajoutez les personnes intéressées qui n'ont pas encore acheté : Recharge vous rappellera de les recontacter.</p>`;
+  else if (!list.length) h += `<p class="empty">Aucun prospect ne correspond.</p>`;
+  return h;
+}
 function viewClients() {
   const q = query.trim().toLowerCase();
   const list = S.clients.filter(c => !q || c.name.toLowerCase().includes(q) || (c.phone || "").replace(/\s/g, "").includes(q.replace(/\s/g, "")))
     .sort((a, b) => a.name.localeCompare(b.name, "fr"));
-  let h = `<h1 class="title">Clients</h1><p class="lede">${plural(S.clients.length, "client", "clients")} · ${plural(S.sales.length, "vente enregistrée", "ventes enregistrées")}</p>`;
+  const openP = S.prospects.filter(x => x.status === "open").length;
+  let h = `<h1 class="title">Clients</h1><p class="lede">${plural(S.clients.length, "client", "clients")} · ${plural(openP, "prospect en cours", "prospects en cours")}</p>`;
+  h += `<div class="seg"><button class="${ctab === "clients" ? "on" : ""}" data-act="ctab" data-c="clients">Clients · ${S.clients.length}</button><button class="${ctab === "prospects" ? "on" : ""}" data-act="ctab" data-c="prospects">Prospects · ${openP}</button></div>`;
   h += `<label class="search">${I.search}<input id="search" type="search" placeholder="Rechercher un nom ou un numéro" value="${esc(query)}" autocomplete="off"></label>`;
   h += exampleNotice();
+  if (ctab === "prospects") return h + viewProspects(q);
   if (list.length) {
     h += `<div class="card">`;
     for (const c of list) {
@@ -618,6 +713,9 @@ function viewResults() {
   h += section("Bouche-à-oreille") + `<div class="card bars">
     <div class="b"><div class="t"><span>Demandes envoyées</span><b class="num" id="kpiAsk">${st.asks}</b></div><div class="line blue"><span style="width:${st.asks ? 100 : 0}%"></span></div></div>
     <div class="b"><div class="t"><span>Nouveaux clients amenés par vos clients</span><b class="num" id="kpiRef">${st.referred}</b></div><div class="line"><span style="width:${Math.round(Math.min(1, st.referred / Math.max(1, st.asks)) * 100)}%"></span></div></div></div>`;
+  h += section("Prospects") + `<div class="card bars">
+    <div class="b"><div class="t"><span>Prospects ajoutés</span><b class="num" id="kpiPAdd">${st.pAdded}</b></div><div class="line blue"><span style="width:${st.pAdded ? 100 : 0}%"></span></div></div>
+    <div class="b"><div class="t"><span>Ont acheté</span><b class="num" id="kpiPWon">${st.pWon}</b></div><div class="line"><span style="width:${Math.round(Math.min(1, st.pWon / Math.max(1, st.pAdded)) * 100)}%"></span></div></div></div>`;
   h += `<p class="hint">Taux de recommande : sur 10 clients relancés, combien ont racheté. Les montants viennent des prix indiqués dans Réglages › Mes produits.</p>`;
   if (st.list.length) {
     h += section("Dernières recommandes", st.list.length) + `<div class="card"><ul class="hist">`;
@@ -655,7 +753,7 @@ function viewSettings() {
     <button class="btn primary" style="margin-top:14px" data-act="export">${I.down} Exporter mes données</button>
     <button class="btn outline" style="margin-top:8px" data-act="import">${I.up} Importer une sauvegarde</button></div>`;
 
-  if (S.clients.some(c => c.example)) {
+  if (S.clients.some(c => c.example) || S.prospects.some(x => x.example)) {
     h += section("Exemples") + `<button class="btn danger" data-act="clearExamples">Effacer les clients d'exemple</button>`;
   }
   h += `<p class="hint" style="text-align:center;margin-top:30px">Recharge · version d'essai · données 100 % locales</p>`;
@@ -672,16 +770,18 @@ function closeSheet() { sheetEl.innerHTML = ""; document.body.style.overflow = "
 const closeBtn = `<button class="close" data-act="close" aria-label="Fermer">${I.x}</button>`;
 
 let form = null; // état du formulaire de vente
-function openNewSale(clientId) {
+function openNewSale(clientId, fromProspect) {
   const c = clientId && client(clientId);
-  form = { pid: (S.products[0] || {}).id, qty: 1 };
+  const pr = fromProspect ? prospect(fromProspect) : null;
+  const pp = pr && pr.interest ? S.products.find(x => x.name.toLowerCase() === pr.interest.trim().toLowerCase()) : null;
+  form = { pid: (pp || S.products[0] || {}).id, qty: 1, prospectId: pr ? pr.id : null };
   const names = S.clients.map(x => `<option value="${esc(x.name)}">`).join("");
   openSheet(`<div class="shead"><h3>Nouvelle vente</h3>${closeBtn}</div>
     <form id="saleForm" autocomplete="off">
-      <label class="field"><span>Client</span><input class="input" id="fName" list="clientNames" required placeholder="Prénom Nom" value="${c ? esc(c.name) : ""}" enterkeyhint="next"></label>
+      <label class="field"><span>Client</span><input class="input" id="fName" list="clientNames" required placeholder="Prénom Nom" value="${c ? esc(c.name) : pr ? esc(pr.name) : ""}" enterkeyhint="next"></label>
       <datalist id="clientNames">${names}</datalist>
-      <label class="field"><span>Téléphone <i>· facultatif</i></span><input class="input" id="fPhone" type="tel" inputmode="tel" placeholder="06 12 34 56 78" value="${c ? esc(c.phone) : ""}"></label>
-      <label class="field ${c ? "hidden" : ""}" id="fRefWrap"><span>Recommandé par <i>· facultatif, si un client vous l'a amené</i></span><input class="input" id="fRef" list="clientNames" placeholder="Nom du client qui vous l'a présenté"></label>
+      <label class="field"><span>Téléphone <i>· facultatif</i></span><input class="input" id="fPhone" type="tel" inputmode="tel" placeholder="06 12 34 56 78" value="${c ? esc(c.phone) : pr ? esc(pr.phone) : ""}"></label>
+      <label class="field ${c ? "hidden" : ""}" id="fRefWrap"><span>Recommandé par <i>· facultatif, si un client vous l'a amené</i></span><input class="input" id="fRef" list="clientNames" placeholder="Nom du client qui vous l'a présenté" value="${pr ? esc(refNameOf(pr)) : ""}"></label>
       <div class="field"><span>Produit</span><div class="pchips" id="chips"></div></div>
       <div id="newProd" class="subform hidden">
         <label class="field"><span>Nom du produit</span><input class="input" id="npName" placeholder="ex. : Dentifrice aloe vera"></label>
@@ -700,7 +800,7 @@ function openNewSale(clientId) {
       <button class="btn primary" style="margin-top:14px" type="submit">Enregistrer la vente</button>
     </form>`);
   drawChips(); updateEnd();
-  if (!c) setTimeout(() => document.getElementById("fName").focus(), 60);
+  if (!c && !pr) setTimeout(() => document.getElementById("fName").focus(), 60);
 }
 function drawChips() {
   document.getElementById("chips").innerHTML = S.products.map(p =>
@@ -745,6 +845,14 @@ function submitSale() {
     }
   }
   S.sales.push(makeSale(c.id, p, form.qty, date, c.example));
+  const pr = form.prospectId ? prospect(form.prospectId) : null;
+  if (pr) {
+    pr.status = "client"; pr.clientId = c.id; pr.convertedAt = today();
+    if (pr.example) c.example = true;
+    S.events.push({ id: uid(), type: "pclient", prospectId: pr.id, clientId: c.id, product: p.name, date: today(), example: !!pr.example });
+    save(); closeSheet(); render();
+    return toast(`Première vente pour ${firstName(c.name)}, bravo !`, snap);
+  }
   save(); closeSheet(); render();
   toast(counted ? `Vente enregistrée et comptée comme recommande`
     : isNew && (c.referredBy || c.referredByName) ? `Nouveau client grâce au bouche-à-oreille !` : `Vente enregistrée pour ${firstName(c.name)}`, snap);
@@ -792,9 +900,59 @@ function openReferral(saleId) {
     ${hasPhone
       ? `<a class="btn primary send" href="#" target="_blank" rel="noopener" data-act="refWa" data-id="${s.id}">${I.wa} Envoyer sur WhatsApp</a>`
       : `<button class="btn primary send" data-act="refCopy" data-id="${s.id}">${I.copy} Copier le message</button>`}
+    <button class="btn outline" style="margin-top:8px" data-act="newProspect" data-ref="${c.id}">+ ${esc(firstName(c.name))} m'a donné un contact</button>
     <button class="btn soft" style="margin-top:8px" data-act="close">Pas maintenant</button>`);
   fitAreas(sheetEl);
 }
+function openProspectForm(id, opts = {}) {
+  const x = id ? prospect(id) : null;
+  const ref = x ? refNameOf(x) : opts.refId ? (client(opts.refId) || {}).name || "" : "";
+  const names = S.clients.map(c => `<option value="${esc(c.name)}">`).join("");
+  const prods = S.products.map(pp => `<option value="${esc(pp.name)}">`).join("");
+  const hist = x ? S.events.filter(e => e.prospectId === x.id).sort((a, b) => b.date.localeCompare(a.date)) : [];
+  const EVP = { pcontact: "Contacté", pclient: "A acheté", plater: "Reporté de 3 jours", plost: "Pas intéressé" };
+  openSheet(`<div class="shead"><h3>${x ? esc(x.name) + exTag(x) : "Nouveau prospect"}</h3>${closeBtn}</div>
+    ${x ? "" : `<p class="lede" style="margin-top:8px">Une personne intéressée qui n'a pas encore acheté. Recharge vous rappellera de la recontacter.</p>`}
+    <form id="prospectForm" data-id="${x ? x.id : ""}" autocomplete="off">
+      <label class="field"><span>Nom</span><input class="input" id="pName" required placeholder="Prénom Nom" value="${x ? esc(x.name) : ""}"></label>
+      <label class="field"><span>Téléphone <i>· facultatif</i></span><input class="input" id="pPhone" type="tel" inputmode="tel" placeholder="06 12 34 56 78" value="${x ? esc(x.phone) : ""}"></label>
+      <label class="field"><span>Intéressé par <i>· facultatif</i></span><input class="input" id="pInterest" list="prodNames" placeholder="ex. : Gel aloe vera" value="${x ? esc(x.interest) : ""}"></label>
+      <datalist id="prodNames">${prods}</datalist>
+      <label class="field"><span>Recommandé par <i>· facultatif</i></span><input class="input" id="pRef" list="pClientNames" placeholder="Nom du client qui vous l'a présenté" value="${esc(ref)}"></label>
+      <datalist id="pClientNames">${names}</datalist>
+      <label class="field"><span>Note <i>· facultatif</i></span><input class="input" id="pNote" placeholder="ex. : cherche un soin pour peau sèche" value="${x ? esc(x.note) : ""}"></label>
+      <label class="field"><span>À recontacter le</span><input class="input" id="pNext" type="date" value="${x ? x.next || today() : today()}"></label>
+      <button class="btn primary" style="margin-top:16px" type="submit">${x ? "Enregistrer" : "Ajouter le prospect"}</button>
+    </form>
+    ${x && x.status === "open" ? `<button class="btn orange" style="margin-top:8px" data-act="pConvert" data-id="${x.id}">${I.bag} A acheté</button>
+      <button class="btn soft" style="margin-top:8px" data-act="pLost" data-id="${x.id}">Pas intéressé</button>` : ""}
+    ${x && x.status === "lost" ? `<button class="btn soft" style="margin-top:8px" data-act="pReopen" data-id="${x.id}">Remettre en suivi</button>` : ""}
+    ${x && x.status === "client" && x.clientId && client(x.clientId) ? `<button class="btn soft" style="margin-top:8px" data-act="fiche" data-id="${x.clientId}">Voir sa fiche client</button>` : ""}
+    ${x ? `<div class="section"><h2>Historique</h2><span class="pill num">${hist.length}</span></div>
+      <div class="card"><ul class="hist"><li><span>Ajouté comme prospect</span><small class="num">${x.createdAt ? fmt(x.createdAt) : ""}</small></li>${hist.map(e => `<li><span>${EVP[e.type] || e.type}</span><small class="num">${fmt(e.date)}</small></li>`).join("")}</ul></div>
+      <button class="btn danger" style="margin-top:22px" data-act="delProspect" data-id="${x.id}">Supprimer ce prospect</button>` : ""}`);
+  if (!x) setTimeout(() => document.getElementById("pName").focus(), 60);
+}
+function submitProspect(formEl) {
+  const name = document.getElementById("pName").value.trim();
+  if (!name) { document.getElementById("pName").focus(); return toast("Indiquez le nom."); }
+  const snap = snapshot();
+  let x = formEl.dataset.id ? prospect(formEl.dataset.id) : null;
+  const isNew = !x;
+  if (!x) { x = { id: uid(), contacts: 0, status: "open", createdAt: today(), msg: Math.floor(Math.random() * 2), example: false }; S.prospects.push(x); }
+  x.name = name;
+  x.phone = document.getElementById("pPhone").value.trim();
+  x.interest = document.getElementById("pInterest").value.trim();
+  x.note = document.getElementById("pNote").value.trim();
+  x.next = document.getElementById("pNext").value || today();
+  const refName = document.getElementById("pRef").value.trim();
+  const r = refName ? S.clients.find(c => c.name.toLowerCase() === refName.toLowerCase()) : null;
+  x.referredBy = r ? r.id : null; x.referredByName = r ? "" : refName;
+  save(); closeSheet(); if (isNew) { tab = "clients"; ctab = "prospects"; } render();
+  toast(isNew ? (x.next <= today() ? `${firstName(name)} est dans vos prospects : à contacter aujourd'hui` : `${firstName(name)} est dans vos prospects : rappel le ${fmt(x.next)}`) : "Prospect mis à jour", snap);
+}
+const pEvent = (type, x) => S.events.push({ id: uid(), type, prospectId: x.id, product: x.interest || "", date: today(), example: !!x.example });
+const currentPMsg = id => { const ta = document.getElementById("pmsg-" + id); return ta ? ta.value : prospectMessage(prospect(id)); };
 function logAsk(saleId) {
   const s = sale(saleId);
   if (!S.events.some(e => e.type === "bouche" && e.saleId === s.id)) { logEvent("bouche", s); save(); }
@@ -873,6 +1031,45 @@ const actions = {
     if (ok) { logAsk(el.dataset.id); closeSheet(); render(); }
     toast(ok ? "Message copié. Collez-le dans votre messagerie." : "Impossible de copier : sélectionnez le texte à la main.");
   },
+  ctab: el => { ctab = el.dataset.c; render(); },
+  newProspect: el => { const ref = el.dataset.ref; closeSheet(); openProspectForm(null, { refId: ref }); },
+  pfiche: el => openProspectForm(el.dataset.id),
+  nextPMsg: el => { const x = prospect(el.dataset.id); x.msg = (x.msg || 0) + 1; save(); const ta = document.getElementById("pmsg-" + x.id); ta.value = prospectMessage(x); fitAreas(ta.parentNode); },
+  pWa: el => {
+    const x = prospect(el.dataset.id);
+    el.href = `https://wa.me/${waNumber(x.phone)}?text=${encodeURIComponent(currentPMsg(x.id))}`;
+    setTimeout(() => toast("Une fois le message envoyé, appuyez sur « Contacté »."), 400);
+    return true;
+  },
+  pCopy: async el => { const ok = await copyText(currentPMsg(el.dataset.id)); toast(ok ? "Message copié. Collez-le dans votre messagerie." : "Impossible de copier : sélectionnez le texte à la main."); },
+  pDone: el => {
+    const x = prospect(el.dataset.id), snap = snapshot();
+    x.contacts = (x.contacts || 0) + 1; x.lastContact = today(); x.next = addDays(today(), x.contacts >= 3 ? 14 : 4); pEvent("pcontact", x);
+    save(); render(); toast(`Contact noté pour ${firstName(x.name)} · rappel le ${fmt(x.next)}`, snap);
+  },
+  pLater: el => {
+    const x = prospect(el.dataset.id), snap = snapshot();
+    x.next = addDays(today(), 3); pEvent("plater", x);
+    save(); render(); toast(`Reporté au ${fmt(x.next)}`, snap);
+  },
+  pLost: el => {
+    const x = prospect(el.dataset.id), snap = snapshot();
+    x.status = "lost"; pEvent("plost", x);
+    save(); closeSheet(); render(); toast("Classé « Pas intéressé »", snap);
+  },
+  pReopen: el => {
+    const x = prospect(el.dataset.id), snap = snapshot();
+    x.status = "open"; x.next = today();
+    save(); closeSheet(); render(); toast("Remis en suivi", snap);
+  },
+  pConvert: el => { const id = el.dataset.id; closeSheet(); openNewSale(null, id); },
+  delProspect: el => {
+    const x = prospect(el.dataset.id);
+    if (!confirm(`Supprimer ${x.name} de vos prospects ?`)) return;
+    const snap = snapshot();
+    S.prospects = S.prospects.filter(y => y !== x); S.events = S.events.filter(e => e.prospectId !== x.id);
+    save(); closeSheet(); render(); toast("Prospect supprimé", snap);
+  },
   later: el => {
     const s = sale(el.dataset.id), snap = snapshot();
     s.snooze = addDays(today(), 3); logEvent("report", s);
@@ -909,7 +1106,8 @@ const actions = {
   clearExamples: () => {
     const snap = snapshot(), ids = new Set(S.clients.filter(c => c.example).map(c => c.id));
     S.clients = S.clients.filter(c => !ids.has(c.id)); S.sales = S.sales.filter(s => !ids.has(s.clientId));
-    S.events = S.events.filter(e => !ids.has(e.clientId));
+    S.events = S.events.filter(e => !ids.has(e.clientId) && !(e.prospectId && e.example));
+    S.prospects = S.prospects.filter(x => !x.example);
     save(); render(); toast("Exemples effacés", snap);
   },
   export: () => {
@@ -934,7 +1132,10 @@ document.addEventListener("click", ev => {
   const keepDefault = fn(el, ev) === true;
   if (!keepDefault) ev.preventDefault();
 });
-document.addEventListener("submit", ev => { if (ev.target.id === "saleForm") { ev.preventDefault(); submitSale(); } });
+document.addEventListener("submit", ev => {
+  if (ev.target.id === "saleForm") { ev.preventDefault(); submitSale(); }
+  if (ev.target.id === "prospectForm") { ev.preventDefault(); submitProspect(ev.target); }
+});
 document.addEventListener("input", ev => {
   const t = ev.target;
   if (t.id === "search") {
@@ -977,6 +1178,7 @@ document.getElementById("importFile").addEventListener("change", async ev => {
     const data = JSON.parse(await file.text());
     if (!data || !Array.isArray(data.products) || !Array.isArray(data.clients) || !Array.isArray(data.sales) || !Array.isArray(data.events)) throw new Error("format");
     if (!confirm(`Remplacer les données actuelles par cette sauvegarde (${plural(data.clients.length, "client", "clients")}) ?`)) return;
+    if (!Array.isArray(data.prospects)) data.prospects = [];
     const snap = snapshot(); S = data; save(); tab = "today"; render(); toast("Sauvegarde importée", snap);
   } catch (e) { toast("Ce fichier n'est pas une sauvegarde Recharge valide."); }
 });
