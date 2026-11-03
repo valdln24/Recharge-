@@ -183,8 +183,10 @@ header.nav.solid{background:rgba(247,245,242,.82);backdrop-filter:blur(16px) sat
 @media (max-width:520px){.pains{grid-template-columns:1fr}.sim .col,.sim .top{padding:20px}}
 
 /* ---------- Sections ---------- */
-section.block{padding:110px 0}
-.head{max-width:640px;margin:0 auto 54px;text-align:center}
+section.block{padding:clamp(64px,9vw,104px) 0}
+#probleme{padding-top:clamp(8px,2vw,24px)}
+.band+section.block{padding-top:clamp(72px,9vw,110px)}
+.head{max-width:660px;margin:0 auto clamp(32px,5vw,54px);text-align:center}
 .head h2{font-size:clamp(2rem,4.4vw,3.2rem);margin:16px 0 14px}
 .head p{color:var(--ink-2);font-size:1.08rem;margin:0}
 .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
@@ -200,7 +202,7 @@ section.block{padding:110px 0}
 .ic.k{background:var(--ink)}
 
 /* ---------- Bloc sombre ---------- */
-.band{position:relative;margin:0 14px;border-radius:40px;color:#fff;overflow:hidden;
+.band{position:relative;margin:0 max(14px,calc((100% - 1240px) / 2));border-radius:40px;color:#fff;overflow:hidden;
   background:radial-gradient(60% 70% at 0% 0%,rgba(255,106,42,.45),transparent 70%),radial-gradient(60% 70% at 100% 100%,rgba(95,123,255,.42),transparent 70%),#101312}
 .band::before{content:"";position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.08) 1px,transparent 1.3px);background-size:16px 16px;
   -webkit-mask-image:linear-gradient(180deg,#000,transparent 80%);mask-image:linear-gradient(180deg,#000,transparent 80%)}
@@ -246,7 +248,7 @@ section.block{padding:110px 0}
 .btn.blue{background:var(--gradB);color:#fff;box-shadow:0 14px 30px -14px rgba(79,108,247,.8)}
 .calc{margin-top:14px;padding:16px;border-radius:20px;background:var(--b-soft)}
 .calc label{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:.86rem;font-weight:650;color:var(--ink-2)}
-.calc label b{color:var(--ink);font-size:1rem}
+.calc label b{color:var(--ink);font-size:1rem;white-space:nowrap}
 .calc input{width:100%;margin:14px 0 10px;-webkit-appearance:none;appearance:none;height:8px;border-radius:9px;outline:none;background:linear-gradient(90deg,#6f86ff 0%,#ff6a2a var(--p,18%),rgba(79,108,247,.18) var(--p,18%))}
 .calc input::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;border-radius:50%;background:#fff;border:3px solid var(--b1);box-shadow:0 4px 12px rgba(79,108,247,.45);cursor:grab}
 .calc input::-moz-range-thumb{width:24px;height:24px;border-radius:50%;background:#fff;border:3px solid var(--b1);box-shadow:0 4px 12px rgba(79,108,247,.45);cursor:grab}
@@ -254,7 +256,7 @@ section.block{padding:110px 0}
 .calc .per b{color:var(--b-text)}
 .bump{animation:bump .35s ease}
 @keyframes bump{40%{transform:scale(1.08)}}
-@media (max-width:1040px) and (min-width:901px){.plans{grid-template-columns:1fr 1fr}.plan.team{grid-column:1/-1}}
+@media (max-width:1100px) and (min-width:901px){.plans{gap:12px}.plan{padding:26px 22px}.plan .badge{position:static;align-self:flex-start;margin-bottom:12px}}
 .plan h3{font-size:1.3rem}
 .plan .price{display:flex;align-items:baseline;gap:6px;margin:18px 0 4px}
 .plan .price b{font-size:3.4rem;font-weight:750;letter-spacing:-.06em;line-height:1}
@@ -282,7 +284,7 @@ section.block{padding:110px 0}
 .faq details p{margin:0 0 18px;color:var(--ink-2)}
 
 /* ---------- Final ---------- */
-.final{position:relative;margin:0 14px;border-radius:40px;overflow:hidden;background:var(--grad);color:#fff;text-align:center;padding:90px 20px}
+.final{position:relative;margin:0 max(14px,calc((100% - 1240px) / 2));border-radius:40px;overflow:hidden;background:var(--grad);color:#fff;text-align:center;padding:90px 20px}
 .final::before{content:"";position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.22) 1px,transparent 1.3px);background-size:14px 14px;
   -webkit-mask-image:radial-gradient(70% 80% at 50% 50%,transparent 30%,#000);mask-image:radial-gradient(70% 80% at 50% 50%,transparent 30%,#000)}
 .final>*{position:relative}
@@ -311,11 +313,13 @@ footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:2
   .chipf{font-size:.76rem;padding:8px 12px 8px 8px}
   .chipf .i{width:28px;height:28px;border-radius:10px}
   .chipf.c1{left:-2%}.chipf.c2{right:-3%}.chipf.c3{left:0}
-  .steps,.feats,.plans{grid-template-columns:1fr}
-  section.block{padding:80px 0}
+  .feats{grid-template-columns:1fr 1fr}
+  .plans{grid-template-columns:1fr;max-width:560px;margin:0 auto}
   .band .wrap{padding-top:70px;padding-bottom:70px;gap:34px}
   .band,.final{margin:0 10px;border-radius:32px}
 }
+@media (max-width:720px){.steps{grid-template-columns:1fr;max-width:560px;margin:0 auto}}
+@media (max-width:600px){.feats{grid-template-columns:1fr}}
 @media (max-width:420px){
   .nav .btn .full{display:none}
   .nav .btn .short{display:inline}
@@ -371,7 +375,7 @@ footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:2
 </section>
 
 <!-- ---------- Le problème ---------- -->
-<section class="block" id="probleme" style="padding-top:40px;padding-bottom:70px"><div class="wrap">
+<section class="block" id="probleme"><div class="wrap">
   <div class="head reveal"><span class="kicker"><i>!</i>Le vrai problème</span>
     <h2>Une recommande oubliée, c'est une vente qui part ailleurs.</h2>
     <p>Vos produits se terminent en 1 à 2 mois. Pour que le client recommande, il faut le relancer juste avant la fin. Aujourd'hui, tout repose sur votre mémoire, un carnet ou vos conversations WhatsApp.</p></div>
@@ -471,27 +475,8 @@ footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:2
   </div>
 </div></section>
 
-<!-- ---------- Atouts ---------- -->
-<section class="block"><div class="wrap">
-  <div class="head reveal"><span class="kicker"><i>✦</i>Pensé pour votre quotidien</span><h2>Simple, discret, toujours dans votre poche.</h2></div>
-  <div class="feats">
-    <div class="feat reveal d1"><div class="ic" style="background:var(--grad)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10" width="14" height="10" rx="2.5"/><path d="M8 10V7.5a4 4 0 0 1 8 0V10"/></svg></div>
-      <h3>Vos données restent chez vous</h3><p>Pas de compte, pas de serveur : vos clients sont enregistrés uniquement dans votre téléphone.</p></div>
-    <div class="feat reveal d2"><div class="ic" style="background:var(--gradB)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg></div>
-      <h3>Toutes marques</h3><p>Ajoutez vos propres produits et leur durée. Recharge s'adapte à votre catalogue.</p></div>
-    <div class="feat reveal d3"><div class="ic" style="background:var(--ink)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v4.5h-4.5"/></svg></div>
-      <h3>Des messages qui varient</h3><p>Plusieurs modèles naturels, en tutoiement ou vouvoiement. Vous pouvez toujours les modifier.</p></div>
-    <div class="feat reveal d1"><div class="ic" style="background:var(--ink)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg></div>
-      <h3>Le bouche-à-oreille au bon moment</h3><p>Après chaque rachat, un message prêt pour demander à votre client de parler de vous.</p></div>
-    <div class="feat reveal d2"><div class="ic" style="background:var(--grad)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1 12H6L5 8z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg></div>
-      <h3>La recommande en un clic</h3><p>Votre client rachète ? Un appui crée la nouvelle vente et relance le compte à rebours.</p></div>
-    <div class="feat reveal d3"><div class="ic" style="background:var(--gradB)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/></svg></div>
-      <h3>Sauvegarde en un fichier</h3><p>Exportez vos données quand vous voulez, et retrouvez-les sur un nouveau téléphone.</p></div>
-  </div>
-</div></section>
-
 <!-- ---------- Tarifs ---------- -->
-<section class="block" id="tarifs" style="padding-top:20px"><div class="wrap">
+<section class="block" id="tarifs"><div class="wrap">
   <div class="head reveal"><span class="kicker"><i>€</i>Tarifs simples</span><h2>Commencez gratuitement.</h2><p>Passez à l'offre complète quand votre clientèle grandit, ou équipez toute votre équipe d'un coup.</p></div>
   <div class="plans">
     <div class="plan reveal d1">
@@ -540,8 +525,27 @@ footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:2
   </div>
 </div></section>
 
+<!-- ---------- Atouts ---------- -->
+<section class="block"><div class="wrap">
+  <div class="head reveal"><span class="kicker"><i>✦</i>Pensé pour votre quotidien</span><h2>Simple, discret, toujours dans votre poche.</h2></div>
+  <div class="feats">
+    <div class="feat reveal d1"><div class="ic" style="background:var(--grad)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10" width="14" height="10" rx="2.5"/><path d="M8 10V7.5a4 4 0 0 1 8 0V10"/></svg></div>
+      <h3>Vos données restent chez vous</h3><p>Pas de compte, pas de serveur : vos clients sont enregistrés uniquement dans votre téléphone.</p></div>
+    <div class="feat reveal d2"><div class="ic" style="background:var(--gradB)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg></div>
+      <h3>Toutes marques</h3><p>Ajoutez vos propres produits et leur durée. Recharge s'adapte à votre catalogue.</p></div>
+    <div class="feat reveal d3"><div class="ic" style="background:var(--ink)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v4.5h-4.5"/></svg></div>
+      <h3>Des messages qui varient</h3><p>Plusieurs modèles naturels, en tutoiement ou vouvoiement. Vous pouvez toujours les modifier.</p></div>
+    <div class="feat reveal d1"><div class="ic" style="background:var(--ink)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg></div>
+      <h3>Le bouche-à-oreille au bon moment</h3><p>Après chaque rachat, un message prêt pour demander à votre client de parler de vous.</p></div>
+    <div class="feat reveal d2"><div class="ic" style="background:var(--grad)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1 12H6L5 8z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg></div>
+      <h3>La recommande en un clic</h3><p>Votre client rachète ? Un appui crée la nouvelle vente et relance le compte à rebours.</p></div>
+    <div class="feat reveal d3"><div class="ic" style="background:var(--gradB)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/></svg></div>
+      <h3>Sauvegarde en un fichier</h3><p>Exportez vos données quand vous voulez, et retrouvez-les sur un nouveau téléphone.</p></div>
+  </div>
+</div></section>
+
 <!-- ---------- Questions ---------- -->
-<section class="block" id="questions" style="padding-top:20px"><div class="wrap">
+<section class="block" id="questions"><div class="wrap">
   <div class="head reveal"><span class="kicker"><i>?</i>Questions fréquentes</span><h2>Tout ce qu'il faut savoir.</h2></div>
   <div class="faq">
     <details class="reveal"><summary>Faut-il créer un compte ?<i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></i></summary><p>Non. Vous ouvrez l'appli et vous commencez. Rien à installer, rien à configurer.</p></details>
