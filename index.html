@@ -231,6 +231,10 @@ header.nav.solid{background:rgba(247,245,242,.82);backdrop-filter:blur(16px) sat
 .fdr .figs b sup{font-size:.45em;font-weight:400;vertical-align:.9em;margin-left:2px}
 .fdr .figs span{display:block;margin-top:10px;font-size:.8rem;color:#a9a39b;font-weight:600;line-height:1.35}
 .fdr .line{margin:clamp(28px,4vw,40px) 0 0;color:#cfc9c1;font-size:1.04rem;line-height:1.6;max-width:30em}
+.fdr .line+.line{margin-top:14px}
+.fdr .vals{list-style:none;padding:0;margin:24px 0 0;display:flex;flex-wrap:wrap;gap:8px}
+.fdr .vals li{font-size:.82rem;font-weight:650;color:#e9e5df;padding:8px 13px;border-radius:99px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.04)}
+.fdr .vals li::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:#ff7a2e;margin-right:8px;vertical-align:2px}
 .fdr .sig{margin-top:28px;font-size:.86rem;color:#a9a39b;font-weight:600;letter-spacing:.02em}
 .fdr .sig b{color:#fff;font-weight:700;letter-spacing:0}
 .fdr .ph{position:relative;min-height:560px;display:flex;align-items:flex-end;justify-content:center}
@@ -653,7 +657,13 @@ footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:2
         <div><b>3</b><span>générations dans<br>la vente directe</span></div>
         <div><b>40<sup>ans</sup></b><span>d'expérience<br>dans ma famille</span></div>
       </div>
-      <p class="line">J'ai vu trop de ventes perdues faute d'avoir relancé au bon moment. Recharge, c'est l'outil que mes grands-parents auraient voulu avoir.</p>
+      <p class="line">J'ai vu trop de ventes perdues faute d'avoir relancé au bon moment. Pas par manque de travail, mais parce qu'il est impossible de tout retenir.</p>
+      <p class="line">Recharge, c'est l'outil que mes grands-parents auraient voulu avoir : il se souvient pour vous, prépare le bon message, et vous laisse faire ce que vous faites de mieux, prendre soin de vos clients.</p>
+      <ul class="vals">
+        <li>Pensé par un vendeur, pour les vendeurs</li>
+        <li>Simple dès la première minute</li>
+        <li>Vos clients restent les vôtres</li>
+      </ul>
       <div class="sig"><b>Fondateur de Recharge</b> · 3<sup>e</sup> génération de vente directe</div>
     </div>
     <div class="ph"><img src="img/fondateur.webp" width="1143" height="1882" alt="Le fondateur de Recharge" loading="lazy" decoding="async"></div>
