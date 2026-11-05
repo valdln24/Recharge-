@@ -409,6 +409,12 @@ function addDemoHistory(s) {
     const c = s.clients[i % s.clients.length];
     s.events.push({ id: uid(), type: "relance", clientId: c.id, saleId: "demo" + i, product: "", date: i < 2 ? t : day(i / 8), example: true });
   }
+  // bouche-à-oreille : qui a présenté qui (pour le classement des ambassadeurs)
+  const by = name => s.clients.find(c => c.name === name);
+  by("Céline Garnier").referredBy = s.clients[0].id; by("Hugo Petit").referredBy = by("Nathalie Roux").id;
+  by("Paul Mercier").referredBy = by("Nathalie Roux").id; by("Inès Laurent").referredBy = s.clients[0].id;
+  [by("Céline Garnier"), by("Hugo Petit"), by("Paul Mercier"), by("Inès Laurent")].forEach(c => c.createdAt = day(.3));
+  for (let i = 0; i < 6; i++) s.events.push({ id: uid(), type: "bouche", clientId: s.clients[i % 4].id, saleId: "demo-b" + i, product: "", date: day((i + 1) / 7), example: true });
   // un prospect devenu client et un nouveau client par bouche-à-oreille
   const p1 = s.products[0];
   s.events.push({ id: uid(), type: "pclient", clientId: s.clients[4].id, prospectId: "demo-p", product: p1.name, amount: p1.price, date: day(.5), example: true },
@@ -844,6 +850,27 @@ function viewClients() {
   return h;
 }
 
+/* Classement des meilleurs ambassadeurs : les clients qui vous ont présenté le plus de monde */
+function ambassadors(p) {
+  const from = p === "month" ? today().slice(0, 8) + "01" : "0000";
+  const tally = {};
+  const add = (id, kind) => { if (!id || !client(id)) return; tally[id] = tally[id] || { c: 0, p: 0 }; tally[id][kind]++; };
+  S.clients.forEach(c => (c.createdAt || "0000") >= from && add(c.referredBy, "c"));
+  S.prospects.forEach(x => (x.createdAt || "0000") >= from && x.status !== "client" && add(x.referredBy, "p"));
+  const rows = Object.entries(tally).map(([id, t]) => ({ who: client(id), nc: t.c, np: t.p, n: t.c + t.p }))
+    .sort((a, b) => b.nc - a.nc || b.n - a.n || a.who.name.localeCompare(b.who.name, "fr")).slice(0, 5);
+  let h = section("Meilleurs ambassadeurs", rows.length || null);
+  if (!rows.length) return h + `<p class="empty" style="padding-top:6px">Quand un client vous présente quelqu'un, notez-le dans « Recommandé par » : il apparaîtra ici.</p>`;
+  const medal = ["🥇", "🥈", "🥉"];
+  h += `<div class="card"><ul class="hist">`;
+  rows.forEach((r, i) => {
+    const detail = [r.nc ? plural(r.nc, "client amené", "clients amenés") : "", r.np ? plural(r.np, "prospect", "prospects") : ""].filter(Boolean).join(" · ");
+    h += `<li data-act="fiche" data-id="${r.who.id}" style="cursor:pointer"><span style="display:flex;gap:12px;align-items:center;min-width:0">
+      <span class="avatar ${i ? "blue" : ""}" style="width:40px;height:40px;font-size:${i < 3 ? "1.25rem" : ".85rem"}">${i < 3 ? medal[i] : esc(initials(r.who.name))}</span>
+      <span style="min-width:0"><b>${esc(r.who.name)}</b>${exTag(r.who)}<br><small>${detail}</small></span></span><b class="num" style="font-size:1.3rem">${r.n}</b></li>`;
+  });
+  return h + `</ul></div>`;
+}
 function viewResults() {
   const st = stats(period);
   let h = `<h1 class="title">Mes résultats</h1><p class="lede">Ce que Recharge vous fait gagner.</p>`;
@@ -858,6 +885,7 @@ function viewResults() {
   h += section("Bouche-à-oreille") + `<div class="card bars">
     <div class="b"><div class="t"><span>Demandes envoyées</span><b class="num" id="kpiAsk">${st.asks}</b></div><div class="line blue"><span style="width:${st.asks ? 100 : 0}%"></span></div></div>
     <div class="b"><div class="t"><span>Nouveaux clients amenés par vos clients</span><b class="num" id="kpiRef">${st.referred}</b></div><div class="line"><span style="width:${Math.round(Math.min(1, st.referred / Math.max(1, st.asks)) * 100)}%"></span></div></div></div>`;
+  h += ambassadors(period);
   h += section("Prospects") + `<div class="card bars">
     <div class="b"><div class="t"><span>Prospects ajoutés</span><b class="num" id="kpiPAdd">${st.pAdded}</b></div><div class="line blue"><span style="width:${st.pAdded ? 100 : 0}%"></span></div></div>
     <div class="b"><div class="t"><span>Ont acheté</span><b class="num" id="kpiPWon">${st.pWon}</b></div><div class="line"><span style="width:${Math.round(Math.min(1, st.pWon / Math.max(1, st.pAdded)) * 100)}%"></span></div></div></div>`;
