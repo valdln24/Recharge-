@@ -777,7 +777,8 @@ function saleGauge(s) {
 }
 
 /* ---------- Affichage ---------- */
-let tab = "today";
+const DEMO_TAB = DEMO ? new URLSearchParams(location.search).get("tab") : null;
+let tab = ["clients", "results", "settings"].includes(DEMO_TAB) ? DEMO_TAB : "today";
 let openCard = null; // carte de relance dépliée sur « Aujourd'hui »
 let period = "month";
 let query = "";
@@ -865,7 +866,7 @@ function viewToday() {
   return h;
 }
 
-let ctab = "clients";
+let ctab = DEMO && new URLSearchParams(location.search).get("c") === "prospects" ? "prospects" : "clients";
 /* Une carte de la liste du jour : la raison, le message prêt, deux boutons */
 function cardShell({ k, head, extra = "", msgId, msg, vary, id, waAct, copyAct, phone, second, links }) {
   const open = openCard === k;
