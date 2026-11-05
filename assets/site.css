@@ -560,3 +560,37 @@ body.menu-on .mcta{display:none!important}
   .pfeats,.pfeats.n4{grid-template-columns:1fr 1fr}.kgrid,.kgrid.n4{grid-template-columns:1fr 1fr}
 }
 @media (max-width:560px){.pfeats,.pfeats.n4{grid-template-columns:1fr}.pfeats div{padding:18px}.kpi2{padding:18px}.kpi2 .v{font-size:2.1rem}.next{padding:20px}}
+
+/* ---------- Tous vos contacts ---------- */
+#contacts .head{max-width:760px}
+.vt{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.vtc{background:var(--surface);border:1px solid var(--line);border-radius:30px;padding:26px;box-shadow:var(--shadow)}
+.vtc.dark{color:#fff;border-color:transparent;background:radial-gradient(70% 70% at 100% 0%,rgba(95,123,255,.38),transparent 70%),radial-gradient(60% 60% at 0% 100%,rgba(255,106,42,.32),transparent 70%),#101312}
+.vth{display:flex;align-items:center;gap:14px;margin-bottom:16px}
+.vth .ic{width:50px;height:50px;border-radius:16px;display:grid;place-items:center;font-size:1.5rem;background:var(--o-soft)}
+.vtc.dark .vth .ic{background:rgba(255,255,255,.08)}
+.vth small{display:block;font-size:.78rem;font-weight:700;color:var(--ink-3)}
+.vtc.dark .vth small{color:#a9aead}
+.vth h3{font-size:1.5rem;letter-spacing:-.035em;margin:0}
+.vtc ul{list-style:none;padding:0;margin:0;display:grid;gap:10px}
+.vtc li{padding:14px 16px;border-radius:18px;background:var(--surface-2)}
+.vtc.dark li{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08)}
+.vtc li b{display:block;font-size:1rem;letter-spacing:-.02em}
+.vtc li span{display:block;margin-top:2px;font-size:.88rem;color:var(--ink-2)}
+.vtc.dark li span{color:#c3c7c5}
+.vtnote{margin:14px 0 0;font-size:.86rem;color:#c3c7c5;font-weight:600}
+.reass{display:flex;gap:14px;align-items:center;max-width:760px;margin:20px auto 0;padding:16px 20px;border-radius:22px;background:var(--b-soft)}
+.reass span{font-size:1.8rem}
+.reass p{margin:0;font-size:1rem}
+.reass small{display:block;margin-top:3px;color:var(--ink-2);font-size:.84rem;font-weight:550}
+@media (max-width:820px){.vt{grid-template-columns:1fr}.vtc{padding:20px;border-radius:26px}.vth h3{font-size:1.3rem}}
+@media (max-width:420px){.reass{align-items:flex-start}.reass span{font-size:1.5rem}}
+.legal{max-width:760px;margin:0 auto}
+.legal h1{font-size:clamp(2.1rem,5vw,3.2rem);margin:18px 0 10px}
+.legal h2{font-size:1.3rem;margin:34px 0 8px;letter-spacing:-.025em}
+.legal p,.legal li{color:var(--ink-2);font-size:1rem;line-height:1.65}
+.legal ul{padding-left:20px}
+.legal .box{background:var(--surface);border:1px solid var(--line);border-radius:24px;padding:20px 22px;box-shadow:var(--shadow);margin-top:20px}
+.legal .box b{color:var(--ink)}
+footer .flinks{display:flex;gap:18px}
+footer .flinks a{color:var(--ink-3)}footer .flinks a:hover{color:var(--ink)}

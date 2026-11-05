@@ -1103,7 +1103,7 @@ function viewSettings() {
   if (S.clients.some(c => c.example) || S.prospects.some(x => x.example)) {
     h += section("Exemples") + `<button class="btn danger" data-act="clearExamples">Effacer les clients d'exemple</button>`;
   }
-  h += `<p class="hint" style="text-align:center;margin-top:30px">Recharge · version d'essai · données 100 % locales</p>`;
+  h += `<p class="hint" style="text-align:center;margin-top:30px">Recharge · données 100 % locales · <a href="../confidentialite/" style="color:inherit;text-decoration:underline">Confidentialité</a></p>`;
   return h;
 }
 
