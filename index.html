@@ -218,7 +218,7 @@ header.nav.solid{background:rgba(247,245,242,.82);backdrop-filter:blur(16px) sat
 .founder .ph{position:relative;min-height:420px;display:flex;align-items:flex-end;justify-content:center;overflow:hidden;
   background:radial-gradient(80% 70% at 30% 20%,rgba(255,138,61,.55),transparent 70%),radial-gradient(70% 60% at 90% 90%,rgba(95,123,255,.5),transparent 70%),#1a1d1c}
 .founder .ph::after{content:"";position:absolute;inset:auto 0 0 0;height:30%;background:linear-gradient(transparent,#101312)}
-.founder .ph img{position:relative;display:block;width:88%;max-width:360px;height:auto;margin-top:30px;filter:drop-shadow(0 20px 30px rgba(0,0,0,.35))}
+.founder .ph img{position:relative;z-index:1;display:block;width:88%;max-width:380px;height:auto;margin-top:30px;filter:drop-shadow(0 20px 30px rgba(0,0,0,.35))}
 .founder .tx{padding:clamp(28px,5vw,54px);display:flex;flex-direction:column;justify-content:center}
 .founder .kicker{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.12);color:#e9ece9;align-self:flex-start}
 .founder blockquote{margin:22px 0 0;font-size:clamp(1.25rem,2.4vw,1.6rem);line-height:1.4;font-weight:650;letter-spacing:-.02em}
@@ -227,7 +227,17 @@ header.nav.solid{background:rgba(247,245,242,.82);backdrop-filter:blur(16px) sat
 .founder .sig{margin-top:26px;display:flex;align-items:center;gap:12px;font-weight:700}
 .founder .sig i{width:34px;height:3px;border-radius:3px;background:var(--grad)}
 .founder .sig span{color:#9da3a0;font-weight:600;font-size:.9rem}
+.founder .ph{background:radial-gradient(60% 45% at 50% 38%,rgba(255,170,110,.55),transparent 72%),radial-gradient(80% 70% at 20% 15%,rgba(255,120,50,.45),transparent 70%),radial-gradient(70% 60% at 95% 95%,rgba(95,123,255,.45),transparent 70%),#1b1a19}
+.founder .halo{position:absolute;left:50%;top:18%;width:70%;aspect-ratio:1;transform:translateX(-50%);border-radius:50%;background:radial-gradient(closest-side,rgba(255,210,170,.35),transparent);filter:blur(6px)}
+.founder .ph img{filter:drop-shadow(0 0 1px rgba(255,190,140,.35)) drop-shadow(0 24px 40px rgba(0,0,0,.45))}
+.founder .ph::before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:radial-gradient(120% 90% at 50% 40%,transparent 55%,rgba(16,19,18,.55))}
+.founder .ph::after{z-index:2}
+.founder .years{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px}
+.founder .years div{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:14px 16px}
+.founder .years b{display:block;font-size:1.7rem;font-weight:750;letter-spacing:-.04em;background:linear-gradient(100deg,#ffb07a,#ff6a2a 55%,#9db0ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.founder .years span{font-size:.82rem;color:#9da3a0;font-weight:600}
 .founder .sig{flex-wrap:wrap;row-gap:2px}
+.founder .sig span{flex-basis:100%;padding-left:46px}
 @media (max-width:820px){.founder{grid-template-columns:1fr;border-radius:30px}.founder .ph{min-height:0;height:300px}.founder .ph img{width:auto;height:300px;max-width:none;margin-top:16px}.founder .sig span{flex-basis:100%;padding-left:46px}}
 
 /* ---------- Sections ---------- */
@@ -617,12 +627,14 @@ footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:2
 <!-- ---------- Fondateur ---------- -->
 <section class="block" id="fondateur"><div class="wrap">
   <div class="founder reveal">
-    <div class="ph"><img src="img/fondateur.webp" width="760" height="1229" alt="Le fondateur de Recharge" loading="lazy" decoding="async"></div>
+    <div class="ph"><span class="halo"></span><img src="img/fondateur.webp" width="1143" height="1882" alt="Le fondateur de Recharge" loading="lazy" decoding="async"></div>
     <div class="tx">
       <span class="kicker"><i>✦</i>Pourquoi Recharge</span>
-      <blockquote>Je suis moi-même vendeur à domicile. J'ai créé Recharge parce que je perdais des ventes, simplement en oubliant de relancer au bon moment.</blockquote>
-      <p>Mon objectif : que vous gardiez le lien avec chacun de vos clients sans y penser, et que vous récupériez le chiffre d'affaires qui vous échappait. Un outil simple, pensé par quelqu'un qui fait le même métier que vous.</p>
-      <div class="sig"><i></i>Le fondateur de Recharge<span>· vendeur à domicile</span></div>
+      <blockquote>La vente à domicile, je la connais depuis que je suis né.</blockquote>
+      <p>Mes parents la pratiquent depuis 36 ans, mes grands-parents depuis 40 ans. J'ai grandi au milieu des réunions, des commandes et des clients fidèles, et j'ai vu combien de ventes se perdent simplement faute d'avoir relancé au bon moment.</p>
+      <div class="years"><div><b>36 ans</b><span>de métier pour mes parents</span></div><div><b>40 ans</b><span>pour mes grands-parents</span></div></div>
+      <p>Aujourd'hui vendeur à domicile à mon tour, j'ai créé Recharge pour régler ce problème que je connais de l'intérieur : un outil simple, pensé par quelqu'un qui fait le même métier que vous.</p>
+      <div class="sig"><i></i>Le fondateur de Recharge<span>· vendeur à domicile, 3<sup>e</sup> génération</span></div>
     </div>
   </div>
 </div></section>
