@@ -387,7 +387,33 @@ function save() {
   catch (e) { storageOk = false; }
 }
 S = load();
-if (!S) { S = seed(); save(); }
+if (!S) { S = seed(); if (DEMO) addDemoHistory(S); save(); }
+/* Démo du site : un mois déjà bien rempli, pour montrer des chiffres parlants */
+function addDemoHistory(s) {
+  const t = today(), first = t.slice(0, 8) + "01", span = Math.max(0, diff(t, first));
+  const day = k => addDays(first, Math.min(span, Math.round(span * k)));
+  const people = [["Nathalie Roux", "p1", 1], ["Céline Garnier", "p2", 2], ["Paul Mercier", "p3", 1], ["Inès Laurent", "p1", 1], ["Hugo Petit", "p4", 2]];
+  const recos = [];
+  people.forEach(([name, pid, qty], i) => {
+    const c = { id: uid(), name, phone: "06 00 00 01 0" + i, example: true, createdAt: addDays(first, -60) };
+    s.clients.push(c);
+    const p = s.products.find(x => x.id === pid);
+    const old = makeSale(c.id, p, qty, addDays(first, -p.days * qty + 2), true); old.status = "recommande";
+    const d = day((i + 1) / 6);
+    s.sales.push(old, makeSale(c.id, p, qty, d, true));
+    s.events.push({ id: uid(), type: "relance", clientId: c.id, saleId: old.id, product: p.name, date: d, example: true },
+                  { id: uid(), type: "recommande", clientId: c.id, saleId: old.id, product: p.name, date: d, amount: p.price * qty, example: true });
+  });
+  // relances sans réponse pour l'instant (dont 2 aujourd'hui) : taux de recommande réaliste
+  for (let i = 0; i < 7; i++) {
+    const c = s.clients[i % s.clients.length];
+    s.events.push({ id: uid(), type: "relance", clientId: c.id, saleId: "demo" + i, product: "", date: i < 2 ? t : day(i / 8), example: true });
+  }
+  // un prospect devenu client et un nouveau client par bouche-à-oreille
+  const p1 = s.products[0];
+  s.events.push({ id: uid(), type: "pclient", clientId: s.clients[4].id, prospectId: "demo-p", product: p1.name, amount: p1.price, date: day(.5), example: true },
+                { id: uid(), type: "bnew", clientId: s.clients[5].id, product: s.products[2].name, amount: s.products[2].price, date: day(.7), example: true });
+}
 if (!Array.isArray(S.prospects)) S.prospects = [];
 
 const client = id => S.clients.find(c => c.id === id);
