@@ -1,7 +1,7 @@
 {
   "name": "Recharge",
   "short_name": "Recharge",
-  "description": "La relance réassort des vendeurs à domicile.",
+  "description": "La relance réassort de la vente directe.",
   "lang": "fr",
   "start_url": "./",
   "scope": "./",
