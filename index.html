@@ -240,6 +240,37 @@ header.nav.solid{background:rgba(247,245,242,.82);backdrop-filter:blur(16px) sat
 .founder .sig span{flex-basis:100%;padding-left:46px}
 @media (max-width:820px){.founder{grid-template-columns:1fr;border-radius:30px}.founder .ph{min-height:0;height:300px}.founder .ph img{width:auto;height:300px;max-width:none;margin-top:16px}.founder .sig span{flex-basis:100%;padding-left:46px}}
 
+/* ---------- Version courte ---------- */
+.ptags{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;max-width:760px;margin:0 auto}
+.ptags span{background:var(--surface);border:1px solid var(--line);border-radius:99px;padding:10px 16px;font-weight:700;font-size:.95rem;box-shadow:var(--shadow)}
+.simx{max-width:760px;margin:26px auto 0;background:var(--surface);border:1px solid var(--line);border-radius:30px;padding:22px;box-shadow:var(--shadow)}
+.simx .ctl{display:block;text-align:center;font-weight:600;color:var(--ink-2)}
+.simx .ctl b{color:var(--ink)}
+.simx input[type=range]{display:block;width:100%;max-width:420px;margin:12px auto 18px;-webkit-appearance:none;appearance:none;height:8px;border-radius:9px;outline:none;
+  background:linear-gradient(90deg,#ffa25a 0%,#ff4f1a var(--p,29%),var(--surface-2) var(--p,29%))}
+.simx input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;border-radius:50%;background:#fff;border:3px solid var(--o1);box-shadow:0 4px 12px rgba(255,94,31,.45);cursor:grab}
+.simx input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;background:#fff;border:3px solid var(--o1);cursor:grab}
+.duo2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.duo2>div{border-radius:22px;padding:20px;text-align:center}
+.duo2 small{display:block;font-weight:700;font-size:.85rem}
+.duo2 b{display:block;font-size:clamp(2rem,6vw,2.8rem);font-weight:780;letter-spacing:-.05em;line-height:1.1;margin:4px 0}
+.duo2 span{font-size:.85rem;font-weight:600}
+.duo2 em{font-style:normal;font-weight:750}
+.duo2 .lose{background:#fde8ea;color:#c0313f}
+.duo2 .win{color:#fff;background:radial-gradient(80% 80% at 100% 0%,rgba(255,106,42,.5),transparent 70%),radial-gradient(70% 70% at 0% 100%,rgba(95,123,255,.45),transparent 70%),#101312}
+.disc2{margin:14px 0 0;text-align:center;font-size:.76rem;color:var(--ink-3);font-weight:600}
+.bandline{color:#c3c7c5;font-size:1.06rem;margin:14px 0 0}
+.guar{text-align:center;margin:22px auto 0;font-size:.95rem;color:var(--ink-2)}
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.tiles div{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:20px 16px;text-align:center;box-shadow:var(--shadow)}
+.tiles span{display:block;font-size:1.8rem}
+.tiles b{display:block;margin-top:8px;letter-spacing:-.02em}
+.tiles small{display:block;color:var(--ink-3);font-weight:600;font-size:.82rem;margin-top:2px}
+@media (max-width:820px){.tiles{grid-template-columns:1fr 1fr}}
+@media (max-width:720px){.ptags{gap:8px}.ptags span{padding:8px 12px;font-size:.85rem}}
+@media (max-width:420px){.duo2{grid-template-columns:1fr}.duo2>div{padding:16px}}
+#probleme .head{margin-bottom:22px}
+
 /* ---------- Sections ---------- */
 section.block{padding:clamp(64px,9vw,104px) 0}
 #probleme{padding-top:clamp(8px,2vw,24px)}
@@ -457,7 +488,7 @@ footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:2
 
 <header class="nav" id="nav"><div class="wrap">
   <a class="logo" href="#top" aria-label="Recharge, accueil"><svg class="logo-svg" viewBox="10 40 620 125" style="height:30px;width:auto" role="img" aria-label="Recharge"><g transform="translate(0 0) scale(1.25)"><rect x="20" y="46" width="106" height="68" rx="16" fill="none" stroke="#111111" stroke-width="10"/><rect x="132" y="66" width="10" height="28" rx="4" fill="#111111"/><rect x="36" y="62" width="22" height="36" rx="5" fill="#FF5A1F"/><rect x="62" y="62" width="22" height="36" rx="5" fill="#FF5A1F"/><rect x="88" y="62" width="22" height="36" rx="5" fill="#FF5A1F" opacity="0.45"/></g><path d="M214.5 135.0H230.625V109.640625C230.625 102.609375 234.609375 98.578125 240.375 98.578125C242.71875 98.578125 245.578125 98.671875 246.75 98.71875V85.40625C245.4375 85.359375 244.078125 85.3125 242.34375 85.3125C235.734375 85.3125 232.03125 87.9375 230.25 94.21875H230.109375V85.5H214.5ZM272.83875 136.125C285.354375 136.125 295.33875 129.140625 297.166875 119.15625H282.6825C281.510625 122.4375 278.135625 124.5 273.40125 124.5C267.02625 124.5 263.27625 120.515625 263.08875 114.234375H297.541875V109.875C297.541875 94.875 287.27625 84.375 272.416875 84.375C257.745 84.375 247.33875 95.15625 247.33875 110.25C247.33875 125.34375 257.65125 136.125 272.83875 136.125ZM263.1825 104.578125C263.885625 99.375 267.40125 96.28125 272.83875 96.28125C278.229375 96.28125 281.791875 99.375 282.495 104.578125ZM324.943125 136.125C338.95875 136.125 348.89625 127.5 349.224375 115.40625H333.615C333.005625 120.234375 330.0525 123.328125 325.27125 123.328125C319.27125 123.328125 315.70875 118.359375 315.70875 110.25C315.70875 102.140625 319.224375 97.171875 325.27125 97.171875C330.0525 97.171875 333.14625 100.21875 333.661875 104.953125H349.224375C348.52125 92.8125 338.724375 84.375 324.943125 84.375C309.615 84.375 299.349375 94.875 299.349375 110.25C299.349375 125.671875 309.615 136.125 324.943125 136.125ZM369.219375 108.09375C369.219375 101.34375 372.500625 98.203125 377.61 98.203125C382.719375 98.203125 385.6725 101.390625 385.6725 107.25V135.0H401.7975V103.875C401.7975 91.6875 395.51625 84.421875 384.781875 84.421875C377.51625 84.421875 372.5475 87.703125 369.219375 93.140625V65.15625H353.094375V135.0H369.219375ZM423.058125 135.84375C430.0425 135.84375 434.495625 133.40625 437.44875 128.0625H437.63625V135.0H453.38625V101.671875C453.38625 90.75 445.464375 84.421875 431.07375 84.421875C416.73 84.421875 408.620625 90.796875 407.9175 101.53125H422.9175C423.245625 98.15625 426.01125 96.0 430.51125 96.0C434.776875 96.0 437.401875 98.015625 437.401875 100.96875V101.203125C437.401875 104.15625 434.1675 104.859375 425.308125 105.609375C414.76125 106.453125 406.089375 110.0625 406.089375 121.171875C406.089375 131.015625 413.1675 135.84375 423.058125 135.84375ZM427.98 125.296875C424.0425 125.296875 421.370625 123.46875 421.370625 120.421875C421.370625 117.1875 424.464375 115.40625 428.776875 114.75C432.76125 114.09375 435.808125 113.484375 437.5425 112.6875V117.1875C437.5425 122.0625 433.370625 125.296875 427.98 125.296875ZM459.50625 135.0H475.63125V109.640625C475.63125 102.609375 479.615625 98.578125 485.38125 98.578125C487.725 98.578125 490.584375 98.671875 491.75625 98.71875V85.40625C490.44375 85.359375 489.084375 85.3125 487.35 85.3125C480.740625 85.3125 477.0375 87.9375 475.25625 94.21875H475.115625V85.5H459.50625ZM518.829375 155.25C534.298125 155.25 544.048125 148.40625 544.048125 132.28125V85.5H528.016875V92.4375H527.97C524.87625 87.234375 520.048125 84.421875 513.62625 84.421875C501.06375 84.421875 492.345 95.015625 492.345 109.734375C492.345 124.265625 500.7825 134.671875 513.766875 134.671875C520.235625 134.671875 525.345 132.09375 527.97 126.234375H528.016875V133.875C528.016875 140.4375 524.829375 143.8125 518.829375 143.8125C514.18875 143.8125 511.048125 141.9375 510.204375 138.84375H494.7825C496.2825 148.359375 503.595 155.25 518.829375 155.25ZM518.266875 122.015625C512.360625 122.015625 508.704375 117.328125 508.704375 109.453125C508.704375 101.625 512.360625 96.9375 518.266875 96.9375C524.360625 96.9375 528.5325 101.859375 528.5325 109.453125C528.5325 117.09375 524.360625 122.015625 518.266875 122.015625ZM573.605625 136.125C586.12125 136.125 596.105625 129.140625 597.93375 119.15625H583.449375C582.2775 122.4375 578.9025 124.5 574.168125 124.5C567.793125 124.5 564.043125 120.515625 563.855625 114.234375H598.30875V109.875C598.30875 94.875 588.043125 84.375 573.18375 84.375C558.511875 84.375 548.105625 95.15625 548.105625 110.25C548.105625 125.34375 558.418125 136.125 573.605625 136.125ZM563.949375 104.578125C564.6525 99.375 568.168125 96.28125 573.605625 96.28125C578.99625 96.28125 582.55875 99.375 583.261875 104.578125Z" fill="#111111"/><path d="M614.793125 135.890625C619.668125 135.890625 623.605625 131.953125 623.605625 127.03125C623.605625 122.15625 619.668125 118.21875 614.793125 118.21875C609.918125 118.21875 605.980625 122.15625 605.980625 127.03125C605.980625 131.953125 609.918125 135.890625 614.793125 135.890625Z" fill="#FF5A1F"/></svg></a>
-  <nav class="links"><a href="#comment">Comment ça marche</a><a href="#prospects">Prospects</a><a href="#resultats">Résultats</a><a href="#tarifs">Tarifs</a><a href="#questions">Questions</a></nav>
+  <nav class="links"><a href="#comment">Comment ça marche</a><a href="#prospects">Prospects</a><a href="#fondateur">Qui suis-je</a><a href="#tarifs">Tarifs</a><a href="#questions">Questions</a></nav>
   <a class="btn dark" href="app/"><span class="full">Ouvrir l'appli</span><span class="short">Ouvrir</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
 </div></header>
 
@@ -469,7 +500,7 @@ footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:2
     <div class="copy">
       <span class="kicker anim" style="animation-delay:.05s"><i>✦</i>Pour les vendeurs à domicile, toutes marques</span>
       <h1 class="anim" style="animation-delay:.15s">Vos clients rachètent.<br><span class="grad-text">Au bon moment.</span></h1>
-      <p class="lead anim" style="animation-delay:.25s">Recharge vous dit qui relancer et quand : vos clients avant la fin de leur produit, les personnes rencontrées qui n'ont pas encore acheté, et les contacts donnés par vos clients. Le message WhatsApp est déjà prêt.</p>
+      <p class="lead anim" style="animation-delay:.25s">Recharge vous dit qui relancer, et quand. Le message WhatsApp est déjà prêt.</p>
       <div class="ctas anim" style="animation-delay:.35s">
         <a class="btn orange" href="app/">Commencer gratuitement<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
         <a class="btn ghost" href="#comment">Voir comment ça marche</a>
@@ -498,60 +529,19 @@ footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:2
 <!-- ---------- Le problème ---------- -->
 <section class="block" id="probleme"><div class="wrap">
   <div class="head reveal"><span class="kicker"><i>!</i>Le vrai problème</span>
-    <h2>Une recommande oubliée, c'est une vente qui part ailleurs.</h2>
-    <p>Vos produits se terminent en 1 à 2 mois. Pour que le client recommande, il faut le relancer juste avant la fin. Aujourd'hui, tout repose sur votre mémoire, un carnet ou vos conversations WhatsApp.</p></div>
-  <div class="pains swipe">
-    <div class="pain reveal d1"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg></div>
-      <h3>Des clients oubliés, des relances trop tardives</h3><p>Entre deux journées chargées, certains passent entre les mailles.</p></div>
-    <div class="pain reveal d2"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1 12H6L5 8z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/><path d="M10 13l4 4M14 13l-4 4"/></svg></div>
-      <h3>Le client a déjà arrêté ou acheté ailleurs</h3><p>Quand vous y pensez, la cure est finie depuis longtemps.</p></div>
-    <div class="pain reveal d3"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8.5 8.5 0 0 1-12.4 7.6L3 21l1.4-5.4A8.5 8.5 0 1 1 21 12z"/><path d="M9 10.5h.01M15 10.5h.01M9.5 15c1.5-1 3.5-1 5 0"/></svg></div>
-      <h3>La peur de passer pour « lourde »</h3><p>Sans le bon message au bon moment, on préfère ne rien dire.</p></div>
-    <div class="pain reveal d1"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h10M4 17h6"/><circle cx="18" cy="16" r="3"/></svg></div>
-      <h3>Chaque client a son propre rythme</h3><p>Une crème, une cure, un produit ménager : impossible de tout retenir.</p></div>
+    <h2>Chaque mois, des ventes vous échappent.</h2>
+    <p>Un client oublié, c'est une recommande qui part ailleurs.</p></div>
+  <div class="ptags reveal">
+    <span>😶 Clients oubliés</span><span>⏰ Relances trop tardives</span><span>🙈 Peur d'être « lourde »</span><span>🧠 Impossible de tout retenir</span>
   </div>
-
-  <div class="sim reveal">
-    <div class="top"><h3>Ce que ça peut vous coûter, et ce que vous pouvez récupérer</h3>
-      <div class="ctl"><label for="simN"><span>Vos clients réguliers</span><b><span id="simNOut">30</span> clients</b></label>
-        <input type="range" id="simN" min="10" max="80" value="30" aria-label="Nombre de clients réguliers"></div></div>
-    <div class="cols swipe sim-swipe">
-      <div class="col loss"><h4><i>−</i>Sans relance au bon moment</h4>
-        <div class="row2"><span>Clients qui ne recommandent pas, chaque mois</span><b id="sLostN">7 à 8</b></div>
-        <div class="row2 opt"><span>Ventes perdues par mois</span><b id="sLostM">≈ 375 €</b></div>
-        <div class="row2 big"><span>Ventes perdues par an</span><b id="sLostY">≈ 4 500 €</b></div>
-        <div class="row2"><span>Votre bénéfice perdu par mois</span><b id="sLostP">95 à 110 €</b></div>
-        <div class="row2 opt"><span>Un client fidèle, c'est par an</span><b>≈ 600 €</b></div></div>
-      <div class="col gain"><h4><i>+</i>Si Recharge en récupère la moitié</h4>
-        <div class="row2"><span>Recommandes en plus, chaque mois</span><b id="sGainN">3 à 4</b></div>
-        <div class="row2 opt"><span>Ventes récupérées par mois</span><b id="sGainM">≈ 190 €</b></div>
-        <div class="row2 big"><span>Bénéfice en plus par mois</span><b id="sGainP">47 à 56 €</b></div>
-        <div class="row2"><span>Comparé à l'abonnement à 9,90 €</span><b id="sGainX">≈ 5 fois son prix</b></div></div>
+  <div class="simx reveal">
+    <label class="ctl" for="simN"><span>Avec <b><span id="simNOut">30</span> clients réguliers</b></span>
+      <input type="range" id="simN" min="10" max="80" value="30" aria-label="Nombre de clients réguliers"></label>
+    <div class="duo2">
+      <div class="lose"><small>Vous perdez</small><b id="sLostM">≈ 375 €</b><span>de ventes par mois</span></div>
+      <div class="win"><small>Recharge vous en rend</small><b id="sGainM">≈ 190 €</b><span>par mois · <em id="sGainX">5 fois son prix</em></span></div>
     </div>
-    <div class="disc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.5v.5"/></svg><span>Simulation théorique, à titre indicatif : panier moyen de 50 €, marge de 25 à 30 %, environ 25 % de clients qui ne recommandent pas faute de relance. Ce sont des hypothèses, pas des résultats mesurés.</span></div>
-  </div>
-
-  <div class="bao reveal">
-    <div class="bao-l"><span class="kicker"><i>2</i>Le deuxième levier</span>
-      <h3>Vos clients pourraient vous recommander.</h3>
-      <p>Mais on ne pense jamais à le demander, ou pas au bon moment. Le meilleur moment, c'est juste après un rachat : votre client est satisfait, il vient de vous faire confiance à nouveau.</p>
-      <ul class="checks">
-        <li><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l4.5 4.5L19.5 6.5"/></svg></i>Juste après chaque recommande, Recharge vous propose un message pour demander un contact</li>
-        <li><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l4.5 4.5L19.5 6.5"/></svg></i>Le contact donné devient un prospect, avec un message prêt pour le premier contact</li>
-        <li><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l4.5 4.5L19.5 6.5"/></svg></i>Vous notez qui vous a amené chaque nouveau client</li>
-        <li><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l4.5 4.5L19.5 6.5"/></svg></i>Vous voyez combien de clients vous arrivent par bouche-à-oreille</li>
-      </ul></div>
-    <div class="bao-r">
-      <div class="bubble-demo opt"><span>Message proposé</span>Ça me fait plaisir que ta cure de gel aloe vera te plaise, Marie ! 😊 Si tu connais quelqu'un autour de toi à qui ça pourrait faire du bien, n'hésite pas à lui donner mon numéro.</div>
-      <div class="bao-stat"><b>≈ 600 €</b><span>de ventes sur un an pour un seul nouveau client fidèle. Son bénéfice couvre plus d'une année d'abonnement.</span></div>
-      <div class="bao-note">Hypothèse : panier moyen de 50 € par mois, marge de 25 à 30 %. Pas un résultat mesuré.</div>
-    </div>
-  </div>
-
-  <div class="promise reveal">
-    <div><h3>Ne laissez plus jamais filer une recommande.</h3><p>Vos clients rachètent au bon moment, et parlent de vous autour d'eux. Recharge prépare chaque message, vous n'avez plus qu'à l'envoyer.</p></div>
-    <div class="guarantee"><span class="seal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6l7-3z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg></span>
-      <div><b>Notre garantie</b><span>Au moins une recommande par mois, sinon le mois suivant est offert.</span></div></div>
+    <p class="disc2">Estimation indicative : panier de 50 €, 1 client sur 4 non relancé, Recharge en récupère la moitié.</p>
   </div>
 </div></section>
 
@@ -561,14 +551,14 @@ footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:2
 
 <!-- ---------- Comment ça marche ---------- -->
 <section class="block" id="comment"><div class="wrap">
-  <div class="head reveal"><span class="kicker"><i>1</i>Trois gestes, c'est tout</span><h2>De la vente à la recommande, sans rien oublier.</h2><p>Plus besoin de carnet ni de rappels dans l'agenda : Recharge s'occupe de la mémoire, vous gardez le lien avec vos clients.</p></div>
+  <div class="head reveal"><span class="kicker"><i>1</i>Comment ça marche</span><h2>3 gestes, c'est tout.</h2></div>
   <div class="steps">
     <article class="step reveal d1"><span class="n">01</span><div class="ic o"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></div>
-      <h3>Notez la vente en 10 secondes</h3><p>Le prénom, le produit, la quantité. La date du jour est déjà remplie.</p></article>
+      <h3>Notez la vente</h3><p>En 10 secondes.</p></article>
     <article class="step reveal d2"><span class="n">02</span><div class="ic b"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg></div>
-      <h3>Recharge calcule la fin</h3><p>Chaque produit a sa durée. Quelques jours avant la fin, votre client apparaît dans « Aujourd'hui ».</p></article>
+      <h3>Recharge vous prévient</h3><p>Juste avant la fin du produit.</p></article>
     <article class="step reveal d3"><span class="n">03</span><div class="ic k"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2c-1.5 0-3-.4-4.3-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2z"/></svg></div>
-      <h3>Relancez sur WhatsApp</h3><p>Le message est déjà rédigé, avec le prénom et le produit. Un geste pour l'envoyer.</p></article>
+      <h3>Envoyez sur WhatsApp</h3><p>Le message est déjà écrit.</p></article>
   </div>
 </div></section>
 
@@ -576,12 +566,12 @@ footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:2
 <section class="block" id="prospects"><div class="wrap pros">
   <div class="txt reveal">
     <span class="kicker"><i>+</i>Vos prospects</span>
-    <h2>Pas encore client ? Ne laissez pas filer la vente.</h2>
-    <p class="intro">Une personne rencontrée qui n'achète pas tout de suite, c'est souvent une vente qui attend le bon message.</p>
+    <h2>Pas encore client ? Pas encore perdu.</h2>
+    
     <ol class="tl">
-      <li><span class="dot" style="background:var(--ink)">1</span><div><span class="when">Aujourd'hui</span><b>Vous la notez en 5 secondes</b><p>Le nom, le lieu de la rencontre, ce qui l'intéresse.</p></div></li>
-      <li><span class="dot" style="background:var(--gradB)">2</span><div><span class="when">Le lendemain</span><b>Recharge vous rappelle</b><p>Avec un message chaleureux déjà rédigé, prêt à partir sur WhatsApp.</p></div></li>
-      <li><span class="dot" style="background:var(--grad)">3</span><div><span class="when">Le jour où elle achète</span><b>Un appui, la vente est créée</b><p>Elle devient cliente, et Recharge suit sa cure pour la prochaine recommande.</p></div></li>
+      <li><span class="dot" style="background:var(--ink)">1</span><div><span class="when">Aujourd'hui</span><b>Vous notez la rencontre</b></div></li>
+      <li><span class="dot" style="background:var(--gradB)">2</span><div><span class="when">Le lendemain</span><b>Recharge vous rappelle, message prêt</b></div></li>
+      <li><span class="dot" style="background:var(--grad)">3</span><div><span class="when">Le jour où elle achète</span><b>Un appui, c'est une cliente</b></div></li>
     </ol>
   </div>
   <div class="reveal d2">
@@ -603,14 +593,8 @@ footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:2
 <section class="band" id="resultats"><div class="wrap">
   <div class="reveal">
     <span class="kicker"><i>€</i>Votre indicateur clé</span>
-    <h2>Voyez ce que vos relances vous rapportent.</h2>
-    <p>Recommandes, prospects qui achètent, nouveaux clients par bouche-à-oreille : Recharge additionne tout ce qu'il vous fait gagner, mois après mois.</p>
-    <ul class="checks">
-      <li><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l4.5 4.5L19.5 6.5"/></svg></i>Relances faites et recommandes obtenues</li>
-      <li><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l4.5 4.5L19.5 6.5"/></svg></i>Taux de recommande, clair et lisible</li>
-      <li><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l4.5 4.5L19.5 6.5"/></svg></i>Chiffre d'affaires gagné, avec le détail de chaque source</li>
-      <li><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l4.5 4.5L19.5 6.5"/></svg></i>Nouveaux clients amenés par le bouche-à-oreille</li>
-    </ul>
+    <h2>Voyez ce que vous gagnez.</h2>
+    <p class="bandline">Chaque euro gagné grâce à vos relances, compté pour vous.</p>
   </div>
   <div class="panel reveal d2">
     <div class="dial" id="dial"><svg viewBox="0 0 260 150" id="dialSvg" aria-hidden="true"></svg>
@@ -631,9 +615,8 @@ footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:2
     <div class="tx">
       <span class="kicker"><i>✦</i>Pourquoi Recharge</span>
       <blockquote>La vente à domicile, je la connais depuis que je suis né.</blockquote>
-      <p>Mes parents la pratiquent depuis 36 ans, mes grands-parents depuis 40 ans. J'ai grandi au milieu des réunions, des commandes et des clients fidèles, et j'ai vu combien de ventes se perdent simplement faute d'avoir relancé au bon moment.</p>
       <div class="years"><div><b>36 ans</b><span>de métier pour mes parents</span></div><div><b>40 ans</b><span>pour mes grands-parents</span></div></div>
-      <p>Aujourd'hui vendeur à domicile à mon tour, j'ai créé Recharge pour régler ce problème que je connais de l'intérieur : un outil simple, pensé par quelqu'un qui fait le même métier que vous.</p>
+      <p>J'ai vu trop de ventes perdues, faute d'avoir relancé au bon moment. Recharge, c'est l'outil que ma famille aurait voulu avoir.</p>
       <div class="sig"><i></i>Le fondateur de Recharge<span>· vendeur à domicile, 3<sup>e</sup> génération</span></div>
     </div>
   </div>
@@ -641,16 +624,15 @@ footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:2
 
 <!-- ---------- Tarifs ---------- -->
 <section class="block" id="tarifs"><div class="wrap">
-  <div class="head reveal"><span class="kicker"><i>€</i>Tarifs simples</span><h2>Commencez gratuitement.</h2><p>Passez à l'offre complète quand votre clientèle grandit, ou équipez toute votre équipe d'un coup.</p></div>
+  <div class="head reveal"><span class="kicker"><i>€</i>Tarifs simples</span><h2>Commencez gratuitement.</h2></div>
   <div class="plans swipe" data-start="1">
     <div class="plan reveal d1">
       <h3>Découverte</h3>
       <div class="price"><b>0 €</b><span>pour toujours</span></div>
-      <div class="muted">Idéal pour démarrer et prendre le pli.</div>
+      <div class="muted">Pour démarrer.</div>
       <ul>
         <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l4.5 4.5L19.5 6.5"/></svg>Jusqu'à 10 clients</li>
-        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l4.5 4.5L19.5 6.5"/></svg>Relances WhatsApp prêtes à envoyer</li>
-        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l4.5 4.5L19.5 6.5"/></svg>Suivi des résultats</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l4.5 4.5L19.5 6.5"/></svg>Toutes les fonctions</li>
       </ul>
       <a class="btn dark" href="app/">Commencer gratuitement</a>
     </div>
@@ -658,14 +640,12 @@ footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:2
       <span class="badge">Le plus complet</span>
       <h3>Recharge</h3>
       <div class="price"><b>9,90 €</b><span>/ mois</span></div>
-      <div class="muted">Sans engagement. Ou 99&nbsp;€ par an, soit 2 mois offerts.</div>
+      <div class="muted">Sans engagement.</div>
       <div class="ladder"><span>Au mois<br>9,90 € / mois</span><span>À l'année<br>99 € · 2 mois offerts</span></div>
       <ul>
         <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l4.5 4.5L19.5 6.5"/></svg>Clients illimités</li>
-        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l4.5 4.5L19.5 6.5"/></svg>Tous vos produits et durées</li>
-        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l4.5 4.5L19.5 6.5"/></svg>Chiffre d'affaires récupéré, mois par mois</li>
-        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l4.5 4.5L19.5 6.5"/></svg>Messages de bouche-à-oreille et suivi des clients amenés</li>
-        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l4.5 4.5L19.5 6.5"/></svg>Sauvegarde et import de vos données</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l4.5 4.5L19.5 6.5"/></svg>Prospects, anniversaires, invitations</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l4.5 4.5L19.5 6.5"/></svg>Votre chiffre d'affaires gagné</li>
       </ul>
       <a class="btn dark" href="app/">Essayer Recharge</a>
     </div>
@@ -673,7 +653,7 @@ footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:2
       <span class="badge blue">Pour les responsables</span>
       <h3>Équipe</h3>
       <div class="price"><b id="teamPrice" style="display:inline-block">49 €</b><span>/ mois</span></div>
-      <div class="muted">Jusqu'à 10 filleuls, puis 4 € par filleul en plus.</div>
+      <div class="muted">10 filleuls inclus, puis 4 € par filleul.</div>
       <div class="calc">
         <label for="teamSize"><span>Taille de votre équipe</span><b><span id="teamSizeOut">10</span> filleuls</b></label>
         <input type="range" id="teamSize" min="1" max="50" value="10" aria-label="Nombre de filleuls">
@@ -681,30 +661,22 @@ footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:2
       </div>
       <ul>
         <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l4.5 4.5L19.5 6.5"/></svg>Recharge complet pour chaque filleul</li>
-        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l4.5 4.5L19.5 6.5"/></svg>Clients illimités pour toute l'équipe</li>
-        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l4.5 4.5L19.5 6.5"/></svg>Un seul abonnement, payé par la responsable</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l4.5 4.5L19.5 6.5"/></svg>Un seul abonnement</li>
       </ul>
       <a class="btn blue" href="app/">Essayer avec mon équipe</a>
     </div>
   </div>
+  <p class="guar reveal">🛡️ <b>Garantie :</b> au moins une recommande par mois, sinon le mois suivant est offert.</p>
 </div></section>
 
 <!-- ---------- Atouts ---------- -->
-<section class="block"><div class="wrap">
-  <div class="head reveal"><span class="kicker"><i>✦</i>Pensé pour votre quotidien</span><h2>Simple, discret, toujours dans votre poche.</h2></div>
-  <div class="feats swipe">
-    <div class="feat reveal d1"><div class="ic" style="background:var(--grad)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10" width="14" height="10" rx="2.5"/><path d="M8 10V7.5a4 4 0 0 1 8 0V10"/></svg></div>
-      <h3>Vos données restent chez vous</h3><p>Pas de compte, pas de serveur : vos clients sont enregistrés uniquement dans votre téléphone.</p></div>
-    <div class="feat reveal d2"><div class="ic" style="background:var(--gradB)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg></div>
-      <h3>Toutes marques</h3><p>Ajoutez vos propres produits et leur durée. Recharge s'adapte à votre catalogue.</p></div>
-    <div class="feat reveal d3"><div class="ic" style="background:var(--ink)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v4.5h-4.5"/></svg></div>
-      <h3>Anniversaires et invitations</h3><p>Un bon d'anniversaire le jour J, une invitation à votre présentation, des nouvelles tous les 3 mois : le lien ne se perd jamais.</p></div>
-    <div class="feat reveal d1"><div class="ic" style="background:var(--ink)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg></div>
-      <h3>Le bouche-à-oreille au bon moment</h3><p>Après chaque rachat, un message prêt pour demander à votre client de parler de vous.</p></div>
-    <div class="feat reveal d2"><div class="ic" style="background:var(--grad)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1 12H6L5 8z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg></div>
-      <h3>La recommande en un clic</h3><p>Votre client rachète ? Un appui crée la nouvelle vente et relance le compte à rebours.</p></div>
-    <div class="feat reveal d3"><div class="ic" style="background:var(--gradB)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/></svg></div>
-      <h3>Sauvegarde en un fichier</h3><p>Exportez vos données quand vous voulez, et retrouvez-les sur un nouveau téléphone.</p></div>
+<section class="block" id="plus"><div class="wrap">
+  <div class="head reveal"><h2>Et en plus, Recharge s'occupe de…</h2></div>
+  <div class="tiles reveal">
+    <div><span>💬</span><b>Bouche-à-oreille</b><small>Demander un contact au bon moment</small></div>
+    <div><span>🎂</span><b>Anniversaires</b><small>Un petit cadeau le jour J</small></div>
+    <div><span>📣</span><b>Invitations</b><small>Votre présentation, en un envoi</small></div>
+    <div><span>🔒</span><b>Vos données</b><small>Restent dans votre téléphone</small></div>
   </div>
 </div></section>
 
@@ -716,20 +688,14 @@ footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:2
     <details class="reveal"><summary>Ça marche avec quelle marque ?<i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></i></summary><p>Avec toutes. Vous ajoutez vos propres produits et la durée de chacun : bien-être, cosmétiques, entretien…</p></details>
     <details class="reveal"><summary>Où sont enregistrés mes clients ?<i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></i></summary><p>Uniquement dans votre téléphone. Pensez à faire une sauvegarde de temps en temps depuis les réglages de l'appli.</p></details>
     <details class="reveal"><summary>Et si mon client n'a pas WhatsApp ?<i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></i></summary><p>Le bouton « Copier » met le message dans votre presse-papiers : vous le collez dans un SMS ou la messagerie de votre choix.</p></details>
-    <details class="reveal"><summary>Puis-je payer à l'année ?<i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></i></summary><p>Oui. L'offre Recharge coûte 9,90 € par mois sans engagement, ou 99 € par an, soit 2 mois offerts.</p></details>
-    <details class="reveal more"><summary>Comment fonctionne le bouche-à-oreille ?<i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></i></summary><p>Juste après qu'un client a racheté, Recharge vous propose un message pour lui demander s'il connaît quelqu'un que vos produits pourraient intéresser. Quand vous enregistrez un nouveau client, vous pouvez noter qui vous l'a présenté, et vous voyez dans « Mes résultats » combien de clients vous arrivent ainsi.</p></details>
-    <details class="reveal more"><summary>Puis-je suivre mes prospects ?<i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></i></summary><p>Oui. Ajoutez les personnes intéressées qui n'ont pas encore acheté : Recharge vous rappelle quand les recontacter, prépare le message (premier contact puis relance) et, quand elles achètent, crée la vente en un appui.</p></details>
-    <details class="reveal more"><summary>Et entre deux achats, comment garder le contact ?<i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></i></summary><p>Recharge vous propose les bons prétextes : un message d'anniversaire avec votre cadeau (par exemple un bon de -10 %), une invitation personnelle quand vous organisez une présentation ou une offre, et un petit message de nouvelles pour chaque personne sans contact depuis 3 mois.</p></details>
-    <details class="reveal more"><summary>Comment fonctionne l'offre Équipe ?<i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></i></summary><p>La responsable paie un seul abonnement pour son équipe : 49 € par mois jusqu'à 10 filleuls, puis 4 € par filleul supplémentaire. Par exemple, 15 filleuls = 69 € par mois, 20 filleuls = 89 € par mois.</p></details>
-    <details class="reveal more"><summary>Comment l'avoir comme une appli sur mon téléphone ?<i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></i></summary><p>Ouvrez l'appli, puis sur iPhone : Partager › « Sur l'écran d'accueil ». Sur Android : menu ⋮ › « Ajouter à l'écran d'accueil ».</p></details>
+    <details class="reveal"><summary>Comment fonctionne l'offre Équipe ?<i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></i></summary><p>Un seul abonnement pour la responsable : 49 € par mois pour 10 filleuls, puis 4 € par filleul en plus.</p></details>
   </div>
-  <button class="btn ghost faq-more" type="button" id="faqMore">Voir toutes les questions</button>
 </div></section>
 
 <!-- ---------- Final ---------- -->
 <section class="final reveal">
   <h2>Ne laissez plus jamais filer une recommande.</h2>
-  <p>Gratuit jusqu'à 10 clients, puis 9,90 € par mois. Sans compte, sans engagement.</p>
+  <p>Gratuit jusqu'à 10 clients. Sans compte.</p>
   <a class="btn dark" href="app/">Commencer maintenant<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
 </section>
 </main>
@@ -807,24 +773,16 @@ const r5 = v => Math.round(v / 5) * 5, f5 = v => Math.floor(v / 5) * 5, r10 = v 
 const range = v => Number.isInteger(v) ? String(v) : `${Math.floor(v)} à ${Math.ceil(v)}`;
 const fmtE = v => v.toLocaleString("fr-FR") + " €";
 function updateSim() {
-  const n = Number(simN.value), lost = n * .25, lostM = lost * 50, gain = lost / 2, gainM = gain * 50;
+  const n = Number(simN.value), lostM = n * .25 * 50, gainM = lostM / 2;
   document.getElementById("simNOut").textContent = n;
-  document.getElementById("sLostN").textContent = range(lost);
   document.getElementById("sLostM").textContent = "≈ " + fmtE(r5(lostM));
-  document.getElementById("sLostY").textContent = "≈ " + fmtE(Math.round(lostM * 12 / 100) * 100);
-  document.getElementById("sLostP").textContent = `${r5(lostM * .25)} à ${fmtE(f5(lostM * .30))}`;
-  document.getElementById("sGainN").textContent = range(gain);
   document.getElementById("sGainM").textContent = "≈ " + fmtE(r10(gainM));
-  document.getElementById("sGainP").textContent = `${Math.round(gainM * .25)} à ${fmtE(Math.round(gainM * .30))}`;
-  document.getElementById("sGainX").textContent = `≈ ${Math.max(1, Math.round(gainM * .25 / 9.9))} fois son prix`;
+  document.getElementById("sGainX").textContent = `${Math.max(1, Math.round(gainM * .25 / 9.9))} fois son prix`;
   simN.style.setProperty("--p", ((n - 10) / 70 * 100) + "%");
 }
 simN.addEventListener("input", updateSim);
 updateSim();
 
-const faqMore = document.getElementById("faqMore");
-faqMore.addEventListener("click", () => { document.querySelector(".faq").classList.add("open"); faqMore.remove(); });
-if (!matchMedia("(max-width:720px)").matches || !document.querySelector(".faq .more")) faqMore.remove();
 /* Téléphone : points sous les cartes à faire glisser, bouton toujours visible */
 document.querySelectorAll(".swipe").forEach(el => {
   const nav = document.createElement("div"); nav.className = "dots-nav";
