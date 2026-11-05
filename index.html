@@ -271,6 +271,19 @@ header.nav.solid{background:rgba(247,245,242,.82);backdrop-filter:blur(16px) sat
 @media (max-width:420px){.duo2{grid-template-columns:1fr}.duo2>div{padding:16px}}
 #probleme .head{margin-bottom:22px}
 
+.reco-band{text-align:center;border-radius:36px;padding:clamp(36px,6vw,64px) 22px;position:relative;overflow:hidden;border:1px solid var(--line);box-shadow:var(--shadow);
+  background:radial-gradient(60% 90% at 0% 0%,rgba(255,138,61,.20),transparent 70%),radial-gradient(60% 90% at 100% 100%,rgba(95,123,255,.18),transparent 70%),var(--surface)}
+.reco-band h2{font-size:clamp(2.2rem,6vw,3.8rem);margin:16px 0 8px}
+.reco-band h2 em{font-style:normal;background:linear-gradient(100deg,#ff7a2e 10%,#ff4f1a 45%,#5f7bff 95%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.reco-band p{margin:0;color:var(--ink-2);font-size:1.08rem}
+.flow{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:30px;flex-wrap:wrap}
+.flow div{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:16px 18px;min-width:170px;box-shadow:var(--shadow)}
+.flow div span{display:block;font-size:1.8rem}
+.flow div b{display:block;margin-top:6px;font-size:.95rem}
+.flow .hl{background:var(--grad);color:#fff;border-color:transparent;box-shadow:0 14px 30px -12px rgba(255,94,31,.7)}
+.flow i{font-style:normal;color:var(--o1);font-size:1.4rem;font-weight:800}
+@media (max-width:720px){.flow{flex-direction:column;gap:6px}.flow div{width:100%;max-width:300px;display:flex;align-items:center;gap:12px;text-align:left;padding:12px 16px}.flow div span{font-size:1.5rem}.flow div b{margin:0}.flow i{transform:rotate(90deg);font-size:1.1rem}}
+
 /* ---------- Sections ---------- */
 section.block{padding:clamp(64px,9vw,104px) 0}
 #probleme{padding-top:clamp(8px,2vw,24px)}
@@ -589,6 +602,22 @@ footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:2
   </div>
 </div></section>
 
+<!-- ---------- Recommandation ---------- -->
+<section class="block" id="recommande"><div class="wrap">
+  <div class="reco-band reveal">
+    <span class="kicker"><i>♥</i>Le bouche-à-oreille</span>
+    <h2>Faites-vous <em>recommander.</em></h2>
+    <p>Vos meilleurs clients connaissent vos futurs clients.</p>
+    <div class="flow">
+      <div><span>😊</span><b>Une cliente rachète</b></div>
+      <i aria-hidden="true">→</i>
+      <div><span>💬</span><b>Recharge propose le message</b></div>
+      <i aria-hidden="true">→</i>
+      <div class="hl"><span>👋</span><b>Elle vous présente une amie</b></div>
+    </div>
+  </div>
+</div></section>
+
 <!-- ---------- Bloc sombre : résultats ---------- -->
 <section class="band" id="resultats"><div class="wrap">
   <div class="reveal">
@@ -673,7 +702,7 @@ footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:2
 <section class="block" id="plus"><div class="wrap">
   <div class="head reveal"><h2>Et en plus, Recharge s'occupe de…</h2></div>
   <div class="tiles reveal">
-    <div><span>💬</span><b>Bouche-à-oreille</b><small>Demander un contact au bon moment</small></div>
+    <div><span>🏷️</span><b>Toutes marques</b><small>Vos produits, vos durées</small></div>
     <div><span>🎂</span><b>Anniversaires</b><small>Un petit cadeau le jour J</small></div>
     <div><span>📣</span><b>Invitations</b><small>Votre présentation, en un envoi</small></div>
     <div><span>🔒</span><b>Vos données</b><small>Restent dans votre téléphone</small></div>
