@@ -97,6 +97,7 @@ main{max-width:560px;margin:0 auto;padding:6px 16px 24px}
 .notice{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-top:12px;padding:10px 10px 10px 14px;
   border-radius:18px;background:var(--b-soft);font-size:.86rem;color:var(--ink-2)}
 .notice.warn{background:var(--late-soft);color:var(--late)}
+.potc{display:flex;gap:14px;align-items:center;margin-top:12px}.potn{font-size:2.3rem;font-weight:800;letter-spacing:-.045em;line-height:1;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}.potc b{font-size:.98rem}.potc small{display:block;color:var(--ink-3);font-size:.8rem;margin-top:3px;font-weight:550}
 
 /* ---------- Cartes client ---------- */
 .card{background:var(--surface);border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow);margin-top:12px}
@@ -392,13 +393,13 @@ function seed() {
     note: "Cherche quelque chose pour la digestion", next: t, contacts: 0, status: "open", createdAt: t, msg: 0, example: true, kind: "client" },
     { id: uid(), name: "Thomas Girard", phone: "06 00 00 00 07", interest: "Crème visage", note: "A goûté l'échantillon, peau sèche", next: t, contacts: 0,
       status: "open", createdAt: addDays(t, -3), msg: 0, example: true, kind: "client", where: "salon" }];
-  // Les 3 types de clients : Sophie commande seule chez la marque, Sandra sur votre e-boutique
-  s.clients[1].status = "partenaire"; s.clients[1].statusLog = [{ s: "direct", date: addDays(t, -200) }, { s: "partenaire", date: addDays(t, -90) }];
-  const sandra = { id: uid(), name: "Sandra Lopez", phone: "06 00 00 00 06", example: true, status: "eshop",
-    statusLog: [{ s: "eshop", date: addDays(t, -240) }], createdAt: addDays(t, -240) };
+  // Sophie est une cliente VIP (fidélité)
+  s.clients[1].status = "vip"; s.clients[1].statusLog = [{ s: "direct", date: addDays(t, -200) }, { s: "vip", date: addDays(t, -90) }];
+  const sandra = { id: uid(), name: "Sandra Lopez", phone: "06 00 00 00 06", example: true, status: "direct",
+    statusLog: [{ s: "direct", date: addDays(t, -240) }], createdAt: addDays(t, -240) };
   s.clients.push(sandra);
   s.sales.push(makeSale(sandra.id, s.products[1], 1, addDays(t, -28), true));
-  // Julie commande beaucoup : Recharge suggère de lui proposer de devenir partenaire
+  // Julie commande souvent : Recharge suggère de lui offrir le statut VIP
   for (const ago of [-40, -75]) { const o = makeSale(s.clients[3].id, s.products[0], 2, addDays(t, ago), true); o.status = "rachete"; s.sales.push(o); }
   return s;
 }
@@ -448,19 +449,21 @@ function addDemoHistory(s) {
   s.events.push({ id: uid(), type: "pclient", clientId: s.clients[4].id, prospectId: "demo-p", product: p1.name, amount: p1.price, date: day(.5), example: true },
                 { id: uid(), type: "bnew", clientId: s.clients[5].id, product: s.products[2].name, amount: s.products[2].price, date: day(.7), example: true });
 }
-/* Les 3 types de clients */
-const CSTATUS = { direct: "Client direct", partenaire: "Client partenaire", eshop: "Client e-boutique" };
-const SET_DEFAULTS = { partnerThreshold: 150 };
+/* Clients et clients VIP (fidélité) */
+const CSTATUS = { direct: "Client", vip: "Client VIP" };
+const SET_DEFAULTS = { vipOrders: 3, vipPerk: "10 % de remise sur chaque commande" };
+/* Clients potentiels : chaque client connaît environ 10 personnes intéressées, chaque prospect environ 5 */
+const POT = { client: 10, prospect: 5 };
 function migrate(d) {
   if (!Array.isArray(d.prospects)) d.prospects = [];
   d.settings = { ...SET_DEFAULTS, ...(d.settings || {}) };
   d.clients.forEach(c => {
-    if (!CSTATUS[c.status]) c.status = c.status === "business" ? "partenaire" : "direct";
+    if (!CSTATUS[c.status]) c.status = c.status === "partenaire" || c.status === "business" ? "vip" : "direct";
     if (!Array.isArray(c.statusLog)) c.statusLog = [{ s: c.status, date: c.createdAt || today() }];
-    c.statusLog.forEach(x => { if (!CSTATUS[x.s]) x.s = x.s === "business" ? "partenaire" : "direct"; });
+    c.statusLog.forEach(x => { if (!CSTATUS[x.s]) x.s = x.s === "partenaire" || x.s === "business" ? "vip" : "direct"; });
     delete c.businessSince; delete c.lastNudge; delete c.nudgeSnooze; delete c.bmsg;
   });
-  delete d.settings.inactiveDays;
+  delete d.settings.inactiveDays; delete d.settings.partnerThreshold;
   d.prospects.forEach(x => { x.kind = "client"; });
   return d;
 }
@@ -473,6 +476,8 @@ function setStatus(c, st) {
 const client = id => S.clients.find(c => c.id === id);
 const sale = id => S.sales.find(s => s.id === id);
 const prospect = id => S.prospects.find(x => x.id === id);
+const person = id => client(id) || prospect(id);  // un client ou un prospect (les deux peuvent recommander)
+const findPerson = name => { const n = name.toLowerCase(); return S.clients.find(c => c.name.toLowerCase() === n) || S.prospects.find(x => x.name.toLowerCase() === n); };
 const logEvent = (type, s, extra) => S.events.push({ id: uid(), type, clientId: s.clientId, saleId: s.id, product: s.product, date: today(), example: s.example, ...extra });
 
 /* ---------- Messages de relance ---------- */
@@ -550,7 +555,7 @@ const P_TEMPLATES = {
 const WHERE = [["reunion", "Réunion"], ["salon", "Salon"], ["marche", "Marché"], ["reseaux", "Réseaux sociaux"], ["bao", "Bouche-à-oreille"], ["autre", "Autre"]];
 const LIEU = { reunion: "à la réunion", salon: "au salon", marche: "au marché" };
 const whereLabel = w => (WHERE.find(x => x[0] === w) || [])[1] || "";
-const refNameOf = x => x.referredBy ? (client(x.referredBy) || {}).name || x.referredByName || "" : x.referredByName || "";
+const refNameOf = x => x.referredBy ? (person(x.referredBy) || {}).name || x.referredByName || "" : x.referredByName || "";
 function prospectMessage(pr) {
   const t = P_TEMPLATES[S.tone] || P_TEMPLATES.tu, ref = refNameOf(pr);
   const lieu = LIEU[pr.where] || "";
@@ -621,18 +626,20 @@ function dueOccasions() {
 }
 const X_TEMPLATES = {
   tu: {
-    partenaire: ["Coucou {p} ! 😊 Ta réserve {de} doit bientôt toucher à sa fin. Pense à repasser ta commande sur ton espace, et si tu veux, je t'aide à la faire !",
-      "Hello {p} 🌿 Petit rappel : ta cure {de} arrive au bout. Tu veux qu'on regarde ensemble ta prochaine commande ?"],
-    eshop: ["Coucou {p} ! 😊 Ta réserve {de} doit bientôt toucher à sa fin. Tu peux la recommander directement sur ma boutique en ligne, et si tu veux, je t'envoie le lien !",
-      "Hello {p} 🌿 Petit rappel : ta cure {de} arrive au bout. Je t'envoie le lien de ma boutique pour la recommander ?"],
-    hint: ["Coucou {p} ! 😊 Tu commandes régulièrement, alors je me suis dit que ça pourrait t'intéresser : en devenant partenaire, tu aurais des prix réduits sur tes produits. Tu veux que je t'explique ?"]
+    vip: ["Coucou {p} ! ⭐ Ta réserve {de} doit bientôt toucher à sa fin. Comme tu es VIP chez moi, tu profites de {perk}. Je te prépare ta commande ?",
+      "Hello {p} 🌿 Petit rappel VIP : ta cure {de} arrive au bout, et ton avantage ({perk}) t'attend. On repasse commande ?"],
+    hint: ["Coucou {p} ! ⭐ Tu fais partie de mes plus fidèles, alors je t'offre le statut VIP : tu profites de {perk}. Merci pour ta confiance !",
+      "Hello {p} 😊 Pour te remercier de ta fidélité, tu passes VIP chez moi : {perk}. Ça me fait plaisir !"],
+    ask: ["Coucou {p} ! 😊 Petite question : tu connais quelqu'un autour de toi que mes produits pourraient intéresser ? Tu peux lui donner mon numéro, je lui donnerai des conseils avec plaisir.",
+      "Hello {p} 🌿 Si quelqu'un de ton entourage cherche des produits naturels, n'hésite pas à lui parler de moi. Je peux lui faire découvrir, sans engagement !"]
   },
   vous: {
-    partenaire: ["Bonjour {p} ! 😊 Votre réserve {de} doit bientôt toucher à sa fin. Pensez à repasser votre commande sur votre espace, et si vous le souhaitez, je vous aide à la faire !",
-      "Bonjour {p} 🌿 Petit rappel : votre cure {de} arrive au bout. Voulez-vous que l'on regarde ensemble votre prochaine commande ?"],
-    eshop: ["Bonjour {p} ! 😊 Votre réserve {de} doit bientôt toucher à sa fin. Vous pouvez la recommander directement sur ma boutique en ligne, et si vous le souhaitez, je vous envoie le lien !",
-      "Bonjour {p} 🌿 Petit rappel : votre cure {de} arrive au bout. Voulez-vous que je vous envoie le lien de ma boutique pour la recommander ?"],
-    hint: ["Bonjour {p} ! 😊 Vous commandez régulièrement, alors je me suis dit que cela pourrait vous intéresser : en devenant partenaire, vous auriez des prix réduits sur vos produits. Voulez-vous que je vous explique ?"]
+    vip: ["Bonjour {p} ! ⭐ Votre réserve {de} doit bientôt toucher à sa fin. Comme vous êtes VIP chez moi, vous profitez de {perk}. Voulez-vous que je prépare votre commande ?",
+      "Bonjour {p} 🌿 Petit rappel VIP : votre cure {de} arrive au bout, et votre avantage ({perk}) vous attend. Souhaitez-vous repasser commande ?"],
+    hint: ["Bonjour {p} ! ⭐ Vous faites partie de mes plus fidèles, alors je vous offre le statut VIP : vous profitez de {perk}. Merci pour votre confiance !",
+      "Bonjour {p} 😊 Pour vous remercier de votre fidélité, vous passez VIP : {perk}. Cela me fait plaisir !"],
+    ask: ["Bonjour {p} ! 😊 Connaissez-vous quelqu'un autour de vous que mes produits pourraient intéresser ? Vous pouvez lui donner mon numéro, je lui donnerai des conseils avec plaisir.",
+      "Bonjour {p} 🌿 Si quelqu'un de votre entourage cherche des produits naturels, n'hésitez pas à lui parler de moi. Je peux lui faire découvrir, sans engagement !"]
   }
 };
 const xMsg = (key, name, k = 0, extra = {}) => {
@@ -642,13 +649,14 @@ const xMsg = (key, name, k = 0, extra = {}) => {
   return m;
 };
 
-/* Clients qui ont intérêt à devenir partenaires */
+/* Fidélité : clients qui méritent le statut VIP */
 function lastOrder(c) { let d = null; for (const sl of S.sales) if (sl.clientId === c.id && (!d || sl.date > d)) d = sl.date; return d; }
 function spent90(c) { const from = addDays(today(), -90); return S.sales.filter(sl => sl.clientId === c.id && sl.date >= from).reduce((t, sl) => t + (sl.price || 0) * sl.qty, 0); }
+const orderCount = c => S.sales.filter(sl => sl.clientId === c.id).length;
 function duePartnerHints() {
   const t = today();
   return S.clients.filter(c => c.status === "direct" && !c.partnerHinted && !(c.hintSnooze && c.hintSnooze > t))
-    .map(c => ({ c, amount: spent90(c) })).filter(h => h.amount >= S.settings.partnerThreshold);
+    .map(c => ({ c, orders: orderCount(c) })).filter(h => h.orders >= S.settings.vipOrders);
 }
 /* La liste du jour, classée par priorité */
 function todayList() {
@@ -666,7 +674,7 @@ function refMessage(s, k) {
 }
 function message(s) {
   const c = client(s.clientId);
-  if (c && (c.status === "partenaire" || c.status === "eshop")) return xMsg(c.status, c.name, s.msg || 0, { de: deProd(s.product) });
+  if (c && c.status === "vip") return xMsg("vip", c.name, s.msg || 0, { de: deProd(s.product), perk: S.settings.vipPerk });
   const list = TEMPLATES[S.tone] || TEMPLATES.tu;
   return list[(s.msg || 0) % list.length].replace("{p}", firstName(c ? c.name : "")).replace("{de}", deProd(s.product));
 }
@@ -883,14 +891,14 @@ function todayCard(it) {
       second: `<button class="btn soft second" data-act="pDone" data-id="${pr.id}">${I.check} Déjà fait</button>`,
       links: `<button data-act="pConvert" data-id="${pr.id}">A acheté</button> · <button data-act="pLater" data-id="${pr.id}">Plus tard</button> · <button data-act="pLost" data-id="${pr.id}">Pas intéressé</button>` });
   }
-  const { c, amount } = it.h;
-  return cardShell({ k: it.k, id: c.id, phone: c.phone, msgId: "hmsg-" + c.id, msg: xMsg("hint", c.name), vary: "nextHMsg", waAct: "hWa", copyAct: "hCopy",
-    head: `<span class="avatar" style="width:52px;height:52px;font-size:1.3rem">💡</span>
+  const { c, orders } = it.h;
+  return cardShell({ k: it.k, id: c.id, phone: c.phone, msgId: "hmsg-" + c.id, msg: xMsg("hint", c.name, c.hmsg || 0, { perk: S.settings.vipPerk }), vary: "nextHMsg", waAct: "hWa", copyAct: "hCopy",
+    head: `<span class="avatar" style="width:52px;height:52px;font-size:1.3rem">⭐</span>
       <div class="who"><button class="name" data-act="fiche" data-id="${c.id}">${esc(c.name)}</button>${exTag(c)}
-        <div class="status ok">A intérêt à devenir partenaire</div><div class="meta2">${euro(amount)} de commandes en 3 mois</div></div>`,
-    extra: `<div class="alt hintline">Ce client commande assez pour avoir intérêt à devenir partenaire : propose-le-lui.</div>`,
-    second: `<button class="btn soft second" data-act="hDone" data-id="${c.id}">${I.check} Déjà proposé</button>`,
-    links: `<button data-act="hBecame" data-id="${c.id}">Est devenu partenaire</button> · <button data-act="hLater" data-id="${c.id}">Plus tard · 30 j</button>` });
+        <div class="status ok">Peut passer VIP</div><div class="meta2">${plural(orders, "commande", "commandes")} · client fidèle</div></div>`,
+    extra: `<div class="alt hintline">Remerciez sa fidélité avec le statut VIP : ${esc(S.settings.vipPerk)}.</div>`,
+    second: `<button class="btn orange second" data-act="hBecame" data-id="${c.id}">⭐ Passer VIP</button>`,
+    links: `<button data-act="hDone" data-id="${c.id}">Pas pour l'instant</button> · <button data-act="hLater" data-id="${c.id}">Plus tard · 30 j</button>` });
 }
 function viewProspects(q) {
   const list = S.prospects.filter(x => !q || x.name.toLowerCase().includes(q) || (x.phone || "").replace(/\s/g, "").includes(q.replace(/\s/g, "")))
@@ -917,6 +925,7 @@ function viewClients() {
     .sort((a, b) => a.name.localeCompare(b.name, "fr"));
   const openP = S.prospects.filter(x => x.status === "open").length;
   let h = `<h1 class="title">Clients</h1><p class="lede">${plural(S.clients.length, "client", "clients")} · ${plural(openP, "prospect en cours", "prospects en cours")}</p>`;
+  h += potentialCard(true);
   h += `<div class="seg"><button class="${ctab === "clients" ? "on" : ""}" data-act="ctab" data-c="clients">Clients · ${S.clients.length}</button><button class="${ctab === "prospects" ? "on" : ""}" data-act="ctab" data-c="prospects">Prospects · ${openP}</button></div>`;
   h += `<label class="search">${I.search}<input id="search" type="search" placeholder="Rechercher un nom ou un numéro" value="${esc(query)}" autocomplete="off"></label>`;
   h += `<button class="btn outline" style="margin-top:12px" data-act="openImport">${I.up} Importer des commandes</button>`;
@@ -929,7 +938,7 @@ function viewClients() {
       const t = next ? timing(next) : null;
       const chip = !next ? "" : next.status === "relance" ? `<span class="chip done">Relancé</span>` : `<span class="chip ${t.cls} num">${shortTiming(next)}</span>`;
       h += `<button class="crow" data-act="fiche" data-id="${c.id}"><span class="avatar ${next && next.status === "open" && diff(next.end, today()) <= 3 ? "" : "blue"}">${esc(initials(c.name))}</span>
-        <span class="grow"><b>${esc(c.name)}</b>${exTag(c)}<div class="meta2">${CSTATUS[c.status]}${next ? " · " + esc(next.product) : ""}</div></span>${chip}</button>`;
+        <span class="grow"><b>${esc(c.name)}</b>${exTag(c)}<div class="meta2">${c.status === "vip" ? "⭐ " : ""}${CSTATUS[c.status]}${next ? " · " + esc(next.product) : ""}</div></span>${chip}</button>`;
     }
     h += `</div>`;
   }
@@ -938,24 +947,35 @@ function viewClients() {
   return h;
 }
 
-/* Classement des meilleurs ambassadeurs : les clients qui vous ont présenté le plus de monde */
+/* Clients potentiels : votre réseau, estimé à partir de vos clients et prospects */
+function potential() {
+  const nc = S.clients.length, np = S.prospects.filter(x => x.status === "open").length;
+  const met = S.clients.filter(c => c.referredBy || c.referredByName).length + S.prospects.filter(x => x.referredBy || x.referredByName).length;
+  return { nc, np, total: nc * POT.client + np * POT.prospect, met };
+}
+function potentialCard(compact) {
+  const p = potential();
+  return `<div class="card pad potc"><div class="potn num">${p.total}</div><div><b>clients potentiels autour de vous</b>
+    <small>${p.nc} ${p.nc > 1 ? "clients" : "client"} × ${POT.client} + ${p.np} ${p.np > 1 ? "prospects" : "prospect"} × ${POT.prospect}${compact ? "" : ` · déjà ${p.met} ${p.met > 1 ? "personnes présentées" : "personne présentée"}`}</small></div></div>`;
+}
+/* Classement des meilleurs ambassadeurs : les clients et prospects qui vous ont présenté le plus de monde */
 function ambassadors(p) {
   const from = p === "month" ? today().slice(0, 8) + "01" : "0000";
   const tally = {};
-  const add = (id, kind) => { if (!id || !client(id)) return; tally[id] = tally[id] || { c: 0, p: 0 }; tally[id][kind]++; };
+  const add = (id, kind) => { if (!id || !person(id)) return; tally[id] = tally[id] || { c: 0, p: 0 }; tally[id][kind]++; };
   S.clients.forEach(c => (c.createdAt || "0000") >= from && add(c.referredBy, "c"));
   S.prospects.forEach(x => (x.createdAt || "0000") >= from && x.status !== "client" && add(x.referredBy, "p"));
-  const rows = Object.entries(tally).map(([id, t]) => ({ who: client(id), nc: t.c, np: t.p, n: t.c + t.p }))
+  const rows = Object.entries(tally).map(([id, t]) => ({ who: person(id), isP: !client(id), nc: t.c, np: t.p, n: t.c + t.p }))
     .sort((a, b) => b.nc - a.nc || b.n - a.n || a.who.name.localeCompare(b.who.name, "fr")).slice(0, 5);
   let h = section("Meilleurs ambassadeurs", rows.length || null);
-  if (!rows.length) return h + `<p class="empty" style="padding-top:6px">Quand un client vous présente quelqu'un, notez-le dans « Recommandé par » : il apparaîtra ici.</p>`;
+  if (!rows.length) return h + `<p class="empty" style="padding-top:6px">Quand un client ou un prospect vous présente quelqu'un, notez-le dans « Recommandé par » : il apparaîtra ici.</p>`;
   const medal = ["🥇", "🥈", "🥉"];
   h += `<div class="card"><ul class="hist">`;
   rows.forEach((r, i) => {
     const detail = [r.nc ? plural(r.nc, "client amené", "clients amenés") : "", r.np ? plural(r.np, "prospect", "prospects") : ""].filter(Boolean).join(" · ");
-    h += `<li data-act="fiche" data-id="${r.who.id}" style="cursor:pointer"><span style="display:flex;gap:12px;align-items:center;min-width:0">
+    h += `<li data-act="${r.isP ? "pfiche" : "fiche"}" data-id="${r.who.id}" style="cursor:pointer"><span style="display:flex;gap:12px;align-items:center;min-width:0">
       <span class="avatar ${i ? "blue" : ""}" style="width:40px;height:40px;font-size:${i < 3 ? "1.25rem" : ".85rem"}">${i < 3 ? medal[i] : esc(initials(r.who.name))}</span>
-      <span style="min-width:0"><b>${esc(r.who.name)}</b>${exTag(r.who)}<br><small>${detail}</small></span></span><b class="num" style="font-size:1.3rem">${r.n}</b></li>`;
+      <span style="min-width:0"><b>${esc(r.who.name)}</b>${exTag(r.who)}<br><small>${r.isP ? "Prospect · " : ""}${detail}</small></span></span><b class="num" style="font-size:1.3rem">${r.n}</b></li>`;
   });
   return h + `</ul></div>`;
 }
@@ -972,12 +992,13 @@ function viewResults() {
     <div class="b"><div class="t"><span>Recommandes obtenues</span><b class="num" id="kpiReco">${st.recos}</b></div><div class="line"><span style="width:${Math.round(st.recos / maxv * 100)}%"></span></div></div></div>`;
   h += section("Bouche-à-oreille") + `<div class="card bars">
     <div class="b"><div class="t"><span>Demandes envoyées</span><b class="num" id="kpiAsk">${st.asks}</b></div><div class="line blue"><span style="width:${st.asks ? 100 : 0}%"></span></div></div>
-    <div class="b"><div class="t"><span>Nouveaux clients amenés par vos clients</span><b class="num" id="kpiRef">${st.referred}</b></div><div class="line"><span style="width:${Math.round(Math.min(1, st.referred / Math.max(1, st.asks)) * 100)}%"></span></div></div></div>`;
+    <div class="b"><div class="t"><span>Nouveaux clients amenés par recommandation</span><b class="num" id="kpiRef">${st.referred}</b></div><div class="line"><span style="width:${Math.round(Math.min(1, st.referred / Math.max(1, st.asks)) * 100)}%"></span></div></div></div>`;
+  h += section("Clients potentiels") + potentialCard(false) + `<p class="hint" style="margin-top:8px">Chaque client connaît environ ${POT.client} personnes que vos produits peuvent intéresser, chaque prospect environ ${POT.prospect}. Demandez-leur des contacts !</p>`;
   h += ambassadors(period);
   const cnt = st2 => S.clients.filter(c => c.status === st2).length, pc = () => S.prospects.filter(x => x.status === "open").length;
   h += section("Vos contacts") + `<div class="card"><ul class="hist">
-    <li><span>Clients directs</span><b class="num">${cnt("direct")}</b></li><li><span>Clients partenaires</span><b class="num">${cnt("partenaire")}</b></li>
-    <li><span>Clients e-boutique</span><b class="num">${cnt("eshop")}</b></li><li><span>Prospects en cours</span><b class="num">${pc()}</b></li></ul></div>`;
+    <li><span>Clients</span><b class="num">${cnt("direct")}</b></li><li><span>⭐ Clients VIP</span><b class="num">${cnt("vip")}</b></li>
+    <li><span>Prospects en cours</span><b class="num">${pc()}</b></li></ul></div>`;
   h += section("Prospects") + `<div class="card bars">
     <div class="b"><div class="t"><span>Prospects ajoutés</span><b class="num" id="kpiPAdd">${st.pAdded}</b></div><div class="line blue"><span style="width:${st.pAdded ? 100 : 0}%"></span></div></div>
     <div class="b"><div class="t"><span>Ont acheté</span><b class="num" id="kpiPWon">${st.pWon}</b></div><div class="line"><span style="width:${Math.round(Math.min(1, st.pWon / Math.max(1, st.pAdded)) * 100)}%"></span></div></div></div>`;
@@ -1025,9 +1046,11 @@ function viewSettings() {
         <button class="btn soft" data-act="newEvent">+ Créer un événement</button>`}
     </div></div>`;
 
-  h += section("Relances") + `<div class="card pad">
-    <label class="field" style="margin-top:0"><span>Proposer de devenir partenaire à partir de</span><div class="unit"><input class="input num" id="setThreshold" inputmode="numeric" value="${S.settings.partnerThreshold}"><b>€ de commandes sur 3 mois</b></div></label>
-    <button class="btn outline" style="margin-top:14px" data-act="openImport">${I.up} Importer des commandes</button></div>`;
+  h += section("Fidélité VIP") + `<div class="card pad">
+    <label class="field" style="margin-top:0"><span>Avantage VIP</span><input class="input" id="setVipPerk" value="${esc(S.settings.vipPerk)}" placeholder="ex. : 10 % de remise sur chaque commande"></label>
+    <label class="field"><span>Proposer le statut VIP à partir de</span><div class="unit"><input class="input num" id="setThreshold" inputmode="numeric" value="${S.settings.vipOrders}"><b>commandes</b></div></label>
+    <p class="hint" style="margin:10px 0 0">L'avantage est rappelé dans chaque relance de vos clients VIP.</p></div>`;
+  h += section("Importer") + `<div class="card pad"><button class="btn outline" style="margin-top:0" data-act="openImport">${I.up} Importer des commandes</button></div>`;
 
   h += section("Ton des messages") + `<div class="seg" style="margin-top:0">
     <button class="${S.tone === "tu" ? "on" : ""}" data-act="tone" data-t="tu">Tutoiement</button>
@@ -1061,13 +1084,14 @@ function openNewSale(clientId, fromProspect) {
   const pp = pr && pr.interest ? S.products.find(x => x.name.toLowerCase() === pr.interest.trim().toLowerCase()) : null;
   form = { pid: (pp || S.products[0] || {}).id, qty: 1, prospectId: pr ? pr.id : null };
   const names = S.clients.map(x => `<option value="${esc(x.name)}">`).join("");
+  const refNames = S.clients.concat(S.prospects.filter(y => y.status === "open")).map(x => `<option value="${esc(x.name)}">`).join("");
   openSheet(`<div class="shead"><h3>Nouvelle vente</h3>${closeBtn}</div>
     ${!c && !pr ? `<div class="seg" style="margin:12px 0 0"><button type="button" class="on">Une vente</button><button type="button" data-act="toRencontre">Une rencontre</button></div>` : ""}
     <form id="saleForm" autocomplete="off">
       <label class="field"><span>Client</span><input class="input" id="fName" list="clientNames" required placeholder="Prénom Nom" value="${c ? esc(c.name) : pr ? esc(pr.name) : ""}" enterkeyhint="next"></label>
-      <datalist id="clientNames">${names}</datalist>
+      <datalist id="clientNames">${names}</datalist><datalist id="refNames">${refNames}</datalist>
       <label class="field"><span>Téléphone <i>· facultatif</i></span><input class="input" id="fPhone" type="tel" inputmode="tel" placeholder="06 12 34 56 78" value="${c ? esc(c.phone) : pr ? esc(pr.phone) : ""}"></label>
-      <label class="field ${c ? "hidden" : ""}" id="fRefWrap"><span>Recommandé par <i>· facultatif, si un client vous l'a amené</i></span><input class="input" id="fRef" list="clientNames" placeholder="Nom du client qui vous l'a présenté" value="${pr ? esc(refNameOf(pr)) : ""}"></label>
+      <label class="field ${c ? "hidden" : ""}" id="fRefWrap"><span>Recommandé par <i>· facultatif, si quelqu'un vous l'a amené</i></span><input class="input" id="fRef" list="refNames" placeholder="Client ou prospect qui vous l'a présenté" value="${pr ? esc(refNameOf(pr)) : ""}"></label>
       <div class="field"><span>Produit</span><div class="pchips" id="chips"></div></div>
       <div id="newProd" class="subform hidden">
         <label class="field"><span>Nom du produit</span><input class="input" id="npName" placeholder="ex. : Dentifrice aloe vera"></label>
@@ -1119,7 +1143,7 @@ function submitSale() {
   if (!c) { c = { id: uid(), name, phone, example: false, createdAt: today(), status: "direct", statusLog: [{ s: "direct", date: today() }] }; S.clients.push(c); isNew = true; }
   else if (phone) c.phone = phone;
   if (isNew && refName) {
-    const r = S.clients.find(x => x !== c && x.name.toLowerCase() === refName.toLowerCase());
+    let r = findPerson(refName); if (r === c) r = null;
     if (r) c.referredBy = r.id; else c.referredByName = refName;
   }
   const counted = recordSale(c, p, form.qty, date);
@@ -1153,11 +1177,11 @@ function recordSale(c, p, qty, date) {
   return counted;
 }
 function refLine(c) {
-  const by = c.referredBy ? client(c.referredBy) : null;
-  const brought = S.clients.filter(x => x.referredBy === c.id);
+  const by = c.referredBy ? person(c.referredBy) : null;
+  const brought = S.clients.concat(S.prospects.filter(x => x.status !== "client")).filter(x => x.referredBy === c.id);
   let h = "";
   if (by || c.referredByName) h += `<div class="notice" style="margin-top:14px"><span>Recommandé par <b>${esc(by ? by.name : c.referredByName)}</b></span></div>`;
-  if (brought.length) h += `<div class="notice" style="margin-top:10px"><span>A amené ${plural(brought.length, "client", "clients")} : <b>${brought.map(x => esc(x.name)).join(", ")}</b></span></div>`;
+  if (brought.length) h += `<div class="notice" style="margin-top:10px"><span>A présenté ${plural(brought.length, "personne", "personnes")} : <b>${brought.map(x => esc(x.name)).join(", ")}</b></span></div>`;
   return h;
 }
 function openFiche(id) {
@@ -1165,17 +1189,19 @@ function openFiche(id) {
   const sales = S.sales.filter(s => s.clientId === id).sort((a, b) => b.date.localeCompare(a.date));
   const evs = S.events.filter(e => e.clientId === id).sort((a, b) => b.date.localeCompare(a.date));
   const STATUS = { open: ["En cours", ""], relance: ["Relancé", "done"], recommande: ["A recommandé", "done"], rachete: ["Racheté", "done"], sanssuite: ["Sans suite", ""] };
-  const EV = { relance: "Relancé", recommande: "A recommandé", report: "Reporté de 3 jours", sanssuite: "Classé sans suite", bouche: "Demande de bouche-à-oreille", occasion: "Message d'occasion", accomp: "Accompagnement", hint: "Proposition de devenir partenaire" };
+  const EV = { relance: "Relancé", recommande: "A recommandé", report: "Reporté de 3 jours", sanssuite: "Classé sans suite", bouche: "Demande de bouche-à-oreille", occasion: "Message d'occasion", accomp: "Accompagnement", hint: "Statut VIP pas proposé" };
   const total = sales.reduce((t, s) => t + (s.price || 0) * s.qty, 0);
-  openSheet(`<div class="shead"><div style="display:flex;gap:12px;align-items:center;min-width:0"><span class="avatar">${esc(initials(c.name))}</span>
+  openSheet(`<div class="shead"><div style="display:flex;gap:12px;align-items:center;min-width:0"><span class="avatar">${c.status === "vip" ? "⭐" : esc(initials(c.name))}</span>
       <div style="min-width:0"><h3>${esc(c.name)}${exTag(c)}</h3><div class="meta2">${plural(sales.length, "achat", "achats")} · ${euro(total)}</div></div></div>${closeBtn}</div>
     <label class="field"><span>Nom</span><input class="input" data-cfield="name" data-id="${c.id}" value="${esc(c.name)}"></label>
     <label class="field"><span>Téléphone</span><input class="input" type="tel" inputmode="tel" data-cfield="phone" data-id="${c.id}" value="${esc(c.phone)}" placeholder="Aucun numéro"></label>
     <label class="field"><span>Anniversaire <i>· facultatif, pour lui envoyer un petit cadeau</i></span><input class="input" type="date" data-cfield="birthday" data-id="${c.id}" value="${esc(c.birthday || "")}"></label>
-    <div class="field"><span>Statut</span><div class="pchips">${Object.entries(CSTATUS).map(([k, l]) => `<button type="button" class="pchip ${c.status === k ? "on" : ""}" data-act="setStatus" data-id="${c.id}" data-s="${k}">${l}</button>`).join("")}</div>
+    <div class="field"><span>Fidélité</span><div class="pchips">${Object.entries(CSTATUS).map(([k, l]) => `<button type="button" class="pchip ${c.status === k ? "on" : ""}" data-act="setStatus" data-id="${c.id}" data-s="${k}">${l}</button>`).join("")}</div>
       <div class="hint" style="margin:8px 0 0">${(c.statusLog || []).slice().reverse().map(x => `${CSTATUS[x.s]} depuis le ${fmt(x.date)}`).join(" · ")}</div></div>
+    ${c.status === "vip" ? `<div class="notice" style="margin-top:14px"><span>⭐ Avantage VIP : <b>${esc(S.settings.vipPerk)}</b></span></div>` : ""}
     ${refLine(c)}
     <button class="btn primary" style="margin-top:14px" data-act="newSaleFor" data-id="${c.id}">Nouvelle vente pour ${esc(firstName(c.name))}</button>
+    <button class="btn outline" style="margin-top:8px" data-act="askRef" data-id="${c.id}">Demander des contacts à ${esc(firstName(c.name))}</button>
     <div class="section"><h2>Achats</h2><span class="pill num">${sales.length}</span></div>
     <div class="card"><ul class="hist">${sales.map(s => `<li><span style="min-width:0"><b>${esc(s.product)} × ${s.qty}</b><br><small>Acheté le ${fmt(s.date)} · fin ${fmt(s.end)}${s.price ? " · " + euro(s.price * s.qty) : ""}</small></span>
       <span style="display:flex;gap:8px;align-items:center"><span class="chip ${STATUS[s.status]?.[1] || ""}">${STATUS[s.status]?.[0] || ""}</span><button class="x" data-act="delSale" data-id="${s.id}" aria-label="Supprimer cet achat">${I.x}</button></span></li>`).join("") || `<li><small>Aucun achat.</small></li>`}</ul></div>
@@ -1209,8 +1235,8 @@ function drawWhere() {
 function openProspectForm(id, opts = {}) {
   const x = id ? prospect(id) : null;
   pform = { where: x ? x.where || "" : opts.refId ? "bao" : "", touched: !!x, kind: "client" };
-  const ref = x ? refNameOf(x) : opts.refId ? (client(opts.refId) || {}).name || "" : "";
-  const names = S.clients.map(c => `<option value="${esc(c.name)}">`).join("");
+  const ref = x ? refNameOf(x) : opts.refId ? (person(opts.refId) || {}).name || "" : "";
+  const names = S.clients.concat(S.prospects.filter(y => !x || y.id !== x.id)).map(c => `<option value="${esc(c.name)}">`).join("");
   const prods = S.products.map(pp => `<option value="${esc(pp.name)}">`).join("");
   const hist = x ? S.events.filter(e => e.prospectId === x.id).sort((a, b) => b.date.localeCompare(a.date)) : [];
   const EVP = { pjoin: "Devenu client", pcontact: "Contacté", pclient: "A acheté", plater: "Reporté de 3 jours", plost: "Pas intéressé", occasion: "Message d'occasion" };
@@ -1223,7 +1249,7 @@ function openProspectForm(id, opts = {}) {
       <div class="field"><span>Lieu de la rencontre <i>· facultatif</i></span><div class="pchips" id="whereChips"></div></div>
       <label class="field"><span>Intéressé par <i>· facultatif</i></span><input class="input" id="pInterest" list="prodNames" placeholder="ex. : Gel aloe vera" value="${x ? esc(x.interest) : ""}"></label>
       <datalist id="prodNames">${prods}</datalist>
-      <label class="field"><span>Recommandé par <i>· facultatif</i></span><input class="input" id="pRef" list="pClientNames" placeholder="Nom du client qui vous l'a présenté" value="${esc(ref)}"></label>
+      <label class="field"><span>Recommandé par <i>· facultatif</i></span><input class="input" id="pRef" list="pClientNames" placeholder="Client ou prospect qui vous l'a présenté" value="${esc(ref)}"></label>
       <datalist id="pClientNames">${names}</datalist>
       <label class="field"><span>Anniversaire <i>· facultatif</i></span><input class="input" id="pBirth" type="date" value="${x ? esc(x.birthday || "") : ""}"></label>
       <label class="field"><span>Note <i>· facultatif</i></span><input class="input" id="pNote" placeholder="ex. : cherche un soin pour peau sèche" value="${x ? esc(x.note) : ""}"></label>
@@ -1233,6 +1259,7 @@ function openProspectForm(id, opts = {}) {
     </form>
     ${x && x.status === "open" ? `<button class="btn orange" style="margin-top:8px" data-act="pConvert" data-id="${x.id}">${I.bag} A acheté</button>
       <button class="btn soft" style="margin-top:8px" data-act="pLost" data-id="${x.id}">Pas intéressé</button>` : ""}
+    ${x ? `<button class="btn outline" style="margin-top:8px" data-act="askRef" data-id="${x.id}">Demander des contacts à ${esc(firstName(x.name))}</button>` : ""}
     ${x && x.status === "lost" ? `<button class="btn soft" style="margin-top:8px" data-act="pReopen" data-id="${x.id}">Remettre en suivi</button>` : ""}
     ${x && x.status === "client" && x.clientId && client(x.clientId) ? `<button class="btn soft" style="margin-top:8px" data-act="fiche" data-id="${x.clientId}">Voir sa fiche client</button>` : ""}
     ${x ? `<div class="section"><h2>Historique</h2><span class="pill num">${hist.length}</span></div>
@@ -1256,7 +1283,7 @@ function submitProspect(formEl) {
   x.next = document.getElementById("pNext").value || today();
   x.where = pform.where; x.kind = pform.kind;
   const refName = document.getElementById("pRef").value.trim();
-  const r = refName ? S.clients.find(c => c.name.toLowerCase() === refName.toLowerCase()) : null;
+  let r = refName ? findPerson(refName) : null; if (r === x) r = null;
   x.referredBy = r ? r.id : null; x.referredByName = r ? "" : refName;
   save(); closeSheet(); if (isNew) { tab = "clients"; ctab = "prospects"; } render();
   toast(isNew ? (x.next <= today() ? `${firstName(name)} est dans vos prospects : à contacter aujourd'hui` : `${firstName(name)} est dans vos prospects : rappel le ${fmt(x.next)}`) : "Prospect mis à jour", snap);
@@ -1323,6 +1350,23 @@ function submitEvent() {
     <p class="lede" style="margin-top:8px">Voulez-vous préparer une invitation personnelle pour vos ${plural(n, "client et prospect", "clients et prospects")} ? Elles apparaîtront dans « Aujourd'hui », prêtes à envoyer une par une.</p>
     <button class="btn orange" style="margin-top:12px" data-act="evInvite">Inviter tout le monde (${n})</button>
     <button class="btn soft" style="margin-top:8px" data-act="close">Plus tard</button>`);
+}
+/* Demander des contacts : à un client comme à un prospect */
+function openAsk(id) {
+  const who = person(id); if (!who) return;
+  const isP = !client(id), k = who.askMsg || 0;
+  openSheet(`<div class="shead"><h3>Demander des contacts à ${esc(firstName(who.name))}</h3>${closeBtn}</div>
+    <p class="lede" style="margin-top:8px">${isP ? "Même sans avoir acheté, un prospect connaît des personnes intéressées." : "Un client content parle de vous autour de lui."} Demandez-lui simplement.</p>
+    <div class="bubble"><div class="top"><span class="small">Message proposé</span><button class="vary" data-act="nextAsk" data-id="${who.id}">${I.redo} Autre</button></div>
+      <textarea class="msg" id="msg-ask" rows="4" aria-label="Message de demande de contacts">${esc(xMsg("ask", who.name, k))}</textarea></div>
+    ${waNumber(who.phone)
+      ? `<a class="btn primary send" href="#" target="_blank" rel="noopener" data-act="askWa" data-id="${who.id}">${I.wa} Envoyer sur WhatsApp</a>`
+      : `<button class="btn primary send" data-act="askCopy" data-id="${who.id}">${I.copy} Copier le message</button>`}
+    <button class="btn outline" style="margin-top:8px" data-act="newProspect" data-ref="${who.id}">+ ${esc(firstName(who.name))} m'a donné un contact</button>`);
+  fitAreas(sheetEl);
+}
+function logAskFor(who) {
+  S.events.push({ id: uid(), type: "bouche", clientId: client(who.id) ? who.id : null, prospectId: client(who.id) ? null : who.id, product: "", date: today(), example: !!who.example }); save();
 }
 function logAsk(saleId) {
   const s = sale(saleId);
@@ -1488,7 +1532,7 @@ function openImportReview(rows) {
   const found = importRows.filter(r => r.c).length;
   openSheet(`<div class="shead"><h3>${plural(importRows.length, "commande trouvée", "commandes trouvées")}</h3>${closeBtn}</div>
     <p class="lede" style="margin-top:8px">${found ? `${plural(found, "contact reconnu", "contacts reconnus")}. ` : ""}Vérifiez, corrigez si besoin, puis validez.</p>
-    <label class="field"><span>Statut des nouveaux contacts</span><select class="input" id="impStatusNew">${Object.entries(CSTATUS).map(([k, l]) => `<option value="${k}" ${k === "partenaire" ? "selected" : ""}>${l}</option>`).join("")}</select></label>
+    <label class="field"><span>Fidélité des nouveaux contacts</span><select class="input" id="impStatusNew">${Object.entries(CSTATUS).map(([k, l]) => `<option value="${k}" ${k === "direct" ? "selected" : ""}>${l}</option>`).join("")}</select></label>
     <div class="improws">${importRows.map((r, i) => `<div class="improw ${r.c ? "ok" : ""}" data-i="${i}">
       <label class="chk"><input type="checkbox" class="impOn" checked> <b>${esc(r.name || "Sans nom")}</b> ${r.c ? `<span class="ttag">reconnu</span>` : `<span class="ttag new">nouveau</span>`}</label>
       <div class="g2"><label class="field"><span>Contact</span><select class="input impC">${contactOpts(r.c)}</select></label>
@@ -1638,6 +1682,10 @@ const actions = {
     pform.where = pform.where === el.dataset.w ? "" : el.dataset.w; drawWhere();
     if (!pform.touched) document.getElementById("pNext").value = pform.where === "bao" ? today() : addDays(today(), 1);
   },
+  askRef: el => { closeSheet(); setTimeout(() => openAsk(el.dataset.id), 50); },
+  nextAsk: el => { const w = person(el.dataset.id); w.askMsg = (w.askMsg || 0) + 1; save(); const ta = document.getElementById("msg-ask"); ta.value = xMsg("ask", w.name, w.askMsg); fitAreas(ta.parentNode); },
+  askWa: el => { const w = person(el.dataset.id); el.href = `https://wa.me/${waNumber(w.phone)}?text=${encodeURIComponent(document.getElementById("msg-ask").value)}`; logAskFor(w); setTimeout(() => toast("Demande de contacts notée"), 300); return true; },
+  askCopy: async el => { const w = person(el.dataset.id); const ok = await copyText(document.getElementById("msg-ask").value); if (ok) logAskFor(w); toast(ok ? "Message copié. Demande de contacts notée." : "Impossible de copier."); },
   newProspect: el => { const ref = el.dataset.ref, kind = el.dataset.kind; closeSheet(); openProspectForm(null, { refId: ref, kind }); },
   pfiche: el => openProspectForm(el.dataset.id),
   nextPMsg: el => { const x = prospect(el.dataset.id); x.msg = (x.msg || 0) + 1; save(); const ta = document.getElementById("pmsg-" + x.id); ta.value = prospectMessage(x); fitAreas(ta.parentNode); },
@@ -1647,12 +1695,12 @@ const actions = {
     setTimeout(() => actions.pDone(el), 300);
     return true;
   },
-  /* Clients qui ont intérêt à devenir partenaires */
-  nextHMsg: () => {},
-  hWa: el => { const c = client(el.dataset.id); el.href = `https://wa.me/${waNumber(c.phone)}?text=${encodeURIComponent(document.getElementById("hmsg-" + c.id).value)}`; setTimeout(() => actions.hDone(el), 300); return true; },
+  /* Fidélité VIP */
+  nextHMsg: el => { const c = client(el.dataset.id); c.hmsg = (c.hmsg || 0) + 1; save(); const ta = document.getElementById("hmsg-" + c.id); ta.value = xMsg("hint", c.name, c.hmsg, { perk: S.settings.vipPerk }); fitAreas(ta.parentNode); },
+  hWa: el => { const c = client(el.dataset.id); el.href = `https://wa.me/${waNumber(c.phone)}?text=${encodeURIComponent(document.getElementById("hmsg-" + c.id).value)}`; setTimeout(() => actions.hBecame(el), 300); return true; },
   hCopy: async el => { const ok = await copyText(document.getElementById("hmsg-" + el.dataset.id).value); toast(ok ? "Message copié. Collez-le dans votre messagerie." : "Impossible de copier."); },
-  hDone: el => { const c = client(el.dataset.id), snap = snapshot(); c.partnerHinted = today(); S.events.push({ id: uid(), type: "hint", clientId: c.id, product: "", date: today(), example: !!c.example }); save(); render(); toast("Proposition notée", snap); },
-  hBecame: el => { const c = client(el.dataset.id), snap = snapshot(); setStatus(c, "partenaire"); c.partnerHinted = today(); save(); render(); toast(`${firstName(c.name)} est maintenant client partenaire`, snap); },
+  hDone: el => { const c = client(el.dataset.id), snap = snapshot(); c.partnerHinted = today(); S.events.push({ id: uid(), type: "hint", clientId: c.id, product: "", date: today(), example: !!c.example }); save(); render(); toast("D'accord, on ne vous le reproposera pas", snap); },
+  hBecame: el => { const c = client(el.dataset.id), snap = snapshot(); setStatus(c, "vip"); c.partnerHinted = today(); save(); render(); toast(`⭐ ${firstName(c.name)} est maintenant VIP`, snap); },
   hLater: el => { const c = client(el.dataset.id), snap = snapshot(); c.hintSnooze = addDays(today(), 30); save(); render(); toast("On vous le reproposera dans 30 jours", snap); },
   setStatus: el => { const c = client(el.dataset.id), snap = snapshot(); setStatus(c, el.dataset.s); save(); render(); openFiche(c.id); toast(`${firstName(c.name)} : ${CSTATUS[c.status]}`, snap); },
   openImport: () => openImport(),
@@ -1786,9 +1834,10 @@ document.addEventListener("change", ev => {
   }
   if (t.id === "setThreshold") {
     const v = Math.max(1, Math.round(num(t.value)) || 0);
-    S.settings.partnerThreshold = v || SET_DEFAULTS.partnerThreshold;
+    S.settings.vipOrders = v || SET_DEFAULTS.vipOrders;
     save(); toast("Réglage enregistré"); return;
   }
+  if (t.id === "setVipPerk") { S.settings.vipPerk = t.value.trim() || SET_DEFAULTS.vipPerk; save(); toast("Avantage VIP enregistré"); return; }
   if (t.id === "setGift") { S.gift = t.value.trim(); save(); toast("Cadeau d'anniversaire enregistré"); return; }
   if (t.dataset.cfield) {
     const c = client(t.dataset.id); if (!c) return;
