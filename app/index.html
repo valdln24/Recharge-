@@ -392,13 +392,13 @@ function seed() {
     note: "Cherche quelque chose pour la digestion", next: t, contacts: 0, status: "open", createdAt: t, msg: 0, example: true, kind: "client" },
     { id: uid(), name: "Thomas Girard", phone: "06 00 00 00 07", interest: "Crème visage", note: "A goûté l'échantillon, peau sèche", next: t, contacts: 0,
       status: "open", createdAt: addDays(t, -3), msg: 0, example: true, kind: "client", where: "salon" }];
-  // Sophie est une cliente VIP (fidélité)
+  // Sophie a un compte fidélité
   s.clients[1].status = "vip"; s.clients[1].statusLog = [{ s: "direct", date: addDays(t, -200) }, { s: "vip", date: addDays(t, -90) }];
   const sandra = { id: uid(), name: "Sandra Lopez", phone: "06 00 00 00 06", example: true, status: "direct",
     statusLog: [{ s: "direct", date: addDays(t, -240) }], createdAt: addDays(t, -240) };
   s.clients.push(sandra);
   s.sales.push(makeSale(sandra.id, s.products[1], 1, addDays(t, -28), true));
-  // Julie commande souvent : Recharge suggère de lui offrir le statut VIP
+  // Julie commande souvent : Recharge suggère de lui ouvrir un compte fidélité
   for (const ago of [-40, -75]) { const o = makeSale(s.clients[3].id, s.products[0], 2, addDays(t, ago), true); o.status = "rachete"; s.sales.push(o); }
   return s;
 }
@@ -447,10 +447,13 @@ function addDemoHistory(s) {
   const p1 = s.products[0];
   s.events.push({ id: uid(), type: "pclient", clientId: s.clients[4].id, prospectId: "demo-p", product: p1.name, amount: p1.price, date: day(.5), example: true },
                 { id: uid(), type: "bnew", clientId: s.clients[5].id, product: s.products[2].name, amount: s.products[2].price, date: day(.7), example: true });
+  // une promo en cours, envoyée aux prospects et aux clients fidélité
+  s.promo = { id: "demo-promo", text: "-20 % sur les coffrets", until: addDays(t, 10), createdAt: t };
 }
-/* Clients et clients VIP (fidélité) */
-const CSTATUS = { direct: "Client", vip: "Client VIP" };
-const SET_DEFAULTS = { vipOrders: 3, vipPerk: "10 % de remise sur chaque commande" };
+/* Clients, et clients avec un compte fidélité (gratuit, remise permanente + offres) */
+const CSTATUS = { direct: "Client", vip: "Compte fidélité" };
+const SET_DEFAULTS = { vipOrders: 3, vipPct: 10, margin: 30 };
+const vipPerk = () => `${S.settings.vipPct} % de remise permanente`;
 /* Clients potentiels : chaque client connaît environ 10 personnes intéressées, chaque prospect environ 5 */
 const POT = { client: 10, prospect: 5 };
 function migrate(d) {
@@ -462,7 +465,8 @@ function migrate(d) {
     c.statusLog.forEach(x => { if (!CSTATUS[x.s]) x.s = x.s === "partenaire" || x.s === "business" ? "vip" : "direct"; });
     delete c.businessSince; delete c.lastNudge; delete c.nudgeSnooze; delete c.bmsg;
   });
-  delete d.settings.inactiveDays; delete d.settings.partnerThreshold;
+  delete d.settings.inactiveDays; delete d.settings.partnerThreshold; delete d.settings.vipPerk;
+  d.prospects.forEach(x => { if (x.status === "lost" && !x.qSet) { x.next = addDays(x.lastContact || x.createdAt || today(), 90); x.qSet = 1; } });
   d.prospects.forEach(x => { x.kind = "client"; });
   return d;
 }
@@ -556,6 +560,7 @@ const LIEU = { reunion: "à la réunion", salon: "au salon", marche: "au marché
 const whereLabel = w => (WHERE.find(x => x[0] === w) || [])[1] || "";
 const refNameOf = x => x.referredBy ? (person(x.referredBy) || {}).name || x.referredByName || "" : x.referredByName || "";
 function prospectMessage(pr) {
+  if (pr.status === "lost" || (pr.contacts || 0) >= 3) return xMsg("quarter", pr.name, pr.msg || 0, { sujet: (pr.interest || "").trim() ? `ce dont on avait parlé (${pr.interest.trim().toLowerCase()})` : "mes produits" });
   const t = P_TEMPLATES[S.tone] || P_TEMPLATES.tu, ref = refNameOf(pr);
   const lieu = LIEU[pr.where] || "";
   const list = pr.contacts ? t.follow : ref ? t.ref : lieu ? t.met : t.first;
@@ -567,18 +572,26 @@ function prospectMessage(pr) {
 }
 const X_TEMPLATES = {
   tu: {
-    vip: ["Coucou {p} ! ⭐ Ta réserve {de} doit bientôt toucher à sa fin. Comme tu es VIP chez moi, tu profites de {perk}. Je te prépare ta commande ?",
-      "Hello {p} 🌿 Petit rappel VIP : ta cure {de} arrive au bout, et ton avantage ({perk}) t'attend. On repasse commande ?"],
-    hint: ["Coucou {p} ! ⭐ Tu fais partie de mes plus fidèles, alors je t'offre le statut VIP : tu profites de {perk}. Merci pour ta confiance !",
-      "Hello {p} 😊 Pour te remercier de ta fidélité, tu passes VIP chez moi : {perk}. Ça me fait plaisir !"],
+    vip: ["Coucou {p} ! ⭐ Ta réserve {de} doit bientôt toucher à sa fin. Avec ton compte fidélité, tu profites de {perk}. Je te prépare ta commande ?",
+      "Hello {p} 🌿 Petit rappel : ta cure {de} arrive au bout, et ton compte fidélité t'attend ({perk}). On repasse commande ?"],
+    hint: ["Coucou {p} ! ⭐ Tu commandes régulièrement, alors je te propose un compte fidélité, gratuit : {perk} et mes offres en avant-première. Ça te dit ?",
+      "Hello {p} 😊 Pour te remercier de ta fidélité, je t'ouvre un compte fidélité gratuit : {perk}, et je te préviens en premier de mes promos. Je te l'active ?"],
+    promo: ["Coucou {p} ! 🎁 En ce moment : {offre}{until}. Ça te tente ? Dis-le-moi, je te prépare ça 😊"],
+    promoVip: ["Coucou {p} ! ⭐ Offre réservée à mes clients fidélité : {offre}{until}. Je te la réserve ? 😊"],
+    quarter: ["Coucou {p} ! J'espère que tu vas bien 😊 Je reviens vers toi : il y a des nouveautés en ce moment. Tu veux que je t'en parle ?",
+      "Hello {p} 🌿 Ça fait un moment ! Si tu as toujours envie de découvrir {sujet}, je suis là, sans aucune obligation."],
     ask: ["Coucou {p} ! 😊 Petite question : tu connais quelqu'un autour de toi que mes produits pourraient intéresser ? Tu peux lui donner mon numéro, je lui donnerai des conseils avec plaisir.",
       "Hello {p} 🌿 Si quelqu'un de ton entourage cherche des produits naturels, n'hésite pas à lui parler de moi. Je peux lui faire découvrir, sans engagement !"]
   },
   vous: {
-    vip: ["Bonjour {p} ! ⭐ Votre réserve {de} doit bientôt toucher à sa fin. Comme vous êtes VIP chez moi, vous profitez de {perk}. Voulez-vous que je prépare votre commande ?",
-      "Bonjour {p} 🌿 Petit rappel VIP : votre cure {de} arrive au bout, et votre avantage ({perk}) vous attend. Souhaitez-vous repasser commande ?"],
-    hint: ["Bonjour {p} ! ⭐ Vous faites partie de mes plus fidèles, alors je vous offre le statut VIP : vous profitez de {perk}. Merci pour votre confiance !",
-      "Bonjour {p} 😊 Pour vous remercier de votre fidélité, vous passez VIP : {perk}. Cela me fait plaisir !"],
+    vip: ["Bonjour {p} ! ⭐ Votre réserve {de} doit bientôt toucher à sa fin. Avec votre compte fidélité, vous profitez de {perk}. Voulez-vous que je prépare votre commande ?",
+      "Bonjour {p} 🌿 Petit rappel : votre cure {de} arrive au bout, et votre compte fidélité vous attend ({perk}). Souhaitez-vous repasser commande ?"],
+    hint: ["Bonjour {p} ! ⭐ Vous commandez régulièrement, alors je vous propose un compte fidélité, gratuit : {perk} et mes offres en avant-première. Cela vous intéresse ?",
+      "Bonjour {p} 😊 Pour vous remercier de votre fidélité, je vous ouvre un compte fidélité gratuit : {perk}, et je vous préviens en premier de mes promos. Je vous l'active ?"],
+    promo: ["Bonjour {p} ! 🎁 En ce moment : {offre}{until}. Cela vous tente ? Dites-le-moi, je vous prépare cela 😊"],
+    promoVip: ["Bonjour {p} ! ⭐ Offre réservée à mes clients fidélité : {offre}{until}. Voulez-vous que je vous la réserve ? 😊"],
+    quarter: ["Bonjour {p} ! J'espère que vous allez bien 😊 Je reviens vers vous : il y a des nouveautés en ce moment. Voulez-vous que je vous en parle ?",
+      "Bonjour {p} 🌿 Cela fait un moment ! Si vous avez toujours envie de découvrir {sujet}, je suis là, sans aucune obligation."],
     ask: ["Bonjour {p} ! 😊 Connaissez-vous quelqu'un autour de vous que mes produits pourraient intéresser ? Vous pouvez lui donner mon numéro, je lui donnerai des conseils avec plaisir.",
       "Bonjour {p} 🌿 Si quelqu'un de votre entourage cherche des produits naturels, n'hésitez pas à lui parler de moi. Je peux lui faire découvrir, sans engagement !"]
   }
@@ -590,7 +603,18 @@ const xMsg = (key, name, k = 0, extra = {}) => {
   return m;
 };
 
-/* Fidélité : clients qui méritent le statut VIP */
+/* Promo du moment : envoyée aux prospects et aux clients fidélité */
+const activePromo = () => S.promo && S.promo.until >= today() ? S.promo : null;
+const promoSentCount = () => { const pr = activePromo(); return pr ? S.events.filter(e => e.type === "promo" && e.promoId === pr.id).length : 0; };
+function promoTargets(all) {
+  const pr = activePromo(); if (!pr) return [];
+  const sent = new Set(S.events.filter(e => e.type === "promo" && e.promoId === pr.id).map(e => e.clientId || e.prospectId));
+  const out = S.clients.filter(c => c.status === "vip").map(c => ({ pk: "c", x: c }))
+    .concat(S.prospects.filter(x => x.status === "open" || x.status === "lost").map(x => ({ pk: "p", x })));
+  return all ? out : out.filter(o => !sent.has(o.x.id));
+}
+const promoMsg = o => { const pr = activePromo(); return xMsg(o.pk === "c" ? "promoVip" : "promo", o.x.name, 0, { offre: pr.text, until: `, jusqu'au ${fmtLong(pr.until)}` }); };
+/* Fidélité : clients à qui proposer un compte fidélité */
 function lastOrder(c) { let d = null; for (const sl of S.sales) if (sl.clientId === c.id && (!d || sl.date > d)) d = sl.date; return d; }
 function spent90(c) { const from = addDays(today(), -90); return S.sales.filter(sl => sl.clientId === c.id && sl.date >= from).reduce((t, sl) => t + (sl.price || 0) * sl.qty, 0); }
 const orderCount = c => S.sales.filter(sl => sl.clientId === c.id).length;
@@ -607,7 +631,7 @@ function todayList() {
   for (const h of duePartnerHints()) items.push({ k: "h:" + h.c.id, type: "hint", h, who: h.c.id, score: 40 });
   return items.sort((a, b) => b.score - a.score);
 }
-const dueProspects = () => S.prospects.filter(x => x.status === "open" && x.next && x.next <= today()).sort((a, b) => a.next.localeCompare(b.next));
+const dueProspects = () => S.prospects.filter(x => (x.status === "open" || x.status === "lost") && x.next && x.next <= today()).sort((a, b) => a.next.localeCompare(b.next));
 function refMessage(s, k) {
   const list = REF_TEMPLATES[S.tone] || REF_TEMPLATES.tu;
   const c = client(s.clientId);
@@ -615,7 +639,7 @@ function refMessage(s, k) {
 }
 function message(s) {
   const c = client(s.clientId);
-  if (c && c.status === "vip") return xMsg("vip", c.name, s.msg || 0, { de: deProd(s.product), perk: S.settings.vipPerk });
+  if (c && c.status === "vip") return xMsg("vip", c.name, s.msg || 0, { de: deProd(s.product), perk: vipPerk() });
   const list = TEMPLATES[S.tone] || TEMPLATES.tu;
   return list[(s.msg || 0) % list.length].replace("{p}", firstName(c ? c.name : "")).replace("{de}", deProd(s.product));
 }
@@ -707,7 +731,7 @@ const app = document.getElementById("app");
 
 function render() {
   document.querySelectorAll("nav.tabs .tab").forEach(b => b.classList.toggle("on", b.dataset.tab === tab));
-  const n = new Set(todayList().map(x => x.who)).size;
+  const n = new Set(todayList().map(x => x.who)).size + promoTargets().length;
   document.getElementById("tabDot").innerHTML = n ? `<span class="dot num">${n}</span>` : "";
   document.getElementById("topMeta").textContent = cap(parse(today()).toLocaleDateString("fr-FR", { weekday: "short", day: "numeric", month: "short" }));
   app.innerHTML = `<div class="enter">${({ today: viewToday, clients: viewClients, results: viewResults, settings: viewSettings })[tab]()}</div>`;
@@ -744,6 +768,20 @@ function viewToday() {
   if (!keys.includes(openCard) && openCard !== "none") openCard = keys[0] || null;
   if (list.length) h += section("À relancer aujourd'hui", list.length);
   for (const it of list) h += todayCard(it);
+
+  const promo = activePromo(), pt = promoTargets();
+  if (promo && pt.length) {
+    h += section(`🎁 Promo : ${esc(promo.text)}`, pt.length) + `<div class="card list">`;
+    for (const o of pt) {
+      const ph = waNumber(o.x.phone);
+      h += `<div class="row"><div style="min-width:0"><button class="name" style="font-size:1rem" data-act="${o.pk === "c" ? "fiche" : "pfiche"}" data-id="${o.x.id}">${esc(o.x.name)}</button>${exTag(o.x)}
+        <div class="meta2">${o.pk === "c" ? "⭐ Compte fidélité" : "Prospect"}</div></div>
+        <div class="btns">${ph ? `<a class="btn sm primary" href="https://wa.me/${ph}?text=${encodeURIComponent(promoMsg(o))}" target="_blank" rel="noopener" data-act="promoSent" data-pk="${o.pk}" data-id="${o.x.id}">${I.wa} Envoyer</a>`
+          : `<button class="btn sm primary" data-act="promoCopy" data-pk="${o.pk}" data-id="${o.x.id}">${I.copy} Copier</button>`}<button class="x" data-act="promoSkip" data-pk="${o.pk}" data-id="${o.x.id}" aria-label="Passer">${I.x}</button></div></div>`;
+    }
+    h += `</div>`;
+  }
+  if (!promo) h += `<button class="btn outline" style="margin-top:22px" data-act="newPromo">📣 Lancer une promo pour vos prospects et clients fidélité</button>`;
 
 
   const wait = waitingSales();
@@ -808,7 +846,7 @@ function todayCard(it) {
   if (it.type === "prospect") {
     const pr = it.x, ref = refNameOf(pr);
     const since = diff(today(), pr.lastContact || pr.createdAt || today());
-    const why = pr.contacts ? `Dernier contact il y a ${since} j` : pr.where && pr.where !== "bao" ? `${whereLabel(pr.where)} il y a ${since} j` : ref ? `Contact donné par ${esc(firstName(ref))}` : "Premier contact";
+    const why = pr.status === "lost" || (pr.contacts || 0) >= 3 ? `Relance trimestrielle · dernier contact il y a ${since} j` : pr.contacts ? `Dernier contact il y a ${since} j` : pr.where && pr.where !== "bao" ? `${whereLabel(pr.where)} il y a ${since} j` : ref ? `Contact donné par ${esc(firstName(ref))}` : "Premier contact";
     return cardShell({ k: it.k, id: pr.id, phone: pr.phone, msgId: "pmsg-" + pr.id, msg: prospectMessage(pr), vary: "nextPMsg", waAct: "pWa", copyAct: "pCopy",
       head: `<span class="avatar blue" style="width:52px;height:52px;font-size:.98rem">${esc(initials(pr.name))}</span>
         <div class="who"><button class="name" data-act="pfiche" data-id="${pr.id}">${esc(pr.name)}</button>${exTag(pr)}
@@ -819,12 +857,12 @@ function todayCard(it) {
       links: `<button data-act="pConvert" data-id="${pr.id}">A acheté</button> · <button data-act="pLater" data-id="${pr.id}">Plus tard</button> · <button data-act="pLost" data-id="${pr.id}">Pas intéressé</button>` });
   }
   const { c, orders } = it.h;
-  return cardShell({ k: it.k, id: c.id, phone: c.phone, msgId: "hmsg-" + c.id, msg: xMsg("hint", c.name, c.hmsg || 0, { perk: S.settings.vipPerk }), vary: "nextHMsg", waAct: "hWa", copyAct: "hCopy",
+  return cardShell({ k: it.k, id: c.id, phone: c.phone, msgId: "hmsg-" + c.id, msg: xMsg("hint", c.name, c.hmsg || 0, { perk: vipPerk() }), vary: "nextHMsg", waAct: "hWa", copyAct: "hCopy",
     head: `<span class="avatar" style="width:52px;height:52px;font-size:1.3rem">⭐</span>
       <div class="who"><button class="name" data-act="fiche" data-id="${c.id}">${esc(c.name)}</button>${exTag(c)}
-        <div class="status ok">Peut passer VIP</div><div class="meta2">${plural(orders, "commande", "commandes")} · client fidèle</div></div>`,
-    extra: `<div class="alt hintline">Remerciez sa fidélité avec le statut VIP : ${esc(S.settings.vipPerk)}.</div>`,
-    second: `<button class="btn orange second" data-act="hBecame" data-id="${c.id}">⭐ Passer VIP</button>`,
+        <div class="status ok">Compte fidélité à proposer</div><div class="meta2">${plural(orders, "commande", "commandes")} · client fidèle</div></div>`,
+    extra: `<div class="alt hintline">Gratuit pour votre client : ${esc(vipPerk())} et vos offres en avant-première. Vous gardez ${S.settings.margin - S.settings.vipPct} % de marge.</div>`,
+    second: `<button class="btn orange second" data-act="hBecame" data-id="${c.id}">⭐ Ouvrir son compte fidélité</button>`,
     links: `<button data-act="hDone" data-id="${c.id}">Pas pour l'instant</button> · <button data-act="hLater" data-id="${c.id}">Plus tard · 30 j</button>` });
 }
 function viewProspects(q) {
@@ -876,7 +914,7 @@ function viewClients() {
 
 /* Clients potentiels : votre réseau, estimé à partir de vos clients et prospects */
 function potential() {
-  const nc = S.clients.length, np = S.prospects.filter(x => x.status === "open").length;
+  const nc = S.clients.length, np = S.prospects.filter(x => x.status !== "client").length;
   const met = S.clients.filter(c => c.referredBy || c.referredByName).length + S.prospects.filter(x => x.referredBy || x.referredByName).length;
   return { nc, np, total: nc * POT.client + np * POT.prospect, met };
 }
@@ -899,10 +937,19 @@ function viewResults() {
   h += section("Bouche-à-oreille") + `<div class="card bars">
     <div class="b"><div class="t"><span>Demandes envoyées</span><b class="num" id="kpiAsk">${st.asks}</b></div><div class="line blue"><span style="width:${st.asks ? 100 : 0}%"></span></div></div>
     <div class="b"><div class="t"><span>Nouveaux clients amenés par recommandation</span><b class="num" id="kpiRef">${st.referred}</b></div><div class="line"><span style="width:${Math.round(Math.min(1, st.referred / Math.max(1, st.asks)) * 100)}%"></span></div></div></div>`;
+  const from = period === "month" ? today().slice(0, 8) + "01" : "0000";
+  const vipSince = c => ((c.statusLog || []).filter(x => x.s === "vip").slice(-1)[0] || {}).date || "0000";
+  const vipSales = S.sales.filter(sl => { const c = client(sl.clientId); return c && c.status === "vip" && sl.date >= from && sl.date >= vipSince(c); });
+  const vipCA = vipSales.reduce((t, sl) => t + (sl.price || 0) * sl.qty, 0), keepPct = Math.max(0, S.settings.margin - S.settings.vipPct);
+  h += section("Compte fidélité") + `<div class="card"><ul class="hist">
+    <li><span>⭐ Clients fidélité</span><b class="num">${S.clients.filter(c => c.status === "vip").length}</b></li>
+    <li><span>Ventes fidélité</span><b class="num" id="kpiVip">${euro(vipCA)}</b></li>
+    <li><span>Remises accordées (${S.settings.vipPct} %)</span><b class="num">${euro(Math.round(vipCA * S.settings.vipPct / 100))}</b></li>
+    <li><span>Marge gardée (${keepPct} %)</span><b class="num">≈ ${euro(Math.round(vipCA * keepPct / 100))}</b></li></ul></div>`;
   h += section("Clients potentiels") + potentialCard(false) + `<p class="hint" style="margin-top:8px">Chaque client connaît environ ${POT.client} personnes que vos produits peuvent intéresser, chaque prospect environ ${POT.prospect}. Demandez-leur des contacts !</p>`;
   const cnt = st2 => S.clients.filter(c => c.status === st2).length, pc = () => S.prospects.filter(x => x.status === "open").length;
   h += section("Vos contacts") + `<div class="card"><ul class="hist">
-    <li><span>Clients</span><b class="num">${cnt("direct")}</b></li><li><span>⭐ Clients VIP</span><b class="num">${cnt("vip")}</b></li>
+    <li><span>Clients</span><b class="num">${cnt("direct")}</b></li><li><span>⭐ Comptes fidélité</span><b class="num">${cnt("vip")}</b></li>
     <li><span>Prospects en cours</span><b class="num">${pc()}</b></li></ul></div>`;
   h += section("Prospects") + `<div class="card bars">
     <div class="b"><div class="t"><span>Prospects ajoutés</span><b class="num" id="kpiPAdd">${st.pAdded}</b></div><div class="line blue"><span style="width:${st.pAdded ? 100 : 0}%"></span></div></div>
@@ -935,10 +982,17 @@ function viewSettings() {
   h += `<p class="hint" style="margin:10px 0 0">Jours = durée d'un produit. Prix = prix de vente au client.</p>
     <button class="btn soft" style="margin-top:12px" data-act="addProductRow">Ajouter un produit</button></div>`;
 
-  h += section("Fidélité VIP") + `<div class="card pad">
-    <label class="field" style="margin-top:0"><span>Avantage VIP</span><input class="input" id="setVipPerk" value="${esc(S.settings.vipPerk)}" placeholder="ex. : 10 % de remise sur chaque commande"></label>
-    <label class="field"><span>Proposer le statut VIP à partir de</span><div class="unit"><input class="input num" id="setThreshold" inputmode="numeric" value="${S.settings.vipOrders}"><b>commandes</b></div></label>
-    <p class="hint" style="margin:10px 0 0">L'avantage est rappelé dans chaque relance de vos clients VIP.</p></div>`;
+  const keep = S.settings.margin - S.settings.vipPct;
+  h += section("Compte fidélité") + `<div class="card pad">
+    <p class="hint" style="margin:0 0 4px">Gratuit pour vos clients : une remise permanente et vos promos en avant-première.</p>
+    <div class="two" style="grid-template-columns:1fr 1fr">
+      <label class="field"><span>Remise fidélité</span><div class="unit"><input class="input num" id="setVipPct" inputmode="numeric" value="${S.settings.vipPct}"><b>%</b></div></label>
+      <label class="field"><span>Votre marge</span><div class="unit"><input class="input num" id="setMargin" inputmode="numeric" value="${S.settings.margin}"><b>%</b></div></label></div>
+    <div class="notice" style="margin-top:12px"><span>${keep > 0 ? `Vous gardez <b>${keep} %</b> de marge sur les ventes fidélité.` : `Attention : avec cette remise, vous ne gardez plus de marge.`}</span></div>
+    <label class="field"><span>Proposer le compte à partir de</span><div class="unit"><input class="input num" id="setThreshold" inputmode="numeric" value="${S.settings.vipOrders}"><b>commandes</b></div></label></div>`;
+  const pr = activePromo();
+  h += section("Promo du moment") + `<div class="card pad">${pr ? `<b style="display:block">🎁 ${esc(pr.text)}</b><p class="hint" style="margin:4px 0 12px">Jusqu'au ${fmt(pr.until)} · envoyée à ${promoSentCount()} sur ${promoTargets(true).length} personnes</p>` : `<p class="hint" style="margin:0 0 12px">Une offre à annoncer ? Recharge prépare un message pour vos prospects et vos clients fidélité.</p>`}
+    <button class="btn ${pr ? "soft" : "orange"}" data-act="newPromo">${pr ? "Modifier la promo" : "📣 Lancer une promo"}</button></div>`;
   h += section("Importer") + `<div class="card pad"><button class="btn outline" style="margin-top:0" data-act="openImport">${I.up} Importer des commandes</button></div>`;
 
   h += section("Ton des messages") + `<div class="seg" style="margin-top:0">
@@ -1078,7 +1132,7 @@ function openFiche(id) {
   const sales = S.sales.filter(s => s.clientId === id).sort((a, b) => b.date.localeCompare(a.date));
   const evs = S.events.filter(e => e.clientId === id).sort((a, b) => b.date.localeCompare(a.date));
   const STATUS = { open: ["En cours", ""], relance: ["Relancé", "done"], recommande: ["A recommandé", "done"], rachete: ["Racheté", "done"], sanssuite: ["Sans suite", ""] };
-  const EV = { relance: "Relancé", recommande: "A recommandé", report: "Reporté de 3 jours", sanssuite: "Classé sans suite", bouche: "Demande de bouche-à-oreille", occasion: "Message d'occasion", accomp: "Accompagnement", hint: "Statut VIP pas proposé" };
+  const EV = { relance: "Relancé", recommande: "A recommandé", report: "Reporté de 3 jours", sanssuite: "Classé sans suite", bouche: "Demande de bouche-à-oreille", occasion: "Message d'occasion", accomp: "Accompagnement", hint: "Compte fidélité pas proposé", promo: "Promo envoyée" };
   const total = sales.reduce((t, s) => t + (s.price || 0) * s.qty, 0);
   openSheet(`<div class="shead"><div style="display:flex;gap:12px;align-items:center;min-width:0"><span class="avatar">${c.status === "vip" ? "⭐" : esc(initials(c.name))}</span>
       <div style="min-width:0"><h3>${esc(c.name)}${exTag(c)}</h3><div class="meta2">${plural(sales.length, "achat", "achats")} · ${euro(total)}</div></div></div>${closeBtn}</div>
@@ -1086,7 +1140,7 @@ function openFiche(id) {
     <label class="field"><span>Téléphone</span><input class="input" type="tel" inputmode="tel" data-cfield="phone" data-id="${c.id}" value="${esc(c.phone)}" placeholder="Aucun numéro"></label>
     <div class="field"><span>Fidélité</span><div class="pchips">${Object.entries(CSTATUS).map(([k, l]) => `<button type="button" class="pchip ${c.status === k ? "on" : ""}" data-act="setStatus" data-id="${c.id}" data-s="${k}">${l}</button>`).join("")}</div>
       <div class="hint" style="margin:8px 0 0">${(c.statusLog || []).slice().reverse().map(x => `${CSTATUS[x.s]} depuis le ${fmt(x.date)}`).join(" · ")}</div></div>
-    ${c.status === "vip" ? `<div class="notice" style="margin-top:14px"><span>⭐ Avantage VIP : <b>${esc(S.settings.vipPerk)}</b></span></div>` : ""}
+    ${c.status === "vip" ? `<div class="notice" style="margin-top:14px"><span>⭐ Compte fidélité : <b>${esc(vipPerk())}</b></span></div>` : ""}
     ${refLine(c)}
     <button class="btn primary" style="margin-top:14px" data-act="newSaleFor" data-id="${c.id}">Nouvelle vente pour ${esc(firstName(c.name))}</button>
     <button class="btn outline" style="margin-top:8px" data-act="askRef" data-id="${c.id}">Demander des contacts à ${esc(firstName(c.name))}</button>
@@ -1176,6 +1230,23 @@ function submitProspect(formEl) {
 }
 const pEvent = (type, x) => S.events.push({ id: uid(), type, prospectId: x.id, product: x.interest || "", date: today(), example: !!x.example });
 const currentPMsg = id => { const ta = document.getElementById("pmsg-" + id); return ta ? ta.value : prospectMessage(prospect(id)); };
+function openPromoForm() {
+  const pr = S.promo || {};
+  openSheet(`<div class="shead"><h3>${activePromo() ? "Votre promo" : "Lancer une promo"}</h3>${closeBtn}</div>
+    <p class="lede" style="margin-top:8px">Recharge prépare un message pour chacun de vos prospects et de vos clients fidélité. Ils apparaissent dans « Aujourd'hui ».</p>
+    <form id="promoForm" autocomplete="off">
+      <label class="field"><span>L'offre</span><input class="input" id="prText" required placeholder="ex. : -20 % sur les coffrets" value="${esc(activePromo() ? pr.text : "")}"></label>
+      <label class="field"><span>Jusqu'au</span><input class="input" id="prUntil" type="date" required value="${activePromo() ? pr.until : addDays(today(), 14)}"></label>
+      <button class="btn primary" style="margin-top:16px" type="submit">${activePromo() ? "Enregistrer" : "Préparer les messages"}</button>
+    </form>
+    ${activePromo() ? `<button class="btn danger" style="margin-top:8px" data-act="promoStop">Arrêter la promo</button>` : ""}`);
+}
+function promoLog(pk, id, skip) {
+  const pr = activePromo(), x = pk === "c" ? client(id) : prospect(id); if (!pr || !x) return;
+  S.events.push({ id: uid(), type: "promo", promoId: pr.id, skip: !!skip, [pk === "c" ? "clientId" : "prospectId"]: id, product: "", date: today(), example: !!x.example });
+  if (pk === "p" && !skip) { x.lastContact = today(); }
+  save();
+}
 /* Demander des contacts : à un client comme à un prospect */
 function openAsk(id) {
   const who = person(id); if (!who) return;
@@ -1488,6 +1559,11 @@ const actions = {
     pform.where = pform.where === el.dataset.w ? "" : el.dataset.w; drawWhere();
     if (!pform.touched) document.getElementById("pNext").value = pform.where === "bao" ? today() : addDays(today(), 1);
   },
+  newPromo: () => openPromoForm(),
+  promoStop: () => { const snap = snapshot(); S.promo = null; save(); closeSheet(); render(); toast("Promo arrêtée", snap); },
+  promoSent: el => { promoLog(el.dataset.pk, el.dataset.id); setTimeout(() => render(), 300); return true; },
+  promoCopy: async el => { const o = { pk: el.dataset.pk, x: el.dataset.pk === "c" ? client(el.dataset.id) : prospect(el.dataset.id) }; const ok = await copyText(promoMsg(o)); if (ok) { promoLog(o.pk, o.x.id); render(); } toast(ok ? "Message copié. Collez-le dans votre messagerie." : "Impossible de copier."); },
+  promoSkip: el => { const snap = snapshot(); promoLog(el.dataset.pk, el.dataset.id, true); render(); toast("Passé", snap); },
   askRef: el => { closeSheet(); setTimeout(() => openAsk(el.dataset.id), 50); },
   nextAsk: el => { const w = person(el.dataset.id); w.askMsg = (w.askMsg || 0) + 1; save(); const ta = document.getElementById("msg-ask"); ta.value = xMsg("ask", w.name, w.askMsg); fitAreas(ta.parentNode); },
   askWa: el => { const w = person(el.dataset.id); el.href = `https://wa.me/${waNumber(w.phone)}?text=${encodeURIComponent(document.getElementById("msg-ask").value)}`; logAskFor(w); setTimeout(() => toast("Demande de contacts notée"), 300); return true; },
@@ -1501,12 +1577,12 @@ const actions = {
     setTimeout(() => actions.pDone(el), 300);
     return true;
   },
-  /* Fidélité VIP */
-  nextHMsg: el => { const c = client(el.dataset.id); c.hmsg = (c.hmsg || 0) + 1; save(); const ta = document.getElementById("hmsg-" + c.id); ta.value = xMsg("hint", c.name, c.hmsg, { perk: S.settings.vipPerk }); fitAreas(ta.parentNode); },
+  /* Compte fidélité */
+  nextHMsg: el => { const c = client(el.dataset.id); c.hmsg = (c.hmsg || 0) + 1; save(); const ta = document.getElementById("hmsg-" + c.id); ta.value = xMsg("hint", c.name, c.hmsg, { perk: vipPerk() }); fitAreas(ta.parentNode); },
   hWa: el => { const c = client(el.dataset.id); el.href = `https://wa.me/${waNumber(c.phone)}?text=${encodeURIComponent(document.getElementById("hmsg-" + c.id).value)}`; setTimeout(() => actions.hBecame(el), 300); return true; },
   hCopy: async el => { const ok = await copyText(document.getElementById("hmsg-" + el.dataset.id).value); toast(ok ? "Message copié. Collez-le dans votre messagerie." : "Impossible de copier."); },
   hDone: el => { const c = client(el.dataset.id), snap = snapshot(); c.partnerHinted = today(); S.events.push({ id: uid(), type: "hint", clientId: c.id, product: "", date: today(), example: !!c.example }); save(); render(); toast("D'accord, on ne vous le reproposera pas", snap); },
-  hBecame: el => { const c = client(el.dataset.id), snap = snapshot(); setStatus(c, "vip"); c.partnerHinted = today(); save(); render(); toast(`⭐ ${firstName(c.name)} est maintenant VIP`, snap); },
+  hBecame: el => { const c = client(el.dataset.id), snap = snapshot(); setStatus(c, "vip"); c.partnerHinted = today(); save(); render(); toast(`⭐ Compte fidélité ouvert pour ${firstName(c.name)}`, snap); },
   hLater: el => { const c = client(el.dataset.id), snap = snapshot(); c.hintSnooze = addDays(today(), 30); save(); render(); toast("On vous le reproposera dans 30 jours", snap); },
   setStatus: el => { const c = client(el.dataset.id), snap = snapshot(); setStatus(c, el.dataset.s); save(); render(); openFiche(c.id); toast(`${firstName(c.name)} : ${CSTATUS[c.status]}`, snap); },
   openImport: () => openImport(),
@@ -1516,7 +1592,7 @@ const actions = {
   pCopy: async el => { const ok = await copyText(currentPMsg(el.dataset.id)); toast(ok ? "Message copié. Collez-le dans votre messagerie." : "Impossible de copier : sélectionnez le texte à la main."); },
   pDone: el => {
     const x = prospect(el.dataset.id), snap = snapshot();
-    x.contacts = (x.contacts || 0) + 1; x.lastContact = today(); x.next = addDays(today(), x.contacts >= 3 ? 14 : 4); pEvent("pcontact", x);
+    x.contacts = (x.contacts || 0) + 1; x.lastContact = today(); x.next = addDays(today(), x.status === "lost" || x.contacts >= 3 ? 90 : x.contacts === 2 ? 14 : 4); pEvent("pcontact", x);
     save(); render(); toast(`Contact noté pour ${firstName(x.name)} · rappel le ${fmt(x.next)}`, snap);
   },
   pLater: el => {
@@ -1526,8 +1602,8 @@ const actions = {
   },
   pLost: el => {
     const x = prospect(el.dataset.id), snap = snapshot();
-    x.status = "lost"; pEvent("plost", x);
-    save(); closeSheet(); render(); toast("Classé « Pas intéressé »", snap);
+    x.status = "lost"; x.qSet = 1; x.next = addDays(today(), 90); pEvent("plost", x);
+    save(); closeSheet(); render(); toast(`Pas intéressé pour l'instant : on vous le rappellera le ${fmt(x.next)}`, snap);
   },
   pReopen: el => {
     const x = prospect(el.dataset.id), snap = snapshot();
@@ -1606,6 +1682,15 @@ document.addEventListener("click", ev => {
 });
 document.addEventListener("submit", ev => {
   if (ev.target.id === "saleForm") { ev.preventDefault(); submitSale(); }
+  if (ev.target.id === "promoForm") {
+    ev.preventDefault();
+    const text = document.getElementById("prText").value.trim(), until = document.getElementById("prUntil").value;
+    if (!text || !until) return toast("Indiquez l'offre et la date.");
+    const snap = snapshot(), same = activePromo();
+    S.promo = { id: same ? S.promo.id : uid(), text, until, createdAt: same ? S.promo.createdAt : today() };
+    save(); closeSheet(); tab = "today"; render(); window.scrollTo(0, 0);
+    return toast(same ? "Promo mise à jour" : `Promo prête pour ${plural(promoTargets().length, "personne", "personnes")} dans « Aujourd'hui »`, snap);
+  }
   if (ev.target.id === "prospectForm") { ev.preventDefault(); submitProspect(ev.target); }
 });
 document.addEventListener("input", ev => {
@@ -1642,7 +1727,10 @@ document.addEventListener("change", ev => {
     S.settings.vipOrders = v || SET_DEFAULTS.vipOrders;
     save(); toast("Réglage enregistré"); return;
   }
-  if (t.id === "setVipPerk") { S.settings.vipPerk = t.value.trim() || SET_DEFAULTS.vipPerk; save(); toast("Avantage VIP enregistré"); return; }
+  if (t.id === "setVipPct" || t.id === "setMargin") {
+    const v = Math.max(0, Math.min(90, Math.round(num(t.value)) || 0));
+    S.settings[t.id === "setVipPct" ? "vipPct" : "margin"] = v; save(); render(); toast("Réglage enregistré"); return;
+  }
   if (t.dataset.cfield) {
     const c = client(t.dataset.id); if (!c) return;
     if (t.dataset.cfield === "name" && t.value.trim()) c.name = t.value.trim();
@@ -1675,6 +1763,10 @@ new MutationObserver(avoidHostBadge).observe(document.body, { childList: true })
 avoidHostBadge();
 
 render();
+if (DEMO && new URLSearchParams(location.search).get("s") === "fid") setTimeout(() => {
+  const h = [...document.querySelectorAll(".section h2")].find(x => x.textContent.startsWith("Compte fidélité"));
+  if (h) scrollTo(0, h.getBoundingClientRect().top + scrollY - 70);
+}, 150);
 </script>
 </body>
 </html>
