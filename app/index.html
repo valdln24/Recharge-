@@ -451,8 +451,8 @@ function addDemoHistory(s) {
                 { id: uid(), type: "bnew", clientId: s.clients[5].id, product: s.products[2].name, amount: s.products[2].price, date: day(.7), example: true });
 }
 /* Les 5 types de contacts */
-const CSTATUS = { direct: "Client direct", partenaire: "Partenaire-client", business: "Partenaire business" };
-const PKIND = { client: "Prospect client", business: "Prospect business" };
+const CSTATUS = { direct: "Client direct", partenaire: "Partenaire-client", business: "Membre de l'équipe" };
+const PKIND = { client: "Prospect client", business: "Futur membre d'équipe" };
 const SET_DEFAULTS = { partnerThreshold: 150, inactiveDays: 30 };
 function migrate(d) {
   if (!Array.isArray(d.prospects)) d.prospects = [];
@@ -901,7 +901,7 @@ function todayCard(it) {
   if (it.type === "prospect") {
     const pr = it.x, ref = refNameOf(pr), biz = pr.kind === "business";
     const since = diff(today(), pr.lastContact || pr.createdAt || today());
-    const why = pr.contacts ? `Dernier contact il y a ${since} j` : pr.where && pr.where !== "bao" ? `${whereLabel(pr.where)} ${biz ? "business " : ""}il y a ${since} j` : ref ? `Contact donné par ${esc(firstName(ref))}` : "Premier contact";
+    const why = pr.contacts ? `Dernier contact il y a ${since} j` : pr.where && pr.where !== "bao" ? `${whereLabel(pr.where)} il y a ${since} j` : ref ? `Contact donné par ${esc(firstName(ref))}` : "Premier contact";
     return cardShell({ k: it.k, id: pr.id, phone: pr.phone, msgId: "pmsg-" + pr.id, msg: prospectMessage(pr), vary: "nextPMsg", waAct: "pWa", copyAct: "pCopy",
       head: `<span class="avatar ${biz ? "" : "blue"}" style="width:52px;height:52px;font-size:.98rem">${esc(initials(pr.name))}</span>
         <div class="who"><button class="name" data-act="pfiche" data-id="${pr.id}">${esc(pr.name)}</button>${exTag(pr)}
@@ -917,7 +917,7 @@ function todayCard(it) {
     return cardShell({ k: it.k, id: c.id, phone: c.phone, msgId: "bmsg-" + c.id, msg: xMsg(kind, c.name, c.bmsg || 0), vary: "nextBMsg", waAct: "bWa", copyAct: "bCopy",
       head: `<span class="avatar" style="width:52px;height:52px;font-size:.98rem">${esc(initials(c.name))}</span>
         <div class="who"><button class="name" data-act="fiche" data-id="${c.id}">${esc(c.name)}</button>${exTag(c)}
-          <div class="status ${kind === "nouveau" ? "ok" : "soon"}">${why}</div><div class="meta2">${typeTag("Partenaire business")} · accompagnement</div></div>`,
+          <div class="status ${kind === "nouveau" ? "ok" : "soon"}">${why}</div><div class="meta2">${typeTag("Équipe")} · accompagnement</div></div>`,
       second: `<button class="btn soft second" data-act="bDone" data-id="${c.id}">${I.check} Déjà fait</button>`,
       links: `<button data-act="bOrdered" data-id="${c.id}">A déjà commandé</button> · <button data-act="bLater" data-id="${c.id}">Plus tard · 7 j</button>` });
   }
@@ -933,7 +933,7 @@ function todayCard(it) {
 function viewProspects(q) {
   const list = S.prospects.filter(x => !q || x.name.toLowerCase().includes(q) || (x.phone || "").replace(/\s/g, "").includes(q.replace(/\s/g, "")))
     .sort((a, b) => (a.status === "open" ? 0 : 1) - (b.status === "open" ? 0 : 1) || (a.next || "9").localeCompare(b.next || "9") || a.name.localeCompare(b.name, "fr"));
-  let h = `<div class="two2"><button class="btn soft" data-act="newProspect">+ Prospect client</button><button class="btn soft" data-act="newProspect" data-kind="business">+ Prospect business</button></div>`;
+  let h = `<div class="two2"><button class="btn soft" data-act="newProspect">+ Prospect client</button><button class="btn soft" data-act="newProspect" data-kind="business">+ Futur membre</button></div>`;
   if (list.length) {
     h += `<div class="card">`;
     for (const x of list) {
@@ -1006,7 +1006,7 @@ function teamRanking(p) {
     return { c, amount: own.reduce((t, sl) => t + (sl.price || 0) * sl.qty, 0), orders: own.length, quiet: lo ? diff(today(), lo) : null };
   }).sort((a, b) => b.amount - a.amount || b.orders - a.orders || a.c.name.localeCompare(b.c.name, "fr"));
   let h = section("Classement de votre équipe", rows.length || null);
-  if (!rows.length) return h + `<p class="empty" style="padding-top:6px">Passez un contact en « Partenaire business » dans sa fiche : votre équipe apparaîtra ici, classée selon ses commandes.</p>`;
+  if (!rows.length) return h + `<p class="empty" style="padding-top:6px">Passez un contact en « Membre de l'équipe » dans sa fiche : votre équipe apparaîtra ici, classée selon ses commandes.</p>`;
   const medal = ["🥇", "🥈", "🥉"];
   h += `<div class="card"><ul class="hist">`;
   rows.forEach((r, i) => {
@@ -1037,8 +1037,8 @@ function viewResults() {
   const cnt = st2 => S.clients.filter(c => c.status === st2).length, pc = k => S.prospects.filter(x => x.kind === k && x.status === "open").length;
   h += section("Vos contacts") + `<div class="card"><ul class="hist">
     <li><span>Clients directs</span><b class="num">${cnt("direct")}</b></li><li><span>Partenaires-clients</span><b class="num">${cnt("partenaire")}</b></li>
-    <li><span>Prospects clients</span><b class="num">${pc("client")}</b></li><li><span>Partenaires business</span><b class="num">${cnt("business")}</b></li>
-    <li><span>Prospects business</span><b class="num">${pc("business")}</b></li>
+    <li><span>Prospects clients</span><b class="num">${pc("client")}</b></li><li><span>Membres de l'équipe</span><b class="num">${cnt("business")}</b></li>
+    <li><span>Futurs membres d'équipe</span><b class="num">${pc("business")}</b></li>
     <li><span>Partenaires accompagnés</span><b class="num" id="kpiAcc">${S.events.filter(e => e.type === "accomp" && e.date >= (period === "month" ? today().slice(0, 8) + "01" : "0000")).length}</b></li></ul></div>`;
   h += section("Prospects") + `<div class="card bars">
     <div class="b"><div class="t"><span>Prospects ajoutés</span><b class="num" id="kpiPAdd">${st.pAdded}</b></div><div class="line blue"><span style="width:${st.pAdded ? 100 : 0}%"></span></div></div>
@@ -1089,7 +1089,7 @@ function viewSettings() {
 
   h += section("Relances") + `<div class="card pad">
     <label class="field" style="margin-top:0"><span>Proposer de devenir partenaire à partir de</span><div class="unit"><input class="input num" id="setThreshold" inputmode="numeric" value="${S.settings.partnerThreshold}"><b>€ de commandes sur 3 mois</b></div></label>
-    <label class="field"><span>Relancer un partenaire business sans commande depuis</span><div class="unit"><input class="input num" id="setInactive" inputmode="numeric" value="${S.settings.inactiveDays}"><b>jours</b></div></label>
+    <label class="field"><span>Relancer un membre de l'équipe sans commande depuis</span><div class="unit"><input class="input num" id="setInactive" inputmode="numeric" value="${S.settings.inactiveDays}"><b>jours</b></div></label>
     <button class="btn outline" style="margin-top:14px" data-act="openImport">${I.up} Importer des commandes</button></div>`;
 
   h += section("Ton des messages") + `<div class="seg" style="margin-top:0">
