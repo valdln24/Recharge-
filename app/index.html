@@ -390,14 +390,14 @@ function seed() {
   // Un prospect d'exemple : un contact donné par Marie
   s.prospects = [{ id: uid(), name: "Léa Moreau", phone: "06 00 00 00 05", interest: "Gel aloe vera", referredBy: s.clients[0].id,
     note: "Cherche quelque chose pour la digestion", next: t, contacts: 0, status: "open", createdAt: t, msg: 0, example: true, kind: "client" },
-    { id: uid(), name: "Thomas Girard", phone: "06 00 00 00 07", interest: "", note: "Curieux de l'activité, a deux enfants", next: t, contacts: 0,
-      status: "open", createdAt: addDays(t, -3), msg: 0, example: true, kind: "business", where: "presentation" }];
-  // Les 5 types de contacts : Sophie commande seule chez la marque, Sandra construit son activité
+    { id: uid(), name: "Thomas Girard", phone: "06 00 00 00 07", interest: "Crème visage", note: "A goûté l'échantillon, peau sèche", next: t, contacts: 0,
+      status: "open", createdAt: addDays(t, -3), msg: 0, example: true, kind: "client", where: "salon" }];
+  // Les 3 types de clients : Sophie commande seule chez la marque, Sandra sur votre e-boutique
   s.clients[1].status = "partenaire"; s.clients[1].statusLog = [{ s: "direct", date: addDays(t, -200) }, { s: "partenaire", date: addDays(t, -90) }];
-  const sandra = { id: uid(), name: "Sandra Lopez", phone: "06 00 00 00 06", example: true, status: "business", businessSince: addDays(t, -60),
-    statusLog: [{ s: "direct", date: addDays(t, -240) }, { s: "business", date: addDays(t, -60) }], createdAt: addDays(t, -240) };
+  const sandra = { id: uid(), name: "Sandra Lopez", phone: "06 00 00 00 06", example: true, status: "eshop",
+    statusLog: [{ s: "eshop", date: addDays(t, -240) }], createdAt: addDays(t, -240) };
   s.clients.push(sandra);
-  const old = makeSale(sandra.id, s.products[1], 1, addDays(t, -35), true); old.status = "rachete"; s.sales.push(old);
+  s.sales.push(makeSale(sandra.id, s.products[1], 1, addDays(t, -28), true));
   // Julie commande beaucoup : Recharge suggère de lui proposer de devenir partenaire
   for (const ago of [-40, -75]) { const o = makeSale(s.clients[3].id, s.products[0], 2, addDays(t, ago), true); o.status = "rachete"; s.sales.push(o); }
   return s;
@@ -443,32 +443,31 @@ function addDemoHistory(s) {
   by("Paul Mercier").referredBy = by("Nathalie Roux").id; by("Inès Laurent").referredBy = s.clients[0].id;
   [by("Céline Garnier"), by("Hugo Petit"), by("Paul Mercier"), by("Inès Laurent")].forEach(c => c.createdAt = day(.3));
   for (let i = 0; i < 6; i++) s.events.push({ id: uid(), type: "bouche", clientId: s.clients[i % 4].id, saleId: "demo-b" + i, product: "", date: day((i + 1) / 7), example: true });
-  // une petite équipe de distributeurs pour le classement
-  [["Nathalie Roux", 0], ["Céline Garnier", 0], ["Paul Mercier", 0]].forEach(([n]) => { const c = by(n); c.status = "business"; c.businessSince = addDays(first, -90); c.statusLog = [{ s: "business", date: addDays(first, -90) }]; });
   // un prospect devenu client et un nouveau client par bouche-à-oreille
   const p1 = s.products[0];
   s.events.push({ id: uid(), type: "pclient", clientId: s.clients[4].id, prospectId: "demo-p", product: p1.name, amount: p1.price, date: day(.5), example: true },
                 { id: uid(), type: "bnew", clientId: s.clients[5].id, product: s.products[2].name, amount: s.products[2].price, date: day(.7), example: true });
 }
-/* Les 5 types de contacts */
-const CSTATUS = { direct: "Client direct", partenaire: "Partenaire-client", business: "Membre de l'équipe" };
-const PKIND = { client: "Prospect client", business: "Futur membre d'équipe" };
-const SET_DEFAULTS = { partnerThreshold: 150, inactiveDays: 30 };
+/* Les 3 types de clients */
+const CSTATUS = { direct: "Client direct", partenaire: "Client partenaire", eshop: "Client e-boutique" };
+const SET_DEFAULTS = { partnerThreshold: 150 };
 function migrate(d) {
   if (!Array.isArray(d.prospects)) d.prospects = [];
   d.settings = { ...SET_DEFAULTS, ...(d.settings || {}) };
   d.clients.forEach(c => {
-    if (!c.status) c.status = "direct";
+    if (!CSTATUS[c.status]) c.status = c.status === "business" ? "partenaire" : "direct";
     if (!Array.isArray(c.statusLog)) c.statusLog = [{ s: c.status, date: c.createdAt || today() }];
+    c.statusLog.forEach(x => { if (!CSTATUS[x.s]) x.s = x.s === "business" ? "partenaire" : "direct"; });
+    delete c.businessSince; delete c.lastNudge; delete c.nudgeSnooze; delete c.bmsg;
   });
-  d.prospects.forEach(x => { if (!x.kind) x.kind = "client"; });
+  delete d.settings.inactiveDays;
+  d.prospects.forEach(x => { x.kind = "client"; });
   return d;
 }
 migrate(S);
 function setStatus(c, st) {
   if (c.status === st) return;
   c.status = st; (c.statusLog = c.statusLog || []).push({ s: st, date: today() });
-  if (st === "business") { c.businessSince = today(); delete c.lastNudge; }
 }
 
 const client = id => S.clients.find(c => c.id === id);
@@ -550,10 +549,9 @@ const P_TEMPLATES = {
 };
 const WHERE = [["reunion", "Réunion"], ["salon", "Salon"], ["marche", "Marché"], ["reseaux", "Réseaux sociaux"], ["bao", "Bouche-à-oreille"], ["autre", "Autre"]];
 const LIEU = { reunion: "à la réunion", salon: "au salon", marche: "au marché" };
-const whereLabel = w => (WHERE.concat(typeof WHERE_B !== "undefined" ? WHERE_B : []).find(x => x[0] === w) || [])[1] || "";
+const whereLabel = w => (WHERE.find(x => x[0] === w) || [])[1] || "";
 const refNameOf = x => x.referredBy ? (client(x.referredBy) || {}).name || x.referredByName || "" : x.referredByName || "";
 function prospectMessage(pr) {
-  if (pr.kind === "business") return xMsg(pr.contacts ? "pbizf" : "pbiz", pr.name, pr.msg || 0, { lieu: LIEU_B[pr.where] || "" });
   const t = P_TEMPLATES[S.tone] || P_TEMPLATES.tu, ref = refNameOf(pr);
   const lieu = LIEU[pr.where] || "";
   const list = pr.contacts ? t.follow : ref ? t.ref : lieu ? t.met : t.first;
@@ -625,27 +623,15 @@ const X_TEMPLATES = {
   tu: {
     partenaire: ["Coucou {p} ! 😊 Ta réserve {de} doit bientôt toucher à sa fin. Pense à repasser ta commande sur ton espace, et si tu veux, je t'aide à la faire !",
       "Hello {p} 🌿 Petit rappel : ta cure {de} arrive au bout. Tu veux qu'on regarde ensemble ta prochaine commande ?"],
-    inactif: ["Coucou {p} ! Comment ça se passe pour toi en ce moment ? 😊 Si tu as besoin d'un coup de main pour tes prochaines ventes ou tes objectifs du mois, je suis là !",
-      "Hello {p} 🌿 Ça fait un petit moment qu'on n'a pas fait le point. On s'appelle cette semaine pour voir comment je peux t'aider ?"],
-    nouveau: ["Bienvenue dans l'équipe {p} ! 🎉 Ça me fait vraiment plaisir de t'accompagner. On se cale un moment pour préparer tes premières ventes ?",
-      "Hello {p} ! Bravo pour ton lancement 🌿 Tu veux qu'on fixe ensemble ton objectif du mois et tes premiers contacts à appeler ?"],
-    pbiz: ["Coucou {p} 😊 Merci d'avoir pris le temps de découvrir l'activité{lieu} ! Tu as des questions ? Je peux t'en dire plus quand tu veux, sans engagement.",
-      "Hello {p} ! Suite à notre échange, je t'invite à notre prochaine visio de présentation : c'est le meilleur moyen de tout comprendre. Ça te dit ?"],
-    pbizf: ["Coucou {p} ! Tu as eu le temps de réfléchir à l'activité ? Je reste disponible pour répondre à tes questions, à ton rythme 🌿",
-      "Hello {p} 😊 Il y a bientôt un événement avec d'autres membres de l'équipe : idéal pour te faire une idée. Tu veux que je te garde une place ?"],
+    eshop: ["Coucou {p} ! 😊 Ta réserve {de} doit bientôt toucher à sa fin. Tu peux la recommander directement sur ma boutique en ligne, et si tu veux, je t'envoie le lien !",
+      "Hello {p} 🌿 Petit rappel : ta cure {de} arrive au bout. Je t'envoie le lien de ma boutique pour la recommander ?"],
     hint: ["Coucou {p} ! 😊 Tu commandes régulièrement, alors je me suis dit que ça pourrait t'intéresser : en devenant partenaire, tu aurais des prix réduits sur tes produits. Tu veux que je t'explique ?"]
   },
   vous: {
     partenaire: ["Bonjour {p} ! 😊 Votre réserve {de} doit bientôt toucher à sa fin. Pensez à repasser votre commande sur votre espace, et si vous le souhaitez, je vous aide à la faire !",
       "Bonjour {p} 🌿 Petit rappel : votre cure {de} arrive au bout. Voulez-vous que l'on regarde ensemble votre prochaine commande ?"],
-    inactif: ["Bonjour {p} ! Comment cela se passe-t-il pour vous en ce moment ? 😊 Si vous avez besoin d'un coup de main pour vos prochaines ventes ou vos objectifs du mois, je suis là !",
-      "Bonjour {p} 🌿 Cela fait un petit moment que nous n'avons pas fait le point. Pouvons-nous nous appeler cette semaine ?"],
-    nouveau: ["Bienvenue dans l'équipe {p} ! 🎉 Cela me fait vraiment plaisir de vous accompagner. Prenons un moment pour préparer vos premières ventes ?",
-      "Bonjour {p} ! Bravo pour votre lancement 🌿 Voulez-vous que nous fixions ensemble votre objectif du mois et vos premiers contacts ?"],
-    pbiz: ["Bonjour {p} 😊 Merci d'avoir pris le temps de découvrir l'activité{lieu} ! Avez-vous des questions ? Je peux vous en dire plus quand vous le souhaitez, sans engagement.",
-      "Bonjour {p} ! Suite à notre échange, je vous invite à notre prochaine visio de présentation : c'est le meilleur moyen de tout comprendre. Cela vous dit ?"],
-    pbizf: ["Bonjour {p} ! Avez-vous eu le temps de réfléchir à l'activité ? Je reste disponible pour répondre à vos questions, à votre rythme 🌿",
-      "Bonjour {p} 😊 Il y a bientôt un événement avec d'autres membres de l'équipe : idéal pour vous faire une idée. Voulez-vous que je vous garde une place ?"],
+    eshop: ["Bonjour {p} ! 😊 Votre réserve {de} doit bientôt toucher à sa fin. Vous pouvez la recommander directement sur ma boutique en ligne, et si vous le souhaitez, je vous envoie le lien !",
+      "Bonjour {p} 🌿 Petit rappel : votre cure {de} arrive au bout. Voulez-vous que je vous envoie le lien de ma boutique pour la recommander ?"],
     hint: ["Bonjour {p} ! 😊 Vous commandez régulièrement, alors je me suis dit que cela pourrait vous intéresser : en devenant partenaire, vous auriez des prix réduits sur vos produits. Voulez-vous que je vous explique ?"]
   }
 };
@@ -655,23 +641,10 @@ const xMsg = (key, name, k = 0, extra = {}) => {
   for (const [a, b] of Object.entries(extra)) m = m.replace(new RegExp("\\{" + a + "\\}", "g"), b);
   return m;
 };
-const LIEU_B = { presentation: " lors de la présentation", visio: " en visio", evenement: " à l'événement" };
-const WHERE_B = [["presentation", "Présentation"], ["visio", "Visio"], ["evenement", "Événement"], ["reseaux", "Réseaux sociaux"], ["bao", "Bouche-à-oreille"], ["autre", "Autre"]];
 
-/* Partenaires business à accompagner, et clients qui ont intérêt à devenir partenaires */
+/* Clients qui ont intérêt à devenir partenaires */
 function lastOrder(c) { let d = null; for (const sl of S.sales) if (sl.clientId === c.id && (!d || sl.date > d)) d = sl.date; return d; }
 function spent90(c) { const from = addDays(today(), -90); return S.sales.filter(sl => sl.clientId === c.id && sl.date >= from).reduce((t, sl) => t + (sl.price || 0) * sl.qty, 0); }
-function dueBusiness() {
-  const t = today(), out = [];
-  for (const c of S.clients) {
-    if (c.status !== "business" || (c.nudgeSnooze && c.nudgeSnooze > t)) continue;
-    const since = c.businessSince || ((c.statusLog || []).slice(-1)[0] || {}).date || t, lo = lastOrder(c);
-    if (!c.lastNudge && diff(t, since) <= 14) { out.push({ c, kind: "nouveau", days: diff(t, since) }); continue; }
-    const quiet = diff(t, lo && lo > since ? lo : since);
-    if (quiet >= S.settings.inactiveDays && (!c.lastNudge || diff(t, c.lastNudge) >= 14)) out.push({ c, kind: "inactif", days: quiet, ordered: !!lo });
-  }
-  return out;
-}
 function duePartnerHints() {
   const t = today();
   return S.clients.filter(c => c.status === "direct" && !c.partnerHinted && !(c.hintSnooze && c.hintSnooze > t))
@@ -681,8 +654,7 @@ function duePartnerHints() {
 function todayList() {
   const t = today(), items = [];
   for (const sl of dueSales()) { const left = diff(sl.end, t); items.push({ k: "s:" + sl.id, type: "sale", s: sl, who: sl.clientId, score: left <= 0 ? 100 - left * 2 : 80 - left * 5 }); }
-  for (const x of dueProspects()) items.push({ k: "p:" + x.id, type: "prospect", x, who: x.id, score: (x.kind === "business" ? 66 : 62) + diff(t, x.next) * 2 });
-  for (const b of dueBusiness()) items.push({ k: "b:" + b.c.id, type: "biz", b, who: b.c.id, score: b.kind === "nouveau" ? 78 : 50 + Math.min(30, (b.days - S.settings.inactiveDays) / 2) });
+  for (const x of dueProspects()) items.push({ k: "p:" + x.id, type: "prospect", x, who: x.id, score: 62 + diff(t, x.next) * 2 });
   for (const h of duePartnerHints()) items.push({ k: "h:" + h.c.id, type: "hint", h, who: h.c.id, score: 40 });
   return items.sort((a, b) => b.score - a.score);
 }
@@ -694,7 +666,7 @@ function refMessage(s, k) {
 }
 function message(s) {
   const c = client(s.clientId);
-  if (c && c.status === "partenaire") return xMsg("partenaire", c.name, s.msg || 0, { de: deProd(s.product) });
+  if (c && (c.status === "partenaire" || c.status === "eshop")) return xMsg(c.status, c.name, s.msg || 0, { de: deProd(s.product) });
   const list = TEMPLATES[S.tone] || TEMPLATES.tu;
   return list[(s.msg || 0) % list.length].replace("{p}", firstName(c ? c.name : "")).replace("{de}", deProd(s.product));
 }
@@ -807,7 +779,7 @@ function viewToday() {
   const list = todayList();
   const n = new Set(list.map(x => x.who)).size;
   const t = today();
-  const doneToday = new Set(S.events.filter(e => e.date === t && ["relance", "pcontact", "accomp", "hint", "plater", "report"].includes(e.type)).map(e => e.saleId || e.prospectId || e.clientId)).size;
+  const doneToday = new Set(S.events.filter(e => e.date === t && ["relance", "pcontact", "hint", "plater", "report"].includes(e.type)).map(e => e.saleId || e.prospectId || e.clientId)).size;
   const total = n + doneToday;
   const st = stats("month");
   let h = `<section class="hero">`;
@@ -899,27 +871,17 @@ function todayCard(it) {
       links: `<button data-act="relance" data-id="${sl.id}">Déjà relancé</button> · <button data-act="later" data-id="${sl.id}">Plus tard · 3 j</button>` });
   }
   if (it.type === "prospect") {
-    const pr = it.x, ref = refNameOf(pr), biz = pr.kind === "business";
+    const pr = it.x, ref = refNameOf(pr);
     const since = diff(today(), pr.lastContact || pr.createdAt || today());
     const why = pr.contacts ? `Dernier contact il y a ${since} j` : pr.where && pr.where !== "bao" ? `${whereLabel(pr.where)} il y a ${since} j` : ref ? `Contact donné par ${esc(firstName(ref))}` : "Premier contact";
     return cardShell({ k: it.k, id: pr.id, phone: pr.phone, msgId: "pmsg-" + pr.id, msg: prospectMessage(pr), vary: "nextPMsg", waAct: "pWa", copyAct: "pCopy",
-      head: `<span class="avatar ${biz ? "" : "blue"}" style="width:52px;height:52px;font-size:.98rem">${esc(initials(pr.name))}</span>
+      head: `<span class="avatar blue" style="width:52px;height:52px;font-size:.98rem">${esc(initials(pr.name))}</span>
         <div class="who"><button class="name" data-act="pfiche" data-id="${pr.id}">${esc(pr.name)}</button>${exTag(pr)}
           <div class="status ok">${why.replace(/il y a 0 j/, "aujourd'hui")}</div>
-          <div class="meta2">${typeTag(PKIND[pr.kind])}${pr.interest ? " · " + esc(pr.interest) : ""}</div></div>`,
+          <div class="meta2">${typeTag("Prospect")}${pr.interest ? " · " + esc(pr.interest) : ""}</div></div>`,
       extra: pr.note ? `<div class="more"><div class="alt" style="text-align:left;margin-top:10px">📝 ${esc(pr.note)}</div></div>` : "",
       second: `<button class="btn soft second" data-act="pDone" data-id="${pr.id}">${I.check} Déjà fait</button>`,
-      links: `<button data-act="${biz ? "pJoin" : "pConvert"}" data-id="${pr.id}">${biz ? "A rejoint l'équipe" : "A acheté"}</button> · <button data-act="pLater" data-id="${pr.id}">Plus tard</button> · <button data-act="pLost" data-id="${pr.id}">Pas intéressé</button>` });
-  }
-  if (it.type === "biz") {
-    const { c, kind, days, ordered } = it.b;
-    const why = kind === "nouveau" ? `Nouveau partenaire : premières ventes` : ordered ? `Pas de commande depuis ${days} jours` : `Pas encore de commande, ${days} j après son lancement`;
-    return cardShell({ k: it.k, id: c.id, phone: c.phone, msgId: "bmsg-" + c.id, msg: xMsg(kind, c.name, c.bmsg || 0), vary: "nextBMsg", waAct: "bWa", copyAct: "bCopy",
-      head: `<span class="avatar" style="width:52px;height:52px;font-size:.98rem">${esc(initials(c.name))}</span>
-        <div class="who"><button class="name" data-act="fiche" data-id="${c.id}">${esc(c.name)}</button>${exTag(c)}
-          <div class="status ${kind === "nouveau" ? "ok" : "soon"}">${why}</div><div class="meta2">${typeTag("Équipe")} · accompagnement</div></div>`,
-      second: `<button class="btn soft second" data-act="bDone" data-id="${c.id}">${I.check} Déjà fait</button>`,
-      links: `<button data-act="bOrdered" data-id="${c.id}">A déjà commandé</button> · <button data-act="bLater" data-id="${c.id}">Plus tard · 7 j</button>` });
+      links: `<button data-act="pConvert" data-id="${pr.id}">A acheté</button> · <button data-act="pLater" data-id="${pr.id}">Plus tard</button> · <button data-act="pLost" data-id="${pr.id}">Pas intéressé</button>` });
   }
   const { c, amount } = it.h;
   return cardShell({ k: it.k, id: c.id, phone: c.phone, msgId: "hmsg-" + c.id, msg: xMsg("hint", c.name), vary: "nextHMsg", waAct: "hWa", copyAct: "hCopy",
@@ -933,7 +895,7 @@ function todayCard(it) {
 function viewProspects(q) {
   const list = S.prospects.filter(x => !q || x.name.toLowerCase().includes(q) || (x.phone || "").replace(/\s/g, "").includes(q.replace(/\s/g, "")))
     .sort((a, b) => (a.status === "open" ? 0 : 1) - (b.status === "open" ? 0 : 1) || (a.next || "9").localeCompare(b.next || "9") || a.name.localeCompare(b.name, "fr"));
-  let h = `<div class="two2"><button class="btn soft" data-act="newProspect">+ Prospect client</button><button class="btn soft" data-act="newProspect" data-kind="business">+ Futur membre</button></div>`;
+  let h = `<button class="btn soft" data-act="newProspect">+ Nouveau prospect</button>`;
   if (list.length) {
     h += `<div class="card">`;
     for (const x of list) {
@@ -941,7 +903,7 @@ function viewProspects(q) {
       const chip = x.status === "client" ? `<span class="chip done">A acheté</span>` : x.status === "lost" ? `<span class="chip">Pas intéressé</span>`
         : due ? `<span class="chip soon">À recontacter</span>` : `<span class="chip ok num">${x.next ? "Le " + fmt(x.next) : "En attente"}</span>`;
       h += `<button class="crow" data-act="pfiche" data-id="${x.id}"><span class="avatar ${due ? "" : "blue"}">${esc(initials(x.name))}</span>
-        <span class="grow"><b>${esc(x.name)}</b>${exTag(x)}<div class="meta2">${[PKIND[x.kind], x.interest ? esc(x.interest) : "", refNameOf(x) ? "De la part de " + esc(refNameOf(x)) : x.where ? whereLabel(x.where) : ""].filter(Boolean).join(" · ")}</div></span>${chip}</button>`;
+        <span class="grow"><b>${esc(x.name)}</b>${exTag(x)}<div class="meta2">${[x.interest ? esc(x.interest) : "", refNameOf(x) ? "De la part de " + esc(refNameOf(x)) : x.where ? whereLabel(x.where) : ""].filter(Boolean).join(" · ")}</div></span>${chip}</button>`;
     }
     h += `</div>`;
   }
@@ -997,27 +959,6 @@ function ambassadors(p) {
   });
   return h + `</ul></div>`;
 }
-/* Classement des distributeurs : vos partenaires business, selon leurs commandes */
-function teamRanking(p) {
-  const from = p === "month" ? today().slice(0, 8) + "01" : "0000";
-  const rows = S.clients.filter(c => c.status === "business").map(c => {
-    const own = S.sales.filter(sl => sl.clientId === c.id && sl.date >= from);
-    const lo = lastOrder(c);
-    return { c, amount: own.reduce((t, sl) => t + (sl.price || 0) * sl.qty, 0), orders: own.length, quiet: lo ? diff(today(), lo) : null };
-  }).sort((a, b) => b.amount - a.amount || b.orders - a.orders || a.c.name.localeCompare(b.c.name, "fr"));
-  let h = section("Classement de votre équipe", rows.length || null);
-  if (!rows.length) return h + `<p class="empty" style="padding-top:6px">Passez un contact en « Membre de l'équipe » dans sa fiche : votre équipe apparaîtra ici, classée selon ses commandes.</p>`;
-  const medal = ["🥇", "🥈", "🥉"];
-  h += `<div class="card"><ul class="hist">`;
-  rows.forEach((r, i) => {
-    const sub = r.orders ? plural(r.orders, "commande", "commandes") : "Aucune commande" + (p === "month" ? " ce mois-ci" : "");
-    const q = r.quiet == null ? " · jamais commandé" : r.quiet >= S.settings.inactiveDays ? ` · <span style="color:var(--o-text)">dernière il y a ${r.quiet} j</span>` : "";
-    h += `<li data-act="fiche" data-id="${r.c.id}" style="cursor:pointer"><span style="display:flex;gap:12px;align-items:center;min-width:0">
-      <span class="avatar ${i ? "blue" : ""}" style="width:40px;height:40px;font-size:${i < 3 && r.amount ? "1.25rem" : ".85rem"}">${i < 3 && r.amount ? medal[i] : esc(initials(r.c.name))}</span>
-      <span style="min-width:0"><b>${esc(r.c.name)}</b>${exTag(r.c)}<br><small>${sub}${q}</small></span></span><b class="num" style="font-size:1.15rem">${euro(r.amount)}</b></li>`;
-  });
-  return h + `</ul></div><p class="hint">Selon les commandes que vous avez ajoutées ou importées pour chaque partenaire.</p>`;
-}
 function viewResults() {
   const st = stats(period);
   let h = `<h1 class="title">Mes résultats</h1><p class="lede">Ce que Recharge vous fait gagner.</p>`;
@@ -1033,13 +974,10 @@ function viewResults() {
     <div class="b"><div class="t"><span>Demandes envoyées</span><b class="num" id="kpiAsk">${st.asks}</b></div><div class="line blue"><span style="width:${st.asks ? 100 : 0}%"></span></div></div>
     <div class="b"><div class="t"><span>Nouveaux clients amenés par vos clients</span><b class="num" id="kpiRef">${st.referred}</b></div><div class="line"><span style="width:${Math.round(Math.min(1, st.referred / Math.max(1, st.asks)) * 100)}%"></span></div></div></div>`;
   h += ambassadors(period);
-  h += teamRanking(period);
-  const cnt = st2 => S.clients.filter(c => c.status === st2).length, pc = k => S.prospects.filter(x => x.kind === k && x.status === "open").length;
+  const cnt = st2 => S.clients.filter(c => c.status === st2).length, pc = () => S.prospects.filter(x => x.status === "open").length;
   h += section("Vos contacts") + `<div class="card"><ul class="hist">
-    <li><span>Clients directs</span><b class="num">${cnt("direct")}</b></li><li><span>Partenaires-clients</span><b class="num">${cnt("partenaire")}</b></li>
-    <li><span>Prospects clients</span><b class="num">${pc("client")}</b></li><li><span>Membres de l'équipe</span><b class="num">${cnt("business")}</b></li>
-    <li><span>Futurs membres d'équipe</span><b class="num">${pc("business")}</b></li>
-    <li><span>Partenaires accompagnés</span><b class="num" id="kpiAcc">${S.events.filter(e => e.type === "accomp" && e.date >= (period === "month" ? today().slice(0, 8) + "01" : "0000")).length}</b></li></ul></div>`;
+    <li><span>Clients directs</span><b class="num">${cnt("direct")}</b></li><li><span>Clients partenaires</span><b class="num">${cnt("partenaire")}</b></li>
+    <li><span>Clients e-boutique</span><b class="num">${cnt("eshop")}</b></li><li><span>Prospects en cours</span><b class="num">${pc()}</b></li></ul></div>`;
   h += section("Prospects") + `<div class="card bars">
     <div class="b"><div class="t"><span>Prospects ajoutés</span><b class="num" id="kpiPAdd">${st.pAdded}</b></div><div class="line blue"><span style="width:${st.pAdded ? 100 : 0}%"></span></div></div>
     <div class="b"><div class="t"><span>Ont acheté</span><b class="num" id="kpiPWon">${st.pWon}</b></div><div class="line"><span style="width:${Math.round(Math.min(1, st.pWon / Math.max(1, st.pAdded)) * 100)}%"></span></div></div></div>`;
@@ -1089,7 +1027,6 @@ function viewSettings() {
 
   h += section("Relances") + `<div class="card pad">
     <label class="field" style="margin-top:0"><span>Proposer de devenir partenaire à partir de</span><div class="unit"><input class="input num" id="setThreshold" inputmode="numeric" value="${S.settings.partnerThreshold}"><b>€ de commandes sur 3 mois</b></div></label>
-    <label class="field"><span>Relancer un membre de l'équipe sans commande depuis</span><div class="unit"><input class="input num" id="setInactive" inputmode="numeric" value="${S.settings.inactiveDays}"><b>jours</b></div></label>
     <button class="btn outline" style="margin-top:14px" data-act="openImport">${I.up} Importer des commandes</button></div>`;
 
   h += section("Ton des messages") + `<div class="seg" style="margin-top:0">
@@ -1267,25 +1204,22 @@ function openReferral(saleId) {
 let pform = { where: "", touched: false, kind: "client" };
 function drawWhere() {
   const el = document.getElementById("whereChips"); if (!el) return;
-  const kb = document.getElementById("kindSeg");
-  if (kb) kb.innerHTML = Object.entries(PKIND).map(([k, l]) => `<button type="button" class="${pform.kind === k ? "on" : ""}" data-act="pickKind" data-k="${k}">${l}</button>`).join("");
-  el.innerHTML = (pform.kind === "business" ? WHERE_B : WHERE).map(([k, l]) => `<button type="button" class="pchip ${pform.where === k ? "on" : ""}" data-act="pickWhere" data-w="${k}">${l}</button>`).join("");
+  el.innerHTML = WHERE.map(([k, l]) => `<button type="button" class="pchip ${pform.where === k ? "on" : ""}" data-act="pickWhere" data-w="${k}">${l}</button>`).join("");
 }
 function openProspectForm(id, opts = {}) {
   const x = id ? prospect(id) : null;
-  pform = { where: x ? x.where || "" : opts.refId ? "bao" : "", touched: !!x, kind: x ? x.kind : opts.kind || "client" };
+  pform = { where: x ? x.where || "" : opts.refId ? "bao" : "", touched: !!x, kind: "client" };
   const ref = x ? refNameOf(x) : opts.refId ? (client(opts.refId) || {}).name || "" : "";
   const names = S.clients.map(c => `<option value="${esc(c.name)}">`).join("");
   const prods = S.products.map(pp => `<option value="${esc(pp.name)}">`).join("");
   const hist = x ? S.events.filter(e => e.prospectId === x.id).sort((a, b) => b.date.localeCompare(a.date)) : [];
-  const EVP = { pjoin: "A rejoint l'équipe", pcontact: "Contacté", pclient: "A acheté", plater: "Reporté de 3 jours", plost: "Pas intéressé", occasion: "Message d'occasion" };
+  const EVP = { pjoin: "Devenu client", pcontact: "Contacté", pclient: "A acheté", plater: "Reporté de 3 jours", plost: "Pas intéressé", occasion: "Message d'occasion" };
   openSheet(`<div class="shead"><h3>${x ? esc(x.name) + exTag(x) : opts.refId ? "Nouveau prospect" : "Nouvelle rencontre"}</h3>${closeBtn}</div>
     ${x || opts.refId ? "" : `<div class="seg" style="margin:12px 0 0"><button type="button" data-act="toVente">Une vente</button><button type="button" class="on">Une rencontre</button></div>`}
     ${x ? "" : `<p class="lede" style="margin-top:10px">Quelqu'un d'intéressé qui n'a pas encore acheté ? Notez-le : Recharge vous rappellera de le recontacter, avec le message prêt.</p>`}
     <form id="prospectForm" data-id="${x ? x.id : ""}" autocomplete="off">
       <label class="field"><span>Nom</span><input class="input" id="pName" required placeholder="Prénom Nom" value="${x ? esc(x.name) : esc(opts.name || "")}"></label>
       <label class="field"><span>Téléphone <i>· facultatif</i></span><input class="input" id="pPhone" type="tel" inputmode="tel" placeholder="06 12 34 56 78" value="${x ? esc(x.phone) : esc(opts.phone || "")}"></label>
-      <div class="field"><span>Type de prospect</span><div class="seg" id="kindSeg" style="margin-top:0"></div></div>
       <div class="field"><span>Lieu de la rencontre <i>· facultatif</i></span><div class="pchips" id="whereChips"></div></div>
       <label class="field"><span>Intéressé par <i>· facultatif</i></span><input class="input" id="pInterest" list="prodNames" placeholder="ex. : Gel aloe vera" value="${x ? esc(x.interest) : ""}"></label>
       <datalist id="prodNames">${prods}</datalist>
@@ -1297,7 +1231,7 @@ function openProspectForm(id, opts = {}) {
       ${x ? "" : `<div class="alt" style="text-align:left;margin-top:6px">Conseil : un petit message dès le lendemain, tant que la rencontre est fraîche.</div>`}
       <button class="btn primary" style="margin-top:16px" type="submit">${x ? "Enregistrer" : "Ajouter le prospect"}</button>
     </form>
-    ${x && x.status === "open" ? `<button class="btn orange" style="margin-top:8px" data-act="${x.kind === "business" ? "pJoin" : "pConvert"}" data-id="${x.id}">${I.bag} ${x.kind === "business" ? "A rejoint l'équipe" : "A acheté"}</button>
+    ${x && x.status === "open" ? `<button class="btn orange" style="margin-top:8px" data-act="pConvert" data-id="${x.id}">${I.bag} A acheté</button>
       <button class="btn soft" style="margin-top:8px" data-act="pLost" data-id="${x.id}">Pas intéressé</button>` : ""}
     ${x && x.status === "lost" ? `<button class="btn soft" style="margin-top:8px" data-act="pReopen" data-id="${x.id}">Remettre en suivi</button>` : ""}
     ${x && x.status === "client" && x.clientId && client(x.clientId) ? `<button class="btn soft" style="margin-top:8px" data-act="fiche" data-id="${x.clientId}">Voir sa fiche client</button>` : ""}
@@ -1447,7 +1381,7 @@ function parseTable(text) {
   const rows = lines.map(l => splitLine(l, d));
   const width = Math.max(...rows.map(r => r.length));
   const head = rows[0].map(norm), role = {};
-  const KW = { first: /prenom/, name: /nom|client|membre|contact|name|partenaire|filleul|beneficiaire/, date: /date|jour|commande le/, product: /produit|article|designation|libelle|product|item|reference|ref/, qty: /qte|quantite|qty|nombre|nb/ };
+  const KW = { first: /prenom/, name: /nom|client|contact|name|partenaire|filleul|beneficiaire/, date: /date|jour|commande le/, product: /produit|article|designation|libelle|product|item|reference|ref/, qty: /qte|quantite|qty|nombre|nb/ };
   head.forEach((h, i) => { for (const [k, re] of Object.entries(KW)) if (role[k] == null && re.test(h)) { role[k] = i; break; } });
   let body = rows;
   if (role.date != null || role.product != null || role.name != null) body = rows.slice(1);
@@ -1574,7 +1508,7 @@ function applyImport() {
     const name = row.querySelector(".impN").value.trim(), cid = row.querySelector(".impC").value, pid = row.querySelector(".impP").value;
     const date = row.querySelector(".impD").value || today(), qty = Math.max(1, Math.min(99, parseInt(row.querySelector(".impQ").value, 10) || 1));
     let c = cid ? client(cid) : S.clients.find(x => norm(x.name) === norm(name));
-    if (!c) { if (!name) return; c = { id: uid(), name, phone: "", example: false, createdAt: today(), status: newStatus, statusLog: [{ s: newStatus, date: today() }] }; if (newStatus === "business") c.businessSince = today(); S.clients.push(c); newC++; }
+    if (!c) { if (!name) return; c = { id: uid(), name, phone: "", example: false, createdAt: today(), status: newStatus, statusLog: [{ s: newStatus, date: today() }] }; S.clients.push(c); newC++; }
     let p = pid ? S.products.find(x => x.id === pid) : S.products.find(x => norm(x.name) === norm(r.product));
     if (!p) { p = { id: uid(), name: cap(r.product.trim()), days: 30, price: 0 }; S.products.push(p); }
     if (S.sales.some(x => x.clientId === c.id && x.product === p.name && x.date === date)) { skipped++; return; }
@@ -1713,30 +1647,14 @@ const actions = {
     setTimeout(() => actions.pDone(el), 300);
     return true;
   },
-  pJoin: el => {
-    const x = prospect(el.dataset.id), snap = snapshot();
-    let c = S.clients.find(y => norm(y.name) === norm(x.name));
-    if (!c) { c = { id: uid(), name: x.name, phone: x.phone, example: !!x.example, createdAt: today(), status: "direct", statusLog: [], referredBy: x.referredBy || null, referredByName: x.referredByName || "" }; S.clients.push(c); }
-    c.statusLog.push({ s: "business", date: today() }); c.status = "business"; c.businessSince = today(); delete c.lastNudge;
-    x.status = "client"; x.clientId = c.id; x.convertedAt = today(); pEvent("pjoin", x);
-    save(); closeSheet(); render(); toast(`${firstName(x.name)} a rejoint votre équipe, bravo !`, snap);
-  },
-  /* Partenaires business : accompagnement */
-  nextBMsg: el => { const c = client(el.dataset.id); c.bmsg = (c.bmsg || 0) + 1; save(); const ta = document.getElementById("bmsg-" + c.id); const b = dueBusiness().find(x => x.c === c); ta.value = xMsg(b ? b.kind : "inactif", c.name, c.bmsg); fitAreas(ta.parentNode); },
-  bWa: el => { const c = client(el.dataset.id); el.href = `https://wa.me/${waNumber(c.phone)}?text=${encodeURIComponent(document.getElementById("bmsg-" + c.id).value)}`; setTimeout(() => actions.bDone(el), 300); return true; },
-  bCopy: async el => { const ok = await copyText(document.getElementById("bmsg-" + el.dataset.id).value); toast(ok ? "Message copié. Collez-le dans votre messagerie." : "Impossible de copier."); },
-  bDone: el => { const c = client(el.dataset.id), snap = snapshot(); c.lastNudge = today(); S.events.push({ id: uid(), type: "accomp", clientId: c.id, product: "", date: today(), example: !!c.example }); save(); render(); toast(`Accompagnement de ${firstName(c.name)} noté`, snap); },
-  bOrdered: el => { const c = client(el.dataset.id), snap = snapshot(); c.lastNudge = today(); S.events.push({ id: uid(), type: "accomp", clientId: c.id, product: "", date: today(), example: !!c.example }); save(); render(); toast(`Noté : ${firstName(c.name)} a déjà commandé. Ajoutez la commande avec « + » ou l'import.`, snap); },
-  bLater: el => { const c = client(el.dataset.id), snap = snapshot(); c.nudgeSnooze = addDays(today(), 7); save(); render(); toast(`Reporté au ${fmt(c.nudgeSnooze)}`, snap); },
   /* Clients qui ont intérêt à devenir partenaires */
   nextHMsg: () => {},
   hWa: el => { const c = client(el.dataset.id); el.href = `https://wa.me/${waNumber(c.phone)}?text=${encodeURIComponent(document.getElementById("hmsg-" + c.id).value)}`; setTimeout(() => actions.hDone(el), 300); return true; },
   hCopy: async el => { const ok = await copyText(document.getElementById("hmsg-" + el.dataset.id).value); toast(ok ? "Message copié. Collez-le dans votre messagerie." : "Impossible de copier."); },
   hDone: el => { const c = client(el.dataset.id), snap = snapshot(); c.partnerHinted = today(); S.events.push({ id: uid(), type: "hint", clientId: c.id, product: "", date: today(), example: !!c.example }); save(); render(); toast("Proposition notée", snap); },
-  hBecame: el => { const c = client(el.dataset.id), snap = snapshot(); setStatus(c, "partenaire"); c.partnerHinted = today(); save(); render(); toast(`${firstName(c.name)} est maintenant partenaire-client`, snap); },
+  hBecame: el => { const c = client(el.dataset.id), snap = snapshot(); setStatus(c, "partenaire"); c.partnerHinted = today(); save(); render(); toast(`${firstName(c.name)} est maintenant client partenaire`, snap); },
   hLater: el => { const c = client(el.dataset.id), snap = snapshot(); c.hintSnooze = addDays(today(), 30); save(); render(); toast("On vous le reproposera dans 30 jours", snap); },
   setStatus: el => { const c = client(el.dataset.id), snap = snapshot(); setStatus(c, el.dataset.s); save(); render(); openFiche(c.id); toast(`${firstName(c.name)} : ${CSTATUS[c.status]}`, snap); },
-  pickKind: el => { pform.kind = el.dataset.k; pform.where = ""; drawWhere(); },
   openImport: () => openImport(),
   impPaste: () => { document.getElementById("impPasteBox").classList.remove("hidden"); document.getElementById("impText").focus(); },
   impRead: () => openImportReview(parseTable(document.getElementById("impText").value)),
@@ -1866,9 +1784,9 @@ document.addEventListener("change", ev => {
     if (f === "price") p.price = Math.max(0, num(t.value));
     save(); toast("Produit mis à jour"); return;
   }
-  if (t.id === "setThreshold" || t.id === "setInactive") {
+  if (t.id === "setThreshold") {
     const v = Math.max(1, Math.round(num(t.value)) || 0);
-    S.settings[t.id === "setThreshold" ? "partnerThreshold" : "inactiveDays"] = v || SET_DEFAULTS[t.id === "setThreshold" ? "partnerThreshold" : "inactiveDays"];
+    S.settings.partnerThreshold = v || SET_DEFAULTS.partnerThreshold;
     save(); toast("Réglage enregistré"); return;
   }
   if (t.id === "setGift") { S.gift = t.value.trim(); save(); toast("Cadeau d'anniversaire enregistré"); return; }
