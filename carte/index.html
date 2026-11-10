@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f7f5f2">
+<meta name="color-scheme" content="only light">
+<meta name="robots" content="noindex">
+<title>Ma carte fidélité</title>
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="stylesheet" href="/assets/site.css">
+<style>
+body{background:var(--bg);min-height:100vh;margin:0}
+.cw{max-width:440px;margin:0 auto;padding:28px 16px 40px}
+.ctitle{font-size:1.6rem;letter-spacing:-.035em;margin:0 0 4px}
+.csub{color:var(--ink-2);margin:0 0 18px}
+.lcard{position:relative;overflow:hidden;border-radius:26px;padding:22px 22px 20px;color:#fff;background:radial-gradient(80% 90% at 100% 0%,rgba(95,123,255,.45),transparent 60%),radial-gradient(70% 80% at 0% 100%,rgba(255,106,42,.5),transparent 65%),#121414;box-shadow:0 24px 50px -24px rgba(0,0,0,.6)}
+.lc-top{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:.84rem;font-weight:700;color:#d8dbda}
+.lc-brand{display:flex;align-items:center;gap:8px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.lc-brand svg{width:32px;height:19px;flex:none}
+.lc-no{letter-spacing:.06em;opacity:.8}
+.lc-name{margin-top:26px;font-size:1.45rem;font-weight:750;letter-spacing:-.02em}
+.lc-perk{font-size:2.6rem;font-weight:800;letter-spacing:-.045em;line-height:1.1;color:#FF8A4C}.lc-perk small{font-size:1rem;font-weight:650;letter-spacing:0;color:#d8dbda}
+.lc-stamps{display:flex;gap:10px;margin-top:18px}.lc-stamps i{flex:1;max-width:44px;aspect-ratio:1;border-radius:50%;border:2px dashed rgba(255,255,255,.35);display:grid;place-items:center;font-style:normal}.lc-stamps i.on{border:0;background:linear-gradient(135deg,#FF8A4C,#FF5A1F)}
+.lc-foot{margin-top:12px;font-weight:650}.lc-since{margin-top:4px;font-size:.8rem;color:#a9aead}
+.cbox{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:18px 20px;margin-top:16px;box-shadow:var(--shadow)}
+.cbox h2{font-size:1.05rem;margin:0 0 8px;letter-spacing:-.02em}.cbox ul{margin:0;padding-left:20px;color:var(--ink-2);line-height:1.7}
+.cbtn{display:flex;justify-content:center;align-items:center;gap:8px;width:100%;margin-top:16px;text-align:center}
+.cnote{color:var(--ink-3);font-size:.8rem;text-align:center;margin-top:22px}
+.err{text-align:center;padding:60px 10px;color:var(--ink-2)}
+</style>
+</head>
+<body>
+<main class="cw" id="c"></main>
+<script>
+(function () {
+  const el = document.getElementById("c");
+  const esc = v => String(v == null ? "" : v).replace(/[&<>"']/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]));
+  let d = null;
+  try {
+    const raw = new URLSearchParams(location.search).get("d").replace(/-/g, "+").replace(/_/g, "/");
+    d = JSON.parse(decodeURIComponent(escape(atob(raw + "===".slice((raw.length + 3) % 4)))));
+  } catch (e) {}
+  if (!d || !d.n) { el.innerHTML = `<p class="err">Cette carte fidélité est introuvable.<br>Demandez à votre conseillère de vous la renvoyer.</p>`; return; }
+  const shop = d.b || "votre conseillère";
+  const e = Math.max(0, d.e | 0), k = Math.max(0, d.k | 0), left = e ? e - k : 0;
+  const month = s => { try { return new Date(s + "T12:00:00").toLocaleDateString("fr-FR", { month: "long", year: "numeric" }); } catch (x) { return ""; } };
+  const dots = e ? Array.from({ length: e }, (_, i) => `<i class="${i < k ? "on" : ""}">${i === e - 1 ? "🎁" : ""}</i>`).join("") : "";
+  const logo = `<svg viewBox="0 0 40 24" aria-hidden="true"><rect x="1.5" y="1.5" width="31" height="21" rx="5" fill="none" stroke="currentColor" stroke-width="3"/><rect x="34" y="7.5" width="4" height="9" rx="1.5" fill="currentColor"/><rect x="6" y="6" width="6.5" height="12" rx="1.6" fill="#FF6A2A"/><rect x="14" y="6" width="6.5" height="12" rx="1.6" fill="#FF6A2A"/><rect x="22" y="6" width="6.5" height="12" rx="1.6" fill="#FF6A2A" opacity=".45"/></svg>`;
+  const phone = (d.t || "").trim();
+  const reco = `Je te recommande ${shop === "votre conseillère" ? "ma conseillère" : shop}${phone ? " : " + phone : ""} 😊 Ses produits me font vraiment du bien !`;
+  document.title = "Ma carte fidélité · " + (d.b || "Recharge");
+  el.innerHTML = `<h1 class="ctitle">Ma carte fidélité</h1><p class="csub">Offerte par ${esc(shop)}.</p>
+    <div class="lcard"><div class="lc-top"><span class="lc-brand">${logo}${esc(d.b || "Carte fidélité")}</span><span class="lc-no">N° ${esc(d.no)}</span></div>
+      <div class="lc-name">${esc(d.n)}</div>
+      <div class="lc-perk">-${esc(d.p)} % <small>sur chaque commande</small></div>
+      ${e && d.g ? `<div class="lc-stamps">${dots}</div><div class="lc-foot">Encore ${left} ${left > 1 ? "commandes" : "commande"} avant : ${esc(d.g)}</div>` : ""}
+      <div class="lc-since">Membre depuis ${esc(month(d.s))}</div></div>
+    <div class="cbox"><h2>Mes avantages</h2><ul>
+      <li><b>-${esc(d.p)} %</b> sur chaque commande</li>
+      ${e && d.g ? `<li><b>${esc(d.g)}</b> toutes les ${e} commandes</li>` : ""}
+      <li>Les promos en avant-première</li></ul></div>
+    <a class="btn orange cbtn" href="https://wa.me/?text=${encodeURIComponent(reco)}" target="_blank" rel="noopener">Recommander ${esc(d.b || "ma conseillère")} à un proche</a>
+    <p class="cnote">Tampons à jour au ${esc(new Date((d.d || d.s) + "T12:00:00").toLocaleDateString("fr-FR"))}. Gardez ce lien : c'est votre carte.</p>`;
+})();
+</script>
+</body>
+</html>
