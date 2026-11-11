@@ -82,13 +82,14 @@
 <section class="block" id="potentiel"><div class="wrap">
   <div class="head reveal"><span class="kicker"><i>✦</i>Votre micro-marché</span>
     <h2>Combien de personnes pouvez-vous toucher ?</h2>
-    <p>Vos clients et vos prospects, et tous ceux qu'ils connaissent : environ 10 personnes par client, 5 par prospect. C'est votre marché à vous. Bougez les curseurs.</p></div>
+    <p>Chaque personne que vous connaissez en connaît d'autres qui ont les mêmes besoins. Votre vrai marché, c'est tout ce monde-là. Bougez les curseurs.</p></div>
   <div class="pot reveal">
     <div class="pot-viz">
       <svg id="potSvg" viewBox="-200 -200 400 400" role="img" aria-label="Votre réseau : vous, vos clients, vos prospects et les personnes qu'ils connaissent"></svg>
       <div class="pot-mid"><b id="potTotal">0</b><span>personnes<br>à toucher</span></div>
     </div>
     <div class="pot-ctl">
+      <div class="pot-rule"><div class="o"><b>1 client</b><span>= 10 clients potentiels dans son entourage</span></div><div class="b"><b>1 prospect</b><span>= 5 clients potentiels dans son entourage</span></div></div>
       <label class="pslide o" for="potC"><span>🛍️ Vos clients <b id="potCOut">12</b></span>
         <input type="range" id="potC" min="1" max="50" value="12" aria-label="Nombre de clients"></label>
       <label class="pslide b" for="potP"><span>👋 Vos prospects <b id="potPOut">6</b></span>
@@ -99,7 +100,7 @@
         <div><b id="potCA">≈ 525 €</b><span>de ventes en plus, à chaque cure</span></div>
       </div>
       <button class="btn dark pot-go" id="potBoom" type="button">✨ Et s'ils recommandent aussi ?</button>
-      <p class="disc2" id="potNote">Estimation indicative : 10 contacts par client, 5 par prospect, panier de 35 €.</p>
+      <p class="disc2" id="potNote">Des hypothèses de travail pour dimensionner votre potentiel, pas des moyennes garanties. Panier de 35 €.</p>
     </div>
   </div>
 </div></section>

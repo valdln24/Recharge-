@@ -199,8 +199,8 @@ if (potSvg) {
     $("potNet").textContent = total.toLocaleString("fr-FR");
     $("potNew").textContent = "+" + nw.toLocaleString("fr-FR");
     $("potCA").textContent = "≈ " + (nw * PANIER).toLocaleString("fr-FR") + " €";
-    $("potNote").textContent = boom ? "Si chaque personne touchée en parle à 10 autres : le bouche-à-oreille fait boule de neige. Estimation indicative, panier de 35 €."
-      : "Estimation indicative : 10 contacts par client, 5 par prospect, panier de 35 €.";
+    $("potNote").textContent = boom ? "Et si chaque personne touchée en parle à son tour : le bouche-à-oreille fait boule de neige. Hypothèses de travail, pas des moyennes garanties."
+      : "Des hypothèses de travail pour dimensionner votre potentiel, pas des moyennes garanties. Panier de 35 €.";
     tween(total);
   }
   potC.addEventListener("input", update); potP.addEventListener("input", update);

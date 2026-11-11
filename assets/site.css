@@ -628,3 +628,7 @@ footer .flinks a{color:var(--ink-3)}footer .flinks a:hover{color:var(--ink)}
 .pot-go{width:100%;margin-top:14px}
 @media (max-width:900px){.pot{grid-template-columns:1fr;padding:18px;border-radius:28px;gap:14px}.pot-viz{max-width:400px}}
 @media (max-width:420px){.pot-res{grid-template-columns:1fr 1fr}.pot-res div:last-child{grid-column:1/-1}.pot-res b{font-size:1.25rem}}
+.pot-rule{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px}
+.pot-rule div{border-radius:18px;padding:12px 14px}.pot-rule .o{background:var(--o-soft)}.pot-rule .b{background:var(--b-soft)}
+.pot-rule b{display:block;font-size:1.15rem;letter-spacing:-.03em}.pot-rule .o b{color:var(--o-text)}.pot-rule .b b{color:var(--b-text)}
+.pot-rule span{display:block;font-size:.84rem;color:var(--ink-2);font-weight:600;margin-top:2px;line-height:1.3}

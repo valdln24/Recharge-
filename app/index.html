@@ -114,6 +114,7 @@ main{max-width:560px;margin:0 auto;padding:6px 16px 24px}
 .obtones{display:grid;gap:8px;margin-top:14px}.obtone{display:flex;flex-direction:column;align-items:flex-start;text-align:left;border:1.5px solid var(--line-2);background:var(--surface);border-radius:18px;padding:13px 16px;font:inherit;cursor:pointer;color:var(--ink)}
 .obtone b{font-size:1rem}.obtone small{color:var(--ink-3);font-weight:600;font-size:.84rem;margin-top:2px}.obtone.on{border-color:var(--o1);background:var(--o-soft)}
 .obnav{display:flex;gap:8px;margin-top:20px}.obnav .btn{flex:1}
+.potrule{display:grid;gap:6px;margin-top:10px}.potrule span{background:var(--surface-2);border-radius:14px;padding:10px 12px;font-size:.88rem;font-weight:600}.potrule b{color:var(--o-text)}
 .potc{display:flex;gap:14px;align-items:center;margin-top:12px}.potn{font-size:2.3rem;font-weight:800;letter-spacing:-.045em;line-height:1;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}.potc b{font-size:.98rem}.potc small{display:block;color:var(--ink-3);font-size:.8rem;margin-top:3px;font-weight:550}
 
 /* ---------- Cartes client ---------- */
@@ -728,7 +729,11 @@ const MSG = {
 /* Personnalisation : profil de la vendeuse (questionnaire de bienvenue) */
 const UNIVERS = { bien: "mes produits bien-être", soin: "mes soins", cuisine: "mes produits pour la cuisine", maison: "mes produits pour la maison", parfum: "mes bougies et parfums", mode: "mes bijoux et accessoires", autre: "mes produits" };
 const prof = () => S.profile || {};
-const univers = () => UNIVERS[prof().cat] || "mes produits";
+const cats = () => { const p = prof(); return Array.isArray(p.cats) ? p.cats : p.cat ? [p.cat] : []; };
+function univers() {
+  const c = cats().filter(k => k !== "autre");
+  return c.length === 1 ? UNIVERS[c[0]] : c.length === 2 ? `${UNIVERS[c[0]]} et ${UNIVERS[c[1]]}` : "mes produits";
+}
 const myName = () => prof().name || S.settings.myName || "";
 function intro() {
   const n = myName(), b = prof().brand;
@@ -1160,7 +1165,8 @@ function viewResults() {
     <li><span>🎁 Cadeaux offerts</span><b class="num">${S.events.filter(e => e.type === "gift" && e.date >= from).length}</b></li>
     <li><span>Marge gardée (${keepPct} %)</span><b class="num">≈ ${euro(Math.round(vipCA * keepPct / 100))}</b></li></ul></div>`;
   if (S.settings.leader) h += teamSection();
-  h += section("Clients potentiels") + potentialCard(false) + `<p class="hint" style="margin-top:8px">Chaque client connaît environ ${POT.client} personnes que vos produits peuvent intéresser, chaque prospect environ ${POT.prospect}. Demandez-leur des contacts !</p>`;
+  h += section("Clients potentiels") + potentialCard(false) + `<div class="potrule"><span>🛍️ 1 client = <b>${POT.client}</b> clients potentiels dans son entourage</span><span>👋 1 prospect = <b>${POT.prospect}</b> clients potentiels dans son entourage</span></div>
+    <p class="hint" style="margin-top:8px">Des hypothèses de travail pour mesurer votre potentiel, pas des moyennes garanties. Demandez-leur des contacts !</p>`;
   const cnt = st2 => S.clients.filter(c => c.status === st2).length, pc = () => S.prospects.filter(x => x.status === "open").length;
   h += section("Vos contacts") + `<div class="card"><ul class="hist">
     <li><span>Clients</span><b class="num">${cnt("direct")}</b></li><li><span>💳 Cartes fidélité</span><b class="num">${cnt("vip")}</b></li>
@@ -1219,11 +1225,11 @@ function viewSettings() {
     <label class="field" style="display:flex;align-items:center;justify-content:space-between;gap:12px"><span style="margin:0">Je suis dirigeant(e) d'équipe</span><input type="checkbox" id="setLeader" ${S.settings.leader ? "checked" : ""} style="width:22px;height:22px;accent-color:var(--o1)"></label></div>`;
   h += section("Importer") + `<div class="card pad"><button class="btn outline" style="margin-top:0" data-act="openImport">${I.up} Importer des commandes</button></div>`;
 
-  const pf = prof(), catL = (OB_CATS.find(x => x[0] === pf.cat) || [])[1] || "Non renseigné";
+  const pf = prof(), catL = cats().map(k => ((OB_CATS.find(x => x[0] === k) || [])[1] || "").replace(/^\S+\s/, "")).filter(Boolean).join(", ") || "Non renseigné";
   h += section("Mon profil") + `<div class="card"><ul class="hist">
     <li><span>Prénom</span><b>${esc(myName() || "Non renseigné")}</b></li>
     <li><span>Entreprise</span><b>${esc(pf.brand || "Non renseignée")}</b></li>
-    <li><span>Ce que je vends</span><b>${esc(catL.replace(/^\S+\s/, ""))}</b></li></ul>
+    <li><span>Ce que je vends</span><b style="text-align:right">${esc(catL)}</b></li></ul>
     <div style="padding:0 16px 16px"><button class="btn soft" data-act="obOpen">Modifier mon profil</button></div></div>`;
   h += section("Ton des messages") + `<div class="seg" style="margin-top:0">
     <button class="${S.tone === "tu" ? "on" : ""}" data-act="tone" data-t="tu">Tutoiement</button>
@@ -1490,7 +1496,7 @@ const OB_BRANDS = ["Forever Living", "Thermomix", "Tupperware", "Stanhome", "Par
 let ob = null;
 const toneOf = () => S.tone === "vous" ? "pro" : S.emoji === false ? "simple" : "chaleureux";
 function openOnboarding(step = 0) {
-  if (!ob) { const p = prof(); ob = { i: step, name: myName(), brand: p.brand || "", cat: p.cat || "", tone: p.tone || toneOf(), why: (p.why || []).slice(), how: p.how || "" }; }
+  if (!ob) { const p = prof(); ob = { i: step, name: myName(), brand: p.brand || "", cats: cats().slice(), tone: p.tone || toneOf(), why: (p.why || []).slice(), how: p.how || "" }; }
   ob.i = Math.max(0, Math.min(6, step));
   const N = 6, dots = `<div class="obbar"><span style="width:${Math.round(Math.min(ob.i, N) / N * 100)}%"></span></div>`;
   const chips = (list, key, multi) => `<div class="pchips obchips">${list.map(([k, l]) => `<button type="button" class="pchip ${multi ? (ob[key].includes(k) ? "on" : "") : ob[key] === k ? "on" : ""}" data-act="obPick" data-k="${key}" data-v="${k}" data-m="${multi ? 1 : ""}">${l}</button>`).join("")}</div>`;
@@ -1501,7 +1507,7 @@ function openOnboarding(step = 0) {
   if (ob.i === 1) body = `<h3 class="obq">Avec quelle entreprise travaillez-vous ?</h3><p class="lede">Elle apparaîtra quand vous vous présentez à un nouveau contact.</p>
     <label class="field"><span>Entreprise ou marque</span><input class="input" id="obBrand" list="obBrands" value="${esc(ob.brand)}" placeholder="ex. : Forever Living"></label>
     <datalist id="obBrands">${OB_BRANDS.map(b => `<option value="${esc(b)}">`).join("")}</datalist>`;
-  if (ob.i === 2) body = `<h3 class="obq">Que vendez-vous ?</h3><p class="lede">Pour parler de vos produits avec les bons mots.</p>${chips(OB_CATS, "cat")}`;
+  if (ob.i === 2) body = `<h3 class="obq">Que vendez-vous ?</h3><p class="lede">Plusieurs choix possibles. Pour parler de vos produits avec les bons mots.</p>${chips(OB_CATS, "cats", true)}`;
   if (ob.i === 3) body = `<h3 class="obq">Quel ton pour vos messages ?</h3><p class="lede">Vous pourrez le changer à tout moment.</p>
     <div class="obtones">${OB_TONES.map(([k, l, d]) => `<button type="button" class="obtone ${ob.tone === k ? "on" : ""}" data-act="obPick" data-k="tone" data-v="${k}"><b>${l}</b><small>${d}</small></button>`).join("")}</div>
     <div class="bubble" style="margin-top:12px"><div class="top"><span class="small">Exemple</span></div><p style="margin:6px 0 0;font-size:.92rem">${esc(prevTone(ob.tone))}</p></div>`;
@@ -1523,7 +1529,7 @@ function obRead() {
 }
 function obApply(preview) {
   const keep = !preview;
-  S.profile = { ...(S.profile || {}), name: ob.name, brand: ob.brand, cat: ob.cat, tone: ob.tone, why: ob.why, how: ob.how, done: (S.profile && S.profile.done) || today() };
+  S.profile = { ...(S.profile || {}), name: ob.name, brand: ob.brand, cats: ob.cats, cat: undefined, tone: ob.tone, why: ob.why, how: ob.how, done: (S.profile && S.profile.done) || today() };
   S.tone = ob.tone === "pro" ? "vous" : "tu"; S.emoji = ob.tone !== "simple";
   if (keep) {
     S.settings.myName = ob.name;
