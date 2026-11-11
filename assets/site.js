@@ -57,7 +57,8 @@ if (teamSize) {
     const priceEl = $("teamPrice");
     priceEl.textContent = eur(price);
     $("teamSizeOut").textContent = n;
-    $("teamPer").textContent = eur(Math.round(price / n * 100) / 100);
+    const extra = Math.max(0, n - TEAM_INCLUDED), per = $("teamPer");
+    if (per) per.textContent = extra ? `10 filleuls inclus + ${extra} × 4 €` : "10 filleuls inclus";
     teamSize.style.setProperty("--p", ((n - 1) / 49 * 100) + "%");
     if (animate) { priceEl.classList.remove("bump"); void priceEl.offsetWidth; priceEl.classList.add("bump"); }
   };

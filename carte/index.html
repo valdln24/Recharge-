@@ -53,15 +53,15 @@ body{background:var(--bg);min-height:100vh;margin:0}
   el.innerHTML = `<h1 class="ctitle">Ma carte fidélité</h1><p class="csub">Offerte par ${esc(shop)}.</p>
     <div class="lcard"><div class="lc-top"><span class="lc-brand">${logo}${esc(d.b || "Carte fidélité")}</span><span class="lc-no">N° ${esc(d.no)}</span></div>
       <div class="lc-name">${esc(d.n)}</div>
-      <div class="lc-perk">-${esc(d.p)} % <small>sur chaque commande</small></div>
+      ${d.p > 0 ? `<div class="lc-perk">-${esc(d.p)} % <small>sur chaque commande</small></div>` : e && d.g ? `<div class="lc-perk" style="font-size:1.7rem;line-height:1.2">🎁 ${esc(d.g)} <small>au bout de ${e} commandes</small></div>` : ""}
       ${e && d.g ? `<div class="lc-stamps">${dots}</div><div class="lc-foot">Encore ${left} ${left > 1 ? "commandes" : "commande"} avant : ${esc(d.g)}</div>` : ""}
       <div class="lc-since">Membre depuis ${esc(month(d.s))}</div></div>
     <div class="cbox"><h2>Mes avantages</h2><ul>
-      <li><b>-${esc(d.p)} %</b> sur chaque commande</li>
-      ${e && d.g ? `<li><b>${esc(d.g)}</b> toutes les ${e} commandes</li>` : ""}
+      ${e && d.g ? `<li><b>${esc(d.g)}</b> quand ma carte est complète (${e} commandes)</li>` : ""}
+      ${d.p > 0 ? `<li><b>-${esc(d.p)} %</b> sur chaque commande</li>` : ""}
       <li>Les promos en avant-première</li></ul></div>
     <a class="btn orange cbtn" href="https://wa.me/?text=${encodeURIComponent(reco)}" target="_blank" rel="noopener">Recommander ${esc(d.b || "ma conseillère")} à un proche</a>
-    <p class="cnote">Tampons à jour au ${esc(new Date((d.d || d.s) + "T12:00:00").toLocaleDateString("fr-FR"))}. Gardez ce lien : c'est votre carte.</p>`;
+    <p class="cnote">Tampons à jour au ${esc(new Date((d.d || d.s) + "T12:00:00").toLocaleDateString("fr-FR"))} : un tampon par commande enregistrée. Gardez ce lien, c'est votre carte.</p>`;
 })();
 </script>
 </body>

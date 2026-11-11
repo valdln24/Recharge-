@@ -632,3 +632,6 @@ footer .flinks a{color:var(--ink-3)}footer .flinks a:hover{color:var(--ink)}
 .pot-rule div{border-radius:18px;padding:12px 14px}.pot-rule .o{background:var(--o-soft)}.pot-rule .b{background:var(--b-soft)}
 .pot-rule b{display:block;font-size:1.15rem;letter-spacing:-.03em}.pot-rule .o b{color:var(--o-text)}.pot-rule .b b{color:var(--b-text)}
 .pot-rule span{display:block;font-size:.84rem;color:var(--ink-2);font-weight:600;margin-top:2px;line-height:1.3}
+
+/* Marqueur des infos à compléter avant la mise en vente */
+mark.todo{display:inline-block;background:#fff3a6;color:#6b5600;border:1px dashed #d1b200;border-radius:8px;padding:2px 8px;font-size:.78rem;font-weight:700;margin:6px 0}
