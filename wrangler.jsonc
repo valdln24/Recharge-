@@ -1,0 +1,33 @@
+// Recharge sur Cloudflare Workers : le site et l'appli (dossier public/) + l'API des comptes (worker/index.js).
+// Les secrets (RESEND_API_KEY…) ne sont JAMAIS ici : ils se règlent dans Cloudflare (Variables et secrets).
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "recharge",
+  "main": "worker/index.js",
+  "compatibility_date": "2025-10-01",
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*"]
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "recharge",
+      // [À COMPLÉTER : identifiant de la base D1 « recharge », visible dans Cloudflare › Stockage et bases de données › D1]
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "vars": {
+    // Adresse publique du site (sert à construire le lien de connexion envoyé par email)
+    "APP_ORIGIN": "https://recharge.delaineval.workers.dev",
+    // [À COMPLÉTER : adresse d'envoi validée dans Resend, ex. « Recharge <connexion@votre-domaine.fr> »]
+    "EMAIL_FROM": "Recharge <onboarding@resend.dev>",
+    // Phase 3 : passera à "true" quand Stripe sera branché (la sauvegarde sera réservée aux offres payantes)
+    "REQUIRE_PAID": "false",
+    // Uniquement pour tester sans email : "true" renvoie le lien de connexion dans la réponse. Toujours "false" en ligne.
+    "DEV_SHOW_LINK": "false"
+  },
+  "observability": { "enabled": true }
+}

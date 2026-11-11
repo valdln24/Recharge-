@@ -1,0 +1,14 @@
+{
+  "name": "recharge",
+  "private": true,
+  "description": "Recharge : l'appli de relance des vendeurs à domicile (site + appli + API sur Cloudflare Workers)",
+  "scripts": {
+    "dev": "wrangler dev --port 8765",
+    "deploy": "wrangler deploy",
+    "db:migrate:local": "wrangler d1 migrations apply recharge --local",
+    "db:migrate": "wrangler d1 migrations apply recharge --remote"
+  },
+  "devDependencies": {
+    "wrangler": "^4.40.0"
+  }
+}
