@@ -78,6 +78,32 @@
   </div>
 </section>
 
+<!-- ---------- Micro-marché : combien de personnes pouvez-vous toucher ---------- -->
+<section class="block" id="potentiel"><div class="wrap">
+  <div class="head reveal"><span class="kicker"><i>✦</i>Votre micro-marché</span>
+    <h2>Combien de personnes pouvez-vous toucher ?</h2>
+    <p>Vos clients et vos prospects, et tous ceux qu'ils connaissent : environ 10 personnes par client, 5 par prospect. C'est votre marché à vous. Bougez les curseurs.</p></div>
+  <div class="pot reveal">
+    <div class="pot-viz">
+      <svg id="potSvg" viewBox="-200 -200 400 400" role="img" aria-label="Votre réseau : vous, vos clients, vos prospects et les personnes qu'ils connaissent"></svg>
+      <div class="pot-mid"><b id="potTotal">0</b><span>personnes<br>à toucher</span></div>
+    </div>
+    <div class="pot-ctl">
+      <label class="pslide o" for="potC"><span>🛍️ Vos clients <b id="potCOut">12</b></span>
+        <input type="range" id="potC" min="1" max="50" value="12" aria-label="Nombre de clients"></label>
+      <label class="pslide b" for="potP"><span>👋 Vos prospects <b id="potPOut">6</b></span>
+        <input type="range" id="potP" min="0" max="30" value="6" aria-label="Nombre de prospects"></label>
+      <div class="pot-res">
+        <div><b id="potNet">150</b><span>personnes autour de vous</span></div>
+        <div class="hl"><b id="potNew">+15</b><span>nouveaux clients si 1 sur 10 achète</span></div>
+        <div><b id="potCA">≈ 525 €</b><span>de ventes en plus, à chaque cure</span></div>
+      </div>
+      <button class="btn dark pot-go" id="potBoom" type="button">✨ Et s'ils recommandent aussi ?</button>
+      <p class="disc2" id="potNote">Estimation indicative : 10 contacts par client, 5 par prospect, panier de 35 €.</p>
+    </div>
+  </div>
+</div></section>
+
 <section class="block"><div class="wrap">
   <div class="head reveal"><span class="kicker"><i>✦</i>Les fonctionnalités</span><h2>Ce que Recharge fait pour vous.</h2></div>
   <div class="pfeats n4"><div class="reveal"><span>⏰</span><b>Le bon moment</b><p>Le message vous est proposé juste après chaque recommande.</p></div><div class="reveal"><span>💬</span><b>Le bon message</b><p>Naturel, jamais insistant. Trois versions au choix.</p></div><div class="reveal"><span>👋</span><b>Le contact donné, suivi</b><p>Il devient un prospect, avec son premier message prêt.</p></div><div class="reveal"><span>🔗</span><b>Prospects compris</b><p>Même sans avoir acheté, un prospect peut vous présenter quelqu'un.</p></div></div>
