@@ -85,6 +85,14 @@ main{max-width:560px;margin:0 auto;padding:6px 16px 24px}
 .dial .lbl{font-size:.92rem;font-weight:650;margin-top:4px;color:var(--ink-2)}
 
 /* ---------- Accueil ---------- */
+.hello{margin-top:8px;border-radius:28px;padding:20px 20px 18px;background:linear-gradient(135deg,#ffe2cc 0%,#ffd5df 55%,#e9ddff 100%);box-shadow:0 16px 36px -22px rgba(255,106,42,.55)}
+.hl-hi{font-size:1.65rem;font-weight:800;letter-spacing:-.04em;line-height:1.15}
+.hl-line{margin:6px 0 0;font-size:1rem;color:#4a3f3b;font-weight:600;line-height:1.4}
+.hl-bar{height:10px;border-radius:9px;background:rgba(255,255,255,.65);margin-top:14px;overflow:hidden}.hl-bar span{display:block;height:100%;border-radius:9px;background:var(--grad);transition:width .5s}
+.hl-count{font-size:.84rem;font-weight:700;color:#7a5a4c;margin-top:7px}
+.tip{display:flex;gap:12px;align-items:flex-start;margin-top:12px;padding:14px 14px 14px 16px;border-radius:22px;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow)}
+.tip>span{font-size:1.5rem;line-height:1}.tip p{margin:0;flex:1;font-size:.92rem;color:var(--ink-2);line-height:1.45}.tip p b{display:block;color:var(--ink);font-size:.95rem;margin-bottom:2px}
+.tip .x{flex:none;margin:-4px -4px 0 0}
 .hero{--seg-off:rgba(255,255,255,.09);--line:rgba(255,255,255,.1);--ink-2:#c4c8c6;--ink-3:#8d9290;color:#fff;
   background:radial-gradient(70% 60% at 0% 0%,rgba(255,106,42,.38),transparent 70%),radial-gradient(70% 60% at 100% 0%,rgba(95,123,255,.34),transparent 70%),#101312;
   border-radius:28px;box-shadow:0 20px 44px -22px rgba(16,19,18,.65);padding:22px 18px 0;margin-top:8px;text-align:center;overflow:hidden}
@@ -512,8 +520,16 @@ function addDemoHistory(s) {
 }
 /* Clients, et clients avec la carte fidélité (gratuite : remise permanente, cadeau tous les N achats, promos en avant-première) */
 const CSTATUS = { direct: "Client", vip: "Carte fidélité" };
-const SET_DEFAULTS = { vipOrders: 3, vipPct: 10, discountOn: false, margin: 30, every: 5, gift: "un petit cadeau", basket: 35, shopName: "", shopPhone: "", myName: "", leader: false };
+const SET_DEFAULTS = { vipOrders: 3, vipPct: 10, discountOn: false, margin: 30, every: 5, gift: "un petit cadeau", basket: 35, cycle: 30, shopName: "", shopPhone: "", myName: "", leader: false };
 /* La remise en % est une option, désactivée par défaut */
+/* Commande sans produit précis (ex. back-office qui ne montre que la date) : relance au rythme, après N jours */
+function genericProduct() {
+  let g = S.products.find(x => x.generic);
+  if (!g) { g = { id: "rythme", name: "Commande", days: S.settings.cycle || 30, price: 0, generic: true }; S.products.push(g); }
+  g.days = S.settings.cycle || 30; return g;
+}
+const realProducts = () => S.products.filter(x => !x.generic);
+const isGeneric = sl => sl.productId === "rythme";
 const discountOn = () => !!S.settings.discountOn && S.settings.vipPct > 0;
 const vipPerk = () => discountOn() ? `${S.settings.vipPct} % de remise sur chaque commande` : "";
 function migrate(d) {
@@ -566,6 +582,18 @@ const MSG = {
     "{{Salut|Bonjour}} {p} 😊 Je {{te|vous}} fais signe avant que {{tu sois|vous soyez}} à court {de}. Même quantité que la dernière fois ?",
     "{{Coucou|Bonjour}} {p} ! {{Tu en es où|Où en êtes-vous}} de {{ta|votre}} réserve {de} ? S'il {{t'en|vous en}} reste peu, je peux {{te|vous}} faire livrer rapidement 🚚",
     "{{Hello|Bonjour}} {p} 🌸 Pour ne pas casser le rythme, c'est le bon moment de reprendre {{ta|votre}} réserve {de}. {{Tu me dis|Vous me dites}} et je lance la commande !"
+  ],
+  rythme: [
+    "{{Coucou|Bonjour}} {p} ! 😊 {{Tu as commandé|Vous avez commandé}} {depuis} : {{tu veux|voulez-vous}} que je {{te|vous}} prépare la suite ?",
+    "{{Hello|Bonjour}} {p} 🌿 Ça fait un petit moment depuis {{ta|votre}} dernière commande. Il {{t'en|vous en}} reste encore ? Sinon, je m'occupe de la suite !",
+    "{{Coucou|Bonjour}} {p} ! Je pense à {{toi|vous}} : {{ta|votre}} dernière commande, c'était {depuis}. On en refait une ?",
+    "{p}, {{j'espère que tu vas bien|j'espère que vous allez bien}} 😊 {{Tu es|Êtes-vous}} bientôt à court ? Je peux {{te|vous}} préparer {{ta|votre}} prochaine commande.",
+    "{{Hello|Bonjour}} {p} ✨ {{Tu veux|Voulez-vous}} qu'on regarde ensemble {{ta|votre}} prochaine commande ? La dernière, c'était {depuis}.",
+    "{{Coucou|Bonjour}} {p} 🌸 C'est le bon moment pour refaire le plein ! {{Tu me dis|Vous me dites}} ce qu'il {{te|vous}} faut et je m'en occupe.",
+    "{{Hello|Bonjour}} {p} ! {{Comment tu vas|Comment allez-vous}} ? 😊 {{Tu as|Avez-vous}} besoin de quelque chose pour {{ta|votre}} prochaine commande ?",
+    "{{Coucou|Bonjour}} {p} ! {{Tu as commandé|Vous avez commandé}} {depuis} : je {{te|vous}} fais signe avant que {{tu sois|vous soyez}} à court 😉",
+    "{{Salut|Bonjour}} {p} 👋 Je prépare mes commandes de la semaine : {{tu veux|voulez-vous}} que j'ajoute la {{tienne|vôtre}} ?",
+    "{{Hello|Bonjour}} {p} 💛 Petit coucou : ça fait {{un moment|un moment}} depuis {{ta|votre}} dernière commande. {{Tu veux|Voulez-vous}} que je {{te|vous}} conseille pour la prochaine ?"
   ],
   retard: [
     "{{Coucou|Bonjour}} {p} ! 😊 {{Ta|Votre}} réserve {de} doit être terminée depuis quelques jours. {{Tu veux que je t'en renvoie|Voulez-vous que je vous en renvoie}} ?",
@@ -851,7 +879,7 @@ function refMessage(s, k) {
 }
 function message(s) {
   const c = client(s.clientId) || { name: "" };
-  const key = c.status === "vip" ? "vip" : s.end < today() ? "retard" : "relance";
+  const key = isGeneric(s) ? "rythme" : c.status === "vip" ? "vip" : s.end < today() ? "retard" : "relance";
   return msg(key, c.name, s.msg || 0, { de: deProd(s.product), depuis: depuis(s.date), gift: S.settings.gift || "un petit cadeau", stamp: c.status === "vip" ? stampLine(c) : "" });
 }
 function waNumber(phone) {
@@ -959,28 +987,47 @@ function exampleNotice() {
 const exTag = c => c && c.example ? `<span class="tag">Exemple</span>` : "";
 const section = (title, count) => `<div class="section"><h2>${title}</h2>${count != null ? `<span class="pill num">${count}</span>` : ""}</div>`;
 
+const TIPS = [
+  ["💬", "Envoyez vos relances le matin", "Entre 9 h et 11 h, on vous répond souvent plus vite."],
+  ["✍️", "Personnalisez une ligne", "Ajoutez un petit mot sur sa famille ou ses vacances : le message devient le vôtre."],
+  ["🎁", "Pensez au cadeau", "Un client dont la carte fidélité est presque complète a toutes les raisons de recommander."],
+  ["🤝", "Demandez un contact", "Juste après une recommande, votre client est content : c'est le moment de lui demander à qui il pense."],
+  ["📸", "Gagnez du temps", "Une capture de la liste des commandes de votre marque suffit à mettre vos clients à jour."],
+  ["⏰", "10 par jour, c'est parfait", "Mieux vaut quelques messages chaleureux chaque jour que 50 d'un coup."],
+  ["🌿", "Pas de réponse ?", "Pas grave : Recharge vous le rappellera au bon moment, sans insister."],
+  ["📣", "Une promo ?", "Lancez-la depuis le Menu : chaque prospect recevra son message, prêt à envoyer."],
+  ["🙂", "Un prospect hésite ?", "Proposez un échantillon : c'est souvent ce qui déclenche le premier achat."],
+  ["📊", "Votre bilan du mois", "Dans le Menu, voyez combien de commandes vos relances ont ramenées."],
+  ["💳", "La carte fidélité", "Envoyez-la sur WhatsApp : votre client la garde dans son téléphone."],
+  ["☎️", "Pas de WhatsApp ?", "Appuyez sur « Copier » et collez le message dans un SMS."],
+];
+function tipCard() {
+  if (S.tipHidden === today()) return "";
+  const k = Math.floor(Date.parse(today()) / 864e5) % TIPS.length, [e, t, d] = TIPS[k];
+  return `<div class="tip"><span>${e}</span><p><b>Astuce du jour : ${t}</b>${d}</p><button class="x" data-act="tipHide" aria-label="Masquer l'astuce">${I.x}</button></div>`;
+}
 const MAX_TODAY = 10;  // jamais plus de 10 contacts par jour : les autres attendent demain
 function viewToday() {
   const all = todayList(), list = all.slice(0, MAX_TODAY);
   const n = new Set(list.map(x => x.who)).size;
   const t = today();
   const doneToday = new Set(S.events.filter(e => e.date === t && ["relance", "pcontact", "hint", "plater", "report", "gift"].includes(e.type)).map(e => e.saleId || e.prospectId || e.clientId)).size;
-  const total = n + doneToday;
+  const total = list.length + doneToday;
   const st = stats("month");
-  let h = `<section class="hero">`;
-  h += n ? dial(total ? doneToday / total : 0, `<div class="big num">${n}</div><div class="lbl">${n > 1 ? "contacts à relancer" : "contact à relancer"}</div>`)
-           + `<div class="sub">${doneToday ? `${doneToday} sur ${total} traités aujourd'hui` : "Classés du plus urgent au moins urgent"}</div>`
-         : dial(doneToday ? 1 : 0, `<div class="calm">Personne à relancer<br>aujourd'hui</div>`)
-           + `<div class="sub">${doneToday ? "Tout est traité, bravo." : "Recharge vous préviendra au bon moment."}</div>`;
-  h += `<div class="duo"><div><span class="small">Gagné ce mois</span><b class="num">${euro(st.ca)}</b></div>
-        <div><span class="small">Taux de recommande</span><b class="num">${st.rate} %</b></div></div></section>`;
+  const hr = new Date().getHours(), hi = hr >= 18 ? "Bonsoir" : "Bonjour", who = myName();
+  const left = list.length, pct = total ? Math.round(doneToday / total * 100) : 0;
+  const line = left ? `${left > 1 ? `${left} personnes attendent` : "Une personne attend"} de vos nouvelles aujourd'hui. Comptez ${Math.max(2, left * 1)} minutes ☕`
+    : doneToday ? "Tout est fait pour aujourd'hui. Bravo ! 🎉" : "Personne à relancer aujourd'hui. Profitez-en 🌿";
+  let h = `<section class="hello"><div class="hl-hi">${hi}${who ? " " + esc(who) : ""} ${hr >= 18 ? "🌙" : "☀️"}</div><p class="hl-line">${line}</p>
+    ${total ? `<div class="hl-bar"><span style="width:${pct}%"></span></div><div class="hl-count">${doneToday ? `${doneToday} sur ${total} fait${doneToday > 1 ? "s" : ""} 💪` : "C'est parti !"}</div>` : ""}</section>`;
+  h += tipCard();
   h += exampleNotice();
 
   const keys = list.map(x => x.k);
   if (!keys.includes(openCard) && openCard !== "none") openCard = keys[0] || null;
-  h += section("À relancer aujourd'hui", list.length || null);
+  if (list.length) h += section("À relancer aujourd'hui", list.length);
   for (const it of list) h += todayCard(it);
-  if (all.length > list.length) h += `<p class="hint" style="text-align:center">${plural(all.length - list.length, "autre relance attend", "autres relances attendent")} demain. 10 par jour, c'est déjà très bien !</p>`;
+  if (all.length > list.length) h += `<p class="hint" style="text-align:center">${plural(all.length - list.length, "autre personne attendra", "autres personnes attendront")} demain. 10 par jour, c'est déjà très bien ! 🌸</p>`;
 
   if (!list.length) {
     const next = S.sales.filter(s => s.status === "open" && (diff(s.end, today()) > 3 || (s.snooze && s.snooze > today())))
@@ -1003,7 +1050,7 @@ function cardShell({ k, head, extra = "", msgId, msg, vary, id, waAct, copyAct, 
       <div class="rhead">${head}</div>
       ${extra}
       <div class="more">
-      <div class="bubble"><div class="top"><span class="small">Message prêt</span><span class="tbtns">${waNumber(phone) ? `<button class="vary" data-act="${copyAct}" data-id="${id}">${I.copy} Copier</button>` : ""}<button class="vary" data-act="${vary}" data-id="${id}">${I.redo} Autre</button></span></div>
+      <div class="bubble"><div class="top"><span class="small">Votre message</span><span class="tbtns">${waNumber(phone) ? `<button class="vary" data-act="${copyAct}" data-id="${id}">${I.copy} Copier</button>` : ""}<button class="vary" data-act="${vary}" data-id="${id}">${I.redo} Autre</button></span></div>
         <textarea class="msg" id="${msgId}" rows="4" aria-label="Message">${esc(msg)}</textarea></div>
       ${waNumber(phone)
         ? `<a class="btn primary send" href="#" target="_blank" rel="noopener" data-act="${waAct}" data-id="${id}">${I.wa} Envoyer sur WhatsApp</a>`
@@ -1018,7 +1065,7 @@ function todayCard(it) {
   if (it.type === "sale") {
     const sl = it.s, c = client(sl.clientId) || { name: "?" }, tm = timing(sl), pct = Math.round(progress(sl) * 100);
     const left = diff(sl.end, today());
-    const why = left < 0 ? `${esc(sl.product)} terminé depuis ${-left} j` : left === 0 ? `${esc(sl.product)} fini aujourd'hui` : `${esc(sl.product)} fini dans ~${left} j`;
+    const why = isGeneric(sl) ? `A commandé il y a ${diff(today(), sl.date)} jours` : left < 0 ? `${esc(sl.product)} terminé depuis ${-left} j` : left === 0 ? `${esc(sl.product)} fini aujourd'hui` : `${esc(sl.product)} fini dans ~${left} j`;
     return cardShell({ k: it.k, id: sl.id, phone: c.phone, msgId: "msg-" + sl.id, msg: message(sl), vary: "nextMsg", waAct: "wa", copyAct: "copy",
       head: `${saleGauge(sl)}<div class="who"><button class="name" data-act="fiche" data-id="${c.id}">${esc(c.name)}</button>${exTag(c)}
           <div class="status ${tm.cls}">${why}</div><div class="meta2">${typeTag(CSTATUS[c.status] || "Client")} · ${esc(sl.product)} × ${sl.qty}</div></div>`,
@@ -1199,9 +1246,11 @@ function viewSettings() {
     ["📊", "Bilan du mois", "openBilan", "", ""], ["📸", "Importer", "openImport", "", ""]];
   let h = `<h1 class="title">Menu</h1><p class="lede">Tous les modules de Recharge, et vos réglages.</p>
     <div class="mods">${MODS.map(([e, l, a, t2, c2]) => `<button class="mod" data-act="${a}" data-t="${t2}" data-c="${esc(c2)}"><span>${e}</span><b>${l}</b></button>`).join("")}</div>`;
-  h += section("Mes produits", S.products.length) + `<div class="card pad">
+  h += section("Mes produits", realProducts().length) + `<div class="card pad">
+    <label class="field" style="margin-top:0"><span>Commande sans produit précis : relancer après</span><div class="unit"><input class="input num" id="setCycle" inputmode="numeric" value="${S.settings.cycle}"><b>jours</b></div></label>
+    <p class="hint" style="margin:6px 0 14px">Utile quand votre back-office ne montre que la date de commande.</p>
     <div class="prodhead"><span>Produit</span><span>Jours</span><span>Prix €</span><span></span></div>`;
-  for (const p of S.products) {
+  for (const p of realProducts()) {
     h += `<div class="prodrow" data-pid="${p.id}">
       <input class="input" data-field="name" value="${esc(p.name)}" aria-label="Nom du produit">
       <input class="input num" data-field="days" inputmode="numeric" value="${p.days}" aria-label="Durée en jours">
@@ -1306,7 +1355,7 @@ function openNewSale(clientId, fromProspect) {
   if (!c && !pr) setTimeout(() => document.getElementById("fName").focus(), 60);
 }
 function drawChips() {
-  document.getElementById("chips").innerHTML = S.products.map(p =>
+  document.getElementById("chips").innerHTML = realProducts().map(p =>
     `<button type="button" class="pchip ${p.id === form.pid ? "on" : ""}" data-act="pick" data-id="${p.id}">${esc(p.name)}<small class="num">${p.days} j</small></button>`).join("")
     + `<button type="button" class="pchip add" data-act="toggleNewProd">+ Autre produit</button>`;
 }
@@ -1431,7 +1480,7 @@ function openProspectForm(id, opts = {}) {
   pform = { where: x ? x.where || "" : opts.refId ? "bao" : "", touched: !!x, kind: "client" };
   const ref = x ? refNameOf(x) : opts.refId ? (person(opts.refId) || {}).name || "" : "";
   const names = S.clients.concat(S.prospects.filter(y => !x || y.id !== x.id)).map(c => `<option value="${esc(c.name)}">`).join("");
-  const prods = S.products.map(pp => `<option value="${esc(pp.name)}">`).join("");
+  const prods = realProducts().map(pp => `<option value="${esc(pp.name)}">`).join("");
   const hist = x ? S.events.filter(e => e.prospectId === x.id).sort((a, b) => b.date.localeCompare(a.date)) : [];
   const EVP = { pjoin: "Devenu client", pcontact: "Contacté", pclient: "A acheté", plater: "Reporté de 3 jours", plost: "Pas intéressé", occasion: "Message d'occasion" };
   openSheet(`<div class="shead"><h3>${x ? esc(x.name) + exTag(x) : opts.refId ? "Nouveau prospect" : "Nouvelle rencontre"}</h3>${closeBtn}</div>
@@ -1530,7 +1579,7 @@ function openOnboarding(step = 0, profileOnly) {
       <div class="obrow2"><input class="input" id="obP${n}" list="obProds" value="${esc(r.prod || "")}" placeholder="Produit">
         <select class="input" id="obA${n}">${OB_AGO.map(([d, l]) => `<option value="${d}" ${(r.ago || 30) == d ? "selected" : ""}>il y a ${l}</option>`).join("")}</select></div>
       <input class="input" id="obT${n}" type="tel" inputmode="tel" value="${esc(r.phone || "")}" placeholder="Téléphone (facultatif)"></div></div>`).join("")}
-    <datalist id="obProds">${S.products.map(x => `<option value="${esc(x.name)}">`).join("")}</datalist>
+    <datalist id="obProds">${realProducts().map(x => `<option value="${esc(x.name)}">`).join("")}</datalist>
     <div class="obor"><span>ou</span></div>
     <button class="btn outline" data-act="obImport">📸 Importer une capture de mes commandes</button>`;
   const cur = sheetEl.querySelector(".sheet.obsheet");
@@ -1667,7 +1716,7 @@ function parseTable(text) {
   const rows = lines.map(l => splitLine(l, d));
   const width = Math.max(...rows.map(r => r.length));
   const head = rows[0].map(norm), role = {};
-  const KW = { first: /prenom/, name: /nom|client|contact|name|partenaire|filleul|beneficiaire/, date: /date|jour|commande le/, product: /produit|article|designation|libelle|product|item|reference|ref/, qty: /qte|quantite|qty|nombre|nb/ };
+  const KW = { first: /prenom/, name: /^nom$|^nom |nom du client|nom client|^client$|^contact|^name|beneficiaire|^filleul/, date: /date|jour|commande le/, product: /produit|article|designation|libelle|product|item|reference|ref/, qty: /qte|quantite|qty|nombre|nb/ };
   head.forEach((h, i) => { for (const [k, re] of Object.entries(KW)) if (role[k] == null && re.test(h)) { role[k] = i; break; } });
   let body = rows;
   if (role.date != null || role.product != null || role.name != null) body = rows.slice(1);
@@ -1689,12 +1738,45 @@ function parseTable(text) {
     const prodCell = role.product != null ? r[role.product] || "" : "";
     const qty = Math.max(1, Math.min(99, parseInt(role.qty != null ? r[role.qty] : "1", 10) || 1));
     if (!name && !prodCell) continue;
+    if (!prodCell) { if (name && date) out.push({ name: name || lastName, date: date || lastDate, product: "", qty }); lastName = name || lastName; lastDate = date || lastDate; continue; }
     name = name || lastName; const dt = date || lastDate;
     for (const prod of prodCell.split(/\s\+\s|\s\/\s/).map(x => x.trim()).filter(Boolean)) out.push({ name, date: dt, product: prod, qty });
     lastName = name; lastDate = dt;
   }
   return out;
 }
+/* Capture d'un back-office :
+   - « liste des commandes » : une ligne = un client + une date (sans produit) → relance au rythme ;
+   - « détail d'une commande » : n° d'article + nom de l'article → la VDI choisit le client. */
+const BO_NOISE = /^(partenaire|client|cliente|consultant|conseiller|membre|vip|commande|individuelle|accept[ée]|post[ée]|livr[ée]e?|pay[ée]e?|valid[ée]e?|en|cours|afficher|les|details?|niveau)$/i;
+function parseBackoffice(text) {
+  const lines = text.split(/\r?\n/).map(l => l.replace(/[|_“”"]+/g, " ").replace(/\s+/g, " ").trim()).filter(Boolean);
+  const art = lines.map(l => l.match(/^\d{6,}\s+(.+?)\s+\d{1,4}([.,]\d+)?$/)).filter(Boolean);
+  if (art.length >= 2 && art.length >= lines.filter(l => /^\d{6,}\s/.test(l)).length * .6) return { kind: "detail", items: [...new Set(art.map(m => m[1].trim()))] };
+  const rows = [], seen = new Set();
+  for (const l of lines) {
+    const date = parseDateFR(l); if (!date) continue;
+    let t = l; for (const re of DATE_RES) t = t.replace(re, " ");
+    const words = t.replace(/\b\d{4}\/\d{1,2}\b/g, " ").split(" ").filter(w => w && !/\d/.test(w) && !BO_NOISE.test(w) && /^\p{L}[\p{L}'\-.]*$/u.test(w) && w.length > 1);
+    const name = words.slice(0, 5).map(w => w === w.toUpperCase() && w.length > 2 ? w[0] + w.slice(1).toLowerCase() : w).join(" ").trim();
+    if (!name || name.split(" ").length < 2 && name.length < 3) continue;
+    const k = norm(name) + "|" + date; if (seen.has(k)) continue; seen.add(k);
+    rows.push({ name, date, product: "", qty: 1 });
+  }
+  return rows.length ? { kind: "list", rows } : null;
+}
+function openDetailReview(items) {
+  const names = S.clients.map(c => `<option value="${esc(c.name)}">`).join("");
+  openSheet(`<div class="shead"><h3>${plural(items.length, "produit trouvé", "produits trouvés")}</h3>${closeBtn}</div>
+    <p class="lede" style="margin-top:8px">C'est le détail d'une commande. Dites-nous pour quel client, et Recharge saura quels produits relancer.</p>
+    <label class="field"><span>Pour quel client ?</span><input class="input" id="detC" list="detNames" placeholder="Prénom Nom"></label><datalist id="detNames">${names}</datalist>
+    <label class="field"><span>Date de la commande</span><input class="input" id="detD" type="date" value="${today()}"></label>
+    <div class="card list" style="margin-top:12px">${items.map((it, i) => `<label class="row" style="cursor:pointer"><span style="min-width:0"><b style="font-weight:620">${esc(it)}</b></span><input type="checkbox" class="detOn" data-i="${i}" checked style="width:20px;height:20px;accent-color:var(--o1)"></label>`).join("")}</div>
+    <button class="btn primary" style="margin-top:14px" data-act="detApply">Ajouter cette commande</button>
+    <p class="hint">Les nouveaux produits sont créés avec une durée de 30 jours : ajustez-la dans Menu › Mes produits.</p>`);
+  detItems = items;
+}
+let detItems = [];
 /* Du texte lu sur une capture : une ligne par commande, on y cherche une date, un produit connu et un nom */
 function parseLines(text) {
   const out = []; let lastName = "", lastDate = "";
@@ -1756,7 +1838,7 @@ function openImport() {
   openSheet(`<div class="shead"><h3>Importer des commandes</h3>${closeBtn}</div>
     <p class="lede" style="margin-top:8px">Une capture de votre back-office suffit. Pas besoin de tout ressaisir.</p>
     <div class="imp">
-      <label class="impopt"><input type="file" accept="image/*" id="impImg" hidden><span>📸</span><b>Une capture d'écran</b><small>de la liste des commandes de votre espace marque</small></label>
+      <label class="impopt"><input type="file" accept="image/*" id="impImg" hidden><span>📸</span><b>Une capture d'écran</b><small>la liste des commandes (prénom, nom, date), ou le détail d'une commande</small></label>
       <button class="impopt" data-act="impPaste"><span>📋</span><b>Copier-coller un tableau</b><small>depuis votre espace marque ou un tableur</small></button>
       <label class="impopt"><input type="file" accept=".csv,.txt,.tsv,.xlsx,.xls" id="impFile" hidden><span>📄</span><b>Un fichier CSV ou Excel</b><small>si votre marque permet un export</small></label>
     </div>
@@ -1770,7 +1852,7 @@ function openImportReview(rows) {
   importRows = rows.map(r => ({ ...r, c: matchContact(r.name), p: matchProduct(r.product) }));
   if (!importRows.length) return showImportStatus("Aucune commande reconnue. Essayez une capture plus nette, ou le copier-coller.");
   const contactOpts = sel => `<option value="">Nouveau contact</option>` + S.clients.slice().sort((a, b) => a.name.localeCompare(b.name, "fr")).map(c => `<option value="${c.id}" ${sel && sel.id === c.id ? "selected" : ""}>${esc(c.name)}</option>`).join("");
-  const prodOpts = (sel, txt) => (sel ? "" : `<option value="">Nouveau produit : ${esc(txt)}</option>`) + S.products.map(p => `<option value="${p.id}" ${sel && sel.id === p.id ? "selected" : ""}>${esc(p.name)}</option>`).join("");
+  const prodOpts = (sel, txt) => (!txt ? `<option value="rythme" selected>Sans produit précis · relance après ${S.settings.cycle} j</option>` : sel ? "" : `<option value="">Nouveau produit : ${esc(txt)}</option>`) + realProducts().map(p => `<option value="${p.id}" ${sel && sel.id === p.id ? "selected" : ""}>${esc(p.name)}</option>`).join("");
   const found = importRows.filter(r => r.c).length;
   openSheet(`<div class="shead"><h3>${plural(importRows.length, "commande trouvée", "commandes trouvées")}</h3>${closeBtn}</div>
     <p class="lede" style="margin-top:8px">${found ? `${plural(found, "contact reconnu", "contacts reconnus")}. ` : ""}Vérifiez, corrigez si besoin, puis validez.</p>
@@ -1796,7 +1878,7 @@ function applyImport() {
     const date = row.querySelector(".impD").value || today(), qty = Math.max(1, Math.min(99, parseInt(row.querySelector(".impQ").value, 10) || 1));
     let c = cid ? client(cid) : S.clients.find(x => norm(x.name) === norm(name));
     if (!c) { if (!name) return; c = { id: uid(), name, phone: "", example: false, createdAt: today(), status: newStatus, statusLog: [{ s: newStatus, date: today() }] }; S.clients.push(c); newC++; }
-    let p = pid ? S.products.find(x => x.id === pid) : S.products.find(x => norm(x.name) === norm(r.product));
+    let p = pid === "rythme" ? genericProduct() : pid ? S.products.find(x => x.id === pid) : S.products.find(x => norm(x.name) === norm(r.product));
     if (!p) { p = { id: uid(), name: cap(r.product.trim()), days: 30, price: 0 }; S.products.push(p); }
     if (S.sales.some(x => x.clientId === c.id && x.product === p.name && x.date === date)) { skipped++; return; }
     recordSale(c, p, qty, date); added++;
@@ -1812,7 +1894,11 @@ document.addEventListener("change", async ev => {
     if (t.id === "impImg") {
       showImportStatus("Lecture de la capture… <b>0 %</b> (la première fois, quelques secondes de préparation)");
       const text = await readImage(f, k => showImportStatus(`Lecture de la capture… <b>${Math.round(k * 100)} %</b>`));
-      openImportReview(parseLines(text));
+      const bo = parseBackoffice(text);
+      if (bo && bo.kind === "detail") return openDetailReview(bo.items);
+      const rows = bo ? bo.rows : parseLines(text);
+      if (!rows.length && /n.?\s?commande|pw\/pv|statut/i.test(text)) return showImportStatus("On ne voit pas les noms sur cette capture. Faites glisser le tableau vers la gauche pour afficher <b>Prénom, Nom et Date de commande</b>, puis refaites la capture.");
+      openImportReview(rows);
     } else {
       showImportStatus("Lecture du fichier…");
       openImportReview(parseTable(await readSheet(f)));
@@ -1823,6 +1909,11 @@ document.addEventListener("change", async ev => {
 /* ---------- Annuler & messages ---------- */
 const snapshot = () => JSON.stringify(S);
 let toastTimer;
+/* Encouragement : combien il en reste aujourd'hui */
+function cheer() {
+  const n = Math.min(MAX_TODAY, todayList().length);
+  return n === 0 ? " Tout est fait pour aujourd'hui 🎉" : n === 1 ? " Plus qu'une 💪" : n <= 3 ? ` Plus que ${n} 💪` : "";
+}
 function toast(text, snap) {
   const el = document.getElementById("toast");
   el.innerHTML = `<div class="toast" role="status"><span>${esc(text)}</span>${snap ? `<button id="undo">Annuler</button>` : ""}</div>`;
@@ -1868,7 +1959,7 @@ const actions = {
   relance: el => {
     const s = sale(el.dataset.id), snap = snapshot();
     s.status = "relance"; s.relancedAt = today(); logEvent("relance", s);
-    save(); render(); toast(`Relance de ${firstName(client(s.clientId).name)} notée`, snap);
+    save(); render(); toast(`Bravo ! Relance de ${firstName(client(s.clientId).name)} notée.${cheer()}`, snap);
   },
   reco: el => {
     const s = sale(el.dataset.id), snap = snapshot();
@@ -1907,6 +1998,7 @@ const actions = {
     if (!pform.touched) document.getElementById("pNext").value = pform.where === "bao" ? today() : addDays(today(), 1);
   },
   newPromo: () => openPromoForm(),
+  tipHide: () => { S.tipHidden = today(); save(); render(); },
   bilanMonth: el => openBilan(el.dataset.m),
   goto: el => {
     const t2 = el.dataset.t, c2 = el.dataset.c;
@@ -1982,11 +2074,24 @@ const actions = {
   impPaste: () => { document.getElementById("impPasteBox").classList.remove("hidden"); document.getElementById("impText").focus(); },
   impRead: () => openImportReview(parseTable(document.getElementById("impText").value)),
   impApply: () => applyImport(),
+  detApply: () => {
+    const nm = document.getElementById("detC").value.trim(), date = document.getElementById("detD").value || today();
+    if (!nm) { toast("Indiquez le client"); document.getElementById("detC").focus(); return; }
+    const snap = snapshot();
+    if (obImporting) { clearExampleData(); obImporting = false; }
+    let c = S.clients.find(x => norm(x.name) === norm(nm)) || matchContact(nm);
+    if (!c) { c = { id: uid(), name: nm, phone: "", example: false, createdAt: today(), status: "direct", statusLog: [{ s: "direct", date: today() }] }; S.clients.push(c); }
+    S.sales = S.sales.filter(x => !(x.clientId === c.id && isGeneric(x) && x.date === date));  // la commande devient précise
+    let n = 0;
+    document.querySelectorAll(".detOn").forEach(el => { if (!el.checked) return; const it = detItems[+el.dataset.i];
+      let pr = matchProduct(it); if (!pr) { pr = { id: uid(), name: it, days: 30, price: 0 }; S.products.push(pr); } recordSale(c, pr, 1, date); n++; });
+    save(); closeSheet(); tab = "today"; render(); toast(`${plural(n, "produit ajouté", "produits ajoutés")} pour ${firstName(c.name)}`, snap);
+  },
   pCopy: async el => { const ok = await copyText(currentPMsg(el.dataset.id)); toast(ok ? "Message copié. Collez-le dans votre messagerie." : "Impossible de copier : sélectionnez le texte à la main."); },
   pDone: el => {
     const x = prospect(el.dataset.id), snap = snapshot();
     x.contacts = (x.contacts || 0) + 1; x.lastContact = today(); x.next = addDays(today(), x.status === "lost" || x.contacts >= 3 ? 90 : x.contacts === 2 ? 14 : 4); pEvent("pcontact", x);
-    save(); render(); toast(`Contact noté pour ${firstName(x.name)} · rappel le ${fmt(x.next)}`, snap);
+    save(); render(); toast(`Bravo ! On le recontactera le ${fmt(x.next)}.${cheer()}`, snap);
   },
   pLater: el => {
     const x = prospect(el.dataset.id), snap = snapshot();
@@ -2119,6 +2224,11 @@ document.addEventListener("change", ev => {
     const v = Math.max(1, Math.round(num(t.value)) || 0);
     S.settings.vipOrders = v || SET_DEFAULTS.vipOrders;
     save(); toast("Réglage enregistré"); return;
+  }
+  if (t.id === "setCycle") {
+    S.settings.cycle = Math.max(7, Math.min(180, Math.round(num(t.value)) || 30)); const g = genericProduct();
+    for (const sl of S.sales) if (sl.productId === g.id && sl.status === "open") { sl.days = g.days; sl.end = addDays(sl.date, g.days * sl.qty); }
+    save(); toast(`Relance ${S.settings.cycle} jours après une commande sans produit précis`); return;
   }
   if (t.id === "setBasket") { S.settings.basket = Math.max(0, Math.round(num(t.value)) || 0); save(); const sh = sheetEl.querySelector(".bilan"); if (sh) openBilan(document.querySelector("[data-act=bilanMonth].on").dataset.m); toast("Panier moyen enregistré"); return; }
   if (t.id === "setDiscount") { S.settings.discountOn = t.checked; save(); render(); toast(t.checked ? "Remise activée : vérifiez les règles de votre marque" : "Remise désactivée"); return; }
