@@ -635,3 +635,7 @@ footer .flinks a{color:var(--ink-3)}footer .flinks a:hover{color:var(--ink)}
 
 /* Marqueur des infos à compléter avant la mise en vente */
 mark.todo{display:inline-block;background:#fff3a6;color:#6b5600;border:1px dashed #d1b200;border-radius:8px;padding:2px 8px;font-size:.78rem;font-weight:700;margin:6px 0}
+.pot-est{margin:4px 0 14px;padding:14px 14px 4px;border-radius:20px;background:var(--surface-2);transition:box-shadow .3s}
+.pot-est.todo{box-shadow:0 0 0 2px var(--o1) inset}.pot-q{margin:0 0 10px;font-weight:700;font-size:.92rem}
+.pot-est.shake{animation:potShake .4s}@keyframes potShake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.pslide input#potK,.pslide input#potQ{--p:0%}

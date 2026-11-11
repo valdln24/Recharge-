@@ -142,6 +142,25 @@ main{max-width:560px;margin:0 auto;padding:6px 16px 24px}
 .obrow{display:grid;grid-template-columns:26px 1fr;gap:8px;margin-top:12px}.obrow>b{width:26px;height:26px;border-radius:50%;background:var(--grad);color:#fff;display:grid;place-items:center;font-size:.8rem;margin-top:12px}
 .obrow>div{display:grid;gap:6px}.obrow2{display:grid;grid-template-columns:1fr 1fr;gap:6px}.obrow .input{padding-top:11px;padding-bottom:11px}
 .obor{display:flex;align-items:center;gap:10px;margin:16px 0 10px;color:var(--ink-3);font-size:.85rem;font-weight:650}.obor::before,.obor::after{content:"";flex:1;height:1px;background:var(--line)}
+.pot-viz{position:relative;aspect-ratio:1;max-width:330px;width:100%;margin:0 auto}
+.pot-viz svg{width:100%;height:100%;display:block;overflow:visible}
+.pot-viz .ln{stroke:#ffd2bd;stroke-width:1}.pot-viz .ln.b{stroke:#cfd8ff}
+.pot-viz .cl{fill:url(#gO)}.pot-viz .pr{fill:url(#gB)}
+.pot-viz .ct{fill:#ffb08a;opacity:.75}.pot-viz .ctb{fill:#9fb1ff;opacity:.75}.pot-viz .ct2{fill:#ffd9c6;opacity:.8}
+.pot-viz .pot-in{transition:transform .6s cubic-bezier(.3,1.3,.5,1)}.pot-viz .pot-in.small{transform:scale(.68)}
+.pot-viz .pop{transform-box:fill-box;transform-origin:center;animation:potPop .5s cubic-bezier(.3,1.6,.5,1) both}
+@keyframes potPop{from{transform:scale(0);opacity:0}}
+.pot-mid{position:absolute;inset:0;margin:auto;width:31%;height:31%;border-radius:50%;background:var(--ink);color:#fff;display:grid;place-content:center;text-align:center;box-shadow:0 14px 30px -12px rgba(16,19,18,.6)}
+.pot-mid b{font-size:1.7rem;letter-spacing:-.04em;line-height:1}.pot-mid span{font-size:.62rem;color:#c3c7c5;font-weight:650;margin-top:3px;line-height:1.25}
+.pot-mid.bump{animation:potBump .45s ease}@keyframes potBump{50%{transform:scale(1.08)}}
+.pslide{display:block;margin-bottom:14px}.pslide>span{display:flex;justify-content:space-between;gap:8px;font-weight:700;font-size:.92rem}.pslide>span b{font-size:1.1rem}
+.pslide input[type=range]{display:block;width:100%;margin:10px 0 0;-webkit-appearance:none;appearance:none;height:10px;border-radius:9px;outline:none;background:linear-gradient(90deg,#ffa25a 0%,#ff4f1a var(--p,0%),var(--surface-2) var(--p,0%))}
+.pslide.b input[type=range]{background:linear-gradient(90deg,#9db0ff 0%,#4560f0 var(--p,0%),var(--surface-2) var(--p,0%))}
+.pslide input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;border-radius:50%;background:#fff;border:3px solid var(--o1);box-shadow:0 4px 12px rgba(255,94,31,.45)}
+.pslide.b input[type=range]::-webkit-slider-thumb{border-color:var(--b1,#4f6cf7)}
+.pslide input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;background:#fff;border:3px solid var(--o1)}
+.devnet{margin:6px 0 0;padding:12px 14px;border-radius:16px;background:var(--o-soft);font-weight:650;font-size:.92rem}.devnet b{color:var(--o-text);font-size:1.15rem}
+.opp{margin-top:10px}.opph{display:block;margin-bottom:4px}
 .potc{display:flex;gap:14px;align-items:center;margin-top:12px}.potn{font-size:2.3rem;font-weight:800;letter-spacing:-.045em;line-height:1;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}.potc b{font-size:.98rem}.potc small{display:block;color:var(--ink-3);font-size:.8rem;margin-top:3px;font-weight:550}
 
 /* ---------- Cartes client ---------- */
@@ -983,6 +1002,7 @@ function render() {
   document.getElementById("topMeta").textContent = cap(parse(today()).toLocaleDateString("fr-FR", { weekday: "short", day: "numeric", month: "short" }));
   if (tab === "dev") document.querySelector('nav.tabs .tab[data-tab="settings"]').classList.add("on");
   app.innerHTML = `<div class="enter">${({ today: viewToday, clients: viewClients, results: viewResults, settings: viewSettings, dev: viewDev })[tab]()}</div>`;
+  if (tab === "dev") mountDev();
   fitAreas();
   if (!storageOk) app.insertAdjacentHTML("afterbegin", `<div class="notice warn">Ce navigateur bloque l'enregistrement (navigation privée ?). Vos données risquent d'être perdues.</div>`);
 }
@@ -1426,7 +1446,7 @@ function openFiche(id) {
   const sales = S.sales.filter(s => s.clientId === id).sort((a, b) => b.date.localeCompare(a.date));
   const evs = S.events.filter(e => e.clientId === id).sort((a, b) => b.date.localeCompare(a.date));
   const STATUS = { open: ["En cours", ""], relance: ["Relancé", "done"], recommande: ["A recommandé", "done"], rachete: ["Racheté", "done"], sanssuite: ["Sans suite", ""] };
-  const EV = { relance: "Relancé", recommande: "A recommandé", report: "Reporté de 3 jours", sanssuite: "Classé sans suite", bouche: "Demande de bouche-à-oreille", occasion: "Message d'occasion", accomp: "Accompagnement", hint: "Carte fidélité pas proposée", promo: "Promo envoyée", gift: "Cadeau fidélité offert" };
+  const EV = { relance: "Relancé", recommande: "A recommandé", report: "Reporté de 3 jours", sanssuite: "Classé sans suite", bouche: "Demande de bouche-à-oreille", occasion: "Message d'occasion", accomp: "Accompagnement", hint: "Carte fidélité pas proposée", wake: "Message de réveil", promo: "Promo envoyée", gift: "Cadeau fidélité offert" };
   const total = sales.reduce((t, s) => t + (s.price || 0) * s.qty, 0);
   openSheet(`<div class="shead"><div style="display:flex;gap:12px;align-items:center;min-width:0"><span class="avatar">${c.status === "vip" ? "💳" : esc(initials(c.name))}</span>
       <div style="min-width:0"><h3>${esc(c.name)}${exTag(c)}</h3><div class="meta2">${plural(sales.length, "achat", "achats")} · ${euro(total)}</div></div></div>${closeBtn}</div>
@@ -1746,15 +1766,127 @@ function viewDev() {
     ${m.days <= 30 ? `<button class="btn sm primary" data-act="devPromo" data-n="${esc(m.name)}">Préparer</button>` : ""}</div>`).join("")}</div>`;
   const sug = askSuggestions();
   h += section("Recommandations") + `<div class="bilan" style="margin-top:0"><div><b class="num">${st.asks}</b><span>demandes de contacts ce mois-ci</span></div><div><b class="num">${st.referred}</b><span>nouveaux clients amenés</span></div></div>
-    <div class="card pad" style="margin-top:10px"><b style="display:block">À qui demander aujourd'hui ?</b>
+    <div class="card pad" style="margin-top:10px;display:none"><b style="display:block">À qui demander aujourd'hui ?</b>
     ${sug.length ? `<p class="hint" style="margin:4px 0 8px">Des clients contents (une commande récente ou la carte fidélité) : le meilleur moment pour leur demander à qui ils pensent.</p>
       ${sug.map(c => `<div class="sugrow"><span><b>${esc(c.name)}</b>${exTag(c)}</span><button class="btn sm orange" data-act="askRef" data-id="${c.id}">Demander</button></div>`).join("")}`
     : `<p class="hint" style="margin:4px 0 8px">Après une recommande, Recharge vous proposera ici les clients à qui demander un contact. Vous pouvez aussi le faire depuis n'importe quelle fiche.</p><button class="btn soft" data-act="goto" data-t="clients" data-c="clients">Choisir un client</button>`}</div>`;
   const brought = S.clients.filter(c => c.referredBy || c.referredByName).slice(-6).reverse();
   if (brought.length) h += `<div class="card" style="margin-top:10px"><ul class="hist">${brought.map(c => `<li><span><b>${esc(c.name)}</b>${exTag(c)}<br><small>présenté par ${esc(refNameOf(c) || "?")}</small></span><span>🤝</span></li>`).join("")}</ul></div>`;
-  h += section("Mon réseau") + networkCard();
+  const nc = S.clients.length, np = S.prospects.filter(x => x.status !== "client").length, K = S.settings.netC || 0, Q = S.settings.netP || 0;
+  h += section("Mon micro-marché") + `<div class="card pad devpot">
+    <div class="pot-viz"><svg id="devSvg" viewBox="-200 -200 400 400" role="img" aria-label="Votre réseau : vos clients, vos prospects et les personnes qu'ils peuvent vous présenter"></svg>
+      <div class="pot-mid"><b id="devTotal">0</b><span>personnes<br>à toucher</span></div></div>
+    <p class="hint" style="text-align:center;margin:4px 0 12px">🟠 ${plural(nc, "client", "clients")} · 🔵 ${plural(np, "prospect", "prospects")}</p>
+    <label class="pslide o" for="devK"><span>Chaque client pourrait me présenter <b id="devKOut">${K}</b></span><input type="range" id="devK" min="0" max="15" value="${K}"></label>
+    <label class="pslide b" for="devQ"><span>Chaque prospect pourrait me présenter <b id="devQOut">${Q}</b></span><input type="range" id="devQ" min="0" max="15" value="${Q}"></label>
+    <p class="devnet" id="devNet"></p><p class="hint" style="margin:4px 0 0">Ce sont vos estimations, pas des moyennes garanties.</p></div>`;
+  const ops = opportunities();
+  h += section("Les opportunités du moment", ops.reduce((n, g) => n + g[2].length, 0) || null) + (ops.length ? ops.map(([e, ti, list, act, lab, sub]) => `<div class="card pad opp"><b class="opph">${e} ${ti}</b>
+    ${list.map(x => `<div class="sugrow"><span style="min-width:0"><b>${esc(x.name)}</b>${exTag(x)}<br><small class="meta2">${sub(x)}</small></span><button class="btn sm ${act === "pfiche" ? "soft" : "orange"}" data-act="${act}" data-id="${x.id}">${lab}</button></div>`).join("")}</div>`).join("")
+    : `<p class="empty">Pas d'opportunité particulière aujourd'hui. Vos relances du jour sont la meilleure chose à faire 🌿</p>`);
   h += section("D'autres idées") + [1, 2, 3].map(k => { const [e2, t2, d2, a2, l2] = tipOfDay(k); return `<div class="tip" style="margin-top:8px"><span>${e2}</span><p><b>${t2}</b>${d2}${a2 ? `<span class="tipbtns">${tipBtn(a2, l2)}</span>` : ""}</p></div>`; }).join("");
   return h;
+}
+/* Constellation : vous au centre, vos clients (orange), vos prospects (bleu), et les personnes qu'ils peuvent vous présenter.
+   Les estimations « par client » et « par prospect » sont celles de la vendeuse (rien n'est supposé). */
+function constellation(svg, mid, tot) {
+  const NS = "http://www.w3.org/2000/svg", GA = 2.39996;
+  const rnd = s => { const x = Math.sin(s * 9301 + 49297) * 233280; return x - Math.floor(x); };
+  const el = (tag, at) => { const e = document.createElementNS(NS, tag); for (const k in at) e.setAttribute(k, at[k]); return e; };
+  svg.innerHTML = `<defs><radialGradient id="gO" cx="35%" cy="30%"><stop offset="0" stop-color="#ffb47a"/><stop offset="1" stop-color="#ff4f1a"/></radialGradient>
+    <radialGradient id="gB" cx="35%" cy="30%"><stop offset="0" stop-color="#a9b9ff"/><stop offset="1" stop-color="#4560f0"/></radialGradient></defs>`;
+  const far = el("g", {}), inner = el("g", { class: "pot-in" }), lines = el("g", {}), dots = el("g", {}), nodes = el("g", {});
+  svg.appendChild(far); svg.appendChild(inner); [lines, dots, nodes].forEach(g => inner.appendChild(g));
+  const groups = { c: [], p: [] }; let shown = 0, lastBoom = null;
+  function makeGroup(kind, i) {
+    const isC = kind === "c", a = i * GA + (isC ? 0 : 1.1), r = isC ? 62 + (i % 4) * 9 : 100 + (i % 3) * 8;
+    const x = Math.cos(a) * r, y = Math.sin(a) * r;
+    const ln = el("line", { x1: 0, y1: 0, x2: x.toFixed(1), y2: y.toFixed(1), class: "ln" + (isC ? "" : " b") }); lines.appendChild(ln);
+    const nd = el("circle", { cx: x.toFixed(1), cy: y.toFixed(1), r: isC ? 7 : 6, class: (isC ? "cl" : "pr") + " pop" }); nodes.appendChild(nd);
+    return { isC, i, a, ln, nd, dots: [] };
+  }
+  function syncDots(g, want) {
+    while (g.dots.length < want) {
+      const j = g.dots.length, n = Math.max(want, 1), seed = g.i * 31 + j + (g.isC ? 0 : 500);
+      const aa = g.a + (j - (Math.min(n, 12) - 1) / 2) * (g.isC ? .075 : .1) + (rnd(seed) - .5) * .05 + Math.floor(j / 12) * .03;
+      const rr = (g.isC ? 132 : 148) + rnd(g.i * 17 + j * 7 + (g.isC ? 0 : 900)) * 46;
+      const d = el("circle", { cx: (Math.cos(aa) * rr).toFixed(1), cy: (Math.sin(aa) * rr).toFixed(1), r: g.isC ? 2.6 : 2.4, class: (g.isC ? "ct" : "ctb") + " pop" });
+      d.style.animationDelay = (j * 25) + "ms"; dots.appendChild(d); g.dots.push(d);
+    }
+    while (g.dots.length > want) g.dots.pop().remove();
+  }
+  function sync(kind, want, per) {
+    const arr = groups[kind];
+    while (arr.length < want) arr.push(makeGroup(kind, arr.length));
+    while (arr.length > want) { const g = arr.pop(); g.ln.remove(); g.nd.remove(); g.dots.forEach(d => d.remove()); }
+    arr.forEach(g => syncDots(g, per));
+  }
+  function drawBoom(on, m) {
+    if (lastBoom === (on ? m : -1)) return; lastBoom = on ? m : -1;
+    far.innerHTML = ""; inner.classList.toggle("small", on); if (mid) mid.classList.toggle("small", on);
+    if (!on) return;
+    for (let k = 0; k < Math.min(420, m); k++) {
+      const a = k * GA * 1.37, rr = 150 + rnd(k * 13 + 7) * 46;
+      const d = el("circle", { cx: (Math.cos(a) * rr).toFixed(1), cy: (Math.sin(a) * rr).toFixed(1), r: 1.8, class: "ct2 pop" });
+      d.style.animationDelay = Math.round(rnd(k) * 600) + "ms"; far.appendChild(d);
+    }
+  }
+  function tween(to) {
+    if (!tot) return;
+    const from = shown, t0 = performance.now();
+    const step = t => { const k = Math.min(1, (t - t0) / 500), v = Math.round(from + (to - from) * (1 - Math.pow(1 - k, 3))); tot.textContent = v.toLocaleString("fr-FR"); if (k < 1) requestAnimationFrame(step); else shown = to; };
+    requestAnimationFrame(step);
+    if (mid) { mid.classList.remove("bump"); void mid.offsetWidth; mid.classList.add("bump"); }
+  }
+  /* c clients, p prospects, perC / perP : vos estimations ; boom : et s'ils recommandent à leur tour ? */
+  return function update(c, p, perC, perP, boom) {
+    sync("c", Math.min(c, 60), Math.min(perC, 15)); sync("p", Math.min(p, 40), Math.min(perP, 15));
+    const net = c * perC + p * perP, second = boom ? net * perC : 0;
+    drawBoom(boom && second > 0, second);
+    const total = c + p + net + second;
+    tween(total);
+    return { net, second, total };
+  };
+}
+
+/* Opportunités : les personnes à contacter en priorité */
+function opportunities() {
+  const t = today(), recentTouch = id => S.events.some(e => (e.clientId === id || e.prospectId === id) && diff(t, e.date) <= 30);
+  const sleeping = S.clients.filter(c => { const lo = lastOrder(c); return lo && diff(t, lo) >= 90 && !S.sales.some(sl => sl.clientId === c.id && sl.status === "open" && sl.end >= addDays(t, -30)) && !recentTouch(c.id); });
+  const given = S.prospects.filter(x => x.status === "open" && (x.referredBy || x.referredByName) && !x.contacts);
+  const soon = S.prospects.filter(x => x.status === "open" && x.next > t && diff(x.next, t) <= 7 && !given.includes(x));
+  return [
+    ["🤝", "Clients contents à qui demander un contact", askSuggestions(), "askRef", "Demander", c => "Commande récente ou carte fidélité"],
+    ["😴", "Clients à réveiller", sleeping.slice(0, 3), "wake", "Écrire", c => `Dernière commande il y a ${diff(t, lastOrder(c))} jours`],
+    ["🎁", "Contacts qu'on vous a donnés", given.slice(0, 3), "pfiche", "Voir", x => `De la part de ${esc(refNameOf(x))}`],
+    ["👋", "Prospects à relancer cette semaine", soon.slice(0, 3), "pfiche", "Voir", x => `Prévu le ${fmt(x.next)}`]
+  ].filter(g => g[2].length);
+}
+function mountDev() {
+  const svg = document.getElementById("devSvg"); if (!svg) return;
+  const upd = constellation(svg, document.querySelector(".pot-mid"), document.getElementById("devTotal"));
+  const nc = S.clients.length, np = S.prospects.filter(x => x.status !== "client").length;
+  const run = () => {
+    const k = +document.getElementById("devK").value, q = +document.getElementById("devQ").value;
+    document.getElementById("devKOut").textContent = k; document.getElementById("devQOut").textContent = q;
+    ["devK", "devQ"].forEach(id => { const e = document.getElementById(id); e.style.setProperty("--p", (e.value / 15 * 100) + "%"); });
+    const r = upd(nc, np, k, q, false);
+    document.getElementById("devNet").innerHTML = k || q ? `<b>${r.net}</b> personnes que vos contacts pourraient vous présenter` : "👉 Bougez les curseurs : combien de personnes chacun pourrait-il vous présenter ?";
+  };
+  ["devK", "devQ"].forEach(id => document.getElementById(id).addEventListener("input", run));
+  ["devK", "devQ"].forEach(id => document.getElementById(id).addEventListener("change", e => { S.settings[id === "devK" ? "netC" : "netP"] = +e.target.value; save(); }));
+  run();
+}
+let wakeK = 0;
+function openWake(id) {
+  const c = client(id); if (!c) return; wakeK = 0;
+  const m = () => msg("quarter", c.name, wakeK, { sujet: univers() });
+  openSheet(`<div class="shead"><h3>Réveiller ${esc(firstName(c.name))} 😴</h3>${closeBtn}</div>
+    <p class="lede" style="margin-top:8px">Pas de commande depuis longtemps : un petit message sans pression suffit souvent.</p>
+    <div class="bubble"><div class="top"><span class="small">Votre message</span><button class="vary" data-act="wakeNext" data-id="${c.id}">${I.redo} Autre</button></div>
+      <textarea class="msg" id="msg-wake" rows="4" aria-label="Message">${esc(m())}</textarea></div>
+    ${waNumber(c.phone) ? `<a class="btn primary send" href="#" target="_blank" rel="noopener" data-act="wakeWa" data-id="${c.id}">${I.wa} Envoyer sur WhatsApp</a>` : `<button class="btn primary send" data-act="wakeCopy" data-id="${c.id}">${I.copy} Copier le message</button>`}`);
+  fitAreas(sheetEl);
 }
 /* ---------- Bilan du mois ---------- */
 const monthName = m => new Date(m + "-15T12:00:00").toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
@@ -2131,6 +2263,10 @@ const actions = {
     if (!pform.touched) document.getElementById("pNext").value = pform.where === "bao" ? today() : addDays(today(), 1);
   },
   newPromo: () => openPromoForm(),
+  wake: el => openWake(el.dataset.id),
+  wakeNext: el => { wakeK++; const c = client(el.dataset.id), ta = document.getElementById("msg-wake"); ta.value = msg("quarter", c.name, wakeK, { sujet: univers() }); fitAreas(ta.parentNode); },
+  wakeWa: el => { const c = client(el.dataset.id); el.href = `https://wa.me/${waNumber(c.phone)}?text=${encodeURIComponent(document.getElementById("msg-wake").value)}`; S.events.push({ id: uid(), type: "wake", clientId: c.id, product: "", date: today(), example: !!c.example }); save(); setTimeout(() => { closeSheet(); render(); toast("Bravo ! Message de réveil noté 🌱"); }, 300); return true; },
+  wakeCopy: async el => { const c = client(el.dataset.id); const ok = await copyText(document.getElementById("msg-wake").value); if (ok) { S.events.push({ id: uid(), type: "wake", clientId: c.id, product: "", date: today(), example: !!c.example }); save(); } toast(ok ? "Message copié. Collez-le dans votre messagerie." : "Impossible de copier."); },
   tipHide: () => { S.tipHidden = today(); save(); render(); },
   tipAct: el => {
     const a = el.dataset.a;
