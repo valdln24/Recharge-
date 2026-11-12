@@ -164,6 +164,17 @@ main{max-width:560px;margin:0 auto;padding:6px 16px 24px}
 .perks{list-style:none;padding:0;margin:14px 0 0;display:grid;gap:8px}.perks li{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 12px;font-size:.92rem}
 .codein{font-size:1.6rem;letter-spacing:.5em;text-align:center;font-weight:800}
 .danger-link{color:var(--late,#d33)!important}
+.cbtns{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.cbtn{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:66px;padding:9px 8px 7px;border-radius:16px;background:var(--surface);border:1px solid var(--line);font-size:1.1rem;text-decoration:none;color:var(--ink)}
+.cbtn span{font-size:.7rem;font-weight:700;color:var(--ink-2)}.cbtn.wa{background:#e7f8ee;border-color:#c9eed8}.cbtn svg{width:20px;height:20px}
+.kstats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.kstats div{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:10px;text-align:center}.kstats b{display:block;font-size:1.15rem}.kstats span{font-size:.72rem;color:var(--ink-3);font-weight:650}
+details.cfields{margin-top:14px;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:12px 14px}details.cfields summary{font-weight:750;cursor:pointer}details.cfields summary i{font-weight:550;color:var(--ink-3);font-style:normal}
+.fchips{display:flex;gap:6px;overflow-x:auto;margin:12px -16px 0;padding:0 16px 4px;scrollbar-width:none}.fchips::-webkit-scrollbar{display:none}
+.fchips button{flex:none;border:1px solid var(--line-2);background:var(--surface);border-radius:99px;padding:8px 12px;font:inherit;font-size:.84rem;font-weight:700;color:var(--ink);cursor:pointer}.fchips button small{color:var(--ink-3);font-weight:700;margin-left:2px}
+.fchips button.on{background:var(--ink);color:#fff;border-color:var(--ink)}.fchips button.on small{color:#c3c7c5}
+.meta3{font-size:.8rem;color:var(--ink-2);font-weight:600;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rside{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex:none}.cic{font-size:.78rem;letter-spacing:1px}
+.micbtn{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--surface);font-size:1.1rem;display:grid;place-items:center;cursor:pointer;box-shadow:var(--shadow)}
+.micgo{margin-top:12px}.micgo.listening{animation:micPulse 1.2s infinite}@keyframes micPulse{50%{box-shadow:0 0 0 10px rgba(255,94,31,.15)}}
 .potc{display:flex;gap:14px;align-items:center;margin-top:12px}.potn{font-size:2.3rem;font-weight:800;letter-spacing:-.045em;line-height:1;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}.potc b{font-size:.98rem}.potc small{display:block;color:var(--ink-3);font-size:.8rem;margin-top:3px;font-weight:550}
 
 /* ---------- Cartes client ---------- */
@@ -373,7 +384,7 @@ nav.tabs .tab.on{color:var(--ink)}
 </defs></svg>
 <header class="topbar" id="topbar"><div class="in">
   <div class="brand"><svg class="logo-svg" viewBox="10 40 620 125" style="height:26px;width:auto" role="img" aria-label="Recharge"><g transform="translate(0 0) scale(1.25)"><rect x="20" y="46" width="106" height="68" rx="16" fill="none" stroke="#111111" stroke-width="10"/><rect x="132" y="66" width="10" height="28" rx="4" fill="#111111"/><rect x="36" y="62" width="22" height="36" rx="5" fill="#FF5A1F"/><rect x="62" y="62" width="22" height="36" rx="5" fill="#FF5A1F"/><rect x="88" y="62" width="22" height="36" rx="5" fill="#FF5A1F" opacity="0.45"/></g><path d="M214.5 135.0H230.625V109.640625C230.625 102.609375 234.609375 98.578125 240.375 98.578125C242.71875 98.578125 245.578125 98.671875 246.75 98.71875V85.40625C245.4375 85.359375 244.078125 85.3125 242.34375 85.3125C235.734375 85.3125 232.03125 87.9375 230.25 94.21875H230.109375V85.5H214.5ZM272.83875 136.125C285.354375 136.125 295.33875 129.140625 297.166875 119.15625H282.6825C281.510625 122.4375 278.135625 124.5 273.40125 124.5C267.02625 124.5 263.27625 120.515625 263.08875 114.234375H297.541875V109.875C297.541875 94.875 287.27625 84.375 272.416875 84.375C257.745 84.375 247.33875 95.15625 247.33875 110.25C247.33875 125.34375 257.65125 136.125 272.83875 136.125ZM263.1825 104.578125C263.885625 99.375 267.40125 96.28125 272.83875 96.28125C278.229375 96.28125 281.791875 99.375 282.495 104.578125ZM324.943125 136.125C338.95875 136.125 348.89625 127.5 349.224375 115.40625H333.615C333.005625 120.234375 330.0525 123.328125 325.27125 123.328125C319.27125 123.328125 315.70875 118.359375 315.70875 110.25C315.70875 102.140625 319.224375 97.171875 325.27125 97.171875C330.0525 97.171875 333.14625 100.21875 333.661875 104.953125H349.224375C348.52125 92.8125 338.724375 84.375 324.943125 84.375C309.615 84.375 299.349375 94.875 299.349375 110.25C299.349375 125.671875 309.615 136.125 324.943125 136.125ZM369.219375 108.09375C369.219375 101.34375 372.500625 98.203125 377.61 98.203125C382.719375 98.203125 385.6725 101.390625 385.6725 107.25V135.0H401.7975V103.875C401.7975 91.6875 395.51625 84.421875 384.781875 84.421875C377.51625 84.421875 372.5475 87.703125 369.219375 93.140625V65.15625H353.094375V135.0H369.219375ZM423.058125 135.84375C430.0425 135.84375 434.495625 133.40625 437.44875 128.0625H437.63625V135.0H453.38625V101.671875C453.38625 90.75 445.464375 84.421875 431.07375 84.421875C416.73 84.421875 408.620625 90.796875 407.9175 101.53125H422.9175C423.245625 98.15625 426.01125 96.0 430.51125 96.0C434.776875 96.0 437.401875 98.015625 437.401875 100.96875V101.203125C437.401875 104.15625 434.1675 104.859375 425.308125 105.609375C414.76125 106.453125 406.089375 110.0625 406.089375 121.171875C406.089375 131.015625 413.1675 135.84375 423.058125 135.84375ZM427.98 125.296875C424.0425 125.296875 421.370625 123.46875 421.370625 120.421875C421.370625 117.1875 424.464375 115.40625 428.776875 114.75C432.76125 114.09375 435.808125 113.484375 437.5425 112.6875V117.1875C437.5425 122.0625 433.370625 125.296875 427.98 125.296875ZM459.50625 135.0H475.63125V109.640625C475.63125 102.609375 479.615625 98.578125 485.38125 98.578125C487.725 98.578125 490.584375 98.671875 491.75625 98.71875V85.40625C490.44375 85.359375 489.084375 85.3125 487.35 85.3125C480.740625 85.3125 477.0375 87.9375 475.25625 94.21875H475.115625V85.5H459.50625ZM518.829375 155.25C534.298125 155.25 544.048125 148.40625 544.048125 132.28125V85.5H528.016875V92.4375H527.97C524.87625 87.234375 520.048125 84.421875 513.62625 84.421875C501.06375 84.421875 492.345 95.015625 492.345 109.734375C492.345 124.265625 500.7825 134.671875 513.766875 134.671875C520.235625 134.671875 525.345 132.09375 527.97 126.234375H528.016875V133.875C528.016875 140.4375 524.829375 143.8125 518.829375 143.8125C514.18875 143.8125 511.048125 141.9375 510.204375 138.84375H494.7825C496.2825 148.359375 503.595 155.25 518.829375 155.25ZM518.266875 122.015625C512.360625 122.015625 508.704375 117.328125 508.704375 109.453125C508.704375 101.625 512.360625 96.9375 518.266875 96.9375C524.360625 96.9375 528.5325 101.859375 528.5325 109.453125C528.5325 117.09375 524.360625 122.015625 518.266875 122.015625ZM573.605625 136.125C586.12125 136.125 596.105625 129.140625 597.93375 119.15625H583.449375C582.2775 122.4375 578.9025 124.5 574.168125 124.5C567.793125 124.5 564.043125 120.515625 563.855625 114.234375H598.30875V109.875C598.30875 94.875 588.043125 84.375 573.18375 84.375C558.511875 84.375 548.105625 95.15625 548.105625 110.25C548.105625 125.34375 558.418125 136.125 573.605625 136.125ZM563.949375 104.578125C564.6525 99.375 568.168125 96.28125 573.605625 96.28125C578.99625 96.28125 582.55875 99.375 583.261875 104.578125Z" fill="#111111"/><path d="M614.793125 135.890625C619.668125 135.890625 623.605625 131.953125 623.605625 127.03125C623.605625 122.15625 619.668125 118.21875 614.793125 118.21875C609.918125 118.21875 605.980625 122.15625 605.980625 127.03125C605.980625 131.953125 609.918125 135.890625 614.793125 135.890625Z" fill="#FF5A1F"/></svg></div>
-  <div class="pill" id="topMeta"></div>
+  <div style="display:flex;gap:8px;align-items:center"><button class="micbtn" data-act="voice" aria-label="Commande vocale">🎤</button><div class="pill" id="topMeta"></div></div>
 </div></header>
 
 <main id="app"></main>
@@ -678,7 +689,7 @@ function addDemoHistory(s) {
 }
 /* Clients, et clients avec la carte fidélité (gratuite : remise permanente, cadeau tous les N achats, promos en avant-première) */
 const CSTATUS = { direct: "Client", vip: "Carte fidélité" };
-const SET_DEFAULTS = { vipOrders: 3, vipPct: 10, discountOn: false, margin: 30, every: 5, gift: "un petit cadeau", basket: 35, cycle: 30, shopName: "", shopPhone: "", myName: "", leader: false };
+const SET_DEFAULTS = { vipOrders: 3, vipPct: 10, discountOn: false, margin: 30, every: 5, gift: "un petit cadeau", basket: 35, cycle: 30, relanceDays: 3, suiviDays: 7, newsFreq: "off", newsC: true, newsP: true, newsText: "", netC: 10, netP: 5, shopName: "", shopPhone: "", myName: "", leader: false };
 /* La remise en % est une option, désactivée par défaut */
 /* Commande sans produit précis (ex. back-office qui ne montre que la date) : relance au rythme, après N jours */
 function genericProduct() {
@@ -700,6 +711,7 @@ function migrate(d) {
     delete c.businessSince; delete c.lastNudge; delete c.nudgeSnooze; delete c.bmsg;
   });
   delete d.settings.inactiveDays; delete d.settings.partnerThreshold; delete d.settings.vipPerk;
+  if (d.settings.netC == null) d.settings.netC = 10; if (d.settings.netP == null) d.settings.netP = 5;
   d.clients.forEach(c => { if (c.status === "vip" && !c.cardNo) { d.cardSeq = (d.cardSeq || 0) + 1; c.cardNo = String(d.cardSeq).padStart(4, "0"); } });
   d.prospects.forEach(x => { if (x.status === "lost" && !x.qSet) { x.next = addDays(x.lastContact || x.createdAt || today(), 90); x.qSet = 1; } });
   d.prospects.forEach(x => { x.kind = "client"; });
@@ -752,6 +764,54 @@ const MSG = {
     "{{Coucou|Bonjour}} {p} ! {{Tu as commandé|Vous avez commandé}} {depuis} : je {{te|vous}} fais signe avant que {{tu sois|vous soyez}} à court 😉",
     "{{Salut|Bonjour}} {p} 👋 Je prépare mes commandes de la semaine : {{tu veux|voulez-vous}} que j'ajoute la {{tienne|vôtre}} ?",
     "{{Hello|Bonjour}} {p} 💛 Petit coucou : ça fait {{un moment|un moment}} depuis {{ta|votre}} dernière commande. {{Tu veux|Voulez-vous}} que je {{te|vous}} conseille pour la prochaine ?"
+  ],
+  suivi: [
+    "{{Coucou|Bonjour}} {p} ! 😊 Alors, {{tu as|vous avez}} bien reçu {{ta|votre}} commande {de} ? {{Dis-moi|Dites-moi}} comment ça se passe !",
+    "{{Hello|Bonjour}} {p} 🌿 Petit message pour savoir si tout va bien avec {{ta|votre}} commande {de}. {{Tu as|Avez-vous}} des questions sur l'utilisation ?",
+    "{{Coucou|Bonjour}} {p} ! Ça fait une semaine : {{tu as|vous avez}} déjà senti la différence ? J'ai hâte d'avoir {{ton|votre}} avis 😊",
+    "{p}, un petit conseil : pour de bons résultats, la régularité compte plus que la quantité 🌿 {{Tu me diras|Vous me direz}} comment ça se passe ?",
+    "{{Hello|Bonjour}} {p} ✨ {{Tout se passe bien|Tout se passe-t-il bien}} avec {{ta|votre}} commande {de} ? Je reste disponible si besoin 😊",
+    "{{Coucou|Bonjour}} {p} 💛 Merci encore pour {{ta|votre}} commande ! Si quelque chose n'est pas clair pour l'utilisation, {{n'hésite|n'hésitez}} pas à me demander.",
+    "{{Hello|Bonjour}} {p} ! Une semaine déjà 😊 {{Qu'est-ce que tu en penses|Qu'en pensez-vous}} pour l'instant ?",
+    "{{Coucou|Bonjour}} {p} 🌸 Je prends des nouvelles : {{ta|votre}} commande {de} {{te|vous}} convient ?",
+    "{p}, {{j'espère que tu vas bien|j'espère que vous allez bien}} ! {{Tu as|Avez-vous}} pu commencer {{ta|votre}} commande {de} ? Je suis là pour {{te|vous}} conseiller ✨",
+    "{{Hello|Bonjour}} {p} 👋 Petit suivi après {{ta|votre}} commande {de} : tout va bien ? Un retour de {{ta|votre}} part me ferait très plaisir 😊"
+  ],
+  recoC: [
+    "{{Coucou|Bonjour}} {p} ! 😊 Ça fait déjà {mois} que {{tu me fais|vous me faites}} confiance, merci ! Si les produits {{te|vous}} plaisent, {{tu connais|connaissez-vous}} quelqu'un autour de {{toi|vous}} qui pourrait en profiter aussi ?",
+    "{{Hello|Bonjour}} {p} 🌿 Ah, les produits {{te|vous}} plaisent toujours ? Si une amie ou quelqu'un de {{ta|votre}} famille cherche la même chose, {{tu peux|vous pouvez}} lui donner mon numéro !",
+    "{p}, déjà {mois} ensemble ✨ Merci ! Le plus beau compliment pour moi, c'est une recommandation : {{tu penses|pensez-vous}} à quelqu'un ?",
+    "{{Coucou|Bonjour}} {p} ! Petite question : autour de {{toi|vous}}, qui pourrait aimer {univers} ? Je lui ferai découvrir avec plaisir, sans insister 😊",
+    "{{Hello|Bonjour}} {p} 💛 Depuis {mois}, {{tu fais|vous faites}} partie de mes fidèles. Si {{tu veux|vous voulez}} faire plaisir à un proche, {{parle-lui|parlez-lui}} de moi !",
+    "{{Coucou|Bonjour}} {p} 😊 Depuis {mois}, {{tu connais|vous connaissez}} bien les produits ! Une collègue, une voisine, une amie à qui ils pourraient faire du bien ?",
+    "{{Hello|Bonjour}} {p} 🌸 Merci pour ces {mois} de confiance. Si {{tu me présentes|vous me présentez}} quelqu'un, je {{te|vous}} réserve une petite attention 🎁",
+    "{p} ! ✨ {{Ton|Votre}} avis compte beaucoup : si {{tu recommandes|vous recommandez}} {univers} à quelqu'un, je m'occupe de tout, promis.",
+    "{{Coucou|Bonjour}} {p} ! Je développe mon activité grâce au bouche-à-oreille : si quelqu'un de {{ton|votre}} entourage cherche ce genre de produits, {{pense|pensez}} à moi 😊",
+    "{{Hello|Bonjour}} {p} 👋 Déjà {mois} ! {{Tu as|Avez-vous}} 1 ou 2 personnes en tête qui pourraient aimer {univers} ? Un prénom et un numéro suffisent."
+  ],
+  recoP: [
+    "{{Coucou|Bonjour}} {p} ! 😊 Même si {{tu n'as|vous n'avez}} pas encore craqué, {{tu connais|connaissez-vous}} peut-être quelqu'un que {univers} pourraient intéresser ?",
+    "{{Hello|Bonjour}} {p} 🌿 Petite question : autour de {{toi|vous}}, quelqu'un pourrait avoir besoin de mes conseils ? Je m'en occuperais avec plaisir.",
+    "{p}, ça fait {mois} qu'on se connaît ✨ Si une amie ou un proche cherche {univers}, {{tu peux|vous pouvez}} lui donner mon numéro !",
+    "{{Coucou|Bonjour}} {p} 😊 Pas de pression pour {{toi|vous}} : mais si quelqu'un de {{ton|votre}} entourage veut découvrir {univers}, je lui fais tester gratuitement.",
+    "{{Hello|Bonjour}} {p} ! Je développe mon activité grâce au bouche-à-oreille : {{tu penses|pensez-vous}} à 1 ou 2 personnes qui pourraient aimer {univers} ?",
+    "{{Coucou|Bonjour}} {p} 💛 Merci pour {{ton|votre}} intérêt depuis {mois} ! Si {{tu veux|vous voulez}}, {{tu peux|vous pouvez}} faire découvrir {univers} à une amie : je lui réserve un échantillon 🎁",
+    "{{Hello|Bonjour}} {p} 🌸 {{Tu connais|Connaissez-vous}} quelqu'un qui aimerait recevoir mes conseils ? Un prénom et un numéro suffisent, je m'occupe du reste.",
+    "{p} ! ✨ Une petite faveur : si quelqu'un autour de {{toi|vous}} cherche {univers}, {{pense|pensez}} à moi 😊",
+    "{{Coucou|Bonjour}} {p} ! Ça fait {mois} : je reste là si {{tu as|vous avez}} envie d'essayer. Et si une personne de {{ton|votre}} entourage est intéressée, je l'accueillerai avec plaisir 😊",
+    "{{Hello|Bonjour}} {p} 👋 {{Tu as|Vous avez}} des amis qui aiment prendre soin d'eux ? Je peux leur faire découvrir {univers}, sans engagement."
+  ],
+  news: [
+    "{{Coucou|Bonjour}} {p} ! 📣 Les nouveautés du moment sont arrivées{nouv}. {{Tu veux|Voulez-vous}} que je {{t'en|vous en}} dise plus ?",
+    "{{Hello|Bonjour}} {p} 🌿 Petit point sur mes nouveautés et promos{nouv}. {{N'hésite|N'hésitez}} pas si quelque chose {{te|vous}} fait envie !",
+    "{{Coucou|Bonjour}} {p} ✨ Il y a du nouveau{nouv} ! {{Dis-moi|Dites-moi}} si {{tu veux|vous voulez}} que je {{te|vous}} montre.",
+    "{{Hello|Bonjour}} {p} 😊 Mes offres du moment{nouv}. Je {{te|vous}} réserve quelque chose ?",
+    "{p} ! 🎁 Je {{te|vous}} partage mes nouveautés{nouv}. Une question ? Je suis là.",
+    "{{Coucou|Bonjour}} {p} 💛 Mes promos du moment viennent de sortir{nouv}. Ça {{te|vous}} tente ?",
+    "{{Hello|Bonjour}} {p} 🌸 Les bons plans du moment{nouv} ! {{Tu me dis|Vous me dites}} si ça {{t'intéresse|vous intéresse}}.",
+    "{{Coucou|Bonjour}} {p} ! Petite nouvelle de ma part{nouv} 😊 Je reste disponible pour {{te|vous}} conseiller.",
+    "{{Hello|Bonjour}} {p} 📣 À ne pas manquer{nouv}. Je {{te|vous}} prépare quelque chose ?",
+    "{{Coucou|Bonjour}} {p} ✨ Mes nouveautés et offres du moment{nouv}. {{N'hésite|N'hésitez}} pas, je suis là !"
   ],
   retard: [
     "{{Coucou|Bonjour}} {p} ! 😊 {{Ta|Votre}} réserve {de} doit être terminée depuis quelques jours. {{Tu veux que je t'en renvoie|Voulez-vous que je vous en renvoie}} ?",
@@ -875,17 +935,18 @@ const MSG = {
     "{{Hello|Bonjour}} {p} 🌸 {{Tu veux|Voulez-vous}} {{ta|votre}} carte fidélité ? C'est gratuit : {avantages}, et mes offres en avant-première."
   ],
   gift: [
-    "Bravo {p} ! 🎁 {{Ta|Votre}} carte fidélité est complète : {gift} sur {{ta|votre}} prochaine commande. Merci pour {{ta|votre}} fidélité !",
-    "{{Coucou|Bonjour}} {p} 🎉 {{Tu as|Vous avez}} rempli {{ta|votre}} carte fidélité ! {{Ton|Votre}} cadeau : {gift}. On le glisse dans {{ta|votre}} prochaine commande ?",
-    "{p}, j'ai une bonne nouvelle ✨ {{Ta|Votre}} carte est pleine : {gift} pour {{toi|vous}} !",
-    "{{Hello|Bonjour}} {p} ! 🎁 Merci pour {{ta|votre}} fidélité : {{ta|votre}} carte est complète, {{tu as|vous avez}} gagné {gift}.",
-    "{{Coucou|Bonjour}} {p} 💛 Dernier tampon ! {{Tu as|Vous avez}} droit à {gift} sur {{ta|votre}} prochaine commande.",
-    "Félicitations {p} 🎉 {{Ta|Votre}} carte fidélité est complète : {gift}, rien que pour {{toi|vous}}.",
-    "{{Hello|Bonjour}} {p} ! Je {{te|vous}} réserve {gift} : {{ta|votre}} carte fidélité est remplie 🎁 Merci d'être là !",
-    "{p} ! ✨ Petit cadeau pour {{te|vous}} remercier : {gift}, grâce à {{ta|votre}} carte fidélité complète.",
-    "{{Coucou|Bonjour}} {p} 🌸 {{Ta|Votre}} carte est complète ! {{Dis-moi|Dites-moi}} quand {{tu veux|vous voulez}} recevoir {gift}.",
-    "{{Hello|Bonjour}} {p} 😊 C'est le moment de {{te|vous}} gâter : {gift}, offert grâce à {{ta|votre}} carte fidélité !"
+    "Bravo {p} ! 🎁 {{Ta|Votre}} carte fidélité est complète : {gift} {{t'attend|vous attend}}, quand {{tu veux|vous voulez}} !",
+    "{{Coucou|Bonjour}} {p} 🎉 {{Tu as|Vous avez}} rempli {{ta|votre}} carte fidélité ! {{Ton|Votre}} cadeau ({gift}) est disponible : {{dis-moi|dites-moi}} quand {{tu le veux|vous le voulez}}.",
+    "{p}, bonne nouvelle ✨ {{Ta|Votre}} carte est pleine : {gift} pour {{toi|vous}}, à utiliser quand {{tu veux|vous voulez}}.",
+    "{{Hello|Bonjour}} {p} ! 🎁 Merci pour {{ta|votre}} fidélité : {gift} est pour {{toi|vous}}, avec {{ta|votre}} prochaine commande ou quand {{tu préfères|vous préférez}}.",
+    "{{Coucou|Bonjour}} {p} 💛 Dernier tampon ! {gift} {{t'attend|vous attend}}, sans date limite.",
+    "Félicitations {p} 🎉 {{Ta|Votre}} carte fidélité est complète : {gift}, rien que pour {{toi|vous}}, quand {{tu veux|vous voulez}}.",
+    "{{Hello|Bonjour}} {p} ! Je {{te|vous}} garde {gift} de côté : {{ta|votre}} carte fidélité est remplie 🎁 {{Dis-moi|Dites-moi}} quand {{tu le veux|vous le voulez}}.",
+    "{p} ! ✨ {{Ta|Votre}} carte fidélité est complète : {gift} est disponible quand {{tu veux|vous voulez}}.",
+    "{{Coucou|Bonjour}} {p} 🌸 {{Ta|Votre}} carte est complète ! {gift} {{t'attend|vous attend}} : {{tu me dis|vous me dites}} quand ?",
+    "{{Hello|Bonjour}} {p} 😊 C'est le moment de {{te|vous}} gâter : {gift}, offert grâce à {{ta|votre}} carte fidélité, quand {{tu veux|vous voulez}} !"
   ],
+
   card: [
     "Voici {{ta|votre}} carte fidélité {p} 💳 : {url}\n{{Garde-la|Gardez-la}}, elle {{t'accompagne|vous accompagne}} à chaque commande : {avantages}.",
     "{{Coucou|Bonjour}} {p} ! Comme promis, voici {{ta|votre}} carte fidélité ✨ {url}\nAvec elle : {avantages}.",
@@ -970,10 +1031,18 @@ const promoSentCount = () => { const pr = activePromo(); return pr ? S.events.fi
 function promoTargets(all) {
   const pr = activePromo(); if (!pr) return [];
   const sent = new Set(S.events.filter(e => e.type === "promo" && e.promoId === pr.id).map(e => e.clientId || e.prospectId));
-  const out = S.clients.filter(c => c.status === "vip").map(c => ({ pk: "c", x: c }))
+  const prods = (pr.products || []).map(norm).filter(Boolean);
+  let out;
+  if (prods.length) {
+    /* Promo ciblée : les clients qui utilisent ces produits et les prospects qui s'y intéressent, en priorité */
+    const hit = v => { const n = norm(v || ""); return !!n && prods.some(pn => n.includes(pn) || pn.includes(n)); };
+    out = S.clients.filter(c => S.sales.some(sl => sl.clientId === c.id && hit(sl.product)) || hit(c.interest)).map(c => ({ pk: "c", x: c, why: "utilise" }))
+      .concat(S.prospects.filter(x => (x.status === "open" || x.status === "lost") && hit(x.interest)).map(x => ({ pk: "p", x, why: "intéressé" })));
+  } else out = S.clients.filter(c => c.status === "vip").map(c => ({ pk: "c", x: c }))
     .concat(S.prospects.filter(x => x.status === "open" || x.status === "lost").map(x => ({ pk: "p", x })));
   return all ? out : out.filter(o => !sent.has(o.x.id));
 }
+const newsMsg = x => msg("news", x.name, x.nwmsg || 0, { nouv: S.settings.newsText ? " : " + S.settings.newsText.trim() : "" });
 const promoOf = id => { const c = client(id); return c ? { pk: "c", x: c } : { pk: "p", x: prospect(id) }; };
 const promoMsg = o => { const pr = activePromo(); return xMsg(o.pk === "c" ? "promoVip" : "promo", o.x.name, o.x.prmsg || 0, { offre: pr.text, until: `, jusqu'au ${fmtLong(pr.until)}` }); };
 /* Carte fidélité : tampons, cadeaux, numéro, lien à envoyer au client */
@@ -981,7 +1050,7 @@ const cardSince = c => ((c.statusLog || []).filter(x => x.s === "vip").slice(-1)
 const cardOrders = c => S.sales.filter(sl => sl.clientId === c.id && sl.date >= cardSince(c)).length;
 function cardState(c) {
   const e = Math.max(0, S.settings.every | 0), n = cardOrders(c), earned = e ? Math.floor(n / e) : 0, given = c.giftsGiven || 0;
-  return { e, n, stamps: e ? n % e : 0, left: e ? e - (n % e) : 0, pending: earned > given };
+  return { e, n, stamps: e ? n % e : 0, left: e ? e - (n % e) : 0, available: Math.max(0, earned - given), notify: earned > Math.max(given, c.giftNotified || 0), pending: earned > given };
 }
 const giftLine = () => S.settings.every && S.settings.gift ? ` et ${S.settings.gift} toutes les ${S.settings.every} commandes` : "";
 const avantages = () => [S.settings.every && S.settings.gift ? `${S.settings.gift} quand la carte est complète (${S.settings.every} commandes)` : "", discountOn() ? `${S.settings.vipPct} % de remise sur chaque commande` : ""].filter(Boolean).join(", et ") || "mes promos en avant-première";
@@ -1006,11 +1075,31 @@ function cardHTML(c, demo) {
 }
 function cardUrl(c) {
   const st = cardState(c), f = c.name.trim().split(/\s+/);
-  const d = { n: f[0] + (f[1] ? " " + f[1][0] + "." : ""), no: c.cardNo, s: cardSince(c), p: discountOn() ? S.settings.vipPct : 0, e: S.settings.gift ? st.e : 0, g: S.settings.gift, k: st.stamps, b: S.settings.shopName, t: S.settings.shopPhone, d: today() };
+  const d = { n: f[0] + (f[1] ? " " + f[1][0] + "." : ""), no: c.cardNo, s: cardSince(c), p: discountOn() ? S.settings.vipPct : 0, e: S.settings.gift ? st.e : 0, g: S.settings.gift, k: st.stamps, a: st.available, b: S.settings.shopName, t: S.settings.shopPhone, d: today() };
   const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(d)))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
   return new URL("../carte/?d=" + b64, location.href).href;
 }
-const dueGifts = () => S.clients.filter(c => c.status === "vip" && cardState(c).pending);
+const dueGifts = () => S.clients.filter(c => c.status === "vip" && cardState(c).notify);
+/* Suivi après l'achat : quelques jours après une commande, prendre des nouvelles */
+const dueSuivis = () => { const t = today(), d = S.settings.suiviDays || 7; return S.settings.suiviDays === 0 ? [] : S.sales.filter(sl => !sl.suiviDone && (sl.status === "open" || sl.status === "relance") && diff(t, sl.date) >= d && diff(t, sl.date) <= d + 6 && diff(sl.end, t) > (S.settings.relanceDays || 3)); };
+/* Recommandation après 3 mois (client ou prospect), puis tous les 3 mois */
+const lastAsk = id => S.events.filter(e => e.type === "bouche" && (e.clientId === id || e.prospectId === id)).reduce((m, e) => e.date > m ? e.date : m, "");
+const recoReady = (x, since) => diff(today(), since) >= 90 && (!lastAsk(x.id) || diff(today(), lastAsk(x.id)) >= 90) && !(x.recoSnooze && x.recoSnooze > today());
+const dueRecoC = () => S.clients.filter(c => recoReady(c, clientSince(c)));
+const dueRecoP = () => S.prospects.filter(x => (x.status === "open" || x.status === "lost") && recoReady(x, x.createdAt || today()));
+/* Message régulier (nouveautés, promos) : toutes les 2 semaines ou chaque mois */
+function newsPeriod() {
+  const f = S.settings.newsFreq; if (!f || f === "off") return null;
+  const t = parse(today());
+  return f === "month" ? today().slice(0, 7) : today().slice(0, 4) + "-q" + Math.floor((Math.floor((t - new Date(t.getFullYear(), 0, 1)) / 864e5)) / 14);
+}
+function dueNews() {
+  const per = newsPeriod(); if (!per) return [];
+  const sent = new Set(S.events.filter(e => e.type === "news" && e.period === per).map(e => e.clientId || e.prospectId));
+  return (S.settings.newsC ? S.clients.filter(c => !c.noNews).map(c => ({ pk: "c", x: c })) : [])
+    .concat(S.settings.newsP ? S.prospects.filter(x => x.status === "open" && !x.noNews).map(x => ({ pk: "p", x })) : [])
+    .filter(o => !sent.has(o.x.id));
+}
 /* Fidélité : clients à qui proposer la carte */
 function lastOrder(c) { let d = null; for (const sl of S.sales) if (sl.clientId === c.id && (!d || sl.date > d)) d = sl.date; return d; }
 function spent90(c) { const from = addDays(today(), -90); return S.sales.filter(sl => sl.clientId === c.id && sl.date >= from).reduce((t, sl) => t + (sl.price || 0) * sl.qty, 0); }
@@ -1026,9 +1115,15 @@ function todayList() {
   for (const sl of dueSales()) { const left = diff(sl.end, t); items.push({ k: "s:" + sl.id, type: "sale", s: sl, who: sl.clientId, score: left <= 0 ? 100 - left * 2 : 80 - left * 5 }); }
   for (const x of dueProspects()) items.push({ k: "p:" + x.id, type: "prospect", x, who: x.id, score: 62 + diff(t, x.next) * 2 });
   for (const c of dueGifts()) items.push({ k: "g:" + c.id, type: "gift", c, who: c.id, score: 70 });
+  for (const sl of dueSuivis()) items.push({ k: "su:" + sl.id, type: "suivi", s: sl, who: sl.clientId, score: 55 });
+  for (const c of dueRecoC()) items.push({ k: "rc:" + c.id, type: "reco", pk: "c", x: c, who: c.id, score: 39 });
+  for (const x of dueRecoP()) items.push({ k: "rp:" + x.id, type: "reco", pk: "p", x, who: x.id, score: 37 });
+  for (const o of dueNews()) items.push({ k: "nw:" + o.x.id, type: "news", o, who: o.x.id, score: 20 });
   for (const h of duePartnerHints()) items.push({ k: "h:" + h.c.id, type: "hint", h, who: h.c.id, score: 40 });
-  for (const o of promoTargets()) items.push({ k: "pr:" + o.x.id, type: "promo", o, who: o.x.id, score: 35 });
-  return items.sort((a, b) => b.score - a.score);
+  for (const o of promoTargets()) items.push({ k: "pr:" + o.x.id, type: "promo", o, who: o.x.id, score: o.why ? 74 : 35 });
+  const seen = new Set();
+  /* une seule carte par personne et par jour (sauf le cadeau fidélité, une bonne nouvelle à annoncer) */
+  return items.sort((a, b) => b.score - a.score).filter(it => it.type === "gift" ? true : seen.has(it.who) ? false : (seen.add(it.who), true));
 }
 const dueProspects = () => S.prospects.filter(x => (x.status === "open" || x.status === "lost") && x.next && x.next <= today()).sort((a, b) => a.next.localeCompare(b.next));
 function refMessage(s, k) {
@@ -1051,7 +1146,7 @@ function waNumber(phone) {
 /* ---------- Calculs ---------- */
 function dueSales() {
   const t = today();
-  return S.sales.filter(s => s.status === "open" && diff(s.end, t) <= 3 && (!s.snooze || s.snooze <= t))
+  return S.sales.filter(s => s.status === "open" && diff(s.end, t) <= (S.settings.relanceDays || 3) && (!s.snooze || s.snooze <= t))
     .sort((a, b) => a.end.localeCompare(b.end));
 }
 function waitingSales() {
@@ -1157,7 +1252,7 @@ function viewToday() {
   const all = todayList(), list = all.slice(0, MAX_TODAY);
   const n = new Set(list.map(x => x.who)).size;
   const t = today();
-  const doneToday = new Set(S.events.filter(e => e.date === t && ["relance", "pcontact", "hint", "plater", "report", "gift"].includes(e.type)).map(e => e.saleId || e.prospectId || e.clientId)).size;
+  const doneToday = new Set(S.events.filter(e => e.date === t && ["relance", "pcontact", "hint", "plater", "report", "gift", "suivi", "bouche", "news", "promo"].includes(e.type)).map(e => e.saleId || e.prospectId || e.clientId)).size;
   const total = list.length + doneToday;
   const st = stats("month");
   const hr = new Date().getHours(), hi = hr >= 18 ? "Bonsoir" : "Bonjour", who = myName();
@@ -1232,12 +1327,39 @@ function todayCard(it) {
       second: `<button class="btn soft second" data-act="pDone" data-id="${pr.id}">${I.check} Déjà fait</button>`,
       links: `<button data-act="pConvert" data-id="${pr.id}">A acheté</button> · <button data-act="pLater" data-id="${pr.id}">Plus tard</button> · <button data-act="pLost" data-id="${pr.id}">Pas intéressé</button>` });
   }
+  if (it.type === "suivi") {
+    const sl = it.s, c = client(sl.clientId) || { name: "?" };
+    return cardShell({ k: it.k, id: sl.id, phone: c.phone, msgId: "sumsg-" + sl.id, msg: msg("suivi", c.name, sl.msg || 0, { de: deProd(sl.product) }), vary: "nextSuMsg", waAct: "suWa", copyAct: "suCopy",
+      head: `<span class="avatar" style="width:52px;height:52px;font-size:1.3rem">💬</span>
+        <div class="who"><button class="name" data-act="fiche" data-id="${c.id}">${esc(c.name)}</button>${exTag(c)}
+          <div class="status ok">Suivi après l'achat</div><div class="meta2">${esc(sl.product)} · acheté il y a ${diff(today(), sl.date)} jours</div></div>`,
+      second: `<button class="btn soft second" data-act="suDone" data-id="${sl.id}">${I.check} Déjà fait</button>`,
+      links: `<button data-act="suDone" data-id="${sl.id}" data-skip="1">Pas besoin</button>` });
+  }
+  if (it.type === "reco") {
+    const x = it.x, isC = it.pk === "c", since = isC ? clientSince(x) : x.createdAt || today();
+    return cardShell({ k: it.k, id: x.id, phone: x.phone, msgId: "rcmsg-" + x.id, msg: msg(isC ? "recoC" : "recoP", x.name, x.rcmsg || 0, { mois: duration(since) }), vary: "nextRcMsg", waAct: "rcWa", copyAct: "rcCopy",
+      head: `<span class="avatar" style="width:52px;height:52px;font-size:1.3rem">🤝</span>
+        <div class="who"><button class="name" data-act="${isC ? "fiche" : "pfiche"}" data-id="${x.id}">${esc(x.name)}</button>${exTag(x)}
+          <div class="status ok">Moment de demander une recommandation</div><div class="meta2">${isC ? "Client" : "Prospect"} depuis ${duration(since)} · environ ${isC ? S.settings.netC : S.settings.netP} personnes dans son entourage</div></div>`,
+      second: `<button class="btn soft second" data-act="rcDone" data-id="${x.id}">${I.check} Déjà demandé</button>`,
+      links: `<button data-act="newProspect" data-ref="${x.id}">+ Un contact donné</button> · <button data-act="rcLater" data-id="${x.id}">Plus tard · 1 mois</button>` });
+  }
+  if (it.type === "news") {
+    const o = it.o, x = o.x;
+    return cardShell({ k: it.k, id: x.id, phone: x.phone, msgId: "nwmsg-" + x.id, msg: newsMsg(x), vary: "nextNwMsg", waAct: "nwWa", copyAct: "nwCopy",
+      head: `<span class="avatar" style="width:52px;height:52px;font-size:1.3rem">📣</span>
+        <div class="who"><button class="name" data-act="${o.pk === "c" ? "fiche" : "pfiche"}" data-id="${x.id}">${esc(x.name)}</button>${exTag(x)}
+          <div class="status ok">Message ${S.settings.newsFreq === "month" ? "du mois" : "de la quinzaine"} : nouveautés</div><div class="meta2">${o.pk === "c" ? "Client" : "Prospect"}</div></div>`,
+      second: `<button class="btn soft second" data-act="nwDone" data-id="${x.id}">${I.check} Déjà fait</button>`,
+      links: `<button data-act="nwDone" data-id="${x.id}" data-skip="1">Pas pour cette personne</button>` });
+  }
   if (it.type === "promo") {
     const o = it.o, x = o.x, pr = activePromo();
     return cardShell({ k: it.k, id: x.id, phone: x.phone, msgId: "prmsg-" + x.id, msg: promoMsg(o), vary: "nextPrMsg", waAct: "promoWa", copyAct: "promoCopy2",
       head: `<span class="avatar" style="width:52px;height:52px;font-size:1.3rem">🎁</span>
         <div class="who"><button class="name" data-act="${o.pk === "c" ? "fiche" : "pfiche"}" data-id="${x.id}">${esc(x.name)}</button>${exTag(x)}
-          <div class="status ok">Promo : ${esc(pr.text)}</div><div class="meta2">${typeTag(o.pk === "c" ? "Carte fidélité" : "Prospect")} · jusqu'au ${fmt(pr.until)}</div></div>`,
+          <div class="status ok">Promo : ${esc(pr.text)}</div><div class="meta2">${o.why ? (o.pk === "c" ? "Utilise ce produit" : "Intéressé par ce produit") + " · " : typeTag(o.pk === "c" ? "Carte fidélité" : "Prospect") + " · "}jusqu'au ${fmt(pr.until)}</div></div>`,
       second: `<button class="btn soft second" data-act="promoDone" data-id="${x.id}">${I.check} Déjà fait</button>`,
       links: `<button data-act="promoSkip2" data-id="${x.id}">Pas pour cette personne</button>` });
   }
@@ -1246,9 +1368,9 @@ function todayCard(it) {
     return cardShell({ k: it.k, id: c.id, phone: c.phone, msgId: "gmsg-" + c.id, msg: xMsg("gift", c.name, 0, { gift: S.settings.gift }), vary: "nextHMsg", waAct: "gWa", copyAct: "gCopy",
       head: `<span class="avatar" style="width:52px;height:52px;font-size:1.3rem">🎁</span>
         <div class="who"><button class="name" data-act="fiche" data-id="${c.id}">${esc(c.name)}</button>${exTag(c)}
-          <div class="status ok">Carte fidélité complète</div><div class="meta2">${esc(S.settings.gift)} à offrir</div></div>`,
-      second: `<button class="btn orange second" data-act="giftDone" data-id="${c.id}">🎁 Cadeau offert</button>`,
-      links: `<button data-act="fiche" data-id="${c.id}">Voir sa carte</button>` });
+          <div class="status ok">Carte fidélité complète 🎉</div><div class="meta2">${esc(S.settings.gift)} disponible quand elle veut</div></div>`,
+      second: `<button class="btn soft second" data-act="giftNotify" data-id="${c.id}">${I.check} Déjà prévenue</button>`,
+      links: `<button data-act="giftDone" data-id="${c.id}">Cadeau déjà utilisé</button> · <button data-act="fiche" data-id="${c.id}">Voir sa carte</button>` });
   }
   const { c, orders } = it.h;
   return cardShell({ k: it.k, id: c.id, phone: c.phone, msgId: "hmsg-" + c.id, msg: xMsg("hint", c.name, c.hmsg || 0, { avantages: avantages() }), vary: "nextHMsg", waAct: "hWa", copyAct: "hCopy",
@@ -1259,18 +1381,25 @@ function todayCard(it) {
     second: `<button class="btn orange second" data-act="hBecame" data-id="${c.id}">💳 Lui offrir la carte</button>`,
     links: `<button data-act="hDone" data-id="${c.id}">Pas pour l'instant</button> · <button data-act="hLater" data-id="${c.id}">Plus tard · 30 j</button>` });
 }
+let pfilter = "all", cfilter = "all";
 function viewProspects(q) {
-  const list = S.prospects.filter(x => !q || x.name.toLowerCase().includes(q) || (x.phone || "").replace(/\s/g, "").includes(q.replace(/\s/g, "")))
-    .sort((a, b) => (a.status === "open" ? 0 : 1) - (b.status === "open" ? 0 : 1) || (a.next || "9").localeCompare(b.next || "9") || a.name.localeCompare(b.name, "fr"));
+  const t = today(), open = x => x.status === "open" || x.status === "lost";
+  const F = [["all", "Tous", () => true], ["due", "À relancer", x => open(x) && x.next && x.next <= t], ["new", "Nouveaux", x => open(x) && diff(t, x.createdAt || t) <= 30],
+    ["reco", "Recommandation", x => open(x) && diff(t, x.createdAt || t) >= 90], ["won", "Devenus clients", x => x.status === "client"]];
+  const f = (F.find(z => z[0] === pfilter) || F[0])[2];
+  const list = S.prospects.filter(x => (!q || x.name.toLowerCase().includes(q) || (x.phone || "").replace(/\s/g, "").includes(q.replace(/\s/g, "")) || (x.interest || "").toLowerCase().includes(q)) && f(x))
+    .sort((a, b) => (open(a) ? 0 : 1) - (open(b) ? 0 : 1) || (a.next || "9").localeCompare(b.next || "9") || a.name.localeCompare(b.name, "fr"));
   let h = `<button class="btn soft" data-act="newProspect">+ Nouveau prospect</button>`;
+  h += `<div class="fchips">${F.map(([k, l, fn]) => `<button class="${pfilter === k ? "on" : ""}" data-act="pfilter" data-f="${k}">${l} <small>${S.prospects.filter(fn).length}</small></button>`).join("")}</div>`;
   if (list.length) {
     h += `<div class="card">`;
     for (const x of list) {
-      const due = x.status === "open" && x.next && x.next <= today();
-      const chip = x.status === "client" ? `<span class="chip done">A acheté</span>` : x.status === "lost" ? `<span class="chip">Pas intéressé</span>`
-        : due ? `<span class="chip soon">À recontacter</span>` : `<span class="chip ok num">${x.next ? "Le " + fmt(x.next) : "En attente"}</span>`;
+      const due = open(x) && x.next && x.next <= t, since = diff(t, x.createdAt || t);
+      const chip = x.status === "client" ? `<span class="chip done">Client</span>` : due ? `<span class="chip soon">À relancer</span>` : since >= 90 ? `<span class="chip ok">🤝 Reco</span>` : `<span class="chip ok num">${x.next ? fmt(x.next) : "–"}</span>`;
+      const line1 = [x.where ? "📍 " + whereLabel(x.where) : refNameOf(x) ? "🤝 De la part de " + esc(firstName(refNameOf(x))) : "", `depuis ${duration(x.createdAt || t)}`].filter(Boolean).join(" · ");
       h += `<button class="crow" data-act="pfiche" data-id="${x.id}"><span class="avatar ${due ? "" : "blue"}">${esc(initials(x.name))}</span>
-        <span class="grow"><b>${esc(x.name)}</b>${exTag(x)}<div class="meta2">${[x.interest ? esc(x.interest) : "", refNameOf(x) ? "De la part de " + esc(refNameOf(x)) : x.where ? whereLabel(x.where) : ""].filter(Boolean).join(" · ")}</div></span>${chip}</button>`;
+        <span class="grow"><b>${esc(x.name)}</b>${exTag(x)}<div class="meta2">${line1}</div>${x.interest ? `<div class="meta3">💡 ${esc(x.interest)}</div>` : ""}</span>
+        <span class="rside">${chip}<small class="cic">${contactIcons(x)}</small></span></button>`;
     }
     h += `</div>`;
   }
@@ -1298,19 +1427,26 @@ function viewClients() {
     }
     h += `</div>`;
   }
-  h += `<div class="seg"><button class="${ctab === "clients" ? "on" : ""}" data-act="ctab" data-c="clients">Clients · ${S.clients.length}</button><button class="${ctab === "prospects" ? "on" : ""}" data-act="ctab" data-c="prospects">Prospects · ${openP}</button></div>`;
+  h += `<div class="seg"><button class="${ctab === "prospects" ? "on" : ""}" data-act="ctab" data-c="prospects">Prospects · ${openP}</button><button class="${ctab === "clients" ? "on" : ""}" data-act="ctab" data-c="clients">Clients · ${S.clients.length}</button></div>`;
   h += `<label class="search">${I.search}<input id="search" type="search" placeholder="Rechercher un nom ou un numéro" value="${esc(query)}" autocomplete="off"></label>`;
   h += `<button class="btn outline" style="margin-top:12px" data-act="openImport">${I.up} Importer des commandes</button>`;
   h += exampleNotice();
   if (ctab === "prospects") return h + viewProspects(q);
-  if (list.length) {
+  const t = today(), CF = [["all", "Tous", () => true], ["due", "À relancer", c => S.sales.some(sl => sl.clientId === c.id && sl.status === "open" && diff(sl.end, t) <= (S.settings.relanceDays || 3))],
+    ["vip", "Carte fidélité", c => c.status === "vip"], ["reco", "Recommandation", c => diff(t, clientSince(c)) >= 90], ["sleep", "À réveiller", c => lastOrder(c) && diff(t, lastOrder(c)) >= 90]];
+  const cf = (CF.find(z => z[0] === cfilter) || CF[0])[2];
+  h += `<div class="fchips">${CF.map(([k, l, fn]) => `<button class="${cfilter === k ? "on" : ""}" data-act="cfilter" data-f="${k}">${l} <small>${S.clients.filter(fn).length}</small></button>`).join("")}</div>`;
+  const shown = list.filter(cf);
+  if (list.length && !shown.length) h += `<p class="empty">Aucun client dans ce filtre.</p>`;
+  if (shown.length) {
     h += `<div class="card">`;
-    for (const c of list) {
+    for (const c of shown) {
       const next = S.sales.filter(s => s.clientId === c.id && (s.status === "open" || s.status === "relance")).sort((a, b) => a.end.localeCompare(b.end))[0];
       const t = next ? timing(next) : null;
       const chip = !next ? "" : next.status === "relance" ? `<span class="chip done">Relancé</span>` : `<span class="chip ${t.cls} num">${shortTiming(next)}</span>`;
       h += `<button class="crow" data-act="fiche" data-id="${c.id}"><span class="avatar ${next && next.status === "open" && diff(next.end, today()) <= 3 ? "" : "blue"}">${esc(initials(c.name))}</span>
-        <span class="grow"><b>${esc(c.name)}</b>${exTag(c)}<div class="meta2">${c.status === "vip" ? "💳 " : ""}${CSTATUS[c.status]}${next ? " · " + esc(next.product) : ""}</div></span>${chip}</button>`;
+        <span class="grow"><b>${esc(c.name)}</b>${exTag(c)}<div class="meta2">${c.status === "vip" ? "💳 " : ""}Client depuis ${duration(clientSince(c))} · ${plural(S.sales.filter(sl => sl.clientId === c.id).length, "commande", "commandes")}</div>${next ? `<div class="meta3">🛍️ ${esc(next.product)}${lastOrder(c) ? ` · dernier achat il y a ${diff(today(), lastOrder(c))} j` : ""}</div>` : ""}</span>
+        <span class="rside">${chip}<small class="cic">${contactIcons(c)}</small></span></button>`;
     }
     h += `</div>`;
   }
@@ -1410,6 +1546,18 @@ function viewSettings() {
     <button class="btn soft" style="margin-top:12px" data-act="addProductRow">Ajouter un produit</button></div>`;
 
   const keep = S.settings.margin - S.settings.vipPct;
+  h += section("Mes relances") + `<div class="card pad">
+    <div class="field" style="margin-top:0"><span>Relancer avant la fin du produit</span><div class="seg" style="margin-top:6px">${[2, 3, 4].map(n => `<button class="${(S.settings.relanceDays || 3) === n ? "on" : ""}" data-act="setRelDays" data-n="${n}">J-${n}</button>`).join("")}</div></div>
+    <div class="field"><span>Suivi après l'achat</span><div class="seg" style="margin-top:6px">${[[0, "Jamais"], [3, "J+3"], [7, "J+7"], [14, "J+14"]].map(([n, l]) => `<button class="${(S.settings.suiviDays ?? 7) === n ? "on" : ""}" data-act="setSuivi" data-n="${n}">${l}</button>`).join("")}</div></div>
+    <p class="hint" style="margin:10px 0 0">Recommandation : Recharge vous propose de la demander à chaque client et prospect après 3 mois, puis tous les 3 mois. Prospects : relancés après la rencontre, à chaque promo, puis tous les 3 mois.</p></div>`;
+  h += section("Message régulier") + `<div class="card pad">
+    <p class="hint" style="margin:0 0 8px">Un petit message « nouveautés et promos » préparé pour chacun : vous l'envoyez en un appui, 10 par jour maximum.</p>
+    <div class="seg" style="margin-top:0">${[["off", "Jamais"], ["2w", "Toutes les 2 semaines"], ["month", "Chaque mois"]].map(([k, l]) => `<button class="${(S.settings.newsFreq || "off") === k ? "on" : ""}" data-act="setNews" data-f="${k}">${l}</button>`).join("")}</div>
+    ${S.settings.newsFreq && S.settings.newsFreq !== "off" ? `<div class="two" style="grid-template-columns:1fr 1fr;margin-top:10px">
+      <label class="field" style="display:flex;gap:10px;align-items:center;margin-top:0"><input type="checkbox" id="setNewsC" ${S.settings.newsC ? "checked" : ""} style="width:20px;height:20px;accent-color:var(--o1)"><span style="margin:0">Mes clients</span></label>
+      <label class="field" style="display:flex;gap:10px;align-items:center;margin-top:0"><input type="checkbox" id="setNewsP" ${S.settings.newsP ? "checked" : ""} style="width:20px;height:20px;accent-color:var(--o1)"><span style="margin:0">Mes prospects</span></label></div>
+    <label class="field"><span>Ce que vous voulez annoncer <i>· facultatif</i></span><input class="input" id="setNewsText" value="${esc(S.settings.newsText || "")}" placeholder="ex. : la nouvelle gamme été est arrivée"></label>
+    <p class="hint" style="margin:8px 0 0">Pour ne plus écrire à quelqu'un : ouvrez sa fiche › Coordonnées et infos › décochez « Reçoit mes nouveautés ».</p>` : ""}</div>`;
   h += section("Carte fidélité") + `<div class="card pad">
     <p class="hint" style="margin:0 0 12px">Gratuite pour vos clients : un tampon par commande, et la récompense de votre choix quand la carte est complète.</p>
     ${cardHTML(null, true)}
@@ -1580,21 +1728,35 @@ function openFiche(id) {
   const sales = S.sales.filter(s => s.clientId === id).sort((a, b) => b.date.localeCompare(a.date));
   const evs = S.events.filter(e => e.clientId === id).sort((a, b) => b.date.localeCompare(a.date));
   const STATUS = { open: ["En cours", ""], relance: ["Relancé", "done"], recommande: ["A recommandé", "done"], rachete: ["Racheté", "done"], sanssuite: ["Sans suite", ""] };
-  const EV = { relance: "Relancé", recommande: "A recommandé", report: "Reporté de 3 jours", sanssuite: "Classé sans suite", bouche: "Demande de bouche-à-oreille", occasion: "Message d'occasion", accomp: "Accompagnement", hint: "Carte fidélité pas proposée", wake: "Message de réveil", promo: "Promo envoyée", gift: "Cadeau fidélité offert" };
+  const EV = { relance: "Relancé", recommande: "A recommandé", report: "Reporté de 3 jours", sanssuite: "Classé sans suite", bouche: "Demande de bouche-à-oreille", occasion: "Message d'occasion", accomp: "Accompagnement", hint: "Carte fidélité pas proposée", suivi: "Suivi après l'achat", news: "Message de nouveautés", wake: "Message de réveil", promo: "Promo envoyée", gift: "Cadeau fidélité offert" };
   const total = sales.reduce((t, s) => t + (s.price || 0) * s.qty, 0);
   openSheet(`<div class="shead"><div style="display:flex;gap:12px;align-items:center;min-width:0"><span class="avatar">${c.status === "vip" ? "💳" : esc(initials(c.name))}</span>
-      <div style="min-width:0"><h3>${esc(c.name)}${exTag(c)}</h3><div class="meta2">${plural(sales.length, "achat", "achats")} · ${euro(total)}</div></div></div>${closeBtn}</div>
+      <div style="min-width:0"><h3>${esc(c.name)}${exTag(c)}</h3><div class="meta2">Client depuis ${duration(clientSince(c))}</div></div></div>${closeBtn}</div>
+    ${contactBtns(c)}
+    <div class="kstats"><div><b class="num">${sales.length}</b><span>commande${sales.length > 1 ? "s" : ""}</span></div><div><b class="num">${euro(total)}</b><span>au total</span></div>
+      <div><b class="num">${lastOrder(c) ? diff(today(), lastOrder(c)) + " j" : "–"}</b><span>dernier achat</span></div></div>
+    ${diff(today(), clientSince(c)) >= 90 ? `<div class="notice" style="margin-top:10px"><span>🤝 Client depuis plus de 3 mois : c'est le bon moment pour lui demander une recommandation.</span></div>` : ""}
+    <details class="cfields"><summary>Coordonnées et infos</summary>
     <label class="field"><span>Nom</span><input class="input" data-cfield="name" data-id="${c.id}" value="${esc(c.name)}"></label>
     <label class="field"><span>Téléphone</span><input class="input" type="tel" inputmode="tel" data-cfield="phone" data-id="${c.id}" value="${esc(c.phone)}" placeholder="Aucun numéro"></label>
+    <label class="field"><span>Email</span><input class="input" type="email" inputmode="email" data-cfield="email" data-id="${c.id}" value="${esc(c.email || "")}" placeholder="facultatif"></label>
+    <div class="two" style="grid-template-columns:1fr 1fr"><label class="field"><span>Instagram</span><input class="input" data-cfield="insta" data-id="${c.id}" value="${esc(c.insta || "")}" placeholder="@pseudo"></label>
+      <label class="field"><span>Facebook</span><input class="input" data-cfield="fb" data-id="${c.id}" value="${esc(c.fb || "")}" placeholder="nom ou lien"></label></div>
+    <label class="field"><span>Lieu de la rencontre</span><select class="input" data-cfield="where" data-id="${c.id}"><option value="">Non précisé</option>${WHERE.map(([k, l]) => `<option value="${k}" ${c.where === k ? "selected" : ""}>${l}</option>`).join("")}</select></label>
+    <label class="field"><span>Intéressé par</span><input class="input" data-cfield="interest" data-id="${c.id}" list="prodNamesC" value="${esc(c.interest || "")}" placeholder="ex. : soins du visage"></label>
+    <datalist id="prodNamesC">${realProducts().map(pp => `<option value="${esc(pp.name)}">`).join("")}</datalist>
+    <label class="field"><span>Note</span><input class="input" data-cfield="note" data-id="${c.id}" value="${esc(c.note || "")}" placeholder="ex. : préfère être contactée le soir"></label>
+    <label class="field" style="display:flex;align-items:center;justify-content:space-between;gap:12px"><span style="margin:0">Reçoit mes nouveautés et promos</span><input type="checkbox" data-cfield="news" data-id="${c.id}" ${c.noNews ? "" : "checked"} style="width:22px;height:22px;accent-color:var(--o1)"></label>
+    </details>
     ${c.status === "vip" ? `<div class="field"><span>Carte fidélité</span></div>${cardHTML(c)}
-      ${cardState(c).pending ? `<button class="btn orange" style="margin-top:12px" data-act="giftDone" data-id="${c.id}">🎁 Cadeau offert</button>` : ""}
+      ${cardState(c).available ? `<div class="notice" style="margin-top:12px"><span>🎁 <b>${plural(cardState(c).available, "cadeau disponible", "cadeaux disponibles")}</b> : ${esc(S.settings.gift)}, quand elle le souhaite.</span><button class="btn sm orange" data-act="giftDone" data-id="${c.id}">Utilisé</button></div>` : ""}
       ${waNumber(c.phone) ? `<a class="btn primary" style="margin-top:10px" href="#" target="_blank" rel="noopener" data-act="cardWa" data-id="${c.id}">${I.wa} Envoyer sa carte</a>` : `<button class="btn primary" style="margin-top:10px" data-act="cardCopy" data-id="${c.id}">${I.copy} Copier le lien de sa carte</button>`}
       <button class="linkbtn" data-act="cardRemove" data-id="${c.id}">Retirer la carte</button>`
     : `<button class="btn outline" style="margin-top:14px" data-act="hBecame" data-id="${c.id}">💳 Offrir la carte fidélité</button>`}
     ${refLine(c)}
     <button class="btn primary" style="margin-top:14px" data-act="newSaleFor" data-id="${c.id}">Nouvelle vente pour ${esc(firstName(c.name))}</button>
     <button class="btn outline" style="margin-top:8px" data-act="askRef" data-id="${c.id}">Demander des contacts à ${esc(firstName(c.name))}</button>
-    <div class="section"><h2>Achats</h2><span class="pill num">${sales.length}</span></div>
+    <div class="section"><h2>Historique des commandes</h2><span class="pill num">${sales.length}</span></div>
     <div class="card"><ul class="hist">${sales.map(s => `<li><span style="min-width:0"><b>${esc(s.product)} × ${s.qty}</b><br><small>Acheté le ${fmt(s.date)} · fin ${fmt(s.end)}${s.price ? " · " + euro(s.price * s.qty) : ""}</small></span>
       <span style="display:flex;gap:8px;align-items:center"><span class="chip ${STATUS[s.status]?.[1] || ""}">${STATUS[s.status]?.[0] || ""}</span><button class="x" data-act="delSale" data-id="${s.id}" aria-label="Supprimer cet achat">${I.x}</button></span></li>`).join("") || `<li><small>Aucun achat.</small></li>`}</ul></div>
     <div class="section"><h2>Relances</h2><span class="pill num">${evs.length}</span></div>
@@ -1602,6 +1764,25 @@ function openFiche(id) {
     <button class="btn danger" style="margin-top:22px" data-act="delClient" data-id="${c.id}">Supprimer ce client</button>`);
 }
 
+/* Coordonnées d'un contact (client ou prospect) : boutons directs */
+const igUrl = v => { v = (v || "").trim(); if (!v) return ""; if (/^https?:\/\//i.test(v)) return v; return "https://instagram.com/" + v.replace(/^@/, "").replace(/^instagram\.com\//i, ""); };
+const fbUrl = v => { v = (v || "").trim(); if (!v) return ""; if (/^https?:\/\//i.test(v)) return v; if (/facebook\.com/i.test(v)) return "https://" + v.replace(/^\/\//, ""); return "https://www.facebook.com/search/top?q=" + encodeURIComponent(v); };
+function contactBtns(x) {
+  const b = [];
+  if (waNumber(x.phone)) b.push(`<a class="cbtn wa" href="https://wa.me/${waNumber(x.phone)}" target="_blank" rel="noopener">${I.wa}<span>WhatsApp</span></a>`, `<a class="cbtn" href="tel:${esc((x.phone || "").replace(/\s/g, ""))}">📞<span>Appeler</span></a>`);
+  if (x.email) b.push(`<a class="cbtn" href="mailto:${esc(x.email)}">✉️<span>Email</span></a>`);
+  if (x.insta) b.push(`<a class="cbtn" href="${esc(igUrl(x.insta))}" target="_blank" rel="noopener">📸<span>Instagram</span></a>`);
+  if (x.fb) b.push(`<a class="cbtn" href="${esc(fbUrl(x.fb))}" target="_blank" rel="noopener">👥<span>Facebook</span></a>`);
+  return b.length ? `<div class="cbtns">${b.join("")}</div>` : "";
+}
+const contactIcons = x => [waNumber(x.phone) ? "💬" : "", x.email ? "✉️" : "", x.insta ? "📸" : "", x.fb ? "👥" : ""].join("");
+/* Ancienneté d'un client et récence d'achat */
+function firstOrder(c) { let d = null; for (const sl of S.sales) if (sl.clientId === c.id && (!d || sl.date < d)) d = sl.date; return d; }
+const clientSince = c => { const f = firstOrder(c); return f && (!c.createdAt || f < c.createdAt) ? f : c.createdAt || f || today(); };
+function duration(d) {
+  const n = Math.max(0, diff(today(), d));
+  return n < 7 ? "quelques jours" : n < 30 ? `${Math.round(n / 7)} semaine${Math.round(n / 7) > 1 ? "s" : ""}` : n < 365 ? `${Math.round(n / 30)} mois` : `${Math.floor(n / 365)} an${Math.floor(n / 365) > 1 ? "s" : ""}${n % 365 >= 60 ? ` et ${Math.round((n % 365) / 30)} mois` : ""}`;
+}
 /* Bouche-à-oreille : le meilleur moment pour demander, c'est juste après une recommande */
 let refK = 0;
 function openReferral(saleId) {
@@ -1626,20 +1807,26 @@ function drawWhere() {
 }
 function openProspectForm(id, opts = {}) {
   const x = id ? prospect(id) : null;
-  pform = { where: x ? x.where || "" : opts.refId ? "bao" : "", touched: !!x, kind: "client" };
+  pform = { where: x ? x.where || "" : opts.where || (opts.refId ? "bao" : ""), touched: !!x, kind: "client" };
   const ref = x ? refNameOf(x) : opts.refId ? (person(opts.refId) || {}).name || "" : "";
   const names = S.clients.concat(S.prospects.filter(y => !x || y.id !== x.id)).map(c => `<option value="${esc(c.name)}">`).join("");
   const prods = realProducts().map(pp => `<option value="${esc(pp.name)}">`).join("");
   const hist = x ? S.events.filter(e => e.prospectId === x.id).sort((a, b) => b.date.localeCompare(a.date)) : [];
   const EVP = { pjoin: "Devenu client", pcontact: "Contacté", pclient: "A acheté", plater: "Reporté de 3 jours", plost: "Pas intéressé", occasion: "Message d'occasion" };
   openSheet(`<div class="shead"><h3>${x ? esc(x.name) + exTag(x) : opts.refId ? "Nouveau prospect" : "Nouvelle rencontre"}</h3>${closeBtn}</div>
+    ${x ? `<p class="meta2" style="margin:2px 0 0">${x.status === "client" ? "Devenu client" : `Prospect depuis ${duration(x.createdAt || today())}`}${x.where ? " · " + whereLabel(x.where) : ""}</p>${contactBtns(x)}` : ""}
+    ${x && x.status !== "client" && diff(today(), x.createdAt || today()) >= 90 ? `<div class="notice" style="margin-top:10px"><span>🤝 Prospect depuis plus de 3 mois : demandez-lui s'il connaît quelqu'un d'intéressé.</span></div>` : ""}
     ${x || opts.refId ? "" : `<div class="seg" style="margin:12px 0 0"><button type="button" data-act="toVente">Une vente</button><button type="button" class="on">Une rencontre</button></div>`}
     ${x ? "" : `<p class="lede" style="margin-top:10px">Quelqu'un d'intéressé qui n'a pas encore acheté ? Notez-le : Recharge vous rappellera de le recontacter, avec le message prêt.</p>`}
     <form id="prospectForm" data-id="${x ? x.id : ""}" autocomplete="off">
       <label class="field"><span>Nom</span><input class="input" id="pName" required placeholder="Prénom Nom" value="${x ? esc(x.name) : esc(opts.name || "")}"></label>
       <label class="field"><span>Téléphone <i>· facultatif</i></span><input class="input" id="pPhone" type="tel" inputmode="tel" placeholder="06 12 34 56 78" value="${x ? esc(x.phone) : esc(opts.phone || "")}"></label>
+      <details class="cfields" ${x && (x.email || x.insta || x.fb) ? "open" : ""}><summary>Email et réseaux sociaux <i>· facultatif</i></summary>
+        <label class="field"><span>Email</span><input class="input" id="pEmail" type="email" inputmode="email" value="${x ? esc(x.email || "") : ""}" placeholder="facultatif"></label>
+        <div class="two" style="grid-template-columns:1fr 1fr"><label class="field"><span>Instagram</span><input class="input" id="pInsta" value="${x ? esc(x.insta || "") : esc(opts.insta || "")}" placeholder="@pseudo"></label>
+          <label class="field"><span>Facebook</span><input class="input" id="pFb" value="${x ? esc(x.fb || "") : ""}" placeholder="nom ou lien"></label></div></details>
       <div class="field"><span>Lieu de la rencontre <i>· facultatif</i></span><div class="pchips" id="whereChips"></div></div>
-      <label class="field"><span>Intéressé par <i>· facultatif</i></span><input class="input" id="pInterest" list="prodNames" placeholder="ex. : Gel aloe vera" value="${x ? esc(x.interest) : ""}"></label>
+      <label class="field"><span>Intéressé par <i>· facultatif, sert aux promos ciblées</i></span><input class="input" id="pInterest" list="prodNames" placeholder="ex. : Gel aloe vera" value="${x ? esc(x.interest) : esc(opts.interest || "")}"></label>
       <datalist id="prodNames">${prods}</datalist>
       <label class="field"><span>Recommandé par <i>· facultatif</i></span><input class="input" id="pRef" list="pClientNames" placeholder="Client ou prospect qui vous l'a présenté" value="${esc(ref)}"></label>
       <datalist id="pClientNames">${names}</datalist>
@@ -1668,6 +1855,7 @@ function submitProspect(formEl) {
   if (!x) { x = { id: uid(), contacts: 0, status: "open", createdAt: today(), msg: Math.floor(Math.random() * 2), example: false }; S.prospects.push(x); }
   x.name = name;
   x.phone = document.getElementById("pPhone").value.trim();
+  for (const [f, id] of [["email", "pEmail"], ["insta", "pInsta"], ["fb", "pFb"]]) { const e = document.getElementById(id); if (e) x[f] = e.value.trim(); }
   x.interest = document.getElementById("pInterest").value.trim();
   x.note = document.getElementById("pNote").value.trim();
   x.next = document.getElementById("pNext").value || today();
@@ -1683,9 +1871,11 @@ const currentPMsg = id => { const ta = document.getElementById("pmsg-" + id); re
 function openPromoForm(prefill) {
   const pr = S.promo || {};
   openSheet(`<div class="shead"><h3>${activePromo() ? "Votre promo" : "Lancer une promo"}</h3>${closeBtn}</div>
-    <p class="lede" style="margin-top:8px">Recharge prépare un message pour chacun de vos prospects et de vos clients fidélité. Ils apparaissent dans « Aujourd'hui ».</p>
+    <p class="lede" style="margin-top:8px">Une promo de votre marque ? Recharge prépare un message pour chaque personne concernée. Ils apparaissent dans « Aujourd'hui ».</p>
     <form id="promoForm" autocomplete="off">
       <label class="field"><span>L'offre</span><input class="input" id="prText" required placeholder="ex. : -20 % sur les coffrets" value="${esc(activePromo() ? pr.text : prefill ? `Spécial ${prefill.toLowerCase()} : ` : "")}"></label>
+      <div class="field"><span>Sur quel(s) produit(s) ? <i>· facultatif : sinon, toute la gamme</i></span><div class="pchips" id="prProds">${realProducts().map(pp => `<button type="button" class="pchip ${activePromo() && (pr.products || []).includes(pp.name) ? "on" : ""}" data-act="prPick" data-n="${esc(pp.name)}">${esc(pp.name)}</button>`).join("")}</div></div>
+      <p class="hint" style="margin:6px 0 0">Avec un produit choisi, Recharge écrit en priorité aux clients qui l'utilisent et aux prospects qui s'y intéressent.</p>
       <label class="field"><span>Jusqu'au</span><input class="input" id="prUntil" type="date" required value="${activePromo() ? pr.until : addDays(today(), 14)}"></label>
       <button class="btn primary" style="margin-top:16px" type="submit">${activePromo() ? "Enregistrer" : "Préparer les messages"}</button>
     </form>
@@ -2040,6 +2230,68 @@ function openBilan(m) {
     <label class="field"><span>Votre panier moyen <i>· pour estimer le chiffre d'affaires</i></span><div class="unit"><input class="input num" id="setBasket" inputmode="numeric" value="${S.settings.basket}"><b>€</b></div></label>
     <div class="seg" style="margin-top:14px"><button class="${cur ? "" : "on"}" data-act="bilanMonth" data-m="${prevMonth(today().slice(0, 7))}">Mois dernier</button><button class="${cur ? "on" : ""}" data-act="bilanMonth" data-m="${today().slice(0, 7)}">Ce mois-ci</button></div>
     <button class="btn primary" style="margin-top:14px" data-act="close">Voir mes relances du jour</button>`);
+}
+/* ---------- Commande vocale : « Nouvelle vente pour Marie Dupont, gel aloe vera, hier » ----------
+   La reconnaissance se fait par le navigateur (Chrome, Safari). Sinon, le micro du clavier fait l'affaire. */
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let rec = null;
+function openVoice() {
+  openSheet(`<div class="shead"><h3>Commande vocale 🎤</h3>${closeBtn}</div>
+    <p class="lede" style="margin-top:8px">Dites par exemple :</p>
+    <ul class="perks"><li>🛍️ « Vente pour <b>Marie Dupont</b>, <b>gel aloe vera</b>, hier »</li><li>👋 « Prospect <b>Julie Martin</b> rencontrée au <b>salon</b>, intéressée par la <b>crème</b> »</li><li>📣 « Promo <b>moins 20 % sur les coffrets</b> »</li></ul>
+    ${SR ? `<button class="btn orange micgo" data-act="voiceStart" id="voiceGo">🎤 Appuyez et parlez</button>` : ""}
+    <label class="field"><span>${SR ? "Ou écrivez (ou dictez avec le micro du clavier)" : "Dictez avec le micro de votre clavier 🎙️, ou écrivez"}</span><input class="input" id="voiceText" placeholder="Vente pour Marie Dupont, gel aloe vera, hier"></label>
+    <button class="btn primary" style="margin-top:10px" data-act="voiceGo">Continuer</button>
+    <p class="hint">Recharge remplit la fiche pour vous : vous vérifiez, puis vous validez.</p>`);
+}
+function startListening() {
+  if (!SR) return;
+  try { rec && rec.abort(); } catch (e) {}
+  rec = new SR(); rec.lang = "fr-FR"; rec.interimResults = true; rec.maxAlternatives = 1;
+  const btn = document.getElementById("voiceGo"), inp = document.getElementById("voiceText");
+  btn.textContent = "👂 Je vous écoute…"; btn.classList.add("listening");
+  rec.onresult = e => { const txt = [...e.results].map(r => r[0].transcript).join(" "); inp.value = txt; if (e.results[e.results.length - 1].isFinal) { rec.stop(); runVoice(txt); } };
+  rec.onerror = e => { btn.textContent = "🎤 Appuyez et parlez"; btn.classList.remove("listening"); toast(e.error === "not-allowed" ? "Autorisez le micro pour Recharge dans les réglages du téléphone." : "Je n'ai pas bien entendu. Réessayez, ou écrivez."); };
+  rec.onend = () => { if (btn) { btn.textContent = "🎤 Appuyez et parlez"; btn.classList.remove("listening"); } };
+  rec.start();
+}
+const VOICE_STOP = new Set("une un de du des la le les pour avec a à au aux et chez ma mon sa son vente commande nouvelle nouveau ajoute ajouter note noter prospect cliente client rencontré rencontrée intéressé intéressée par hier aujourd'hui il y jours jour semaines semaine".split(" "));
+function parseVoice(text) {
+  const raw = text.trim(), n = norm(raw), out = { kind: /promo/.test(n) ? "promo" : /prospect|rencontr|interesse/.test(n) ? "prospect" : "sale" };
+  if (out.kind === "promo") { out.text = raw.replace(/^.*?promo(tion)?\s*:?\s*/i, "").replace(/moins (\d+)/i, "-$1").replace(/(\d+)\s*pour ?cent/i, "$1 %"); return out; }
+  // date : aujourd'hui, hier, avant-hier, il y a N jours / semaines
+  out.date = /avant.?hier/.test(n) ? addDays(today(), -2) : /\bhier\b/.test(n) ? addDays(today(), -1) : today();
+  const m = n.match(/il y a (\d+|un|une|deux|trois|quatre) (jour|semaine)/); if (m) { const k = { un: 1, une: 1, deux: 2, trois: 3, quatre: 4 }[m[1]] || +m[1]; out.date = addDays(today(), -k * (m[2] === "semaine" ? 7 : 1)); }
+  // produit connu
+  let best = null; for (const pp of realProducts()) { const pn = norm(pp.name); if (n.includes(pn) && (!best || pn.length > norm(best.name).length)) best = pp; } out.product = best;
+  // lieu de rencontre
+  for (const [k, l] of WHERE) if (n.includes(norm(l)) || (k === "reseaux" && /instagram|facebook|reseau/.test(n))) out.where = k;
+  // intérêt : après « intéressé(e) par »
+  const im = raw.match(/int[ée]ress[ée]e?s? par (?:la |le |les |l'|du |des )?(.+)$/i); out.interest = im ? im[1].replace(/[.,]$/, "") : best ? best.name : "";
+  // nom : un client connu cité, sinon les mots après « pour », « prospect », « client(e) »
+  const known = S.clients.concat(S.prospects).find(x => n.includes(norm(x.name)));
+  if (known) out.name = known.name;
+  else {
+    let rest = raw.replace(/^.*?\b(pour|prospect|cliente?|vente|commande|à|a)\b\s*/i, "");
+    if (best) rest = rest.replace(new RegExp(best.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i"), " ");
+    const words = rest.split(/[\s,]+/).filter(w => w && !VOICE_STOP.has(norm(w)) && /^\p{L}[\p{L}'-]*$/u.test(w));
+    out.name = words.slice(0, 2).map(w => w[0].toUpperCase() + w.slice(1)).join(" ");
+  }
+  return out;
+}
+function runVoice(text) {
+  if (!text.trim()) return toast("Dites ou écrivez ce que vous voulez noter.");
+  const v = parseVoice(text);
+  if (v.kind === "promo") { openPromoForm(); setTimeout(() => { const e = document.getElementById("prText"); if (e) e.value = v.text; }, 30); return; }
+  if (v.kind === "prospect") { openProspectForm(null, { name: v.name, where: v.where, interest: v.interest }); return; }
+  const c = v.name ? S.clients.find(x => norm(x.name) === norm(v.name)) : null;
+  openNewSale(c ? c.id : null);
+  setTimeout(() => {
+    if (!c && v.name) document.getElementById("fName").value = v.name;
+    if (v.product) { form.pid = v.product.id; drawChips(); }
+    document.getElementById("fDate").value = v.date; updateEnd();
+    toast("Vérifiez, puis validez ✅");
+  }, 30);
 }
 /* Demander des contacts : à un client comme à un prospect */
 function openAsk(id) {
@@ -2397,6 +2649,28 @@ const actions = {
     if (!pform.touched) document.getElementById("pNext").value = pform.where === "bao" ? today() : addDays(today(), 1);
   },
   newPromo: () => openPromoForm(),
+  voice: () => { openVoice(); },
+  voiceStart: () => startListening(),
+  voiceGo: () => runVoice(document.getElementById("voiceText").value),
+  prPick: el => el.classList.toggle("on"),
+  setRelDays: el => { S.settings.relanceDays = +el.dataset.n; save(); render(); toast(`Relance ${el.dataset.n} jours avant la fin du produit`); },
+  setSuivi: el => { S.settings.suiviDays = +el.dataset.n; save(); render(); toast(+el.dataset.n ? `Suivi ${el.dataset.n} jours après l'achat` : "Pas de suivi après l'achat"); },
+  setNews: el => { S.settings.newsFreq = el.dataset.f; save(); render(); toast(el.dataset.f === "off" ? "Message régulier désactivé" : `Message régulier ${el.dataset.f === "month" ? "chaque mois" : "toutes les 2 semaines"} : il apparaîtra dans « Aujourd'hui »`); },
+  nextSuMsg: el => { const sl = sale(el.dataset.id), c = client(sl.clientId); sl.msg = (sl.msg || 0) + 1; save(); const ta = document.getElementById("sumsg-" + sl.id); ta.value = msg("suivi", c.name, sl.msg, { de: deProd(sl.product) }); fitAreas(ta.parentNode); },
+  suWa: el => { const sl = sale(el.dataset.id), c = client(sl.clientId); el.href = `https://wa.me/${waNumber(c.phone)}?text=${encodeURIComponent(document.getElementById("sumsg-" + sl.id).value)}`; setTimeout(() => actions.suDone(el), 300); return true; },
+  suCopy: async el => { const ok = await copyText(document.getElementById("sumsg-" + el.dataset.id).value); toast(ok ? "Message copié. Collez-le dans votre messagerie." : "Impossible de copier."); },
+  suDone: el => { const sl = sale(el.dataset.id), snap = snapshot(); sl.suiviDone = today(); if (!el.dataset.skip) S.events.push({ id: uid(), type: "suivi", clientId: sl.clientId, saleId: sl.id, product: sl.product, date: today(), example: !!sl.example }); save(); render(); toast(el.dataset.skip ? "D'accord, pas de suivi pour cette commande" : `Bravo ! Suivi noté.${cheer()}`, snap); },
+  nextRcMsg: el => { const x = person(el.dataset.id), isC = !!client(x.id); x.rcmsg = (x.rcmsg || 0) + 1; save(); const ta = document.getElementById("rcmsg-" + x.id); ta.value = msg(isC ? "recoC" : "recoP", x.name, x.rcmsg, { mois: duration(isC ? clientSince(x) : x.createdAt || today()) }); fitAreas(ta.parentNode); },
+  rcWa: el => { const x = person(el.dataset.id); el.href = `https://wa.me/${waNumber(x.phone)}?text=${encodeURIComponent(document.getElementById("rcmsg-" + x.id).value)}`; setTimeout(() => actions.rcDone(el), 300); return true; },
+  rcCopy: async el => { const ok = await copyText(document.getElementById("rcmsg-" + el.dataset.id).value); toast(ok ? "Message copié. Collez-le dans votre messagerie." : "Impossible de copier."); },
+  rcDone: el => { const x = person(el.dataset.id), snap = snapshot(); logAskFor(x); render(); toast(`Bravo ! Demande de recommandation notée 🤝${cheer()}`, snap); },
+  rcLater: el => { const x = person(el.dataset.id), snap = snapshot(); x.recoSnooze = addDays(today(), 30); save(); render(); toast("On vous le reproposera dans un mois", snap); },
+  nextNwMsg: el => { const x = person(el.dataset.id); x.nwmsg = (x.nwmsg || 0) + 1; save(); const ta = document.getElementById("nwmsg-" + x.id); ta.value = newsMsg(x); fitAreas(ta.parentNode); },
+  nwWa: el => { const x = person(el.dataset.id); el.href = `https://wa.me/${waNumber(x.phone)}?text=${encodeURIComponent(document.getElementById("nwmsg-" + x.id).value)}`; setTimeout(() => actions.nwDone(el), 300); return true; },
+  nwCopy: async el => { const ok = await copyText(document.getElementById("nwmsg-" + el.dataset.id).value); toast(ok ? "Message copié. Collez-le dans votre messagerie." : "Impossible de copier."); },
+  nwDone: el => { const x = person(el.dataset.id), snap = snapshot(), isC = !!client(x.id); S.events.push({ id: uid(), type: "news", period: newsPeriod(), skip: !!el.dataset.skip, [isC ? "clientId" : "prospectId"]: x.id, product: "", date: today(), example: !!x.example }); save(); render(); toast(el.dataset.skip ? "D'accord, pas cette fois" : `Bravo ! Message noté.${cheer()}`, snap); },
+  pfilter: el => { pfilter = el.dataset.f; render(); },
+  cfilter: el => { cfilter = el.dataset.f; render(); },
   accUpgrade: () => openAccountForm("upgrade"),
   accLogin: () => openAccountForm("login"),
   accResend: () => sendLink(),
@@ -2496,8 +2770,9 @@ const actions = {
   hCopy: async el => { const ok = await copyText(document.getElementById("hmsg-" + el.dataset.id).value); toast(ok ? "Message copié. Collez-le dans votre messagerie." : "Impossible de copier."); },
   hDone: el => { const c = client(el.dataset.id), snap = snapshot(); c.partnerHinted = today(); S.events.push({ id: uid(), type: "hint", clientId: c.id, product: "", date: today(), example: !!c.example }); save(); render(); toast("D'accord, on ne vous le reproposera pas", snap); },
   hBecame: el => { const c = client(el.dataset.id), snap = snapshot(); joinCard(c); c.partnerHinted = today(); save(); render(); openFiche(c.id); toast(`💳 Carte fidélité N° ${c.cardNo} pour ${firstName(c.name)}`, snap); },
-  giftDone: el => { const c = client(el.dataset.id), snap = snapshot(); c.giftsGiven = (c.giftsGiven || 0) + 1; S.events.push({ id: uid(), type: "gift", clientId: c.id, product: S.settings.gift, date: today(), example: !!c.example }); save(); render(); if (sheetEl.innerHTML) openFiche(c.id); toast("🎁 Cadeau noté, la carte repart de zéro", snap); },
-  gWa: el => { const c = client(el.dataset.id); el.href = `https://wa.me/${waNumber(c.phone)}?text=${encodeURIComponent(document.getElementById("gmsg-" + c.id).value)}`; return true; },
+  giftDone: el => { const c = client(el.dataset.id), snap = snapshot(); c.giftsGiven = (c.giftsGiven || 0) + 1; S.events.push({ id: uid(), type: "gift", clientId: c.id, product: S.settings.gift, date: today(), example: !!c.example }); save(); render(); if (sheetEl.innerHTML) openFiche(c.id); toast("🎁 Cadeau utilisé, c'est noté", snap); },
+  giftNotify: el => { const c = client(el.dataset.id), snap = snapshot(), st = cardState(c); c.giftNotified = Math.floor(st.n / st.e); save(); render(); toast(`Noté : ${firstName(c.name)} sait que son cadeau l'attend 🎁`, snap); },
+  gWa: el => { const c = client(el.dataset.id); el.href = `https://wa.me/${waNumber(c.phone)}?text=${encodeURIComponent(document.getElementById("gmsg-" + c.id).value)}`; setTimeout(() => actions.giftNotify(el), 300); return true; },
   gCopy: async el => { const ok = await copyText(document.getElementById("gmsg-" + el.dataset.id).value); toast(ok ? "Message copié. Collez-le dans votre messagerie." : "Impossible de copier."); },
   cardWa: el => { const c = client(el.dataset.id); el.href = `https://wa.me/${waNumber(c.phone)}?text=${encodeURIComponent(xMsg("card", c.name, 0, { url: cardUrl(c), avantages: avantages() }))}`; return true; },
   cardCopy: async el => { const c = client(el.dataset.id); const ok = await copyText(xMsg("card", c.name, 0, { url: cardUrl(c), avantages: avantages() })); toast(ok ? "Message et lien de la carte copiés." : "Impossible de copier."); },
@@ -2621,7 +2896,8 @@ document.addEventListener("submit", ev => {
     const text = document.getElementById("prText").value.trim(), until = document.getElementById("prUntil").value;
     if (!text || !until) return toast("Indiquez l'offre et la date.");
     const snap = snapshot(), same = activePromo();
-    S.promo = { id: same ? S.promo.id : uid(), text, until, createdAt: same ? S.promo.createdAt : today() };
+    const products = [...document.querySelectorAll("#prProds .pchip.on")].map(b => b.dataset.n);
+    S.promo = { id: same ? S.promo.id : uid(), text, until, products, createdAt: same ? S.promo.createdAt : today() };
     save(); closeSheet(); tab = "today"; render(); window.scrollTo(0, 0);
     return toast(same ? "Promo mise à jour" : `Promo prête pour ${plural(promoTargets().length, "personne", "personnes")} dans « Aujourd'hui »`, snap);
   }
@@ -2669,6 +2945,8 @@ document.addEventListener("change", ev => {
   if (t.id === "setBasket") { S.settings.basket = Math.max(0, Math.round(num(t.value)) || 0); save(); const sh = sheetEl.querySelector(".bilan"); if (sh) openBilan(document.querySelector("[data-act=bilanMonth].on").dataset.m); toast("Panier moyen enregistré"); return; }
   if (t.id === "setDiscount") { S.settings.discountOn = t.checked; save(); render(); toast(t.checked ? "Remise activée : vérifiez les règles de votre marque" : "Remise désactivée"); return; }
   if (t.id === "setNetC" || t.id === "setNetP") { const v = t.value.trim() === "" ? null : Math.max(0, Math.min(99, Math.round(num(t.value)) || 0)); S.settings[t.id === "setNetC" ? "netC" : "netP"] = v; save(); render(); return; }
+  if (t.id === "setNewsC" || t.id === "setNewsP") { S.settings[t.id === "setNewsC" ? "newsC" : "newsP"] = t.checked; save(); return toast("Réglage enregistré"); }
+  if (t.id === "setNewsText") { S.settings.newsText = t.value.trim(); save(); return toast("Message enregistré"); }
   if (t.id === "setEmoji") { S.emoji = t.checked; save(); render(); toast(t.checked ? "Les messages ont des emojis" : "Les messages sont sans emoji"); return; }
   if (t.id === "setLeader") { S.settings.leader = t.checked; save(); toast(t.checked ? "Option dirigeant activée : « Mon équipe » est dans Résultats" : "Option dirigeant désactivée"); return; }
   if (t.id === "setShop" || t.id === "setGift" || t.id === "setShopPhone") {
@@ -2683,6 +2961,8 @@ document.addEventListener("change", ev => {
     const c = client(t.dataset.id); if (!c) return;
     if (t.dataset.cfield === "name" && t.value.trim()) c.name = t.value.trim();
     if (t.dataset.cfield === "phone") c.phone = t.value.trim();
+    if (["email", "insta", "fb", "interest", "note", "where"].includes(t.dataset.cfield)) c[t.dataset.cfield] = t.value.trim();
+    if (t.dataset.cfield === "news") c.noNews = !t.checked;
     save(); render(); toast("Fiche mise à jour");
   }
 });

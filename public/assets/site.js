@@ -211,7 +211,7 @@ if (potSvg) {
     const r = update(v("potC"), v("potP"), v("potK"), v("potQ"), boom), touch = r.net + r.second, nw = Math.round(touch / 10);
     $("potNet").textContent = touch.toLocaleString("fr-FR"); $("potNew").textContent = "+" + nw.toLocaleString("fr-FR"); $("potCA").textContent = "≈ " + (nw * 35).toLocaleString("fr-FR") + " €";
     $("potEst").classList.toggle("todo", !v("potK") && !v("potQ"));
-    $("potNote").textContent = boom ? "Et si chaque personne présentée en parle à son tour : le bouche-à-oreille fait boule de neige. Ce sont vos estimations." : "Ce sont vos estimations, pas des moyennes garanties.";
+    $("potNote").textContent = boom ? "Et si chaque personne présentée en parle à son tour : le bouche-à-oreille fait boule de neige. Ce sont vos estimations." : "Des hypothèses de travail, pas des moyennes garanties.";
   };
   ids.forEach(id => $(id).addEventListener("input", run));
   $("potBoom").addEventListener("click", () => {
