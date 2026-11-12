@@ -639,3 +639,4 @@ mark.todo{display:inline-block;background:#fff3a6;color:#6b5600;border:1px dashe
 .pot-est.todo{box-shadow:0 0 0 2px var(--o1) inset}.pot-q{margin:0 0 10px;font-weight:700;font-size:.92rem}
 .pot-est.shake{animation:potShake .4s}@keyframes potShake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
 .pslide input#potK,.pslide input#potQ{--p:0%}
+.tgrid{margin-top:8px;font-size:.74rem;line-height:1.5;color:var(--ink-3);font-weight:600}

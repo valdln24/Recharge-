@@ -47,19 +47,21 @@ function countUp(el) {
 }
 
 /* Calculateur de l'offre Équipe : 49 € jusqu'à 10 filleuls, puis 4 € par filleul en plus */
-const TEAM_BASE = 49, TEAM_INCLUDED = 10, TEAM_EXTRA = 4;
+/* Offre Équipe : chaque filleul paie sa part, dégressive selon la taille de l'équipe (jusqu'à 4,50 €/mois).
+   La dirigeante paie son propre abonnement. Paliers modifiables ici. */
+const TEAM_TIERS = [[50, 4.5], [25, 5.5], [10, 6.5], [5, 7.9], [1, 9.9]];
+const teamUnit = n => (TEAM_TIERS.find(([min]) => n >= min) || TEAM_TIERS[TEAM_TIERS.length - 1])[1];
 const teamSize = $("teamSize");
 const eur = n => n.toLocaleString("fr-FR", { style: "currency", currency: "EUR", minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 });
 if (teamSize) {
   const updateTeam = animate => {
-    const n = Number(teamSize.value);
-    const price = TEAM_BASE + Math.max(0, n - TEAM_INCLUDED) * TEAM_EXTRA;
+    const n = Number(teamSize.value), unit = teamUnit(n);
     const priceEl = $("teamPrice");
-    priceEl.textContent = eur(price);
+    priceEl.textContent = eur(unit);
     $("teamSizeOut").textContent = n;
-    const extra = Math.max(0, n - TEAM_INCLUDED), per = $("teamPer");
-    if (per) per.textContent = extra ? `10 filleuls inclus + ${extra} × 4 €` : "10 filleuls inclus";
-    teamSize.style.setProperty("--p", ((n - 1) / 49 * 100) + "%");
+    const per = $("teamPer");
+    if (per) per.innerHTML = `Équipe de ${n} : <b>${eur(Math.round(unit * n * 100) / 100)}</b>/mois au total, chacun paie sa part`;
+    teamSize.style.setProperty("--p", ((n - 1) / (teamSize.max - 1) * 100) + "%");
     if (animate) { priceEl.classList.remove("bump"); void priceEl.offsetWidth; priceEl.classList.add("bump"); }
   };
   teamSize.addEventListener("input", () => updateTeam(true));
