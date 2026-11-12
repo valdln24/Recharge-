@@ -175,6 +175,12 @@ details.cfields{margin-top:14px;background:var(--surface);border:1px solid var(-
 .rside{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex:none}.cic{font-size:.78rem;letter-spacing:1px}
 .micbtn{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--surface);font-size:1.1rem;display:grid;place-items:center;cursor:pointer;box-shadow:var(--shadow)}
 .micgo{margin-top:12px}.micgo.listening{animation:micPulse 1.2s infinite}@keyframes micPulse{50%{box-shadow:0 0 0 10px rgba(255,94,31,.15)}}
+.mapbox{position:relative;margin-top:12px;border-radius:24px;overflow:hidden;border:1px solid var(--line);box-shadow:var(--shadow);background:#eef0ee}
+#map{height:min(62vh,460px);width:100%}
+.mapempty{position:absolute;inset:auto 12px 12px 12px;z-index:500;background:var(--surface);border-radius:16px;padding:12px 14px;box-shadow:var(--shadow)}.mapempty b{display:block}.mapempty span{font-size:.86rem;color:var(--ink-2)}
+.mpin{width:100%;height:100%;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:800;font-size:.85rem;border:3px solid #fff;box-shadow:0 6px 14px rgba(0,0,0,.25)}
+.mpin.o{background:linear-gradient(135deg,#ffa25a,#ff4f1a)}.mpin.b{background:linear-gradient(135deg,#9db0ff,#4560f0)}
+.mlist{display:flex;flex-direction:column;gap:4px;margin-top:6px}.mlist button{border:0;background:var(--surface-2);border-radius:10px;padding:7px 10px;font:inherit;font-weight:650;text-align:left;cursor:pointer}
 .potc{display:flex;gap:14px;align-items:center;margin-top:12px}.potn{font-size:2.3rem;font-weight:800;letter-spacing:-.045em;line-height:1;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}.potc b{font-size:.98rem}.potc small{display:block;color:var(--ink-3);font-size:.8rem;margin-top:3px;font-weight:550}
 
 /* ---------- Cartes client ---------- */
@@ -623,7 +629,8 @@ function save() {
   syncLater();
 }
 S = load();
-if (!S) { S = seed(); if (DEMO) addDemoHistory(S); save(); }
+let needCities = false;
+if (!S) { S = seed(); if (DEMO) addDemoHistory(S); needCities = true; save(); }
 /* Option dirigeant : chaque filleul envoie ses résultats du mois, le dirigeant les reçoit dans « Mon équipe » */
 const b64e = o => btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 const b64d = v => JSON.parse(decodeURIComponent(escape(atob(v.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((v.length + 3) % 4)))));
@@ -1226,9 +1233,10 @@ function render() {
   const n = Math.min(MAX_TODAY, todayList().length);
   document.getElementById("tabDot").innerHTML = n ? `<span class="dot num">${n}</span>` : "";
   document.getElementById("topMeta").textContent = cap(parse(today()).toLocaleDateString("fr-FR", { weekday: "short", day: "numeric", month: "short" }));
-  if (tab === "dev") document.querySelector('nav.tabs .tab[data-tab="settings"]').classList.add("on");
-  app.innerHTML = `<div class="enter">${({ today: viewToday, clients: viewClients, results: viewResults, settings: viewSettings, dev: viewDev })[tab]()}</div>`;
+  if (tab === "dev" || tab === "map") document.querySelector('nav.tabs .tab[data-tab="settings"]').classList.add("on");
+  app.innerHTML = `<div class="enter">${({ today: viewToday, clients: viewClients, results: viewResults, settings: viewSettings, dev: viewDev, map: viewMap })[tab]()}</div>`;
   if (tab === "dev") mountDev();
+  if (tab === "map") mountMap();
   fitAreas();
   if (!storageOk) app.insertAdjacentHTML("afterbegin", `<div class="notice warn">Ce navigateur bloque l'enregistrement (navigation privée ?). Vos données risquent d'être perdues.</div>`);
 }
@@ -1387,7 +1395,7 @@ function viewProspects(q) {
   const F = [["all", "Tous", () => true], ["due", "À relancer", x => open(x) && x.next && x.next <= t], ["new", "Nouveaux", x => open(x) && diff(t, x.createdAt || t) <= 30],
     ["reco", "Recommandation", x => open(x) && diff(t, x.createdAt || t) >= 90], ["won", "Devenus clients", x => x.status === "client"]];
   const f = (F.find(z => z[0] === pfilter) || F[0])[2];
-  const list = S.prospects.filter(x => (!q || x.name.toLowerCase().includes(q) || (x.phone || "").replace(/\s/g, "").includes(q.replace(/\s/g, "")) || (x.interest || "").toLowerCase().includes(q)) && f(x))
+  const list = S.prospects.filter(x => (!q || x.name.toLowerCase().includes(q) || (x.phone || "").replace(/\s/g, "").includes(q.replace(/\s/g, "")) || (x.interest || "").toLowerCase().includes(q) || (x.city && x.city.n.toLowerCase().includes(q))) && f(x))
     .sort((a, b) => (open(a) ? 0 : 1) - (open(b) ? 0 : 1) || (a.next || "9").localeCompare(b.next || "9") || a.name.localeCompare(b.name, "fr"));
   let h = `<button class="btn soft" data-act="newProspect">+ Nouveau prospect</button>`;
   h += `<div class="fchips">${F.map(([k, l, fn]) => `<button class="${pfilter === k ? "on" : ""}" data-act="pfilter" data-f="${k}">${l} <small>${S.prospects.filter(fn).length}</small></button>`).join("")}</div>`;
@@ -1396,7 +1404,7 @@ function viewProspects(q) {
     for (const x of list) {
       const due = open(x) && x.next && x.next <= t, since = diff(t, x.createdAt || t);
       const chip = x.status === "client" ? `<span class="chip done">Client</span>` : due ? `<span class="chip soon">À relancer</span>` : since >= 90 ? `<span class="chip ok">🤝 Reco</span>` : `<span class="chip ok num">${x.next ? fmt(x.next) : "–"}</span>`;
-      const line1 = [x.where ? "📍 " + whereLabel(x.where) : refNameOf(x) ? "🤝 De la part de " + esc(firstName(refNameOf(x))) : "", `depuis ${duration(x.createdAt || t)}`].filter(Boolean).join(" · ");
+      const line1 = [x.city ? "🏠 " + esc(x.city.n) : "", x.where ? "📍 " + whereLabel(x.where) : refNameOf(x) ? "🤝 De la part de " + esc(firstName(refNameOf(x))) : "", `depuis ${duration(x.createdAt || t)}`].filter(Boolean).join(" · ");
       h += `<button class="crow" data-act="pfiche" data-id="${x.id}"><span class="avatar ${due ? "" : "blue"}">${esc(initials(x.name))}</span>
         <span class="grow"><b>${esc(x.name)}</b>${exTag(x)}<div class="meta2">${line1}</div>${x.interest ? `<div class="meta3">💡 ${esc(x.interest)}</div>` : ""}</span>
         <span class="rside">${chip}<small class="cic">${contactIcons(x)}</small></span></button>`;
@@ -1409,7 +1417,7 @@ function viewProspects(q) {
 }
 function viewClients() {
   const q = query.trim().toLowerCase();
-  const list = S.clients.filter(c => !q || c.name.toLowerCase().includes(q) || (c.phone || "").replace(/\s/g, "").includes(q.replace(/\s/g, "")))
+  const list = S.clients.filter(c => !q || c.name.toLowerCase().includes(q) || (c.city && c.city.n.toLowerCase().includes(q)) || (c.phone || "").replace(/\s/g, "").includes(q.replace(/\s/g, "")))
     .sort((a, b) => a.name.localeCompare(b.name, "fr"));
   const openP = S.prospects.filter(x => x.status === "open").length;
   const nReal = S.clients.filter(c => !c.example).length;
@@ -1428,7 +1436,7 @@ function viewClients() {
     h += `</div>`;
   }
   h += `<div class="seg"><button class="${ctab === "prospects" ? "on" : ""}" data-act="ctab" data-c="prospects">Prospects · ${openP}</button><button class="${ctab === "clients" ? "on" : ""}" data-act="ctab" data-c="clients">Clients · ${S.clients.length}</button></div>`;
-  h += `<label class="search">${I.search}<input id="search" type="search" placeholder="Rechercher un nom ou un numéro" value="${esc(query)}" autocomplete="off"></label>`;
+  h += `<label class="search">${I.search}<input id="search" type="search" placeholder="Rechercher un nom, un numéro, une ville" value="${esc(query)}" autocomplete="off"></label>`;
   h += `<button class="btn outline" style="margin-top:12px" data-act="openImport">${I.up} Importer des commandes</button>`;
   h += exampleNotice();
   if (ctab === "prospects") return h + viewProspects(q);
@@ -1445,7 +1453,7 @@ function viewClients() {
       const t = next ? timing(next) : null;
       const chip = !next ? "" : next.status === "relance" ? `<span class="chip done">Relancé</span>` : `<span class="chip ${t.cls} num">${shortTiming(next)}</span>`;
       h += `<button class="crow" data-act="fiche" data-id="${c.id}"><span class="avatar ${next && next.status === "open" && diff(next.end, today()) <= 3 ? "" : "blue"}">${esc(initials(c.name))}</span>
-        <span class="grow"><b>${esc(c.name)}</b>${exTag(c)}<div class="meta2">${c.status === "vip" ? "💳 " : ""}Client depuis ${duration(clientSince(c))} · ${plural(S.sales.filter(sl => sl.clientId === c.id).length, "commande", "commandes")}</div>${next ? `<div class="meta3">🛍️ ${esc(next.product)}${lastOrder(c) ? ` · dernier achat il y a ${diff(today(), lastOrder(c))} j` : ""}</div>` : ""}</span>
+        <span class="grow"><b>${esc(c.name)}</b>${exTag(c)}<div class="meta2">${c.status === "vip" ? "💳 " : ""}${c.city ? "🏠 " + esc(c.city.n) + " · " : ""}Client depuis ${duration(clientSince(c))} · ${plural(S.sales.filter(sl => sl.clientId === c.id).length, "commande", "commandes")}</div>${next ? `<div class="meta3">🛍️ ${esc(next.product)}${lastOrder(c) ? ` · dernier achat il y a ${diff(today(), lastOrder(c))} j` : ""}</div>` : ""}</span>
         <span class="rside">${chip}<small class="cic">${contactIcons(c)}</small></span></button>`;
     }
     h += `</div>`;
@@ -1527,7 +1535,7 @@ function viewResults() {
 function viewSettings() {
   const MODS = [["👋", "Prospects", "goto", "clients", "prospects"], ["🛍️", "Clients", "goto", "clients", "clients"], ["🌱", "Développer", "goto", "dev", ""],
     ["💳", "Fidélité", "goto", "settings", "Carte fidélité"], ["👥", "Équipe", "goto", "settings", "Mon équipe"], ["📣", "Promo", "newPromo", "", ""],
-    ["📊", "Bilan du mois", "openBilan", "", ""], ["📸", "Importer", "openImport", "", ""]];
+    ["📊", "Bilan du mois", "openBilan", "", ""], ["🗺️", "Carte", "goto", "map", ""], ["📸", "Importer", "openImport", "", ""]];
   let h = `<h1 class="title">Menu</h1><p class="lede">Tous les modules de Recharge, et vos réglages.</p>
     <div class="mods">${MODS.map(([e, l, a, t2, c2]) => `<button class="mod" data-act="${a}" data-t="${t2}" data-c="${esc(c2)}"><span>${e}</span><b>${l}</b></button>`).join("")}</div>`;
   h += accountSection();
@@ -1731,7 +1739,7 @@ function openFiche(id) {
   const EV = { relance: "Relancé", recommande: "A recommandé", report: "Reporté de 3 jours", sanssuite: "Classé sans suite", bouche: "Demande de bouche-à-oreille", occasion: "Message d'occasion", accomp: "Accompagnement", hint: "Carte fidélité pas proposée", suivi: "Suivi après l'achat", news: "Message de nouveautés", wake: "Message de réveil", promo: "Promo envoyée", gift: "Cadeau fidélité offert" };
   const total = sales.reduce((t, s) => t + (s.price || 0) * s.qty, 0);
   openSheet(`<div class="shead"><div style="display:flex;gap:12px;align-items:center;min-width:0"><span class="avatar">${c.status === "vip" ? "💳" : esc(initials(c.name))}</span>
-      <div style="min-width:0"><h3>${esc(c.name)}${exTag(c)}</h3><div class="meta2">Client depuis ${duration(clientSince(c))}</div></div></div>${closeBtn}</div>
+      <div style="min-width:0"><h3>${esc(c.name)}${exTag(c)}</h3><div class="meta2">${c.city ? "🏠 " + esc(c.city.n) + " · " : ""}Client depuis ${duration(clientSince(c))}</div></div></div>${closeBtn}</div>
     ${contactBtns(c)}
     <div class="kstats"><div><b class="num">${sales.length}</b><span>commande${sales.length > 1 ? "s" : ""}</span></div><div><b class="num">${euro(total)}</b><span>au total</span></div>
       <div><b class="num">${lastOrder(c) ? diff(today(), lastOrder(c)) + " j" : "–"}</b><span>dernier achat</span></div></div>
@@ -1742,6 +1750,7 @@ function openFiche(id) {
     <label class="field"><span>Email</span><input class="input" type="email" inputmode="email" data-cfield="email" data-id="${c.id}" value="${esc(c.email || "")}" placeholder="facultatif"></label>
     <div class="two" style="grid-template-columns:1fr 1fr"><label class="field"><span>Instagram</span><input class="input" data-cfield="insta" data-id="${c.id}" value="${esc(c.insta || "")}" placeholder="@pseudo"></label>
       <label class="field"><span>Facebook</span><input class="input" data-cfield="fb" data-id="${c.id}" value="${esc(c.fb || "")}" placeholder="nom ou lien"></label></div>
+    <label class="field"><span>Ville <i>· lieu de vie</i></span><input class="input" data-cfield="city" data-id="${c.id}" list="cityList-c" data-city="1" value="${esc(cityLabel(c.city))}" placeholder="ex. : Lyon" autocomplete="off"></label><datalist id="cityList-c"></datalist>
     <label class="field"><span>Lieu de la rencontre</span><select class="input" data-cfield="where" data-id="${c.id}"><option value="">Non précisé</option>${WHERE.map(([k, l]) => `<option value="${k}" ${c.where === k ? "selected" : ""}>${l}</option>`).join("")}</select></label>
     <label class="field"><span>Intéressé par</span><input class="input" data-cfield="interest" data-id="${c.id}" list="prodNamesC" value="${esc(c.interest || "")}" placeholder="ex. : soins du visage"></label>
     <datalist id="prodNamesC">${realProducts().map(pp => `<option value="${esc(pp.name)}">`).join("")}</datalist>
@@ -1825,6 +1834,7 @@ function openProspectForm(id, opts = {}) {
         <label class="field"><span>Email</span><input class="input" id="pEmail" type="email" inputmode="email" value="${x ? esc(x.email || "") : ""}" placeholder="facultatif"></label>
         <div class="two" style="grid-template-columns:1fr 1fr"><label class="field"><span>Instagram</span><input class="input" id="pInsta" value="${x ? esc(x.insta || "") : esc(opts.insta || "")}" placeholder="@pseudo"></label>
           <label class="field"><span>Facebook</span><input class="input" id="pFb" value="${x ? esc(x.fb || "") : ""}" placeholder="nom ou lien"></label></div></details>
+      <label class="field"><span>Ville <i>· lieu de vie, facultatif</i></span><input class="input" id="pCity" list="cityList-p" data-city="1" value="${x ? esc(cityLabel(x.city)) : esc(opts.city || "")}" placeholder="ex. : Lyon" autocomplete="off"></label><datalist id="cityList-p"></datalist>
       <div class="field"><span>Lieu de la rencontre <i>· facultatif</i></span><div class="pchips" id="whereChips"></div></div>
       <label class="field"><span>Intéressé par <i>· facultatif, sert aux promos ciblées</i></span><input class="input" id="pInterest" list="prodNames" placeholder="ex. : Gel aloe vera" value="${x ? esc(x.interest) : esc(opts.interest || "")}"></label>
       <datalist id="prodNames">${prods}</datalist>
@@ -1856,6 +1866,7 @@ function submitProspect(formEl) {
   x.name = name;
   x.phone = document.getElementById("pPhone").value.trim();
   for (const [f, id] of [["email", "pEmail"], ["insta", "pInsta"], ["fb", "pFb"]]) { const e = document.getElementById(id); if (e) x[f] = e.value.trim(); }
+  { const e = document.getElementById("pCity"); if (e) x.city = resolveCity(e.value); }
   x.interest = document.getElementById("pInterest").value.trim();
   x.note = document.getElementById("pNote").value.trim();
   x.next = document.getElementById("pNext").value || today();
@@ -2212,6 +2223,70 @@ function openWake(id) {
     ${waNumber(c.phone) ? `<a class="btn primary send" href="#" target="_blank" rel="noopener" data-act="wakeWa" data-id="${c.id}">${I.wa} Envoyer sur WhatsApp</a>` : `<button class="btn primary send" data-act="wakeCopy" data-id="${c.id}">${I.copy} Copier le message</button>`}`);
   fitAreas(sheetEl);
 }
+/* ---------- Lieu de vie (ville) et carte des contacts ----------
+   On enregistre la ville, pas l'adresse : c'est suffisant pour organiser tournées et réunions.
+   Les suggestions de villes viennent de l'API publique geo.api.gouv.fr (seul le nom de ville tapé y est envoyé). */
+const demoCities = () => ({ "Marie Dupont": ["Lyon", "69001", 45.7640, 4.8357], "Sophie Martin": ["Villeurbanne", "69100", 45.7719, 4.8902], "Karim Benali": ["Vénissieux", "69200", 45.6970, 4.8859],
+  "Julie Bernard": ["Lyon", "69003", 45.7578, 4.8520], "Sandra Lopez": ["Annecy", "74000", 45.8992, 6.1294], "Léa Moreau": ["Villeurbanne", "69100", 45.7719, 4.8902], "Thomas Girard": ["Grenoble", "38000", 45.1885, 5.7245],
+  "Nathalie Roux": ["Lyon", "69006", 45.7700, 4.8520], "Céline Garnier": ["Caluire-et-Cuire", "69300", 45.7953, 4.8466], "Paul Mercier": ["Bron", "69500", 45.7386, 4.9136],
+  "Inès Laurent": ["Lyon", "69007", 45.7450, 4.8420], "Hugo Petit": ["Annecy", "74000", 45.8992, 6.1294] });
+function seedCities(s) { const DC = demoCities(); for (const x of s.clients.concat(s.prospects)) { const c = DC[x.name]; if (c && !x.city) x.city = { n: c[0], cp: c[1], lat: c[2], lon: c[3] }; } }
+const cityLabel = c => c ? c.n + (c.cp ? ` (${c.cp})` : "") : "";
+let cityCache = {}, cityTimer = null;
+async function suggestCities(input) {
+  const q = input.value.trim(), list = document.getElementById(input.getAttribute("list"));
+  if (q.length < 2 || !list) return;
+  clearTimeout(cityTimer);
+  cityTimer = setTimeout(async () => {
+    try {
+      const isCp = /^\d{2,5}$/.test(q);
+      const r = await fetch(`https://geo.api.gouv.fr/communes?${isCp ? "codePostal=" + q : "nom=" + encodeURIComponent(q)}&fields=nom,codesPostaux,centre&boost=population&limit=6`);
+      const rows = await r.json();
+      list.innerHTML = rows.map(c => { const v = { n: c.nom, cp: (c.codesPostaux || [])[0] || "", lat: c.centre ? c.centre.coordinates[1] : null, lon: c.centre ? c.centre.coordinates[0] : null }; cityCache[cityLabel(v)] = v; cityCache[norm(c.nom)] = cityCache[norm(c.nom)] || v; return `<option value="${esc(cityLabel(v))}">`; }).join("");
+    } catch (e) { /* hors ligne : la ville sera enregistrée sans position */ }
+  }, 220);
+}
+function resolveCity(v) {
+  v = (v || "").trim(); if (!v) return null;
+  return cityCache[v] || cityCache[norm(v.replace(/\s*\(\d+\)\s*$/, ""))] || { n: v.replace(/\s*\(\d+\)\s*$/, ""), cp: (v.match(/\((\d+)\)/) || [])[1] || "", lat: null, lon: null };
+}
+/* La carte */
+let mapFilter = "all", lmap = null;
+function viewMap() {
+  const all = S.clients.map(x => ({ pk: "c", x })).concat(S.prospects.filter(x => x.status !== "client").map(x => ({ pk: "p", x })));
+  const placed = all.filter(o => o.x.city && o.x.city.lat != null), none = all.filter(o => !o.x.city || o.x.city.lat == null);
+  const byCity = {}; placed.forEach(o => { const k = o.x.city.n; (byCity[k] = byCity[k] || { c: 0, p: 0, city: o.x.city }); byCity[k][o.pk]++; });
+  const top = Object.entries(byCity).sort((a, b) => (b[1].c + b[1].p) - (a[1].c + a[1].p)).slice(0, 6);
+  let h = `<h1 class="title">Ma carte 🗺️</h1><p class="lede">🟠 ${plural(S.clients.length, "client", "clients")} · 🔵 ${plural(S.prospects.filter(x => x.status !== "client").length, "prospect", "prospects")}, selon leur ville.</p>`;
+  h += `<div class="seg">${[["all", "Tous"], ["c", "Clients"], ["p", "Prospects"]].map(([k, l]) => `<button class="${mapFilter === k ? "on" : ""}" data-act="mapFilter" data-f="${k}">${l}</button>`).join("")}</div>`;
+  h += `<div class="mapbox"><div id="map"></div>${placed.length ? "" : `<div class="mapempty"><b>Ajoutez la ville de vos contacts</b><span>Dans chaque fiche : « Ville ». Ils apparaîtront ici.</span></div>`}</div>`;
+  if (top.length) h += section("Vos villes principales") + `<div class="card list">${top.map(([n, v]) => `<button class="row" style="width:100%;text-align:left;background:none;border:0;font:inherit;color:inherit;cursor:pointer" data-act="mapCity" data-n="${esc(n)}">
+    <span><b>📍 ${esc(n)}</b><div class="meta2">${v.c ? plural(v.c, "client", "clients") : ""}${v.c && v.p ? " · " : ""}${v.p ? plural(v.p, "prospect", "prospects") : ""}</div></span><span class="chip ok">Voir</span></button>`).join("")}</div>
+    <p class="hint">💡 Plusieurs contacts dans la même ville ? C'est l'occasion d'organiser une réunion ou une tournée de livraison.</p>`;
+  if (none.length) h += `<p class="hint">${plural(none.length, "contact n'a", "contacts n'ont")} pas encore de ville : ajoutez-la dans leur fiche (Coordonnées et infos).</p>`;
+  return h;
+}
+async function mountMap() {
+  const el = document.getElementById("map"); if (!el) return;
+  if (!document.querySelector('link[href$="leaflet.css"]')) { const l = document.createElement("link"); l.rel = "stylesheet"; l.href = VENDOR + "leaflet/leaflet.css"; document.head.appendChild(l); }
+  try { await loadScript(VENDOR + "leaflet/leaflet.js"); } catch (e) { el.innerHTML = `<p class="empty">La carte n'a pas pu se charger. Vérifiez votre connexion.</p>`; return; }
+  const pts = S.clients.map(x => ({ pk: "c", x })).concat(S.prospects.filter(x => x.status !== "client").map(x => ({ pk: "p", x })))
+    .filter(o => (mapFilter === "all" || o.pk === mapFilter) && o.x.city && o.x.city.lat != null);
+  lmap = L.map(el, { zoomControl: true, attributionControl: true }).setView([46.6, 2.4], 5);
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 18, attribution: "© OpenStreetMap" }).addTo(lmap);
+  const groups = {};
+  pts.forEach(o => { const k = o.pk + "|" + norm(o.x.city.n); (groups[k] = groups[k] || { pk: o.pk, city: o.x.city, list: [] }).list.push(o.x); });
+  const bounds = [];
+  Object.values(groups).forEach(g => {
+    const lat = g.city.lat + (g.pk === "p" ? .004 : 0), lon = g.city.lon + (g.pk === "p" ? .006 : 0), n = g.list.length;
+    const icon = L.divIcon({ className: "", html: `<div class="mpin ${g.pk === "c" ? "o" : "b"}">${n}</div>`, iconSize: [30 + Math.min(n, 10) * 2, 30 + Math.min(n, 10) * 2] });
+    L.marker([lat, lon], { icon }).addTo(lmap).bindPopup(`<b>📍 ${esc(g.city.n)}</b><br>${g.pk === "c" ? "Clients" : "Prospects"} :<div class="mlist">${g.list.slice(0, 12).map(x => `<button data-act="${g.pk === "c" ? "fiche" : "pfiche"}" data-id="${x.id}">${esc(x.name)}</button>`).join("")}</div>`);
+    bounds.push([lat, lon]);
+  });
+  if (bounds.length === 1) lmap.setView(bounds[0], 11); else if (bounds.length) lmap.fitBounds(bounds, { padding: [30, 30], maxZoom: 12 });
+  window.__citySpot = n => { const g = Object.values(groups).find(x => x.city.n === n); if (g) lmap.setView([g.city.lat, g.city.lon], 12); };
+}
+if (needCities) { seedCities(S); save(); }
 /* ---------- Bilan du mois ---------- */
 const monthName = m => new Date(m + "-15T12:00:00").toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
 const prevMonth = m => { const d = new Date(m + "-15T12:00:00"); d.setMonth(d.getMonth() - 1); return d.toISOString().slice(0, 7); };
@@ -2266,6 +2341,7 @@ function parseVoice(text) {
   let best = null; for (const pp of realProducts()) { const pn = norm(pp.name); if (n.includes(pn) && (!best || pn.length > norm(best.name).length)) best = pp; } out.product = best;
   // lieu de rencontre
   for (const [k, l] of WHERE) if (n.includes(norm(l)) || (k === "reseaux" && /instagram|facebook|reseau/.test(n))) out.where = k;
+  const hm = raw.match(/(?:habite|vit|de) (?:à|a|sur) ([A-ZÀ-Ý][\p{L}'-]+(?:[ -][A-ZÀ-Ý][\p{L}'-]+)?)/u); if (hm) out.city = hm[1];
   // intérêt : après « intéressé(e) par »
   const im = raw.match(/int[ée]ress[ée]e?s? par (?:la |le |les |l'|du |des )?(.+)$/i); out.interest = im ? im[1].replace(/[.,]$/, "") : best ? best.name : "";
   // nom : un client connu cité, sinon les mots après « pour », « prospect », « client(e) »
@@ -2283,7 +2359,7 @@ function runVoice(text) {
   if (!text.trim()) return toast("Dites ou écrivez ce que vous voulez noter.");
   const v = parseVoice(text);
   if (v.kind === "promo") { openPromoForm(); setTimeout(() => { const e = document.getElementById("prText"); if (e) e.value = v.text; }, 30); return; }
-  if (v.kind === "prospect") { openProspectForm(null, { name: v.name, where: v.where, interest: v.interest }); return; }
+  if (v.kind === "prospect") { openProspectForm(null, { name: v.name, where: v.where, interest: v.interest, city: v.city }); return; }
   const c = v.name ? S.clients.find(x => norm(x.name) === norm(v.name)) : null;
   openNewSale(c ? c.id : null);
   setTimeout(() => {
@@ -2649,6 +2725,8 @@ const actions = {
     if (!pform.touched) document.getElementById("pNext").value = pform.where === "bao" ? today() : addDays(today(), 1);
   },
   newPromo: () => openPromoForm(),
+  mapFilter: el => { mapFilter = el.dataset.f; render(); },
+  mapCity: el => { if (window.__citySpot) { window.__citySpot(el.dataset.n); document.getElementById("map").scrollIntoView({ behavior: "smooth", block: "center" }); } },
   voice: () => { openVoice(); },
   voiceStart: () => startListening(),
   voiceGo: () => runVoice(document.getElementById("voiceText").value),
@@ -2962,6 +3040,7 @@ document.addEventListener("change", ev => {
     if (t.dataset.cfield === "name" && t.value.trim()) c.name = t.value.trim();
     if (t.dataset.cfield === "phone") c.phone = t.value.trim();
     if (["email", "insta", "fb", "interest", "note", "where"].includes(t.dataset.cfield)) c[t.dataset.cfield] = t.value.trim();
+    if (t.dataset.cfield === "city") c.city = resolveCity(t.value);
     if (t.dataset.cfield === "news") c.noNews = !t.checked;
     save(); render(); toast("Fiche mise à jour");
   }
@@ -2978,6 +3057,7 @@ document.getElementById("importFile").addEventListener("change", async ev => {
   } catch (e) { toast("Ce fichier n'est pas une sauvegarde Recharge valide."); }
 });
 document.addEventListener("keydown", ev => { if (ev.key === "Escape") closeSheet(); });
+document.addEventListener("input", ev => { if (ev.target.dataset && ev.target.dataset.city) suggestCities(ev.target); });
 document.addEventListener("visibilitychange", () => { if (!document.hidden && !sheetEl.innerHTML) render(); });
 const topbar = document.getElementById("topbar");
 addEventListener("scroll", () => topbar.classList.toggle("scrolled", scrollY > 4), { passive: true });
