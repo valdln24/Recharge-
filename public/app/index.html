@@ -90,6 +90,37 @@ main{max-width:560px;margin:0 auto;padding:6px 16px 24px}
 .hl-line{margin:6px 0 0;font-size:1rem;color:#4a3f3b;font-weight:600;line-height:1.4}
 .hl-bar{height:10px;border-radius:9px;background:rgba(255,255,255,.65);margin-top:14px;overflow:hidden}.hl-bar span{display:block;height:100%;border-radius:9px;background:var(--grad);transition:width .5s}
 .hl-count{font-size:.84rem;font-weight:700;color:#7a5a4c;margin-top:7px}
+/* Mon coach commercial */
+.coach{margin-top:8px;border-radius:32px;padding:20px 20px 18px;background:var(--grad);color:#fff;box-shadow:0 18px 40px -20px rgba(255,94,31,.75);position:relative;overflow:hidden}
+.coach::after{content:"";position:absolute;right:-60px;top:-60px;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,.13)}
+.coach .ctop{display:flex;align-items:center;justify-content:space-between;gap:10px;position:relative;z-index:1}
+.coach .chi{font-size:1rem;font-weight:750;opacity:.95}
+.coach .cpill{background:rgba(255,255,255,.22);border-radius:99px;padding:6px 12px;font-size:.78rem;font-weight:750;white-space:nowrap}
+.coach .cbig{display:flex;align-items:flex-end;gap:10px;margin-top:10px;position:relative;z-index:1}
+.coach .cbig b{font-size:4rem;line-height:.9;font-weight:800;letter-spacing:-.06em}
+.coach .cbig span{font-size:.98rem;font-weight:700;line-height:1.25;padding-bottom:5px}
+.coach .hl-bar{background:rgba(255,255,255,.3)}.coach .hl-bar span{background:#fff}
+.coach .hl-count{color:#fff;opacity:.92}
+.coach .cline{margin:10px 0 0;font-size:.92rem;font-weight:600;opacity:.95;position:relative;z-index:1}
+.dtiles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+.dtile{border:0;background:var(--surface);border-radius:24px;padding:12px 12px 10px;text-align:left;font:inherit;color:var(--ink);cursor:pointer;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:4px;min-height:92px;transition:transform .15s}
+.dtile:active{transform:scale(.97)}
+.dtile .di{width:34px;height:34px;border-radius:50%;background:var(--o-soft);display:grid;place-items:center;font-size:1.05rem}
+.dtile b{font-size:1.6rem;font-weight:800;letter-spacing:-.04em;line-height:1;margin-top:auto}
+.dtile small{font-size:.72rem;font-weight:700;color:var(--ink-2)}
+.dtile.zero{opacity:.55}
+.dtile.on{background:var(--ink);color:#fff}.dtile.on small{color:#c9cdcb}.dtile.on .di{background:rgba(255,255,255,.14)}
+.cact{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px}
+.dchip{border-radius:99px;padding:5px 11px;font-size:.76rem;font-weight:750;background:var(--o-soft);color:var(--o-text)}
+.dchip.d-suivi,.dchip.d-reco{background:var(--b-soft);color:var(--b-text)}
+.ccat{font-size:.76rem;font-weight:700;color:var(--ink-3)}
+.caction{margin:8px 0 0;font-size:1rem;font-weight:750;line-height:1.35}
+.why{margin-top:8px;font-size:.84rem;color:var(--ink-2);background:var(--surface-2);border-radius:16px;padding:9px 12px;line-height:1.45}.why b{color:var(--ink)}
+.miss{margin-top:6px;font-size:.8rem;font-weight:650;color:#9a5b12;background:#fff6e0;border-radius:12px;padding:7px 11px}
+.cfoot{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px}
+.cfoot button{border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:9px 4px;font:inherit;font-size:.8rem;font-weight:700;color:var(--ink-2);cursor:pointer}
+.rcard{border-radius:28px}
+.later{display:grid;gap:8px;margin-top:14px}
 .tip{display:flex;gap:12px;align-items:flex-start;margin-top:12px;padding:14px 14px 14px 16px;border-radius:22px;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow)}
 .tip>span{font-size:1.5rem;line-height:1}.tip p{margin:0;flex:1;font-size:.92rem;color:var(--ink-2);line-height:1.45}.tip p b{display:block;color:var(--ink);font-size:.95rem;margin-bottom:2px}
 .tip .x{flex:none;margin:-4px -4px 0 0}
@@ -367,6 +398,8 @@ nav.tabs .in{pointer-events:auto;display:grid;grid-template-columns:1fr 1fr 72px
 nav.tabs .tab{position:relative;border:0;background:none;padding:6px 2px;font-size:.66rem;font-weight:700;color:var(--ink-3);display:flex;flex-direction:column;align-items:center;gap:3px}
 nav.tabs .tab svg{width:22px;height:22px}
 nav.tabs .tab.on{color:var(--ink)}
+nav.tabs .tab svg{transition:background .2s,color .2s}
+nav.tabs .tab.on svg{width:38px;height:38px;padding:8px;margin:-8px 0 -5px;border-radius:50%;background:var(--ink);color:#fff;box-shadow:0 8px 18px -8px rgba(16,19,18,.6)}
 .dot{position:absolute;top:1px;left:calc(50% + 5px);min-width:18px;height:18px;padding:0 5px;border-radius:99px;background:var(--o1);color:#fff;font-size:.62rem;font-weight:800;display:grid;place-items:center;border:2px solid var(--surface)}
 .plus{justify-self:center;width:58px;height:58px;margin:-14px 0;border-radius:50%;border:3px solid var(--surface);background:var(--grad);color:#fff;display:grid;place-items:center;
   box-shadow:0 10px 26px -6px rgba(255,94,31,.75),inset 0 1px 0 rgba(255,255,255,.35)}
@@ -1049,7 +1082,7 @@ function promoTargets(all) {
   if (prods.length) {
     /* Promo ciblée : les clients qui utilisent ces produits et les prospects qui s'y intéressent, en priorité */
     const hit = v => { const n = norm(v || ""); return !!n && prods.some(pn => n.includes(pn) || pn.includes(n)); };
-    out = S.clients.filter(c => S.sales.some(sl => sl.clientId === c.id && hit(sl.product)) || hit(c.interest)).map(c => ({ pk: "c", x: c, why: "utilise" }))
+    out = S.clients.filter(c => !c.noContact).filter(c => S.sales.some(sl => sl.clientId === c.id && hit(sl.product)) || hit(c.interest)).map(c => ({ pk: "c", x: c, why: "utilise" }))
       .concat(S.prospects.filter(x => (x.status === "open" || x.status === "lost") && hit(x.interest)).map(x => ({ pk: "p", x, why: "intéressé" })));
   } else out = S.clients.filter(c => c.status === "vip").map(c => ({ pk: "c", x: c }))
     .concat(S.prospects.filter(x => x.status === "open" || x.status === "lost").map(x => ({ pk: "p", x })));
@@ -1109,8 +1142,8 @@ function newsPeriod() {
 function dueNews() {
   const per = newsPeriod(); if (!per) return [];
   const sent = new Set(S.events.filter(e => e.type === "news" && e.period === per).map(e => e.clientId || e.prospectId));
-  return (S.settings.newsC ? S.clients.filter(c => !c.noNews).map(c => ({ pk: "c", x: c })) : [])
-    .concat(S.settings.newsP ? S.prospects.filter(x => x.status === "open" && !x.noNews).map(x => ({ pk: "p", x })) : [])
+  return (S.settings.newsC ? S.clients.filter(c => !c.noNews && !c.noContact).map(c => ({ pk: "c", x: c })) : [])
+    .concat(S.settings.newsP ? S.prospects.filter(x => x.status === "open" && !x.noNews && !x.noContact).map(x => ({ pk: "p", x })) : [])
     .filter(o => !sent.has(o.x.id));
 }
 /* Fidélité : clients à qui proposer la carte */
@@ -1122,6 +1155,75 @@ function duePartnerHints() {
   return S.clients.filter(c => c.status === "direct" && !c.partnerHinted && !(c.hintSnooze && c.hintSnooze > t))
     .map(c => ({ c, orders: orderCount(c) })).filter(h => h.orders >= S.settings.vipOrders);
 }
+/* ---------- Le coach : chaque opportunité vient d'une règle appliquée aux données réelles ----------
+   Domaines : prospect · suivi · reassort · reco · fidelite · promo. Rien n'est inventé : si une donnée manque, on le dit. */
+const OUT_TYPES = ["relance", "pcontact", "suivi", "bouche", "news", "promo", "hint", "wake", "gift", "occasion"];
+function lastTouch(id) {
+  let d = "";
+  for (const e of S.events) if ((e.clientId === id || e.prospectId === id) && OUT_TYPES.includes(e.type) && !e.skip && e.date > d) d = e.date;
+  const x = prospect(id); if (x && x.lastContact && x.lastContact > d) d = x.lastContact;
+  return d;
+}
+const ordersOf = c => S.sales.filter(sl => sl.clientId === c.id).length;
+const ago = d => { const n = diff(today(), d); return n <= 0 ? "aujourd'hui" : n === 1 ? "hier" : `il y a ${n} jours`; };
+/* Clients à réveiller : plus de commande depuis 3 mois et pas de contact récent */
+const dueWake = () => { const t = today(); return S.clients.filter(c => { const lo = lastOrder(c); return lo && diff(t, lo) >= 90 && !S.sales.some(sl => sl.clientId === c.id && sl.status === "open" && sl.end >= addDays(t, -30)) && (!lastTouch(c.id) || diff(t, lastTouch(c.id)) >= 30); }); };
+const DOMAINS = { prospect: ["👋", "Prospects"], suivi: ["💬", "Suivis"], reassort: ["🔄", "Réassorts"], reco: ["🤝", "Recommandations"], fidelite: ["💳", "Fidélité"], promo: ["📣", "Promos"] };
+/* L'explication d'une opportunité : domaine, catégorie du contact, action conseillée, faits, données manquantes */
+function coachMeta(it) {
+  const facts = [], missing = [];
+  const who = person(it.who) || {}, isC = !!client(it.who);
+  const cat = isC ? (who.status === "vip" ? "Client fidélité" : "Client") : "Prospect";
+  const noPhone = () => { if (!waNumber(who.phone)) missing.push("Pas de numéro : utilisez « Copier »"); };
+  let dom = "reassort", action = "";
+  if (it.type === "sale") {
+    const sl = it.s, left = diff(sl.end, today());
+    dom = "reassort";
+    action = isGeneric(sl) ? "Proposer la prochaine commande, au rythme habituel" : left < 0 ? "Prendre de ses nouvelles et proposer de renouveler" : `Proposer le réassort avant la fin ${deProd(sl.product)}`;
+    facts.push(isGeneric(sl) ? `Dernière commande ${ago(sl.date)}` : `Achat ${deProd(sl.product)} ${ago(sl.date)}`);
+    if (!isGeneric(sl)) facts.push(left < 0 ? `fini depuis ${-left} j (estimation)` : left === 0 ? "fini aujourd'hui (estimation)" : `fin estimée dans ${left} j`);
+    else missing.push(`Produit non précisé : relance au bout de ${S.settings.cycle || 30} jours`);
+    const n = ordersOf(who); if (n > 1) facts.push(`${n} commandes`);
+  } else if (it.type === "suivi") {
+    dom = "suivi"; action = "Prendre des nouvelles après l'achat et donner un conseil d'utilisation";
+    facts.push(`Achat ${deProd(it.s.product)} ${ago(it.s.date)}`); facts.push("pas encore de suivi");
+  } else if (it.type === "prospect") {
+    const x = it.x; dom = "prospect";
+    action = x.status === "lost" || (x.contacts || 0) >= 3 ? "Reprendre contact avec une nouveauté, sans pression" : x.contacts ? "Relancer en douceur, sans insister" : "Envoyer un premier message tant que la rencontre est fraîche";
+    facts.push(`Prospect depuis ${duration(x.createdAt || today())}`);
+    if (x.where) facts.push(`rencontre : ${whereLabel(x.where).toLowerCase()}`);
+    if (refNameOf(x)) facts.push(`de la part de ${firstName(refNameOf(x))}`);
+    facts.push(x.contacts ? `${plural(x.contacts, "contact", "contacts")}, le dernier ${ago(lastTouch(x.id) || x.createdAt)}` : "jamais contacté");
+    if (x.interest) facts.push(`intérêt : ${x.interest.toLowerCase()}`); else missing.push("Intérêt inconnu : demandez-lui ce qu'il recherche");
+  } else if (it.type === "reco") {
+    const x = it.x, since = isC ? clientSince(x) : x.createdAt || today(); dom = "reco";
+    action = "Demander si quelqu'un de son entourage pourrait être intéressé";
+    facts.push(`${isC ? "Client" : "Prospect"} depuis ${duration(since)}`);
+    if (isC) facts.push(plural(ordersOf(x), "commande", "commandes"));
+    facts.push(lastAsk(x.id) ? `dernière demande ${ago(lastAsk(x.id))}` : "jamais sollicité pour une recommandation");
+    if (x.satisfaction === "ok") facts.push("satisfait de ses produits");
+  } else if (it.type === "gift") {
+    dom = "fidelite"; action = "Annoncer que son cadeau fidélité est disponible";
+    const st = cardState(who); facts.push(`carte fidélité complète (${st.n} commandes)`);
+  } else if (it.type === "hint") {
+    dom = "fidelite"; action = "Proposer la carte fidélité gratuite";
+    facts.push(plural(ordersOf(who), "commande", "commandes")); facts.push(`client depuis ${duration(clientSince(who))}`);
+  } else if (it.type === "wake") {
+    dom = "fidelite"; action = "Reprendre contact sans pression";
+    facts.push(`dernière commande ${ago(lastOrder(who))}`); facts.push(lastTouch(who.id) ? `dernier contact ${ago(lastTouch(who.id))}` : "pas de contact noté depuis");
+  } else if (it.type === "promo") {
+    const o = it.o, pr = activePromo(); dom = "promo";
+    action = o.why ? `Informer de la promo sur un produit ${o.pk === "c" ? "qu'il utilise" : "qui l'intéresse"}` : "Informer de la promo du moment";
+    facts.push(`promo jusqu'au ${fmt(pr.until)}`);
+    if (o.why && o.pk === "p") facts.push(`intérêt : ${(o.x.interest || "").toLowerCase()}`);
+    if (o.why && o.pk === "c") facts.push("a déjà acheté ce produit");
+  } else if (it.type === "news") {
+    dom = "promo"; action = "Partager les nouveautés du moment";
+    facts.push(lastTouch(who.id) ? `dernier contact ${ago(lastTouch(who.id))}` : "pas encore contacté");
+  }
+  noPhone();
+  return { dom, cat, action, facts, missing, fiche: isC ? "fiche" : "pfiche", id: it.who };
+}
 /* La liste du jour, classée par priorité */
 function todayList() {
   const t = today(), items = [];
@@ -1132,8 +1234,16 @@ function todayList() {
   for (const c of dueRecoC()) items.push({ k: "rc:" + c.id, type: "reco", pk: "c", x: c, who: c.id, score: 39 });
   for (const x of dueRecoP()) items.push({ k: "rp:" + x.id, type: "reco", pk: "p", x, who: x.id, score: 37 });
   for (const o of dueNews()) items.push({ k: "nw:" + o.x.id, type: "news", o, who: o.x.id, score: 20 });
+  for (const c of dueWake()) items.push({ k: "wk:" + c.id, type: "wake", x: c, who: c.id, score: 32 });
   for (const h of duePartnerHints()) items.push({ k: "h:" + h.c.id, type: "hint", h, who: h.c.id, score: 40 });
   for (const o of promoTargets()) items.push({ k: "pr:" + o.x.id, type: "promo", o, who: o.x.id, score: o.why ? 74 : 35 });
+  /* respect des contacts : pas de « ne plus contacter », pas d'action reportée ou ignorée,
+     et pas plus d'un message non urgent par semaine à la même personne */
+  const mute = S.mute || {}, gentle = ["reco", "news", "wake", "hint"].concat(["promo"]);
+  const recent = id => { const lt = lastTouch(id); return lt && diff(t, lt) < 7; };
+  const kept = items.filter(it => { const w = person(it.who); if (w && w.noContact) return false; if (mute[it.k] && mute[it.k] > t) return false;
+    if (gentle.includes(it.type) && !(it.type === "promo" && it.o.why) && recent(it.who)) return false; return true; });
+  items.length = 0; items.push(...kept);
   const seen = new Set();
   /* une seule carte par personne et par jour (sauf le cadeau fidélité, une bonne nouvelle à annoncer) */
   return items.sort((a, b) => b.score - a.score).filter(it => it.type === "gift" ? true : seen.has(it.who) ? false : (seen.add(it.who), true));
@@ -1229,6 +1339,7 @@ function saleGauge(s) {
 /* ---------- Affichage ---------- */
 const DEMO_TAB = DEMO ? new URLSearchParams(location.search).get("tab") : null;
 let tab = ["clients", "results", "settings"].includes(DEMO_TAB) ? DEMO_TAB : teamNotice.startsWith("Résultats") ? "results" : "today";
+let coachF = null; // domaine choisi dans les tuiles du coach
 let openCard = null; // carte de relance dépliée sur « Aujourd'hui »
 let period = "month";
 let query = "";
@@ -1263,7 +1374,7 @@ function tipCard() {
 }
 const MAX_TODAY = 10;  // jamais plus de 10 contacts par jour : les autres attendent demain
 function viewToday() {
-  const all = todayList(), list = all.slice(0, MAX_TODAY);
+  const full = todayList(), all = coachF ? full.filter(x => coachMeta(x).dom === coachF) : full, list = all.slice(0, MAX_TODAY);
   const n = new Set(list.map(x => x.who)).size;
   const t = today();
   const doneToday = new Set(S.events.filter(e => e.date === t && ["relance", "pcontact", "hint", "plater", "report", "gift", "suivi", "bouche", "news", "promo"].includes(e.type)).map(e => e.saleId || e.prospectId || e.clientId)).size;
@@ -1273,14 +1384,19 @@ function viewToday() {
   const left = list.length, pct = total ? Math.round(doneToday / total * 100) : 0;
   const line = left ? `${left > 1 ? `${left} personnes attendent` : "Une personne attend"} de vos nouvelles aujourd'hui. Comptez ${Math.max(2, left * 1)} minutes ☕`
     : doneToday ? "Tout est fait pour aujourd'hui. Bravo ! 🎉" : "Personne à relancer aujourd'hui. Profitez-en 🌿";
-  let h = `<section class="hello"><div class="hl-hi">${hi}${who ? " " + esc(who) : ""} ${hr >= 18 ? "🌙" : "☀️"}</div><p class="hl-line">${line}</p>
+  const dn = d => full.filter(x => coachMeta(x).dom === d).length;
+  let h = `<section class="coach hello"><div class="ctop"><span class="chi">${hi}${who ? " " + esc(who) : ""} ${hr >= 18 ? "🌙" : "☀️"}</span><span class="cpill">🧭 Mon coach commercial</span></div>
+    <div class="cbig"><b>${full.length}</b><span>${full.length > 1 ? "actions conseillées" : full.length ? "action conseillée" : "action pour l'instant"}<br>aujourd'hui</span></div>
+    <p class="cline hl-line">${line}</p>
     ${total ? `<div class="hl-bar"><span style="width:${pct}%"></span></div><div class="hl-count">${doneToday ? `${doneToday} sur ${total} fait${doneToday > 1 ? "s" : ""} 💪` : "C'est parti !"}</div>` : ""}</section>`;
+  h += `<div class="dtiles">${Object.entries(DOMAINS).map(([d, [ic, lb]]) => { const n = dn(d); return `<button class="dtile ${n ? "" : "zero"} ${coachF === d ? "on" : ""}" data-act="coachF" data-d="${d}"><span class="di">${ic}</span><b>${n}</b><small>${lb}</small></button>`; }).join("")}</div>`;
   h += tipCard();
   h += exampleNotice();
 
   const keys = list.map(x => x.k);
   if (!keys.includes(openCard) && openCard !== "none") openCard = keys[0] || null;
-  if (list.length) h += section("À relancer aujourd'hui", list.length);
+  if (coachF) h += `<p class="hint" style="margin-top:14px">Filtre : <b>${DOMAINS[coachF][1]}</b> · <button class="linkbtn" style="display:inline;margin:0" data-act="coachF" data-d="${coachF}">tout afficher</button></p>`;
+  if (list.length) h += section(coachF ? DOMAINS[coachF][1] : "À faire aujourd'hui", list.length);
   for (const it of list) h += todayCard(it);
   if (all.length > list.length) h += `<p class="hint" style="text-align:center">${plural(all.length - list.length, "autre personne attendra", "autres personnes attendront")} demain. 10 par jour, c'est déjà très bien ! 🌸</p>`;
 
@@ -1301,8 +1417,13 @@ let ctab = DEMO && new URLSearchParams(location.search).get("c") === "prospects"
 /* Une carte de la liste du jour : la raison, le message prêt, deux boutons */
 function cardShell({ k, head, extra = "", msgId, msg, vary, id, waAct, copyAct, phone, second, links }) {
   const ref = k.startsWith("s:") ? `data-sale="${id}"` : k.startsWith("p:") ? `data-prospect="${id}"` : "";
+  const m = CUR && CUR.k === k ? coachMeta(CUR) : null, D = m ? DOMAINS[m.dom] : null;
   return `<article class="card rcard open" data-k="${k}" ${ref}>
       <div class="rhead">${head}</div>
+      ${m ? `<div class="cact"><span class="dchip d-${m.dom}">${D[0]} ${D[1]}</span><span class="ccat">${m.cat}</span></div>
+      <p class="caction">${esc(m.action)}</p>
+      <div class="why"><b>Pourquoi ?</b> ${m.facts.map(esc).join(" · ")}</div>
+      ${m.missing.map(x => `<div class="miss">⚠️ ${esc(x)}</div>`).join("")}` : ""}
       ${extra}
       <div class="more">
       <div class="bubble"><div class="top"><span class="small">Votre message</span><span class="tbtns">${waNumber(phone) ? `<button class="vary" data-act="${copyAct}" data-id="${id}">${I.copy} Copier</button>` : ""}<button class="vary" data-act="${vary}" data-id="${id}">${I.redo} Autre</button></span></div>
@@ -1311,12 +1432,15 @@ function cardShell({ k, head, extra = "", msgId, msg, vary, id, waAct, copyAct, 
         ? `<a class="btn primary send" href="#" target="_blank" rel="noopener" data-act="${waAct}" data-id="${id}">${I.wa} Envoyer sur WhatsApp</a>`
         : `<button class="btn primary send" data-act="${copyAct}" data-id="${id}">${I.copy} Copier le message</button>`}
       ${second}
-      <div class="alt links2">${links}</div>
+      ${m ? `<div class="cfoot"><button data-act="cLater" data-k="${k}">⏰ Reporter</button><button data-act="cIgnore" data-k="${k}">🙈 Ignorer</button><button data-act="${m.fiche}" data-id="${m.id}">👤 Fiche</button></div>` : ""}
+      ${links ? `<div class="alt links2">${links}</div>` : ""}
       </div>
     </article>`;
 }
 const typeTag = label => `<span class="ttag">${label}</span>`;
+let CUR = null;
 function todayCard(it) {
+  CUR = it;
   if (it.type === "sale") {
     const sl = it.s, c = client(sl.clientId) || { name: "?" }, tm = timing(sl), pct = Math.round(progress(sl) * 100);
     const left = diff(sl.end, today());
@@ -1326,7 +1450,7 @@ function todayCard(it) {
           <div class="status ${tm.cls}">${why}</div><div class="meta2">${typeTag(CSTATUS[c.status] || "Client")} · ${esc(sl.product)} × ${sl.qty}</div></div>`,
       extra: `<div class="line ${tm.cls} mini"><span style="width:${pct}%"></span></div>`,
       second: `<button class="btn orange second" data-act="reco" data-id="${sl.id}">${I.bag} A déjà commandé</button>`,
-      links: `<button data-act="relance" data-id="${sl.id}">Déjà relancé</button> · <button data-act="later" data-id="${sl.id}">Plus tard · 3 j</button>` });
+      links: `<button data-act="relance" data-id="${sl.id}">Déjà relancé</button>` });
   }
   if (it.type === "prospect") {
     const pr = it.x, ref = refNameOf(pr);
@@ -1339,7 +1463,7 @@ function todayCard(it) {
           <div class="meta2">${typeTag("Prospect")}${pr.interest ? " · " + esc(pr.interest) : ""}</div></div>`,
       extra: pr.note ? `<div class="more"><div class="alt" style="text-align:left;margin-top:10px">📝 ${esc(pr.note)}</div></div>` : "",
       second: `<button class="btn soft second" data-act="pDone" data-id="${pr.id}">${I.check} Déjà fait</button>`,
-      links: `<button data-act="pConvert" data-id="${pr.id}">A acheté</button> · <button data-act="pLater" data-id="${pr.id}">Plus tard</button> · <button data-act="pLost" data-id="${pr.id}">Pas intéressé</button>` });
+      links: `<button data-act="pConvert" data-id="${pr.id}">A acheté</button> · <button data-act="pLost" data-id="${pr.id}">Pas intéressé</button>` });
   }
   if (it.type === "suivi") {
     const sl = it.s, c = client(sl.clientId) || { name: "?" };
@@ -1357,7 +1481,7 @@ function todayCard(it) {
         <div class="who"><button class="name" data-act="${isC ? "fiche" : "pfiche"}" data-id="${x.id}">${esc(x.name)}</button>${exTag(x)}
           <div class="status ok">Moment de demander une recommandation</div><div class="meta2">${isC ? "Client" : "Prospect"} depuis ${duration(since)} · environ ${isC ? S.settings.netC : S.settings.netP} personnes dans son entourage</div></div>`,
       second: `<button class="btn soft second" data-act="rcDone" data-id="${x.id}">${I.check} Déjà demandé</button>`,
-      links: `<button data-act="newProspect" data-ref="${x.id}">+ Un contact donné</button> · <button data-act="rcLater" data-id="${x.id}">Plus tard · 1 mois</button>` });
+      links: `<button data-act="newProspect" data-ref="${x.id}">+ Un contact donné</button>` });
   }
   if (it.type === "news") {
     const o = it.o, x = o.x;
@@ -1367,6 +1491,14 @@ function todayCard(it) {
           <div class="status ok">Message ${S.settings.newsFreq === "month" ? "du mois" : "de la quinzaine"} : nouveautés</div><div class="meta2">${o.pk === "c" ? "Client" : "Prospect"}</div></div>`,
       second: `<button class="btn soft second" data-act="nwDone" data-id="${x.id}">${I.check} Déjà fait</button>`,
       links: `<button data-act="nwDone" data-id="${x.id}" data-skip="1">Pas pour cette personne</button>` });
+  }
+  if (it.type === "wake") {
+    const c = it.x;
+    return cardShell({ k: it.k, id: c.id, phone: c.phone, msgId: "wkmsg-" + c.id, msg: msg("quarter", c.name, c.wkmsg || 0, { sujet: univers() }), vary: "nextWkMsg", waAct: "wkWa", copyAct: "wkCopy",
+      head: `<span class="avatar" style="width:52px;height:52px;font-size:1.3rem">😴</span>
+        <div class="who"><button class="name" data-act="fiche" data-id="${c.id}">${esc(c.name)}</button>${exTag(c)}
+          <div class="status soon">Client à réveiller</div><div class="meta2">Pas de commande depuis ${diff(today(), lastOrder(c))} jours</div></div>`,
+      second: `<button class="btn soft second" data-act="wkDone" data-id="${c.id}">${I.check} Déjà fait</button>`, links: "" });
   }
   if (it.type === "promo") {
     const o = it.o, x = o.x, pr = activePromo();
@@ -1384,7 +1516,7 @@ function todayCard(it) {
         <div class="who"><button class="name" data-act="fiche" data-id="${c.id}">${esc(c.name)}</button>${exTag(c)}
           <div class="status ok">Carte fidélité complète 🎉</div><div class="meta2">${esc(S.settings.gift)} disponible quand elle veut</div></div>`,
       second: `<button class="btn soft second" data-act="giftNotify" data-id="${c.id}">${I.check} Déjà prévenue</button>`,
-      links: `<button data-act="giftDone" data-id="${c.id}">Cadeau déjà utilisé</button> · <button data-act="fiche" data-id="${c.id}">Voir sa carte</button>` });
+      links: `<button data-act="giftDone" data-id="${c.id}">Cadeau déjà utilisé</button>` });
   }
   const { c, orders } = it.h;
   return cardShell({ k: it.k, id: c.id, phone: c.phone, msgId: "hmsg-" + c.id, msg: xMsg("hint", c.name, c.hmsg || 0, { avantages: avantages() }), vary: "nextHMsg", waAct: "hWa", copyAct: "hCopy",
@@ -1393,7 +1525,7 @@ function todayCard(it) {
         <div class="status ok">Carte fidélité à offrir</div><div class="meta2">${plural(orders, "commande", "commandes")} · client fidèle</div></div>`,
     extra: `<div class="alt hintline">Gratuite pour votre client : ${esc(avantages())}.</div>`,
     second: `<button class="btn orange second" data-act="hBecame" data-id="${c.id}">💳 Lui offrir la carte</button>`,
-    links: `<button data-act="hDone" data-id="${c.id}">Pas pour l'instant</button> · <button data-act="hLater" data-id="${c.id}">Plus tard · 30 j</button>` });
+    links: `<button data-act="hDone" data-id="${c.id}">Pas pour l'instant</button>` });
 }
 let pfilter = "all", cfilter = "all";
 function viewProspects(q) {
@@ -1762,6 +1894,7 @@ function openFiche(id) {
     <datalist id="prodNamesC">${realProducts().map(pp => `<option value="${esc(pp.name)}">`).join("")}</datalist>
     <label class="field"><span>Note</span><input class="input" data-cfield="note" data-id="${c.id}" value="${esc(c.note || "")}" placeholder="ex. : préfère être contactée le soir"></label>
     <label class="field" style="display:flex;align-items:center;justify-content:space-between;gap:12px"><span style="margin:0">Reçoit mes nouveautés et promos</span><input type="checkbox" data-cfield="news" data-id="${c.id}" ${c.noNews ? "" : "checked"} style="width:22px;height:22px;accent-color:var(--o1)"></label>
+    <label class="field" style="display:flex;align-items:center;justify-content:space-between;gap:12px"><span style="margin:0">🚫 Ne plus contacter cette personne <i>· le coach ne la proposera plus</i></span><input type="checkbox" data-cfield="nocontact" data-id="${c.id}" ${c.noContact ? "checked" : ""} style="width:22px;height:22px;accent-color:var(--o1)"></label>
     </details>
     ${c.status === "vip" ? `<div class="field"><span>Carte fidélité</span></div>${cardHTML(c)}
       ${cardState(c).available ? `<div class="notice" style="margin-top:12px"><span>🎁 <b>${plural(cardState(c).available, "cadeau disponible", "cadeaux disponibles")}</b> : ${esc(S.settings.gift)}, quand elle le souhaite.</span><button class="btn sm orange" data-act="giftDone" data-id="${c.id}">Utilisé</button></div>` : ""}
@@ -1838,6 +1971,7 @@ function openProspectForm(id, opts = {}) {
       <label class="field"><span>Téléphone <i>· facultatif</i></span><input class="input" id="pPhone" type="tel" inputmode="tel" placeholder="06 12 34 56 78" value="${x ? esc(x.phone) : esc(opts.phone || "")}"></label>
       <details class="cfields" ${x && (x.email || x.insta || x.fb) ? "open" : ""}><summary>Email et réseaux sociaux <i>· facultatif</i></summary>
         <label class="field"><span>Email</span><input class="input" id="pEmail" type="email" inputmode="email" value="${x ? esc(x.email || "") : ""}" placeholder="facultatif"></label>
+        <label class="field" style="display:flex;align-items:center;justify-content:space-between;gap:12px"><span style="margin:0">🚫 Ne plus contacter cette personne</span><input type="checkbox" id="pNoContact" ${x && x.noContact ? "checked" : ""} style="width:22px;height:22px;accent-color:var(--o1)"></label>
         <div class="two" style="grid-template-columns:1fr 1fr"><label class="field"><span>Instagram</span><input class="input" id="pInsta" value="${x ? esc(x.insta || "") : esc(opts.insta || "")}" placeholder="@pseudo"></label>
           <label class="field"><span>Facebook</span><input class="input" id="pFb" value="${x ? esc(x.fb || "") : ""}" placeholder="nom ou lien"></label></div></details>
       <label class="field"><span>Ville <i>· lieu de vie, facultatif</i></span><input class="input" id="pCity" list="cityList-p" data-city="1" value="${x ? esc(cityLabel(x.city)) : esc(opts.city || "")}" placeholder="ex. : Lyon" autocomplete="off"></label><datalist id="cityList-p"></datalist>
@@ -1873,6 +2007,7 @@ function submitProspect(formEl) {
   x.phone = document.getElementById("pPhone").value.trim();
   for (const [f, id] of [["email", "pEmail"], ["insta", "pInsta"], ["fb", "pFb"]]) { const e = document.getElementById(id); if (e) x[f] = e.value.trim(); }
   { const e = document.getElementById("pCity"); if (e) x.city = resolveCity(e.value); }
+  { const e = document.getElementById("pNoContact"); if (e) x.noContact = e.checked; }
   x.interest = document.getElementById("pInterest").value.trim();
   x.note = document.getElementById("pNote").value.trim();
   x.next = document.getElementById("pNext").value || today();
@@ -2731,6 +2866,18 @@ const actions = {
     if (!pform.touched) document.getElementById("pNext").value = pform.where === "bao" ? today() : addDays(today(), 1);
   },
   newPromo: () => openPromoForm(),
+  coachF: el => { coachF = coachF === el.dataset.d ? null : el.dataset.d; render(); },
+  cLater: el => {
+    const k = el.dataset.k;
+    openSheet(`<div class="shead"><h3>Reporter cette action</h3>${closeBtn}</div><p class="lede" style="margin-top:6px">Recharge vous la reproposera à la date choisie.</p>
+      <div class="later">${[[1, "Demain"], [3, "Dans 3 jours"], [7, "Dans 1 semaine"], [30, "Dans 1 mois"]].map(([n, l]) => `<button class="btn soft" data-act="cLaterGo" data-k="${esc(k)}" data-n="${n}">${l}</button>`).join("")}</div>`);
+  },
+  cLaterGo: el => { const snap = snapshot(); S.mute = S.mute || {}; S.mute[el.dataset.k] = addDays(today(), +el.dataset.n); save(); closeSheet(); render(); toast(`Reporté au ${fmt(S.mute[el.dataset.k])}`, snap); },
+  cIgnore: el => { const snap = snapshot(); S.mute = S.mute || {}; S.mute[el.dataset.k] = addDays(today(), 60); save(); render(); toast("D'accord, je ne vous le propose plus pendant 2 mois", snap); },
+  nextWkMsg: el => { const c = client(el.dataset.id); c.wkmsg = (c.wkmsg || 0) + 1; save(); const ta = document.getElementById("wkmsg-" + c.id); ta.value = msg("quarter", c.name, c.wkmsg, { sujet: univers() }); fitAreas(ta.parentNode); },
+  wkWa: el => { const c = client(el.dataset.id); el.href = `https://wa.me/${waNumber(c.phone)}?text=${encodeURIComponent(document.getElementById("wkmsg-" + c.id).value)}`; setTimeout(() => actions.wkDone(el), 300); return true; },
+  wkCopy: async el => { const ok = await copyText(document.getElementById("wkmsg-" + el.dataset.id).value); toast(ok ? "Message copié. Collez-le dans votre messagerie." : "Impossible de copier."); },
+  wkDone: el => { const c = client(el.dataset.id), snap = snapshot(); S.events.push({ id: uid(), type: "wake", clientId: c.id, product: "", date: today(), example: !!c.example }); save(); render(); toast(`Bravo ! Prise de contact notée 🌱${cheer()}`, snap); },
   mapFilter: el => { mapFilter = el.dataset.f; render(); },
   mapCity: el => { if (window.__citySpot) { window.__citySpot(el.dataset.n); document.getElementById("map").scrollIntoView({ behavior: "smooth", block: "center" }); } },
   voice: () => { openVoice(); },
@@ -3048,6 +3195,7 @@ document.addEventListener("change", ev => {
     if (["email", "insta", "fb", "interest", "note", "where"].includes(t.dataset.cfield)) c[t.dataset.cfield] = t.value.trim();
     if (t.dataset.cfield === "city") c.city = resolveCity(t.value);
     if (t.dataset.cfield === "news") c.noNews = !t.checked;
+    if (t.dataset.cfield === "nocontact") c.noContact = t.checked;
     save(); render(); toast("Fiche mise à jour");
   }
 });
