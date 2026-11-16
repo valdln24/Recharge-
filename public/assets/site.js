@@ -41,12 +41,11 @@ if (dialSvg) {
 /* Compteurs animés */
 function countUp(el) {
   const to = Number(el.dataset.to), t0 = performance.now(), d = 1400;
-  const step = now => { const k = Math.min(1, (now - t0) / d), e = 1 - Math.pow(1 - k, 3);
+  const step = now => { const k = Math.max(0, Math.min(1, (now - t0) / d)), e = 1 - Math.pow(1 - k, 3);
     el.textContent = Math.round(to * e).toLocaleString("fr-FR"); if (k < 1) requestAnimationFrame(step); };
   requestAnimationFrame(step);
 }
 
-/* Calculateur de l'offre Équipe : 49 € jusqu'à 10 filleuls, puis 4 € par filleul en plus */
 /* Offre Équipe : chaque filleul paie sa part, dégressive selon la taille de l'équipe (jusqu'à 4,50 €/mois).
    La dirigeante paie son propre abonnement. Paliers modifiables ici. */
 const TEAM_TIERS = [[50, 4.5], [25, 5.5], [10, 6.5], [5, 7.9], [1, 9.9]];
@@ -188,7 +187,7 @@ function constellation(svg, mid, tot) {
   function tween(to) {
     if (!tot) return;
     const from = shown, t0 = performance.now();
-    const step = t => { const k = Math.min(1, (t - t0) / 500), v = Math.round(from + (to - from) * (1 - Math.pow(1 - k, 3))); tot.textContent = v.toLocaleString("fr-FR"); if (k < 1) requestAnimationFrame(step); else shown = to; };
+    const step = t => { const k = Math.max(0, Math.min(1, (t - t0) / 500)), v = Math.round(from + (to - from) * (1 - Math.pow(1 - k, 3))); tot.textContent = v.toLocaleString("fr-FR"); if (k < 1) requestAnimationFrame(step); else shown = to; };
     requestAnimationFrame(step);
     if (mid) { mid.classList.remove("bump"); void mid.offsetWidth; mid.classList.add("bump"); }
   }

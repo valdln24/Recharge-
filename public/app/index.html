@@ -2175,7 +2175,7 @@ function constellation(svg, mid, tot) {
   function tween(to) {
     if (!tot) return;
     const from = shown, t0 = performance.now();
-    const step = t => { const k = Math.min(1, (t - t0) / 500), v = Math.round(from + (to - from) * (1 - Math.pow(1 - k, 3))); tot.textContent = v.toLocaleString("fr-FR"); if (k < 1) requestAnimationFrame(step); else shown = to; };
+    const step = t => { const k = Math.max(0, Math.min(1, (t - t0) / 500)), v = Math.round(from + (to - from) * (1 - Math.pow(1 - k, 3))); tot.textContent = v.toLocaleString("fr-FR"); if (k < 1) requestAnimationFrame(step); else shown = to; };
     requestAnimationFrame(step);
     if (mid) { mid.classList.remove("bump"); void mid.offsetWidth; mid.classList.add("bump"); }
   }
