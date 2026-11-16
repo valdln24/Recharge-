@@ -30,6 +30,7 @@ const json = (data, status = 200) => new Response(JSON.stringify(data), { status
 
 async function route(request, env, url, ctx) {
   const m = request.method, p = url.pathname;
+  if (p === "/api/health") return json({ ok: true, accounts: !!env.DB });
   if (!env.DB) throw new HttpError(503, "La base de données n'est pas encore branchée.");
   // Même origine uniquement pour les écritures (protection contre les requêtes d'autres sites)
   if (m !== "GET") {

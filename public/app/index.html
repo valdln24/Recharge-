@@ -504,6 +504,9 @@ const SESSION_KEY = "recharge.session", SYNC_KEY = "recharge.sync";
 const readLS = k => { try { return JSON.parse(localStorage.getItem(k) || "null"); } catch (e) { return null; } };
 const writeLS = (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
 let session = DEMO ? null : readLS(SESSION_KEY);
+/* Les comptes n'existent que si le serveur est branché (sinon : site déposé seul, sans serveur) */
+let API_OK = false;
+if (!DEMO && location.protocol.startsWith("http")) fetch(new URL("../api/health", location.href)).then(r => r.ok ? r.json() : null).then(j => { if (j && j.accounts) { API_OK = true; if (typeof render === "function" && S) render(); } }).catch(() => {});
 let sync = readLS(SYNC_KEY) || { rev: 0, dirty: false, lastAt: 0 };
 const saveSync = () => writeLS(SYNC_KEY, sync);
 const deviceName = () => { const u = navigator.userAgent; return /iPhone/.test(u) ? "iPhone" : /iPad/.test(u) ? "iPad" : /Android/.test(u) ? "Android" : /Mac/.test(u) ? "Mac" : /Windows/.test(u) ? "PC" : "Navigateur"; };
@@ -612,6 +615,9 @@ function openDeleteAccount() {
     <button class="btn danger" style="margin-top:14px" data-act="accDeleteGo">Supprimer définitivement</button>`);
 }
 function accountSection() {
+  if (!session && !API_OK) return section("Mon compte") + `<div class="card pad acc">
+    <b style="display:block">📱 Vos données sont dans ce téléphone</b><p class="hint" style="margin:4px 0 12px">☁️ La sauvegarde en ligne arrive bientôt. En attendant, gardez une copie de vos données dans un fichier, par exemple en vous l'envoyant par email.</p>
+    <button class="btn soft" data-act="export">${I.down} Exporter mes données</button></div>`;
   if (!session) return section("Mon compte") + `<div class="card pad acc">
     <b style="display:block">📱 Version gratuite</b><p class="hint" style="margin:4px 0 12px">Jusqu'à 10 clients, sans compte. Vos données restent uniquement dans ce téléphone.</p>
     <button class="btn orange" data-act="accUpgrade">✨ Passer à la version complète</button>
@@ -1422,7 +1428,7 @@ function viewClients() {
   const openP = S.prospects.filter(x => x.status === "open").length;
   const nReal = S.clients.filter(c => !c.example).length;
   let h = `<h1 class="title">Clients</h1><p class="lede">${plural(S.clients.length, "client", "clients")} · ${plural(openP, "prospect en cours", "prospects en cours")}</p>`;
-  if (!session && nReal >= 10) h += `<div class="notice"><span>✨ ${nReal} clients : la version complète sauvegarde tout et n'a pas de limite.</span><button class="btn sm orange" data-act="accUpgrade">Découvrir</button></div>`;
+  if (!session && API_OK && nReal >= 10) h += `<div class="notice"><span>✨ ${nReal} clients : la version complète sauvegarde tout et n'a pas de limite.</span><button class="btn sm orange" data-act="accUpgrade">Découvrir</button></div>`;
   const wait = ctab === "clients" ? waitingSales() : [];
   if (wait.length) {
     h += section("En attente de réponse", wait.length) + `<div class="card list">`;
