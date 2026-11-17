@@ -121,6 +121,8 @@ main{max-width:560px;margin:0 auto;padding:6px 16px 24px}
 .cfoot button{border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:9px 4px;font:inherit;font-size:.8rem;font-weight:700;color:var(--ink-2);cursor:pointer}
 .rcard{border-radius:28px}
 .later{display:grid;gap:8px;margin-top:14px}
+.cworth{position:relative;z-index:1;display:block;width:100%;text-align:left;margin-top:12px;border:0;background:rgba(255,255,255,.22);color:#fff;border-radius:16px;padding:10px 14px;font:inherit;font-size:.9rem;font-weight:650;cursor:pointer}
+.worthx{margin-top:8px;display:inline-block;font-size:.88rem;font-weight:650;color:#fff;background:rgba(255,255,255,.2);border-radius:99px;padding:6px 12px}.worthx b{color:#fff;font-weight:800}
 .ctip{margin-top:6px;font-size:.82rem;color:var(--b-text);background:var(--b-soft);border-radius:14px;padding:8px 12px;line-height:1.45;font-weight:600}
 .satb{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
 .satb button{display:flex;flex-direction:column;align-items:center;gap:4px;border:1.5px solid var(--line-2);background:var(--surface);border-radius:20px;padding:12px 4px;font:inherit;font-size:.8rem;font-weight:750;color:var(--ink);cursor:pointer}
@@ -1329,6 +1331,32 @@ function progress(s) {
   const total = Math.max(1, diff(s.end, s.date));
   return Math.max(0, Math.min(1, diff(today(), s.date) / total));
 }
+/* Ce que Recharge a rapporté : chaque vente est attribuée par une règle simple et vérifiable.
+   - « relance » : le client avait reçu un message proposé par le coach dans les 30 jours avant l'achat
+   - « prospect » : première commande d'un prospect devenu client
+   - « reco » : première commande d'une personne recommandée
+   Rien n'est estimé : une vente sans prix compte 0 € et l'écran le signale. */
+const PRICE_SOLO = 9.9; // prix de l'abonnement affiché sur le site (€/mois)
+const WIN = 30;
+function saleReason(sl) {
+  const c = client(sl.clientId); if (!c) return null;
+  const first = firstOrder(c) === sl.date;
+  if (first && S.events.some(e => e.type === "pclient" && e.clientId === c.id)) return "prospect";
+  if (first && (c.referredBy || c.referredByName)) return "reco";
+  const ev = S.events.find(e => e.clientId === c.id && OUT_TYPES.includes(e.type) && !e.skip && e.saleId !== sl.id && e.date <= sl.date && diff(sl.date, e.date) <= WIN);
+  return ev ? "relance" : null;
+}
+function worth(from, to = "9999") {
+  const sales = S.sales.filter(sl => sl.date >= from && sl.date < to).map(sl => ({ sl, why: saleReason(sl), amount: (sl.price || 0) * (sl.qty || 1) })).filter(x => x.why);
+  const by = k => sales.filter(x => x.why === k).reduce((t, x) => t + x.amount, 0);
+  const ev = S.events.filter(e => e.date >= from && e.date < to && !e.skip);
+  const total = by("relance") + by("prospect") + by("reco");
+  return { sales, total, relance: by("relance"), prospect: by("prospect"), reco: by("reco"), noPrice: sales.filter(x => !x.amount).length,
+    sent: ev.filter(e => OUT_TYPES.includes(e.type)).length, cared: ev.filter(e => e.type === "care").length,
+    happy: S.clients.reduce((n, c) => n + (c.satLog || []).filter(l => l.v === "ok" && l.date >= from && l.date < to).length, 0),
+    asks: ev.filter(e => e.type === "bouche").length,
+    refs: S.prospects.filter(x => (x.createdAt || "0000") >= from && (x.createdAt || "") < to && (x.referredBy || x.referredByName)).length + S.clients.filter(c => (c.createdAt || "0000") >= from && (c.referredBy || c.referredByName)).length };
+}
 function stats(p) {
   const from = p === "month" ? today().slice(0, 8) + "01" : "0000";
   const ev = S.events.filter(e => e.date >= from);
@@ -1424,8 +1452,9 @@ function viewToday() {
     : doneToday ? "Tout est fait pour aujourd'hui. Bravo ! 🎉" : "Personne à relancer aujourd'hui. Profitez-en 🌿";
   const dn = d => full.filter(x => coachMeta(x).dom === d).length;
   let h = `<section class="coach hello"><div class="ctop"><span class="chi">${hi}${who ? " " + esc(who) : ""} ${hr >= 18 ? "🌙" : "☀️"}</span><span class="cpill">🧭 Mon coach commercial</span></div>
-    <div class="cbig"><b>${full.length}</b><span>${full.length > 1 ? "actions conseillées" : full.length ? "action conseillée" : "action pour l'instant"}<br>aujourd'hui</span></div>
+    <div class="cbig"><b>${full.length}</b><span>${full.length > 1 ? "actions conseillées" : full.length ? "action conseillée" : "action à faire"}<br>aujourd'hui</span></div>
     <p class="cline hl-line">${line}</p>
+    ${(() => { const w = worth(today().slice(0, 8) + "01"); return w.total > 0 ? `<button class="cworth" data-act="goto" data-t="results" data-c="">💸 Ce mois-ci, le coach vous a rapporté <b>${euro(w.total)}</b> ›</button>` : ""; })()}
     ${total ? `<div class="hl-bar"><span style="width:${pct}%"></span></div><div class="hl-count">${doneToday ? `${doneToday} sur ${total} fait${doneToday > 1 ? "s" : ""} 💪` : "C'est parti !"}</div>` : ""}</section>`;
   h += `<div class="dtiles">${Object.entries(DOMAINS).map(([d, [ic, lb]]) => { const n = dn(d); return `<button class="dtile ${n ? "" : "zero"} ${coachF === d ? "on" : ""}" data-act="coachF" data-d="${d}"><span class="di">${ic}</span><b>${n}</b><small>${lb}</small></button>`; }).join("")}</div>`;
   h += tipCard();
@@ -1691,13 +1720,31 @@ function viewResults() {
   const st = stats(period);
   let h = `<h1 class="title">Mes résultats</h1><p class="lede">Ce que Recharge vous fait gagner.</p>`;
   h += `<div class="seg"><button class="${period === "month" ? "on" : ""}" data-act="period" data-p="month">Ce mois-ci</button><button class="${period === "all" ? "on" : ""}" data-act="period" data-p="all">Depuis le début</button></div>`;
-  h += `<section class="kpi"><div class="lbl">Chiffre d'affaires gagné grâce à Recharge</div><div class="val num" id="kpiCA">${euro(st.ca)}</div>
-    <div class="split"><div><span>Recommandes</span><b class="num" id="kpiCaReco">${euro(st.caReco)}</b></div><div><span>Prospects</span><b class="num" id="kpiCaPros">${euro(st.caPros)}</b></div><div><span>Bouche-à-oreille</span><b class="num" id="kpiCaBao">${euro(st.caBao)}</b></div></div></section>`;
-  h += `<div class="card rate">${dial(st.rate / 100, `<div class="big num"><span id="kpiRate">${st.rate}</span><sup>%</sup></div><div class="lbl">Taux de recommande</div>`)}</div>`;
+  const W = worth(period === "month" ? today().slice(0, 8) + "01" : "0000"), times = W.total / PRICE_SOLO;
+  h += `<section class="kpi"><div class="lbl">Ce que Recharge vous a rapporté${period === "month" ? " ce mois-ci" : ""}</div><div class="val num" id="kpiCA">${euro(W.total)}</div>
+    ${period === "month" && W.total > 0 ? `<div class="worthx">${times >= 1 ? `C'est <b>${times >= 10 ? Math.round(times) : times.toFixed(1).replace(".", ",")} fois</b> le prix de Recharge (${PRICE_SOLO.toFixed(2).replace(".", ",")} € par mois)` : `Déjà ${Math.round(times * 100)} % du prix de Recharge ce mois-ci`}</div>` : ""}
+    <div class="split"><div><span>Relances</span><b class="num" id="kpiCaReco">${euro(W.relance)}</b></div><div><span>Prospects</span><b class="num" id="kpiCaPros">${euro(W.prospect)}</b></div><div><span>Recommandés</span><b class="num" id="kpiCaBao">${euro(W.reco)}</b></div></div></section>`;
+  h += W.noPrice ? `<div class="miss" style="margin-top:10px">⚠️ ${plural(W.noPrice, "vente comptée sans prix", "ventes comptées sans prix")} : ajoutez vos prix dans Menu › Mes produits pour voir le vrai montant.</div>` : "";
+  h += section("Ce que le coach a fait avec vous") + `<div class="card"><ul class="hist">
+    <li><span>💬 Messages préparés et envoyés</span><b class="num" id="kpiSent">${W.sent}</b></li>
+    <li><span>🛍️ Ventes après un message du coach</span><b class="num">${W.sales.filter(x => x.why === "relance").length}</b></li>
+    <li><span>👋 Prospects devenus clients</span><b class="num">${W.sales.filter(x => x.why === "prospect").length}</b></li>
+    <li><span>🤝 Recommandations demandées</span><b class="num">${W.asks}</b></li>
+    <li><span>🌱 Nouveaux contacts recommandés</span><b class="num">${W.refs}</b></li>
+    <li><span>😊 Clients satisfaits notés</span><b class="num">${W.happy}</b></li>
+    <li><span>🤍 Clients mécontents accompagnés</span><b class="num">${W.cared}</b></li></ul></div>`;
+  if (W.sales.length) {
+    const WHY = { relance: "après un message du coach", prospect: "prospect devenu client", reco: "contact recommandé" };
+    h += section("Les ventes comptées", W.sales.length) + `<div class="card"><ul class="hist">${W.sales.slice().sort((a, b) => b.sl.date.localeCompare(a.sl.date)).slice(0, 12).map(x => { const c = client(x.sl.clientId);
+      return `<li><span><b>${esc(c.name)}</b><br><small>${esc(x.sl.product)} · ${fmt(x.sl.date)} · ${WHY[x.why]}</small></span><b class="num">${x.amount ? euro(x.amount) : "prix ?"}</b></li>`; }).join("")}</ul></div>
+      <p class="hint">Une vente est comptée quand le client avait reçu un message proposé par Recharge dans les ${WIN} jours avant, ou quand c'est un prospect ou un contact recommandé qui devient client. Les autres ventes ne sont pas comptées.</p>`;
+  } else h += `<p class="empty">Ici apparaîtront les ventes obtenues grâce au coach : envoyez les messages proposés dans « Aujourd'hui », puis notez les commandes avec le bouton <b>+</b>.</p>`;
+  const nAfter = W.sales.filter(x => x.why === "relance").length, rate = W.sent ? Math.min(100, Math.round(nAfter / W.sent * 100)) : 0;
+  h += `<div class="card rate">${dial(rate / 100, `<div class="big num"><span id="kpiRate">${rate}</span><sup>%</sup></div><div class="lbl">Messages suivis d'une commande</div>`)}</div>`;
   const maxv = Math.max(1, st.relances);
   h += `<div class="card bars">
-    <div class="b"><div class="t"><span>Relances faites</span><b class="num" id="kpiRel">${st.relances}</b></div><div class="line blue"><span style="width:${st.relances ? 100 : 0}%"></span></div></div>
-    <div class="b"><div class="t"><span>Recommandes obtenues</span><b class="num" id="kpiReco">${st.recos}</b></div><div class="line"><span style="width:${Math.round(st.recos / maxv * 100)}%"></span></div></div></div>`;
+    <div class="b"><div class="t"><span>Messages envoyés</span><b class="num" id="kpiRel">${W.sent}</b></div><div class="line blue"><span style="width:${W.sent ? 100 : 0}%"></span></div></div>
+    <div class="b"><div class="t"><span>Commandes qui ont suivi</span><b class="num" id="kpiReco">${nAfter}</b></div><div class="line"><span style="width:${Math.round(nAfter / Math.max(1, W.sent) * 100)}%"></span></div></div></div>`;
   h += section("Bouche-à-oreille") + `<div class="card bars">
     <div class="b"><div class="t"><span>Demandes envoyées</span><b class="num" id="kpiAsk">${st.asks}</b></div><div class="line blue"><span style="width:${st.asks ? 100 : 0}%"></span></div></div>
     <div class="b"><div class="t"><span>Nouveaux clients amenés par recommandation</span><b class="num" id="kpiRef">${st.referred}</b></div><div class="line"><span style="width:${Math.round(Math.min(1, st.referred / Math.max(1, st.asks)) * 100)}%"></span></div></div></div>`;
@@ -1720,17 +1767,7 @@ function viewResults() {
   h += section("Prospects") + `<div class="card bars">
     <div class="b"><div class="t"><span>Prospects ajoutés</span><b class="num" id="kpiPAdd">${st.pAdded}</b></div><div class="line blue"><span style="width:${st.pAdded ? 100 : 0}%"></span></div></div>
     <div class="b"><div class="t"><span>Ont acheté</span><b class="num" id="kpiPWon">${st.pWon}</b></div><div class="line"><span style="width:${Math.round(Math.min(1, st.pWon / Math.max(1, st.pAdded)) * 100)}%"></span></div></div></div>`;
-  h += `<p class="hint">Taux de recommande : sur 10 clients relancés, combien ont racheté. Les montants viennent des prix indiqués dans Réglages › Mes produits.</p>`;
-  if (st.list.length) {
-    h += section("Dernières recommandes", st.list.length) + `<div class="card"><ul class="hist">`;
-    for (const e of st.list.slice().reverse().slice(0, 15)) {
-      const c = client(e.clientId);
-      h += `<li><span><b>${esc(c ? c.name : "Client supprimé")}</b><br><small>${esc(e.product)} · ${fmt(e.date)}</small></span><b class="num">${euro(e.amount)}</b></li>`;
-    }
-    h += `</ul></div>`;
-  } else {
-    h += `<p class="empty">Vos recommandes apparaîtront ici.<br>Quand un client rachète après une relance, appuyez sur <b>A recommandé</b>.</p>`;
-  }
+  h += `<p class="hint">Les montants viennent des prix indiqués dans Menu › Mes produits.</p>`;
   return h;
 }
 
@@ -2504,17 +2541,15 @@ if (needCities) { seedCities(S); save(); }
 const monthName = m => new Date(m + "-15T12:00:00").toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
 const prevMonth = m => { const d = new Date(m + "-15T12:00:00"); d.setMonth(d.getMonth() - 1); return d.toISOString().slice(0, 7); };
 function bilan(m) {
-  const ev = S.events.filter(e => (e.date || "").startsWith(m));
-  const relances = ev.filter(e => ["relance", "pcontact", "promo", "hint", "gift"].includes(e.type) && !e.skip).length;
-  const commandes = ev.filter(e => ["recommande", "pclient", "bnew"].includes(e.type)).length;
-  return { relances, commandes, ca: commandes * (S.settings.basket || 0) };
+  const W = worth(m + "-01", m + "-32");
+  return { relances: W.sent, commandes: W.sales.length, ca: W.total };
 }
 function openBilan(m) {
   const b = bilan(m), cur = m === today().slice(0, 7);
   openSheet(`<div class="shead"><h3>${cur ? "Mon mois en cours" : "Votre bilan de " + monthName(m)} 📊</h3>${closeBtn}</div>
     <p class="lede" style="margin-top:6px">${b.commandes ? "Bravo, vos relances ont payé ce mois-ci !" : b.relances ? "Vos relances sont parties : les commandes suivent souvent quelques jours plus tard." : "Pas encore de relance ce mois-ci. Commencez par la liste du jour !"}</p>
     <div class="bilan"><div><b class="num">${b.relances}</b><span>relances envoyées</span></div><div><b class="num">${b.commandes}</b><span>commandes récupérées</span></div>
-      <div class="hl"><b class="num">≈ ${euro(b.ca)}</b><span>de chiffre d'affaires récupéré</span></div></div>
+      <div class="hl"><b class="num">${euro(b.ca)}</b><span>rapportés grâce au coach</span></div></div>
     <label class="field"><span>Votre panier moyen <i>· pour estimer le chiffre d'affaires</i></span><div class="unit"><input class="input num" id="setBasket" inputmode="numeric" value="${S.settings.basket}"><b>€</b></div></label>
     <div class="seg" style="margin-top:14px"><button class="${cur ? "" : "on"}" data-act="bilanMonth" data-m="${prevMonth(today().slice(0, 7))}">Mois dernier</button><button class="${cur ? "on" : ""}" data-act="bilanMonth" data-m="${today().slice(0, 7)}">Ce mois-ci</button></div>
     <button class="btn primary" style="margin-top:14px" data-act="close">Voir mes relances du jour</button>`);
