@@ -121,6 +121,11 @@ main{max-width:560px;margin:0 auto;padding:6px 16px 24px}
 .cfoot button{border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:9px 4px;font:inherit;font-size:.8rem;font-weight:700;color:var(--ink-2);cursor:pointer}
 .rcard{border-radius:28px}
 .later{display:grid;gap:8px;margin-top:14px}
+.ctip{margin-top:6px;font-size:.82rem;color:var(--b-text);background:var(--b-soft);border-radius:14px;padding:8px 12px;line-height:1.45;font-weight:600}
+.satb{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.satb button{display:flex;flex-direction:column;align-items:center;gap:4px;border:1.5px solid var(--line-2);background:var(--surface);border-radius:20px;padding:12px 4px;font:inherit;font-size:.8rem;font-weight:750;color:var(--ink);cursor:pointer}
+.satb button span{font-size:1.6rem;line-height:1}.satb button.on{border-color:var(--o1);background:var(--o-soft)}
+.satf{margin-top:12px;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:12px 14px}.satf>span{font-weight:750;font-size:.92rem}.satf i{font-style:normal;color:var(--ink-3);font-weight:600}
 .tip{display:flex;gap:12px;align-items:flex-start;margin-top:12px;padding:14px 14px 14px 16px;border-radius:22px;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow)}
 .tip>span{font-size:1.5rem;line-height:1}.tip p{margin:0;flex:1;font-size:.92rem;color:var(--ink-2);line-height:1.45}.tip p b{display:block;color:var(--ink);font-size:.95rem;margin-bottom:2px}
 .tip .x{flex:none;margin:-4px -4px 0 0}
@@ -823,6 +828,18 @@ const MSG = {
     "{p}, {{j'espère que tu vas bien|j'espère que vous allez bien}} ! {{Tu as|Avez-vous}} pu commencer {{ta|votre}} commande {de} ? Je suis là pour {{te|vous}} conseiller ✨",
     "{{Hello|Bonjour}} {p} 👋 Petit suivi après {{ta|votre}} commande {de} : tout va bien ? Un retour de {{ta|votre}} part me ferait très plaisir 😊"
   ],
+  care: [
+    "{{Coucou|Bonjour}} {p}, merci pour {{ton|votre}} retour sincère 🙏 Je voudrais vraiment que {{tu sois|vous soyez}} {{content|satisfait}}. On en parle 5 minutes ? Je suis sûre qu'on va trouver une solution.",
+    "{{Hello|Bonjour}} {p} 💛 J'ai bien pensé à ce que {{tu m'as|vous m'avez}} dit. {{Raconte-moi|Racontez-moi}} comment {{tu l'utilises|vous l'utilisez}}, j'ai peut-être un conseil qui peut tout changer.",
+    "{p}, merci de m'avoir dit les choses franchement 😊 C'est grâce à ça que je peux bien {{te|vous}} conseiller. {{Tu as|Avez-vous}} un moment pour qu'on regarde ensemble ?",
+    "{{Coucou|Bonjour}} {p} 🌿 Je ne veux pas {{te|vous}} laisser avec un produit qui ne {{te|vous}} convient pas. On trouve ensemble ce qui {{t'irait|vous irait}} mieux ?",
+    "{{Hello|Bonjour}} {p} ! Suite à {{ton|votre}} retour, j'aimerais {{t'aider|vous aider}} à en tirer le meilleur. Parfois, c'est juste une question de dose ou de moment d'utilisation ✨",
+    "{p}, je reviens vers {{toi|vous}} comme promis 😊 {{Dis-moi|Dites-moi}} ce qui {{t'a|vous a}} déçu, je préfère le savoir pour {{te|vous}} proposer une solution adaptée.",
+    "{{Coucou|Bonjour}} {p} 🙏 Ton avis compte beaucoup pour moi. On cherche ensemble ce qui {{te|vous}} conviendrait le mieux ?".replace("Ton avis", "{{Ton|Votre}} avis"),
+    "{{Hello|Bonjour}} {p} 💛 Merci pour {{ta|votre}} franchise. J'ai quelques astuces d'utilisation à {{te|vous}} partager, {{tu veux|vous voulez}} qu'on s'appelle ?",
+    "{{Coucou|Bonjour}} {p} ! Je pense encore à {{ton|votre}} retour. {{Tu me dis|Vous me dites}} quand {{tu es dispo|vous êtes disponible}} pour en parler 5 minutes ?",
+    "{p}, un produit ne convient pas toujours du premier coup, et c'est normal 🌿 Je suis là pour {{t'accompagner|vous accompagner}} jusqu'à trouver le bon."
+  ],
   recoC: [
     "{{Coucou|Bonjour}} {p} ! 😊 Ça fait déjà {mois} que {{tu me fais|vous me faites}} confiance, merci ! Si les produits {{te|vous}} plaisent, {{tu connais|connaissez-vous}} quelqu'un autour de {{toi|vous}} qui pourrait en profiter aussi ?",
     "{{Hello|Bonjour}} {p} 🌿 Ah, les produits {{te|vous}} plaisent toujours ? Si une amie ou quelqu'un de {{ta|votre}} famille cherche la même chose, {{tu peux|vous pouvez}} lui donner mon numéro !",
@@ -1128,10 +1145,19 @@ function cardUrl(c) {
 const dueGifts = () => S.clients.filter(c => c.status === "vip" && cardState(c).notify);
 /* Suivi après l'achat : quelques jours après une commande, prendre des nouvelles */
 const dueSuivis = () => { const t = today(), d = S.settings.suiviDays || 7; return S.settings.suiviDays === 0 ? [] : S.sales.filter(sl => !sl.suiviDone && (sl.status === "open" || sl.status === "relance") && diff(t, sl.date) >= d && diff(t, sl.date) <= d + 6 && diff(sl.end, t) > (S.settings.relanceDays || 3)); };
+/* Satisfaction après le suivi : la réponse du client oriente le coach */
+const SAT = { ok: ["😊", "Satisfait", "satisfait"], mixed: ["😐", "Mitigé", "mitigé"], ko: ["😟", "Pas satisfait", "pas satisfait"] };
+const lastSat = c => (c.satLog || []).filter(x => x.v !== "none").slice(-1)[0] || null;
+/* retour mitigé ou négatif de moins de 45 jours, pas encore résolu : on accompagne, on ne vend pas */
+const unhappy = c => { const l = c && lastSat(c); return !!(l && l.v !== "ok" && diff(today(), l.date) < 45); };
+const happyRecent = c => { const l = lastSat(c); return !!(l && l.v === "ok" && diff(today(), l.date) <= 60); };
+/* suivis faits mais réponse pas encore notée : on la demande pendant une semaine */
+const dueSat = () => S.sales.filter(sl => sl.satPending && diff(today(), sl.satPending) >= 1 && diff(today(), sl.satPending) <= 7 && client(sl.clientId));
+const dueCare = () => S.clients.filter(c => { const l = lastSat(c); return l && l.v !== "ok" && !l.cared && diff(today(), l.date) < 45; });
 /* Recommandation après 3 mois (client ou prospect), puis tous les 3 mois */
 const lastAsk = id => S.events.filter(e => e.type === "bouche" && (e.clientId === id || e.prospectId === id)).reduce((m, e) => e.date > m ? e.date : m, "");
 const recoReady = (x, since) => diff(today(), since) >= 90 && (!lastAsk(x.id) || diff(today(), lastAsk(x.id)) >= 90) && !(x.recoSnooze && x.recoSnooze > today());
-const dueRecoC = () => S.clients.filter(c => recoReady(c, clientSince(c)));
+const dueRecoC = () => S.clients.filter(c => !unhappy(c) && (recoReady(c, clientSince(c)) || (happyRecent(c) && !lastAsk(c.id) && !(c.recoSnooze && c.recoSnooze > today()))));
 const dueRecoP = () => S.prospects.filter(x => (x.status === "open" || x.status === "lost") && recoReady(x, x.createdAt || today()));
 /* Message régulier (nouveautés, promos) : toutes les 2 semaines ou chaque mois */
 function newsPeriod() {
@@ -1157,7 +1183,7 @@ function duePartnerHints() {
 }
 /* ---------- Le coach : chaque opportunité vient d'une règle appliquée aux données réelles ----------
    Domaines : prospect · suivi · reassort · reco · fidelite · promo. Rien n'est inventé : si une donnée manque, on le dit. */
-const OUT_TYPES = ["relance", "pcontact", "suivi", "bouche", "news", "promo", "hint", "wake", "gift", "occasion"];
+const OUT_TYPES = ["care", "relance", "pcontact", "suivi", "bouche", "news", "promo", "hint", "wake", "gift", "occasion"];
 function lastTouch(id) {
   let d = "";
   for (const e of S.events) if ((e.clientId === id || e.prospectId === id) && OUT_TYPES.includes(e.type) && !e.skip && e.date > d) d = e.date;
@@ -1171,7 +1197,7 @@ const dueWake = () => { const t = today(); return S.clients.filter(c => { const 
 const DOMAINS = { prospect: ["👋", "Prospects"], suivi: ["💬", "Suivis"], reassort: ["🔄", "Réassorts"], reco: ["🤝", "Recommandations"], fidelite: ["💳", "Fidélité"], promo: ["📣", "Promos"] };
 /* L'explication d'une opportunité : domaine, catégorie du contact, action conseillée, faits, données manquantes */
 function coachMeta(it) {
-  const facts = [], missing = [];
+  const facts = [], missing = []; let tip = "";
   const who = person(it.who) || {}, isC = !!client(it.who);
   const cat = isC ? (who.status === "vip" ? "Client fidélité" : "Client") : "Prospect";
   const noPhone = () => { if (!waNumber(who.phone)) missing.push("Pas de numéro : utilisez « Copier »"); };
@@ -1184,6 +1210,15 @@ function coachMeta(it) {
     if (!isGeneric(sl)) facts.push(left < 0 ? `fini depuis ${-left} j (estimation)` : left === 0 ? "fini aujourd'hui (estimation)" : `fin estimée dans ${left} j`);
     else missing.push(`Produit non précisé : relance au bout de ${S.settings.cycle || 30} jours`);
     const n = ordersOf(who); if (n > 1) facts.push(`${n} commandes`);
+  } else if (it.type === "sat") {
+    dom = "suivi"; action = "Noter son retour : le coach adaptera la suite";
+    facts.push(`suivi envoyé ${ago(it.s.satPending)}`); facts.push(`achat ${deProd(it.s.product)}`);
+    tip = "Un client écouté devient un client fidèle. Sa réponse décide de la suite : recommandation s'il est content, accompagnement sinon.";
+  } else if (it.type === "care") {
+    const l = lastSat(who); dom = "suivi"; action = "Rappeler pour comprendre et trouver une solution";
+    facts.push(`${SAT[l.v][2]} ${l.product ? deProd(l.product) + " " : ""}(${ago(l.date)})`);
+    facts.push("pas de promo ni de demande de recommandation tant que ce n'est pas réglé");
+    tip = "Écoutez d'abord, sans vous justifier. Puis proposez une solution : un conseil d'utilisation, un autre produit mieux adapté, ou un geste si votre marque le permet.";
   } else if (it.type === "suivi") {
     dom = "suivi"; action = "Prendre des nouvelles après l'achat et donner un conseil d'utilisation";
     facts.push(`Achat ${deProd(it.s.product)} ${ago(it.s.date)}`); facts.push("pas encore de suivi");
@@ -1201,7 +1236,7 @@ function coachMeta(it) {
     facts.push(`${isC ? "Client" : "Prospect"} depuis ${duration(since)}`);
     if (isC) facts.push(plural(ordersOf(x), "commande", "commandes"));
     facts.push(lastAsk(x.id) ? `dernière demande ${ago(lastAsk(x.id))}` : "jamais sollicité pour une recommandation");
-    if (x.satisfaction === "ok") facts.push("satisfait de ses produits");
+    if (isC && happyRecent(x)) facts.push(`s'est dit satisfait ${ago(lastSat(x).date)}`);
   } else if (it.type === "gift") {
     dom = "fidelite"; action = "Annoncer que son cadeau fidélité est disponible";
     const st = cardState(who); facts.push(`carte fidélité complète (${st.n} commandes)`);
@@ -1222,7 +1257,7 @@ function coachMeta(it) {
     facts.push(lastTouch(who.id) ? `dernier contact ${ago(lastTouch(who.id))}` : "pas encore contacté");
   }
   noPhone();
-  return { dom, cat, action, facts, missing, fiche: isC ? "fiche" : "pfiche", id: it.who };
+  return { dom, cat, action, facts, missing, tip, fiche: isC ? "fiche" : "pfiche", id: it.who };
 }
 /* La liste du jour, classée par priorité */
 function todayList() {
@@ -1231,6 +1266,8 @@ function todayList() {
   for (const x of dueProspects()) items.push({ k: "p:" + x.id, type: "prospect", x, who: x.id, score: 62 + diff(t, x.next) * 2 });
   for (const c of dueGifts()) items.push({ k: "g:" + c.id, type: "gift", c, who: c.id, score: 70 });
   for (const sl of dueSuivis()) items.push({ k: "su:" + sl.id, type: "suivi", s: sl, who: sl.clientId, score: 55 });
+  for (const sl of dueSat()) items.push({ k: "sa:" + sl.id, type: "sat", s: sl, who: sl.clientId, score: 50 });
+  for (const c of dueCare()) items.push({ k: "ca:" + c.id + ":" + lastSat(c).date, type: "care", x: c, who: c.id, score: 62 });
   for (const c of dueRecoC()) items.push({ k: "rc:" + c.id, type: "reco", pk: "c", x: c, who: c.id, score: 39 });
   for (const x of dueRecoP()) items.push({ k: "rp:" + x.id, type: "reco", pk: "p", x, who: x.id, score: 37 });
   for (const o of dueNews()) items.push({ k: "nw:" + o.x.id, type: "news", o, who: o.x.id, score: 20 });
@@ -1242,7 +1279,8 @@ function todayList() {
   const mute = S.mute || {}, gentle = ["reco", "news", "wake", "hint"].concat(["promo"]);
   const recent = id => { const lt = lastTouch(id); return lt && diff(t, lt) < 7; };
   const kept = items.filter(it => { const w = person(it.who); if (w && w.noContact) return false; if (mute[it.k] && mute[it.k] > t) return false;
-    if (gentle.includes(it.type) && !(it.type === "promo" && it.o.why) && recent(it.who)) return false; return true; });
+    if (gentle.includes(it.type) && !(it.type === "promo" && it.o.why) && recent(it.who)) return false;
+    if (["promo", "news", "wake", "hint", "reco"].includes(it.type) && unhappy(client(it.who))) return false; return true; });
   items.length = 0; items.push(...kept);
   const seen = new Set();
   /* une seule carte par personne et par jour (sauf le cadeau fidélité, une bonne nouvelle à annoncer) */
@@ -1377,7 +1415,7 @@ function viewToday() {
   const full = todayList(), all = coachF ? full.filter(x => coachMeta(x).dom === coachF) : full, list = all.slice(0, MAX_TODAY);
   const n = new Set(list.map(x => x.who)).size;
   const t = today();
-  const doneToday = new Set(S.events.filter(e => e.date === t && ["relance", "pcontact", "hint", "plater", "report", "gift", "suivi", "bouche", "news", "promo"].includes(e.type)).map(e => e.saleId || e.prospectId || e.clientId)).size;
+  const doneToday = new Set(S.events.filter(e => e.date === t && ["relance", "pcontact", "hint", "plater", "report", "gift", "suivi", "bouche", "news", "promo", "care", "wake"].includes(e.type)).map(e => e.saleId || e.prospectId || e.clientId)).size;
   const total = list.length + doneToday;
   const st = stats("month");
   const hr = new Date().getHours(), hi = hr >= 18 ? "Bonsoir" : "Bonjour", who = myName();
@@ -1417,13 +1455,10 @@ let ctab = DEMO && new URLSearchParams(location.search).get("c") === "prospects"
 /* Une carte de la liste du jour : la raison, le message prêt, deux boutons */
 function cardShell({ k, head, extra = "", msgId, msg, vary, id, waAct, copyAct, phone, second, links }) {
   const ref = k.startsWith("s:") ? `data-sale="${id}"` : k.startsWith("p:") ? `data-prospect="${id}"` : "";
-  const m = CUR && CUR.k === k ? coachMeta(CUR) : null, D = m ? DOMAINS[m.dom] : null;
+  const m = CUR && CUR.k === k ? coachMeta(CUR) : null;
   return `<article class="card rcard open" data-k="${k}" ${ref}>
       <div class="rhead">${head}</div>
-      ${m ? `<div class="cact"><span class="dchip d-${m.dom}">${D[0]} ${D[1]}</span><span class="ccat">${m.cat}</span></div>
-      <p class="caction">${esc(m.action)}</p>
-      <div class="why"><b>Pourquoi ?</b> ${m.facts.map(esc).join(" · ")}</div>
-      ${m.missing.map(x => `<div class="miss">⚠️ ${esc(x)}</div>`).join("")}` : ""}
+      ${coachBlock(m)}
       ${extra}
       <div class="more">
       <div class="bubble"><div class="top"><span class="small">Votre message</span><span class="tbtns">${waNumber(phone) ? `<button class="vary" data-act="${copyAct}" data-id="${id}">${I.copy} Copier</button>` : ""}<button class="vary" data-act="${vary}" data-id="${id}">${I.redo} Autre</button></span></div>
@@ -1432,11 +1467,21 @@ function cardShell({ k, head, extra = "", msgId, msg, vary, id, waAct, copyAct, 
         ? `<a class="btn primary send" href="#" target="_blank" rel="noopener" data-act="${waAct}" data-id="${id}">${I.wa} Envoyer sur WhatsApp</a>`
         : `<button class="btn primary send" data-act="${copyAct}" data-id="${id}">${I.copy} Copier le message</button>`}
       ${second}
-      ${m ? `<div class="cfoot"><button data-act="cLater" data-k="${k}">⏰ Reporter</button><button data-act="cIgnore" data-k="${k}">🙈 Ignorer</button><button data-act="${m.fiche}" data-id="${m.id}">👤 Fiche</button></div>` : ""}
+      ${coachFoot(m, k)}
       ${links ? `<div class="alt links2">${links}</div>` : ""}
       </div>
     </article>`;
 }
+function coachBlock(m) {
+  if (!m) return ""; const D = DOMAINS[m.dom];
+  return `<div class="cact"><span class="dchip d-${m.dom}">${D[0]} ${D[1]}</span><span class="ccat">${m.cat}</span></div>
+      <p class="caction">${esc(m.action)}</p>
+      <div class="why"><b>Pourquoi ?</b> ${m.facts.map(esc).join(" · ")}</div>
+      ${m.missing.map(x => `<div class="miss">⚠️ ${esc(x)}</div>`).join("")}
+      ${m.tip ? `<div class="ctip">💡 ${esc(m.tip)}</div>` : ""}`;
+}
+const coachFoot = (m, k) => m ? `<div class="cfoot"><button data-act="cLater" data-k="${k}">⏰ Reporter</button><button data-act="cIgnore" data-k="${k}">🙈 Ignorer</button><button data-act="${m.fiche}" data-id="${m.id}">👤 Fiche</button></div>` : "";
+const satBtns = (id, attr = "sale") => `<div class="satb">${Object.entries(SAT).map(([v, [e, l]]) => `<button data-act="satSet" data-${attr}="${id}" data-v="${v}"><span>${e}</span>${l}</button>`).join("")}</div>`;
 const typeTag = label => `<span class="ttag">${label}</span>`;
 let CUR = null;
 function todayCard(it) {
@@ -1464,6 +1509,25 @@ function todayCard(it) {
       extra: pr.note ? `<div class="more"><div class="alt" style="text-align:left;margin-top:10px">📝 ${esc(pr.note)}</div></div>` : "",
       second: `<button class="btn soft second" data-act="pDone" data-id="${pr.id}">${I.check} Déjà fait</button>`,
       links: `<button data-act="pConvert" data-id="${pr.id}">A acheté</button> · <button data-act="pLost" data-id="${pr.id}">Pas intéressé</button>` });
+  }
+  if (it.type === "sat") {
+    const sl = it.s, c = client(sl.clientId), m = coachMeta(it);
+    return `<article class="card rcard open" data-k="${it.k}">
+      <div class="rhead"><span class="avatar" style="width:52px;height:52px;font-size:1.3rem">🗨️</span>
+        <div class="who"><button class="name" data-act="fiche" data-id="${c.id}">${esc(c.name)}</button>${exTag(c)}
+          <div class="status ok">Comment ça se passe pour ${esc(firstName(c.name))} ?</div><div class="meta2">${esc(sl.product)}</div></div></div>
+      ${coachBlock(m)}
+      <div class="more">${satBtns(sl.id)}
+      <div class="alt links2"><button data-act="satSet" data-sale="${sl.id}" data-v="none">Pas de réponse</button></div>
+      ${coachFoot(m, it.k)}</div></article>`;
+  }
+  if (it.type === "care") {
+    const c = it.x, l = lastSat(c);
+    return cardShell({ k: it.k, id: c.id, phone: c.phone, msgId: "camsg-" + c.id, msg: msg("care", c.name, c.camsg || 0), vary: "nextCaMsg", waAct: "caWa", copyAct: "caCopy",
+      head: `<span class="avatar" style="width:52px;height:52px;font-size:1.3rem">🤍</span>
+        <div class="who"><button class="name" data-act="fiche" data-id="${c.id}">${esc(c.name)}</button>${exTag(c)}
+          <div class="status late">À accompagner</div><div class="meta2">${SAT[l.v][0]} ${SAT[l.v][1]}${l.product ? " · " + esc(l.product) : ""}</div></div>`,
+      second: `<button class="btn soft second" data-act="caDone" data-id="${c.id}">${I.check} C'est fait, je l'ai recontacté</button>`, links: "" });
   }
   if (it.type === "suivi") {
     const sl = it.s, c = client(sl.clientId) || { name: "?" };
@@ -1869,18 +1933,26 @@ function refLine(c) {
   if (brought.length) h += `<div class="notice" style="margin-top:10px"><span>A présenté ${plural(brought.length, "personne", "personnes")} : <b>${brought.map(x => esc(x.name)).join(", ")}</b></span></div>`;
   return h;
 }
+function askSat(sl) {
+  const c = client(sl.clientId);
+  openSheet(`<div class="shead"><h3>Comment ça se passe pour ${esc(firstName(c.name))} ?</h3>${closeBtn}</div>
+    <p class="lede" style="margin-top:6px">Si ${esc(firstName(c.name))} vous a déjà répondu, notez son ressenti. Le coach adaptera la suite.</p>
+    ${satBtns(sl.id)}
+    <button class="btn soft" style="margin-top:10px" data-act="close">Pas encore de réponse · je le noterai plus tard</button>`);
+}
 function openFiche(id) {
   const c = client(id); if (!c) return;
   const sales = S.sales.filter(s => s.clientId === id).sort((a, b) => b.date.localeCompare(a.date));
   const evs = S.events.filter(e => e.clientId === id).sort((a, b) => b.date.localeCompare(a.date));
   const STATUS = { open: ["En cours", ""], relance: ["Relancé", "done"], recommande: ["A recommandé", "done"], rachete: ["Racheté", "done"], sanssuite: ["Sans suite", ""] };
-  const EV = { relance: "Relancé", recommande: "A recommandé", report: "Reporté de 3 jours", sanssuite: "Classé sans suite", bouche: "Demande de bouche-à-oreille", occasion: "Message d'occasion", accomp: "Accompagnement", hint: "Carte fidélité pas proposée", suivi: "Suivi après l'achat", news: "Message de nouveautés", wake: "Message de réveil", promo: "Promo envoyée", gift: "Cadeau fidélité offert" };
+  const EV = { care: "Recontacté après un retour mitigé", suivi: "Suivi après l'achat", relance: "Relancé", recommande: "A recommandé", report: "Reporté de 3 jours", sanssuite: "Classé sans suite", bouche: "Demande de bouche-à-oreille", occasion: "Message d'occasion", accomp: "Accompagnement", hint: "Carte fidélité pas proposée", suivi: "Suivi après l'achat", news: "Message de nouveautés", wake: "Message de réveil", promo: "Promo envoyée", gift: "Cadeau fidélité offert" };
   const total = sales.reduce((t, s) => t + (s.price || 0) * s.qty, 0);
   openSheet(`<div class="shead"><div style="display:flex;gap:12px;align-items:center;min-width:0"><span class="avatar">${c.status === "vip" ? "💳" : esc(initials(c.name))}</span>
       <div style="min-width:0"><h3>${esc(c.name)}${exTag(c)}</h3><div class="meta2">${c.city ? "🏠 " + esc(c.city.n) + " · " : ""}Client depuis ${duration(clientSince(c))}</div></div></div>${closeBtn}</div>
     ${contactBtns(c)}
     <div class="kstats"><div><b class="num">${sales.length}</b><span>commande${sales.length > 1 ? "s" : ""}</span></div><div><b class="num">${euro(total)}</b><span>au total</span></div>
       <div><b class="num">${lastOrder(c) ? diff(today(), lastOrder(c)) + " j" : "–"}</b><span>dernier achat</span></div></div>
+    <div class="satf"><span>Son ressenti${lastSat(c) ? ` <i>· noté ${ago(lastSat(c).date)}</i>` : ""}</span>${satBtns(c.id, "client").replace(/data-v="(\w+)"/g, (a, v) => a + (lastSat(c) && lastSat(c).v === v ? ' class="on"' : ""))}</div>
     ${diff(today(), clientSince(c)) >= 90 ? `<div class="notice" style="margin-top:10px"><span>🤝 Client depuis plus de 3 mois : c'est le bon moment pour lui demander une recommandation.</span></div>` : ""}
     <details class="cfields"><summary>Coordonnées et infos</summary>
     <label class="field"><span>Nom</span><input class="input" data-cfield="name" data-id="${c.id}" value="${esc(c.name)}"></label>
@@ -2890,7 +2962,20 @@ const actions = {
   nextSuMsg: el => { const sl = sale(el.dataset.id), c = client(sl.clientId); sl.msg = (sl.msg || 0) + 1; save(); const ta = document.getElementById("sumsg-" + sl.id); ta.value = msg("suivi", c.name, sl.msg, { de: deProd(sl.product) }); fitAreas(ta.parentNode); },
   suWa: el => { const sl = sale(el.dataset.id), c = client(sl.clientId); el.href = `https://wa.me/${waNumber(c.phone)}?text=${encodeURIComponent(document.getElementById("sumsg-" + sl.id).value)}`; setTimeout(() => actions.suDone(el), 300); return true; },
   suCopy: async el => { const ok = await copyText(document.getElementById("sumsg-" + el.dataset.id).value); toast(ok ? "Message copié. Collez-le dans votre messagerie." : "Impossible de copier."); },
-  suDone: el => { const sl = sale(el.dataset.id), snap = snapshot(); sl.suiviDone = today(); if (!el.dataset.skip) S.events.push({ id: uid(), type: "suivi", clientId: sl.clientId, saleId: sl.id, product: sl.product, date: today(), example: !!sl.example }); save(); render(); toast(el.dataset.skip ? "D'accord, pas de suivi pour cette commande" : `Bravo ! Suivi noté.${cheer()}`, snap); },
+  suDone: el => { const sl = sale(el.dataset.id), snap = snapshot(); sl.suiviDone = today(); if (!el.dataset.skip) { sl.satPending = today(); S.events.push({ id: uid(), type: "suivi", clientId: sl.clientId, saleId: sl.id, product: sl.product, date: today(), example: !!sl.example }); } save(); render(); toast(el.dataset.skip ? "D'accord, pas de suivi pour cette commande" : `Bravo ! Suivi noté.${cheer()}`, snap);
+    if (!el.dataset.skip && el.dataset.act === "suDone") askSat(sl); },
+  satSet: el => {
+    const snap = snapshot(), v = el.dataset.v, sl = el.dataset.sale ? sale(el.dataset.sale) : null, c = sl ? client(sl.clientId) : client(el.dataset.client);
+    if (sl) delete sl.satPending;
+    c.satLog = c.satLog || []; c.satLog.push({ date: today(), v, product: sl ? sl.product : "", saleId: sl ? sl.id : "" });
+    if (v !== "none") c.satisfaction = v;
+    save(); closeSheet(); render(); if (!sl) openFiche(c.id);
+    toast(v === "ok" ? `Super ! Le coach vous proposera de lui demander une recommandation 🤝` : v === "none" ? "D'accord, noté" : `Merci. Le coach vous aide à trouver une solution avec ${firstName(c.name)} 🤍`, snap);
+  },
+  nextCaMsg: el => { const c = client(el.dataset.id); c.camsg = (c.camsg || 0) + 1; save(); const ta = document.getElementById("camsg-" + c.id); ta.value = msg("care", c.name, c.camsg); fitAreas(ta.parentNode); },
+  caWa: el => { const c = client(el.dataset.id); el.href = `https://wa.me/${waNumber(c.phone)}?text=${encodeURIComponent(document.getElementById("camsg-" + c.id).value)}`; setTimeout(() => actions.caDone(el), 300); return true; },
+  caCopy: async el => { const ok = await copyText(document.getElementById("camsg-" + el.dataset.id).value); toast(ok ? "Message copié. Collez-le dans votre messagerie." : "Impossible de copier."); },
+  caDone: el => { const c = client(el.dataset.id), snap = snapshot(), l = lastSat(c); if (l) l.cared = today(); S.events.push({ id: uid(), type: "care", clientId: c.id, product: l ? l.product : "", date: today(), example: !!c.example }); save(); render(); toast(`Merci de prendre soin de vos clients 🤍 Pensez à noter son nouveau retour dans sa fiche.${cheer()}`, snap); },
   nextRcMsg: el => { const x = person(el.dataset.id), isC = !!client(x.id); x.rcmsg = (x.rcmsg || 0) + 1; save(); const ta = document.getElementById("rcmsg-" + x.id); ta.value = msg(isC ? "recoC" : "recoP", x.name, x.rcmsg, { mois: duration(isC ? clientSince(x) : x.createdAt || today()) }); fitAreas(ta.parentNode); },
   rcWa: el => { const x = person(el.dataset.id); el.href = `https://wa.me/${waNumber(x.phone)}?text=${encodeURIComponent(document.getElementById("rcmsg-" + x.id).value)}`; setTimeout(() => actions.rcDone(el), 300); return true; },
   rcCopy: async el => { const ok = await copyText(document.getElementById("rcmsg-" + el.dataset.id).value); toast(ok ? "Message copié. Collez-le dans votre messagerie." : "Impossible de copier."); },
