@@ -121,6 +121,15 @@ main{max-width:560px;margin:0 auto;padding:6px 16px 24px}
 .cfoot button{border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:9px 4px;font:inherit;font-size:.8rem;font-weight:700;color:var(--ink-2);cursor:pointer}
 .rcard{border-radius:28px}
 .later{display:grid;gap:8px;margin-top:14px}
+.lvl{display:flex;gap:14px;align-items:center;margin-top:12px;background:var(--surface);border-radius:24px;padding:14px 16px;box-shadow:var(--shadow)}
+.lvl .lv-e{width:48px;height:48px;flex:none;border-radius:50%;background:var(--o-soft);display:grid;place-items:center;font-size:1.5rem}
+.lvl small{display:block;font-size:.74rem;font-weight:700;color:var(--ink-3);text-transform:uppercase;letter-spacing:.04em}.lvl b{display:block;font-size:1.05rem}
+.lvl .lv-why{display:block;font-size:.8rem;color:var(--ink-2);font-weight:600;margin-top:2px}
+.prio{margin-top:12px;border-radius:28px}.prio h2{margin:4px 0 0;font-size:1.2rem;letter-spacing:-.02em}
+.ltip{margin-top:12px;background:var(--surface-2);border-radius:20px;padding:12px 14px}.ltip b{display:block;font-size:.98rem}.ltip p{margin:4px 0 0;font-size:.9rem;color:var(--ink-2);line-height:1.45}.ltip .tipgo{margin-top:10px}
+.themes{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.theme{display:flex;align-items:center;gap:8px;text-align:left;border:0;background:var(--surface);border-radius:18px;padding:11px 12px;font:inherit;font-size:.84rem;font-weight:700;color:var(--ink);cursor:pointer;box-shadow:var(--shadow);line-height:1.25}
+.theme span{font-size:1.2rem}.theme.on{background:var(--ink);color:#fff}
 .cworth{position:relative;z-index:1;display:block;width:100%;text-align:left;margin-top:12px;border:0;background:rgba(255,255,255,.22);color:#fff;border-radius:16px;padding:10px 14px;font:inherit;font-size:.9rem;font-weight:650;cursor:pointer}
 .worthx{margin-top:8px;display:inline-block;font-size:.88rem;font-weight:650;color:#fff;background:rgba(255,255,255,.2);border-radius:99px;padding:6px 12px}.worthx b{color:#fff;font-weight:800}
 .ctip{margin-top:6px;font-size:.82rem;color:var(--b-text);background:var(--b-soft);border-radius:14px;padding:8px 12px;line-height:1.45;font-weight:600}
@@ -2342,10 +2351,96 @@ function askSuggestions() {
   const asked = new Set(S.events.filter(e => e.type === "bouche" && diff(t, e.date) <= 60).map(e => e.clientId || e.prospectId));
   return S.clients.filter(c => (recent.has(c.id) || c.status === "vip") && !asked.has(c.id)).slice(0, 3);
 }
+/* ---------- Le coach de développement : niveau, priorité, conseils par thème ----------
+   Le niveau et la priorité sont calculés sur les données de la vendeuse (rien d'inventé).
+   Chaque conseil : [niveaux concernés ("123" = tous), titre, comment faire, action, libellé du bouton]. */
+const LEVELS = { 1: ["🌱", "Je démarre"], 2: ["🌿", "Je développe ma clientèle"], 3: ["🌳", "Je fais grandir mon activité"] };
+function myLevel() {
+  const nc = S.clients.length, t = today(), s90 = S.sales.filter(sl => diff(t, sl.date) <= 90).length;
+  const lv = nc >= 40 || s90 >= 30 ? 3 : nc >= 10 || s90 >= 10 ? 2 : 1;
+  return { lv, why: `${plural(nc, "client", "clients")} et ${plural(s90, "vente", "ventes")} ces 3 derniers mois` };
+}
+const THEMES = {
+  find: ["🔎", "Trouver de nouveaux clients", "prospect", [
+    ["1", "Commencez par votre premier cercle", "Faites la liste de 20 personnes que vous connaissez déjà : famille, amis, collègues, voisins. Ne vendez rien : dites simplement que vous démarrez et que leur avis compte.", "addProspect", "Ajouter un prospect"],
+    ["123", "Notez chaque rencontre le jour même", "Une personne intéressée au marché, à un salon ou à la sortie de l'école ? Notez son prénom et ce qui l'intéresse le jour même. Recharge vous rappellera de la recontacter au bon moment.", "addProspect", "Noter une rencontre"],
+    ["12", "Partagez votre usage, pas un catalogue", "Une photo de votre routine, un avant/après honnête, un produit que vous aimez vraiment : ça donne envie de poser des questions. Répondez en privé à chaque question.", "", ""],
+    ["23", "Fixez-vous un petit rythme", "2 nouveaux contacts par semaine suffisent. En un an, cela fait plus de 100 personnes qui vous connaissent.", "addProspect", "Ajouter un prospect"],
+    ["3", "Organisez un atelier découverte", "Invitez 4 à 6 personnes chez une cliente fidèle : elle reçoit un cadeau, vous rencontrez son entourage. Notez chaque invitée comme prospect.", "addProspect", "Ajouter les invitées"]]],
+  network: ["🕸️", "Développer son réseau", "prospect", [
+    ["12", "Dites autour de vous ce que vous faites", "Beaucoup de proches ne savent pas que vous vendez. Un message simple suffit : « Je me suis lancée dans… si un jour tu as besoin, pense à moi 😊 ».", "", ""],
+    ["123", "Rejoignez un lieu où l'on se croise", "Association, club, marché, groupe de parents : on achète plus volontiers à quelqu'un qu'on voit souvent. Soyez présente avant d'être vendeuse.", "", ""],
+    ["23", "Faites-vous connaître des commerçants", "Coiffeuse, esthéticienne, salle de sport : proposez un échange de bons procédés, chacun parle de l'autre à ses clients.", "", ""],
+    ["3", "Repérez vos clients qui connaissent du monde", "Certains clients vous ont déjà présenté plusieurs personnes : remerciez-les vraiment, ce sont vos meilleurs ambassadeurs.", "ask", "Voir mes recommandations"]]],
+  ask: ["🤝", "Demander une recommandation", "reco", [
+    ["123", "Demandez au moment où le client est content", "Juste après un compliment ou un bon retour, demandez : « Tu penses à quelqu'un à qui ça pourrait plaire ? ». C'est le meilleur moment.", "coach:reco", "Voir à qui demander"],
+    ["12", "Demandez un prénom, pas « des contacts »", "« Tu penses à une amie qui aime prendre soin d'elle ? » est plus facile que « tu connais des gens ? ». On répond mieux à une question précise.", "coach:reco", "Voir à qui demander"],
+    ["23", "Notez tout de suite la personne recommandée", "Notez-la comme prospect avec « de la part de… ». Votre premier message pourra dire « Marie m'a parlé de toi », ça change tout.", "addProspect", "Ajouter une personne recommandée"],
+    ["3", "Remerciez chaque recommandation", "Un merci, un petit échantillon, un tampon sur la carte fidélité : un client remercié recommande à nouveau.", "card", "Voir la carte fidélité"]]],
+  revive: ["🔁", "Reprendre contact avec un ancien prospect", "prospect", [
+    ["123", "Revenez avec une vraie raison", "Une nouveauté, une saison qui change, un produit lié à ce qui l'intéressait : on ne relance pas « pour relancer », on apporte une info utile.", "coach:prospect", "Voir mes prospects à recontacter"],
+    ["12", "Ne vous excusez pas de recontacter", "Un message simple et chaleureux : « Je pensais à toi en voyant… ». Pas de « désolée de te déranger ».", "coach:prospect", "Voir mes prospects"],
+    ["23", "Proposez un essai plutôt qu'un achat", "Un échantillon, une démonstration, un petit format : un petit oui est plus facile qu'un grand.", "", ""],
+    ["3", "Acceptez le non, gardez le lien", "Si la personne n'est pas intéressée, notez-le. Un prospect respecté reste un contact qui peut vous recommander.", "coach:prospect", "Voir mes prospects"]]],
+  present: ["🎁", "Présenter un produit", "prospect", [
+    ["123", "Partez de son besoin, pas du produit", "Demandez d'abord : « Qu'est-ce que tu cherches ? Qu'as-tu déjà essayé ? ». Puis présentez un seul produit qui y répond.", "", ""],
+    ["12", "Racontez votre propre expérience", "« Moi, je l'utilise le soir, et j'ai vu la différence au bout de 2 semaines. » Une expérience sincère vaut mieux qu'une fiche produit.", "", ""],
+    ["23", "Donnez le mode d'emploi dès la vente", "Quand, combien, combien de temps : un client qui sait bien l'utiliser obtient des résultats et revient.", "", ""],
+    ["3", "Proposez 3 choix simples", "Petit, moyen, complet : avec 3 options claires, on choisit plus facilement qu'avec un catalogue entier.", "promo", "Préparer une offre"]]],
+  loyal: ["💳", "Fidéliser un client", "fidelite", [
+    ["123", "Faites un suivi après chaque achat", "Une semaine après, prenez des nouvelles et donnez un conseil d'utilisation. C'est ce qui transforme un acheteur en client fidèle.", "coach:suivi", "Voir mes suivis"],
+    ["12", "Proposez la carte fidélité dès la 2e commande", "Elle est gratuite pour vous et motivante pour le client : à la 5e commande, un cadeau.", "card", "Voir la carte fidélité"],
+    ["23", "Retenez ce qui compte pour chaque client", "Ses préférences, son anniversaire, ses enfants : notez-le dans sa fiche. Vos messages deviennent personnels.", "", ""],
+    ["3", "Accompagnez aussi les clients déçus", "Un client mécontent bien accompagné devient souvent plus fidèle qu'avant. Le coach vous le signale après chaque suivi.", "coach:suivi", "Voir mes suivis"]]],
+  rebuy: ["🔄", "Augmenter le réachat", "reassort", [
+    ["123", "Relancez avant la fin du produit", "2 à 4 jours avant la fin estimée, un petit message évite la rupture. Recharge vous prévient au bon moment.", "coach:reassort", "Voir mes réassorts"],
+    ["12", "Indiquez la durée de vos produits", "Dans Menu › Mes produits, la durée de chaque produit permet à Recharge de calculer la bonne date de relance.", "goto:settings:Mes produits", "Régler mes produits"],
+    ["23", "Proposez le produit complémentaire", "Gel + crème, shampoing + soin : proposez celui qui va avec, au moment du réassort, sans insister.", "", ""],
+    ["3", "Réveillez les clients silencieux", "Un client sans commande depuis 3 mois n'est pas perdu : un message sans pression suffit souvent.", "coach:fidelite", "Voir les clients à réveiller"]]],
+  word: ["📣", "Développer le bouche-à-oreille", "reco", [
+    ["123", "Donnez quelque chose à partager", "Un échantillon « pour une amie », une carte avec votre numéro : vos clients parlent de vous plus facilement avec quelque chose en main.", "", ""],
+    ["12", "Demandez un avis, puis la permission de le partager", "Un retour positif, partagé avec l'accord du client, rassure les personnes qui hésitent.", "coach:suivi", "Voir mes suivis"],
+    ["23", "Faites savoir quand une promo arrive", "Une promo est une bonne raison d'en parler à son entourage : « Tu peux en parler à tes amies, c'est valable jusqu'à dimanche ».", "promo", "Préparer une promo"],
+    ["3", "Montrez votre réseau qui grandit", "Dans Développer › Mon micro-marché, voyez combien de personnes vos clients peuvent vous présenter.", "", ""]]]
+};
+/* La priorité du moment : la première règle qui s'applique, avec ses chiffres réels */
+function devPriority() {
+  const t = today(), open = S.prospects.filter(x => x.status === "open"), nc = S.clients.length;
+  if (!nc && !open.length) return { th: "find", why: "Vous n'avez encore aucun contact dans Recharge. Commencez par noter les personnes que vous connaissez.", missing: true };
+  const never = open.filter(x => !x.contacts).length;
+  if (never >= 3) return { th: "revive", why: `${plural(never, "prospect n'a", "prospects n'ont")} encore jamais été contacté${never > 1 ? "s" : ""}.` };
+  if (open.length < 3) return { th: "find", why: `Vous avez ${plural(open.length, "prospect", "prospects")} en cours : c'est peu pour trouver de nouveaux clients.` };
+  const asks = S.events.filter(e => e.type === "bouche" && diff(t, e.date) <= 90).length;
+  if (nc >= 3 && !asks) return { th: "ask", why: `Aucune demande de recommandation depuis 3 mois, alors que vous avez ${plural(nc, "client", "clients")}.` };
+  const sleepy = dueWake().length;
+  if (sleepy >= 2) return { th: "rebuy", why: `${plural(sleepy, "client n'a", "clients n'ont")} pas commandé depuis plus de 3 mois.` };
+  const once = S.clients.filter(c => ordersOf(c) === 1 && lastOrder(c) && diff(t, lastOrder(c)) >= 60).length;
+  if (nc >= 5 && once / nc >= .4) return { th: "loyal", why: `${once} de vos ${nc} clients n'ont commandé qu'une fois.` };
+  if (nc >= 5 && !S.clients.some(c => c.status === "vip")) return { th: "loyal", why: "Aucun client n'a encore la carte fidélité." };
+  return { th: "word", why: "Vos bases sont solides : c'est le moment de faire parler de vous." };
+}
+const tipsFor = (th, lv) => THEMES[th][3].filter(x => x[0].includes(String(lv)));
+const tipBlock = ([, ti, d, a, l]) => `<div class="ltip"><b>${ti}</b><p>${d}</p>${tipBtn(a, l, "primary")}</div>`;
+function devCoach() {
+  const L = myLevel(), P = devPriority(), T = THEMES[P.th], first = tipsFor(P.th, L.lv)[0] || T[3][0];
+  return `<section class="lvl"><span class="lv-e">${LEVELS[L.lv][0]}</span><div><small>Votre niveau</small><b>${LEVELS[L.lv][1]}</b><span class="lv-why">Calculé sur vos données : ${L.why}</span></div></section>
+    <div class="card pad prio"><div class="dt-k">${P.missing ? "Pour bien démarrer" : "Votre priorité du moment"}</div><h2>${T[0]} ${T[1]}</h2>
+      <div class="why" style="margin-top:6px"><b>Pourquoi ?</b> ${esc(P.why)}</div>${tipBlock(first)}
+      <button class="linkbtn" data-act="devTheme" data-th="${P.th}">Tous les conseils sur ce thème →</button></div>
+    <div class="themes">${Object.entries(THEMES).map(([k, [e, l]]) => `<button class="theme ${k === P.th ? "on" : ""}" data-act="devTheme" data-th="${k}"><span>${e}</span>${l}</button>`).join("")}</div>`;
+}
+function openTheme(th) {
+  const L = myLevel(), T = THEMES[th], mine = tipsFor(th, L.lv), others = T[3].filter(x => !mine.includes(x));
+  openSheet(`<div class="shead"><h3>${T[0]} ${T[1]}</h3>${closeBtn}</div>
+    <p class="lede" style="margin-top:6px">Conseils choisis pour votre niveau : <b>${LEVELS[L.lv][1].toLowerCase()}</b>.</p>
+    ${mine.map(tipBlock).join("")}
+    ${others.length ? `<details class="cfields"><summary>Autres conseils <i>· pour d'autres niveaux</i></summary>${others.map(tipBlock).join("")}</details>` : ""}`);
+}
 function viewDev() {
   const [e, ti, d, act, lab] = tipOfDay(), st = stats("month");
-  let h = `<h1 class="title">Développer ma clientèle 🌱</h1><p class="lede">${longDate()} · des idées concrètes, chaque jour.</p>`;
-  h += `<section class="devtip"><div class="dt-k">Le conseil du jour</div><div class="dt-e">${e}</div><h2>${ti}</h2><p>${d}</p>${tipBtn(act, lab, "primary")}</section>`;
+  let h = `<h1 class="title">Développer ma clientèle 🌱</h1><p class="lede">${longDate()} · votre coach de développement.</p>`;
+  h += devCoach();
+  h += section("Le conseil du jour") + `<section class="devtip"><div class="dt-k">Le conseil du jour</div><div class="dt-e">${e}</div><h2>${ti}</h2><p>${d}</p>${tipBtn(act, lab, "primary")}</section>`;
   h += section("Les prochains temps forts") + `<div class="card list">${upcomingMoments(3).map(m => `<div class="row"><div style="display:flex;gap:12px;align-items:center;min-width:0"><span class="mom">${m.e}</span>
     <div style="min-width:0"><b>${m.name}</b><div class="meta2">${m.days === 0 ? "Aujourd'hui !" : m.days === 1 ? "Demain" : `Dans ${m.days} jours`} · ${m.d.toLocaleDateString("fr-FR", { day: "numeric", month: "long" })}</div><div class="hint" style="margin:2px 0 0">${m.tip}</div></div></div>
     ${m.days <= 30 ? `<button class="btn sm primary" data-act="devPromo" data-n="${esc(m.name)}">Préparer</button>` : ""}</div>`).join("")}</div>`;
@@ -3051,13 +3146,17 @@ const actions = {
   tipHide: () => { S.tipHidden = today(); save(); render(); },
   tipAct: el => {
     const a = el.dataset.a;
-    if (a === "promo") return openPromoForm();
+    if (a === "promo") { closeSheet(); return openPromoForm(); }
     if (a === "import") return openImport();
     if (a === "ask") { tab = "dev"; render(); window.scrollTo(0, 0); return setTimeout(() => { const hh = [...document.querySelectorAll(".section h2")].find(x => x.textContent.startsWith("Recommandations")); if (hh) scrollTo({ top: hh.getBoundingClientRect().top + scrollY - 90, behavior: "smooth" }); }, 60); }
     if (a === "prospect") { tab = "clients"; ctab = "prospects"; render(); return window.scrollTo(0, 0); }
     if (a === "card") { actions.goto({ dataset: { t: "settings", c: "Carte fidélité" } }); }
+    if (a === "addProspect") { closeSheet(); return openProspectForm(null, {}); }
+    if (a.startsWith("coach:")) { closeSheet(); coachF = a.slice(6); tab = "today"; render(); return window.scrollTo(0, 0); }
+    if (a.startsWith("goto:")) { closeSheet(); const [, t2, c2] = a.split(":"); return actions.goto({ dataset: { t: t2, c: c2 || "" } }); }
   },
   devPromo: el => openPromoForm(el.dataset.n),
+  devTheme: el => openTheme(el.dataset.th),
   bilanMonth: el => openBilan(el.dataset.m),
   goto: el => {
     const t2 = el.dataset.t, c2 = el.dataset.c;
