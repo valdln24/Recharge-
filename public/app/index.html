@@ -149,6 +149,12 @@ main{max-width:560px;margin:0 auto;padding:6px 16px 24px}
 .ctile{display:flex;flex-direction:column;align-items:flex-start;gap:2px;border:0;background:var(--surface);border-radius:24px;padding:14px;text-align:left;font:inherit;color:var(--ink);cursor:pointer;box-shadow:var(--shadow)}
 .ctile span{font-size:1.3rem}.ctile b{font-size:1.4rem;letter-spacing:-.03em;margin-top:6px}.ctile small{font-size:.76rem;font-weight:650;color:var(--ink-2)}
 .ctile.hot{background:var(--ink);color:#fff}.ctile.hot small{color:#c9cdcb}
+.upplans{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.upplan{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;border:2px solid var(--line-2);background:var(--surface);border-radius:20px;padding:16px 8px 12px;font:inherit;color:var(--ink);cursor:pointer}
+.upplan b{font-size:1.5rem;letter-spacing:-.03em}.upplan span{font-size:.8rem;font-weight:650;color:var(--ink-2)}
+.upplan i{position:absolute;top:-11px;font-style:normal;font-size:.7rem;font-weight:800;color:#fff;background:var(--grad);border-radius:99px;padding:3px 9px}
+.upplan.on{border-color:var(--o1);background:var(--o-soft)}
+.plan-line{margin:4px 0 10px;font-weight:700;color:var(--o-text)}
 .chatleft{margin:10px 4px 0;font-size:.84rem;font-weight:650;color:var(--o-text)}.chatleft a{color:inherit}
 .gtypes{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
 .gtypes button{display:flex;flex-direction:column;align-items:center;gap:4px;border:1.5px solid var(--line-2);background:var(--surface);border-radius:18px;padding:10px 4px;font:inherit;font-size:.74rem;font-weight:750;color:var(--ink);cursor:pointer;line-height:1.2;text-align:center}
@@ -588,8 +594,9 @@ const readLS = k => { try { return JSON.parse(localStorage.getItem(k) || "null")
 const writeLS = (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
 let session = DEMO ? null : readLS(SESSION_KEY);
 /* Les comptes n'existent que si le serveur est branché (sinon : site déposé seul, sans serveur) */
-let API_OK = false, COACH_OK = false;
-if (!DEMO && location.protocol.startsWith("http")) fetch(new URL("../api/health", location.href)).then(r => r.ok ? r.json() : null).then(j => { if (!j) return; API_OK = !!j.accounts; COACH_OK = !!j.coach; if ((API_OK || COACH_OK) && typeof render === "function" && S) render(); }).catch(() => {});
+let API_OK = false, COACH_OK = false, BILLING_OK = false;
+const isPaidS = () => !!(session && session.paid);
+if (!DEMO && location.protocol.startsWith("http")) fetch(new URL("../api/health", location.href)).then(r => r.ok ? r.json() : null).then(j => { if (!j) return; API_OK = !!j.accounts; COACH_OK = !!j.coach; BILLING_OK = !!j.billing; if ((API_OK || COACH_OK || BILLING_OK) && typeof render === "function" && S) render(); }).catch(() => {});
 let sync = readLS(SYNC_KEY) || { rev: 0, dirty: false, lastAt: 0 };
 const saveSync = () => writeLS(SYNC_KEY, sync);
 const deviceName = () => { const u = navigator.userAgent; return /iPhone/.test(u) ? "iPhone" : /iPad/.test(u) ? "iPad" : /Android/.test(u) ? "Android" : /Mac/.test(u) ? "Mac" : /Windows/.test(u) ? "PC" : "Navigateur"; };
@@ -650,7 +657,7 @@ function askConflict(serverInfo) {
 
 /* Après connexion (lien ou code) : on rapproche les données du téléphone et celles du compte */
 async function afterLogin(r) {
-  session = { token: r.session, email: r.user.email, plan: r.user.plan, canSync: r.user.canSync };
+  session = { token: r.session, email: r.user.email, plan: r.user.plan, paid: !!r.user.paid, billing: !!r.user.billing, canSync: r.user.canSync };
   writeLS(SESSION_KEY, session);
   sync = { rev: 0, dirty: false, lastAt: 0 }; saveSync();
   const serverHas = r.backup && r.backup.rev > 0;
@@ -660,7 +667,19 @@ async function afterLogin(r) {
   if (hasRealData(S)) { await pushNow(true); render(); toast("C'est fait ! Vos données sont sauvegardées sur votre compte ✅"); }
   else toast("Compte créé ✅ Vos données seront sauvegardées automatiquement.");
 }
-let loginEmail = "";
+let loginEmail = "", upPeriod = "year";
+function openUpgrade() {
+  if (!BILLING_OK) return API_OK ? openAccountForm("upgrade") : toast("Le paiement en ligne arrive très bientôt 🙂");
+  openSheet(`<div class="shead"><h3>✨ Passer à Recharge</h3>${closeBtn}</div>
+    <p class="lede" style="margin-top:8px"><b>14 jours gratuits</b>, puis sans engagement : vous résiliez en 1 clic quand vous voulez.</p>
+    <ul class="perks"><li>♾️ <b>Clients illimités</b> (la version gratuite va jusqu'à 10)</li><li>🧭 <b>Coach IA illimité</b> : captures, réponses, messages</li><li>☁️ <b>Sauvegarde automatique</b> et vos clients sur un nouveau téléphone</li><li>💸 Ce que Recharge vous rapporte, chaque mois</li></ul>
+    <div class="upplans">
+      <button class="upplan ${upPeriod === "month" ? "on" : ""}" data-act="upPeriod" data-p="month"><b>9,90 €</b><span>par mois</span></button>
+      <button class="upplan ${upPeriod === "year" ? "on" : ""}" data-act="upPeriod" data-p="year"><i>2 mois offerts</i><b>99 €</b><span>par an</span></button></div>
+    <button class="btn orange" style="margin-top:14px" data-act="upGo">Commencer mes 14 jours gratuits</button>
+    <p class="hint" style="text-align:center">🔒 Paiement sécurisé par Stripe : Recharge ne voit jamais votre carte. Aucun prélèvement avant la fin de l'essai.</p>
+    ${!session && API_OK ? `<button class="linkbtn" data-act="accLogin">J'ai déjà un compte : me connecter</button>` : ""}`);
+}
 function openAccountForm(mode) {
   openSheet(`<div class="shead"><h3>${mode === "login" ? "Me connecter" : "Passer à la version complète"}</h3>${closeBtn}</div>
     ${mode === "login" ? `<p class="lede" style="margin-top:8px">Indiquez l'email de votre compte : vous recevez un lien et un code pour retrouver vos clients.</p>` : `<p class="lede" style="margin-top:8px">Votre email suffit : pas de mot de passe. Vous recevez un lien et un code pour vous connecter.</p>
@@ -702,11 +721,14 @@ function accountSection() {
     <b style="display:block">📱 Vos données sont dans ce téléphone</b><p class="hint" style="margin:4px 0 12px">☁️ La sauvegarde en ligne arrive bientôt. En attendant, gardez une copie de vos données dans un fichier, par exemple en vous l'envoyant par email.</p>
     <button class="btn soft" data-act="export">${I.down} Exporter mes données</button></div>`;
   if (!session) return section("Mon compte") + `<div class="card pad acc">
-    <b style="display:block">📱 Version gratuite</b><p class="hint" style="margin:4px 0 12px">Jusqu'à 10 clients, sans compte. Vos données restent uniquement dans ce téléphone.</p>
-    <button class="btn orange" data-act="accUpgrade">✨ Passer à la version complète</button>
-    <button class="linkbtn" data-act="accLogin">J'ai déjà un compte : me connecter</button></div>`;
+    <b style="display:block">📱 Version gratuite</b><p class="hint" style="margin:4px 0 12px">Jusqu'à 10 clients, 3 échanges par mois avec le coach IA, sans compte. Vos données restent uniquement dans ce téléphone.</p>
+    <button class="btn orange" data-act="accUpgrade">✨ Passer à Recharge · 14 jours gratuits</button>
+    ${API_OK ? `<button class="linkbtn" data-act="accLogin">J'ai déjà un compte : me connecter</button>` : ""}</div>`;
   return section("Mon compte") + `<div class="card pad acc">
     <b style="display:block">☁️ Compte : ${esc(session.email)}</b>
+    <p class="plan-line">${session.paid ? "✨ Abonnement Recharge actif" : "📱 Version gratuite"}</p>
+    ${session.billing ? `<button class="btn soft" style="margin-bottom:8px" data-act="accPortal">💳 Gérer mon abonnement · factures, carte, résiliation</button>` : ""}
+    ${!session.paid && BILLING_OK ? `<button class="btn orange" style="margin-bottom:8px" data-act="accUpgrade">✨ Passer à Recharge · 14 jours gratuits</button>` : ""}
     <p class="hint" id="syncState" style="margin:4px 0 12px">${syncLabel()}</p>
     <button class="btn soft" data-act="accSyncNow">Sauvegarder maintenant</button>
     <button class="btn outline" style="margin-top:8px" data-act="accLogout">Me déconnecter</button>
@@ -1709,7 +1731,7 @@ function viewClients() {
   const openP = S.prospects.filter(x => x.status === "open").length;
   const nReal = S.clients.filter(c => !c.example).length;
   let h = `<h1 class="title">Clients</h1><p class="lede">${plural(S.clients.length, "client", "clients")} · ${plural(openP, "prospect en cours", "prospects en cours")}</p>`;
-  if (!session && API_OK && nReal >= 10) h += `<div class="notice"><span>✨ ${nReal} clients : la version complète sauvegarde tout et n'a pas de limite.</span><button class="btn sm orange" data-act="accUpgrade">Découvrir</button></div>`;
+  if (!isPaidS() && (API_OK || BILLING_OK) && nReal >= 10) h += `<div class="notice"><span>✨ ${nReal} clients : la version complète sauvegarde tout et n'a pas de limite.</span><button class="btn sm orange" data-act="accUpgrade">Découvrir</button></div>`;
   const wait = ctab === "clients" ? waitingSales() : [];
   if (wait.length) {
     h += section("En attente de réponse", wait.length) + `<div class="card list">`;
@@ -2507,14 +2529,14 @@ function viewCoach() {
   h += `<div class="card chatbox">
     <div class="chatlog" id="chatlog">${msgs.length ? msgs.map((m, i) => m.role === "user"
       ? `<div class="cm me">${m.img ? `<img src="${m.img}" alt="Capture envoyée">` : ""}${m.text ? `<p>${esc(m.text)}</p>` : ""}${m.ex ? `<span class="tag">Exemple</span>` : ""}</div>`
-      : `<div class="cm bot"><span class="cm-av">${MARK}</span><div class="cm-b">${m.pending ? `<p class="typing"><i></i><i></i><i></i></p>` : m.err ? `<p>${esc(m.err)}</p>${m.limit ? `<a class="btn sm orange" style="margin-top:10px" href="/#tarifs" target="_blank" rel="noopener">Voir l'abonnement</a>` : ""}` : chatRes(m.res, i)}${m.ex ? `<span class="tag">Exemple</span>` : ""}</div></div>`).join("")
+      : `<div class="cm bot"><span class="cm-av">${MARK}</span><div class="cm-b">${m.pending ? `<p class="typing"><i></i><i></i><i></i></p>` : m.err ? `<p>${esc(m.err)}</p>${m.limit ? `<a class="btn sm orange" style="margin-top:10px" href="#" data-act="accUpgrade">Voir l'abonnement</a>` : ""}` : chatRes(m.res, i)}${m.ex ? `<span class="tag">Exemple</span>` : ""}</div></div>`).join("")
       : `<p class="chat0">👋 Bonjour${myName() ? " " + esc(myName()) : ""} ! Envoyez-moi la <b>capture d'écran</b> d'une discussion avec un prospect ou un client : je vous dis où il en est et je vous propose quoi répondre.</p>`}</div>
     ${!msgs.length || DEMO ? `<div class="ideas">${CHAT_IDEAS.map(q => `<button data-act="chatIdea">${esc(q)}</button>`).join("")}</div>` : ""}
     ${chatImg ? `<div class="chatimg"><img src="${chatImg}" alt="Capture à envoyer"><button data-act="chatImgX" aria-label="Retirer la capture">${I.x}</button></div>` : ""}
     <form id="chatForm" class="chatin"><label class="chatpic" title="Envoyer une capture">📷<input type="file" id="chatFile" accept="image/*" class="hidden"></label>
       <textarea id="chatQ" rows="1" placeholder="Question ou capture 📷"></textarea>
       <button class="chatgo" type="submit" aria-label="Envoyer" ${chatBusy ? "disabled" : ""}>➤</button></form>
-    ${COACH_OK && !session ? `<p class="chatleft">${coachLeft() > 0 ? `🎁 Encore <b>${coachLeft()} échange${coachLeft() > 1 ? "s" : ""} gratuit${coachLeft() > 1 ? "s" : ""}</b> avec le coach ce mois-ci · illimité avec l'abonnement` : `Vos 3 échanges gratuits du mois sont utilisés · <a href="/#tarifs" target="_blank" rel="noopener">illimité avec l'abonnement</a>`}</p>` : ""}
+    ${COACH_OK && !isPaidS() ? `<p class="chatleft">${coachLeft() > 0 ? `🎁 Encore <b>${coachLeft()} échange${coachLeft() > 1 ? "s" : ""} gratuit${coachLeft() > 1 ? "s" : ""}</b> avec le coach ce mois-ci · illimité avec l'abonnement` : `Vos 3 échanges gratuits du mois sont utilisés · <a href="#" data-act="accUpgrade">illimité avec l'abonnement</a>`}</p>` : ""}
     <p class="chatpriv">🔒 La capture sert uniquement à préparer la réponse, puis elle est oubliée : rien n'est enregistré. Évitez les informations sensibles (santé, adresse…).</p>
     ${COACH_OK || DEMO ? "" : `<div class="miss">⏳ Le coach IA sera bientôt activé. En attendant, tout le reste du coach ci-dessous fonctionne déjà.</div>`}
   </div>`;
@@ -2543,7 +2565,7 @@ async function sendChat() {
   if (!q && !img) return toast("Écrivez une question ou ajoutez une capture 📷");
   if (chatBusy) return;
   if (!COACH_OK) return toast("Le coach IA sera bientôt activé.");
-  if (!session && coachLeft() <= 0) return toast("Vos 3 échanges gratuits du mois sont utilisés. Avec l'abonnement, le coach est illimité.");
+  if (!isPaidS() && coachLeft() <= 0) return toast("Vos 3 échanges gratuits du mois sont utilisés. Avec l'abonnement, le coach est illimité.");
   const history = chat.filter(m => !m.pending && !m.err).map(m => ({ role: m.role, text: m.role === "user" ? (m.text || "(capture d'écran)") : [m.res.analyse, m.res.message, m.res.conseil].filter(Boolean).join("\n") }));
   chat.push({ role: "user", text: q, img }); const bot = { role: "assistant", pending: true }; chat.push(bot);
   chatImg = null; chatBusy = true; render(); scrollChat();
@@ -3304,7 +3326,14 @@ const actions = {
   nwDone: el => { const x = person(el.dataset.id), snap = snapshot(), isC = !!client(x.id); S.events.push({ id: uid(), type: "news", period: newsPeriod(), skip: !!el.dataset.skip, [isC ? "clientId" : "prospectId"]: x.id, product: "", date: today(), example: !!x.example }); save(); render(); toast(el.dataset.skip ? "D'accord, pas cette fois" : `Bravo ! Message noté.${cheer()}`, snap); },
   pfilter: el => { pfilter = el.dataset.f; render(); },
   cfilter: el => { cfilter = el.dataset.f; render(); },
-  accUpgrade: () => openAccountForm("upgrade"),
+  accUpgrade: () => openUpgrade(),
+  upPeriod: el => { upPeriod = el.dataset.p; openUpgrade(); },
+  upGo: async el => {
+    el.disabled = true; el.textContent = "Ouverture du paiement sécurisé…";
+    try { const r = await api("POST", "billing/checkout", { period: upPeriod }); location.href = r.url; }
+    catch (e) { toast(e.message); el.disabled = false; el.textContent = "Commencer mes 14 jours gratuits"; }
+  },
+  accPortal: async () => { try { const r = await api("POST", "billing/portal"); location.href = r.url; } catch (e) { toast(e.message); } },
   accLogin: () => openAccountForm("login"),
   accResend: () => sendLink(),
   accSyncNow: async () => { if (!session.canSync) return toast("La sauvegarde est incluse dans la version complète."); sync.dirty = true; await pushNow(); render(); toast(sync.dirty ? "Pas de connexion internet : on réessaiera tout seul." : "Sauvegardé ✅"); },
@@ -3667,13 +3696,17 @@ if (DEMO && new URLSearchParams(location.search).get("s") === "team") setTimeout
 if (teamNotice) setTimeout(() => toast(teamNotice), 300);
 let obSkipFlag = false; try { obSkipFlag = localStorage.getItem("recharge.ob") === "skip"; } catch (e) {}
 const loginParam = DEMO ? null : new URLSearchParams(location.search).get("login");
-if (loginParam) {
+const paidParam = DEMO ? null : new URLSearchParams(location.search).get("paid");
+if (paidParam) {
+  history.replaceState(null, "", location.pathname);
+  api("POST", "billing/confirm", { id: paidParam }).then(async r => { await afterLogin(r); toast("Bienvenue dans Recharge 🎉 Vos 14 jours gratuits commencent."); }).catch(e => toast(e.message));
+} else if (loginParam) {
   history.replaceState(null, "", location.pathname);
   api("POST", "auth/verify", { token: loginParam }).then(afterLogin).catch(e => toast(e.message));
 } else if (session) {
   /* Au démarrage : on récupère ce qu'un autre téléphone aurait sauvegardé, ou on envoie ce qui attend */
   api("GET", "me").then(async r => {
-    session = { ...session, plan: r.user.plan, canSync: r.user.canSync }; writeLS(SESSION_KEY, session);
+    session = { ...session, plan: r.user.plan, paid: !!r.user.paid, billing: !!r.user.billing, canSync: r.user.canSync }; writeLS(SESSION_KEY, session);
     const srv = r.backup ? r.backup.rev : 0;
     if (srv > sync.rev) { if (sync.dirty) return askConflict(r.backup); await pullNow(); render(); toast("Données mises à jour depuis votre autre appareil ☁️"); }
     else if (sync.dirty) pushNow();
@@ -3681,7 +3714,8 @@ if (loginParam) {
 }
 addEventListener("online", () => { if (sync.dirty) pushNow(); });
 document.addEventListener("visibilitychange", () => { if (document.hidden && sync.dirty) pushNow(); });
-if (!DEMO && !S.profile && !obSkipFlag && !navigator.webdriver && !teamNotice && !loginParam && !session) setTimeout(() => openOnboarding(0), 350);
+if (!DEMO && location.hash === "#abonnement") { history.replaceState(null, "", location.pathname); setTimeout(() => { if (BILLING_OK || API_OK) openUpgrade(); else setTimeout(openUpgrade, 1200); }, 400); }
+if (!DEMO && !S.profile && !obSkipFlag && !navigator.webdriver && !teamNotice && !loginParam && !paidParam && !session && location.hash !== "#abonnement") setTimeout(() => openOnboarding(0), 350);
 if (!DEMO && !navigator.webdriver && S.profile && S.lastBilan !== today().slice(0, 7)) {
   const pm = prevMonth(today().slice(0, 7)), b = bilan(pm);
   S.lastBilan = today().slice(0, 7); save();

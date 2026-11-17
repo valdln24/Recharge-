@@ -5,7 +5,9 @@
 // Aucun secret dans ce fichier : RESEND_API_KEY et ANTHROPIC_API_KEY sont des secrets Cloudflare (Variables et secrets).
 
 import { coach, CoachError, Quota } from "./coach.js";
-export { Quota };
+import { Store, storeDb } from "./store.js";
+import { checkout, confirm, portal, refreshPlan, cancelSub, BillingError } from "./billing.js";
+export { Quota, Store };
 
 const LOGIN_TTL = 15 * 60 * 1000;              // un lien de connexion vaut 15 minutes
 const SESSION_TTL = 180 * 24 * 3600 * 1000;     // une session vaut 180 jours (prolongée à l'usage)
@@ -16,13 +18,15 @@ export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     if (!url.pathname.startsWith("/api/")) return env.ASSETS.fetch(request);
+    // Pas de base D1 branchée : les comptes vivent dans le stockage Cloudflare créé automatiquement
+    if (!env.DB && env.STORE) env = { ...env, DB: storeDb(env) };
     try {
       const res = await route(request, env, url, ctx);
       res.headers.set("Cache-Control", "no-store");
       res.headers.set("X-Content-Type-Options", "nosniff");
       return res;
     } catch (e) {
-      if (e instanceof HttpError || e instanceof CoachError) return json({ error: e.message }, e.status);
+      if (e instanceof HttpError || e instanceof CoachError || e instanceof BillingError) return json({ error: e.message }, e.status);
       console.error("API", url.pathname, e && e.stack || e);   // visible dans Cloudflare › Observabilité
       return json({ error: "Une erreur est survenue. Réessayez dans un instant." }, 500);
     }
@@ -34,7 +38,7 @@ const json = (data, status = 200) => new Response(JSON.stringify(data), { status
 
 async function route(request, env, url, ctx) {
   const m = request.method, p = url.pathname;
-  if (p === "/api/health") return json({ ok: true, accounts: !!env.DB, coach: !!env.ANTHROPIC_API_KEY });
+  if (p === "/api/health") return json({ ok: true, accounts: !!env.DB && (!!env.RESEND_API_KEY || env.DEV_SHOW_LINK === "true"), billing: !!env.DB && !!env.STRIPE_SECRET_KEY, coach: !!env.ANTHROPIC_API_KEY });
   if (p === "/api/coach" && m === "POST") {
     const origin = request.headers.get("Origin");
     if (origin && origin !== url.origin) throw new HttpError(403, "Origine refusée.");
@@ -55,6 +59,9 @@ async function route(request, env, url, ctx) {
   if (p === "/api/data" && m === "GET") return getData(request, env);
   if (p === "/api/data" && m === "PUT") return putData(request, env);
   if (p === "/api/account" && m === "DELETE") return deleteAccount(request, env);
+  if (p === "/api/billing/checkout" && m === "POST") return billingCheckout(request, env, url);
+  if (p === "/api/billing/confirm" && m === "POST") return billingConfirm(request, env);
+  if (p === "/api/billing/portal" && m === "POST") return billingPortal(request, env, url);
   throw new HttpError(404, "Introuvable.");
 }
 
@@ -93,7 +100,7 @@ async function auth(request, env) {
   const token = h.startsWith("Bearer ") ? h.slice(7).trim() : "";
   if (!token || token.length > 200) throw new HttpError(401, "Connexion nécessaire.");
   const row = await env.DB.prepare(
-    "SELECT s.token_hash, s.expires_at, u.id, u.email, u.plan, u.created_at FROM sessions s JOIN users u ON u.id = s.user_id WHERE s.token_hash = ?"
+    "SELECT s.token_hash, s.expires_at, u.id, u.email, u.plan, u.created_at, u.stripe_customer, u.stripe_sub, u.plan_checked_at FROM sessions s JOIN users u ON u.id = s.user_id WHERE s.token_hash = ?"
   ).bind(await sha256(token)).first();
   if (!row || row.expires_at < now()) throw new HttpError(401, "Votre connexion a expiré. Reconnectez-vous.");
   // Prolonge la session et note la dernière activité (au plus une fois par heure)
@@ -103,7 +110,8 @@ async function auth(request, env) {
       env.DB.prepare("UPDATE users SET last_seen_at = ? WHERE id = ?").bind(now(), row.id)
     ]);
   }
-  return { id: row.id, email: row.email, plan: row.plan, createdAt: row.created_at, tokenHash: row.token_hash };
+  const plan = await refreshPlan(env, env.DB, row);
+  return { id: row.id, email: row.email, plan, createdAt: row.created_at, tokenHash: row.token_hash, stripe_customer: row.stripe_customer, stripe_sub: row.stripe_sub };
 }
 const isPaid = u => ["recharge", "fondatrice", "equipe"].includes(u.plan);
 
@@ -184,13 +192,16 @@ async function verifyLink(request, env) {
     await env.DB.prepare("INSERT INTO users (id, email, plan, created_at, last_seen_at) VALUES (?, ?, 'free', ?, ?)").bind(user.id, user.email, user.created_at, now()).run();
     isNew = true;
   }
+  return json(await openSession(env, user, isNew));
+}
+async function openSession(env, user, isNew) {
   const session = randomToken();
   await env.DB.prepare("INSERT INTO sessions (token_hash, user_id, created_at, expires_at) VALUES (?, ?, ?, ?)")
     .bind(await sha256(session), user.id, now(), now() + SESSION_TTL).run();
   const b = await env.DB.prepare("SELECT rev, updated_at FROM backups WHERE user_id = ?").bind(user.id).first();
-  return json({ session, isNew, user: publicUser(user, env), backup: b ? { rev: b.rev, updatedAt: b.updated_at } : null });
+  return { session, isNew, user: publicUser(user, env), backup: b ? { rev: b.rev, updatedAt: b.updated_at } : null };
 }
-const publicUser = (u, env) => ({ email: u.email, plan: u.plan, createdAt: u.created_at ?? u.createdAt, canSync: env.REQUIRE_PAID !== "true" || isPaid(u) });
+const publicUser = (u, env) => ({ email: u.email, plan: u.plan, paid: isPaid(u), billing: !!u.stripe_customer, createdAt: u.created_at ?? u.createdAt, canSync: env.REQUIRE_PAID !== "true" || isPaid(u) });
 
 async function logout(request, env) {
   const u = await auth(request, env);
@@ -238,6 +249,7 @@ async function deleteAccount(request, env) {
   const u = await auth(request, env);
   const body = await readJson(request);
   if (String(body.confirm || "").trim().toUpperCase() !== "SUPPRIMER") throw new HttpError(400, "Tapez SUPPRIMER pour confirmer.");
+  await cancelSub(env, u);
   await env.DB.batch([
     env.DB.prepare("DELETE FROM backups WHERE user_id = ?").bind(u.id),
     env.DB.prepare("DELETE FROM sessions WHERE user_id = ?").bind(u.id),
@@ -245,4 +257,42 @@ async function deleteAccount(request, env) {
     env.DB.prepare("DELETE FROM users WHERE id = ?").bind(u.id)
   ]);
   return json({ ok: true });
+}
+
+/* ---------- Abonnement (Stripe) ---------- */
+async function optionalUser(request, env) {
+  if (!(request.headers.get("Authorization") || "").startsWith("Bearer ")) return null;
+  try { return await auth(request, env); } catch { return null; }
+}
+async function billingCheckout(request, env, url) {
+  const body = await readJson(request);
+  const u = await optionalUser(request, env);
+  if (u && isPaid(u)) throw new HttpError(400, "Votre abonnement est déjà actif.");
+  return json({ url: await checkout(env, env.APP_ORIGIN || url.origin, body.period === "year" ? "year" : "month", u) });
+}
+async function billingConfirm(request, env) {
+  const body = await readJson(request);
+  const id = String(body.id || "");
+  if (await env.DB.prepare("SELECT id FROM checkout_used WHERE id = ?").bind(id).first())
+    throw new HttpError(400, "Ce paiement a déjà servi à vous connecter. Sur un autre téléphone, connectez-vous avec votre email.");
+  const c = await confirm(env, id);
+  // Le compte : celui de la vendeuse connectée au moment du paiement, sinon celui de cet email (créé au besoin)
+  let user = c.userId ? await env.DB.prepare("SELECT id, email, plan, created_at FROM users WHERE id = ?").bind(c.userId).first() : null;
+  if (!user) user = await env.DB.prepare("SELECT id, email, plan, created_at FROM users WHERE email = ?").bind(c.email).first();
+  let isNew = false;
+  if (!user) {
+    user = { id: crypto.randomUUID(), email: c.email, created_at: now() };
+    await env.DB.prepare("INSERT INTO users (id, email, plan, created_at, last_seen_at) VALUES (?, ?, 'recharge', ?, ?)").bind(user.id, user.email, user.created_at, now()).run();
+    isNew = true;
+  }
+  await env.DB.batch([
+    env.DB.prepare("UPDATE users SET plan = 'recharge', stripe_customer = ?, stripe_sub = ?, plan_checked_at = ? WHERE id = ?").bind(c.customer, c.sub, now(), user.id),
+    env.DB.prepare("INSERT INTO checkout_used (id, used_at) VALUES (?, ?)").bind(id, now())
+  ]);
+  user = { ...user, plan: "recharge", stripe_customer: c.customer };
+  return json(await openSession(env, user, isNew));
+}
+async function billingPortal(request, env, url) {
+  const u = await auth(request, env);
+  return json({ url: await portal(env, env.APP_ORIGIN || url.origin, u) });
 }

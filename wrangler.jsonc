@@ -10,27 +10,30 @@
     "binding": "ASSETS",
     "run_worker_first": ["/api/*"]
   },
-  // Base de données des comptes (phase 2) : mise en pause tant que la base D1 n'existe pas,
-  // sinon la mise en ligne automatique depuis GitHub échoue. Pour l'activer, retirer les « // » ci-dessous.
+  // Base D1 (facultative) : sans elle, les comptes vivent dans le stockage STORE ci-dessous, créé automatiquement.
+  // Pour utiliser D1 à la place, retirer les « // » ci-dessous et appliquer les fichiers de migrations/.
   // "d1_databases": [
   //   {
   //     "binding": "DB",
   //     "database_name": "recharge",
-  //     // [À COMPLÉTER : identifiant de la base D1 « recharge », visible dans Cloudflare › Stockage et bases de données › D1]
+  //     // identifiant de la base D1 « recharge » (Cloudflare › Stockage et bases de données › D1)
   //     "database_id": "00000000-0000-0000-0000-000000000000",
   //     "migrations_dir": "migrations"
   //   }
   // ],
   // Compteur d'échanges avec le coach IA (3 gratuits par mois) : créé automatiquement à la mise en ligne
-  "durable_objects": { "bindings": [{ "name": "QUOTA", "class_name": "Quota" }] },
-  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Quota"] }],
+  // Base des comptes (si aucune base D1 n'est branchée) : créée automatiquement à la mise en ligne
+  "durable_objects": { "bindings": [{ "name": "QUOTA", "class_name": "Quota" }, { "name": "STORE", "class_name": "Store" }] },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Quota"] }, { "tag": "v2", "new_sqlite_classes": ["Store"] }],
+  // Les fichiers .sql (tables des comptes) sont lus par le serveur
+  "rules": [{ "type": "Text", "globs": ["**/*.sql"], "fallthrough": true }],
   "vars": {
     // Adresse publique du site (sert à construire le lien de connexion envoyé par email)
     "APP_ORIGIN": "https://recharge.delaineval.workers.dev",
     // [À COMPLÉTER : adresse d'envoi validée dans Resend, ex. « Recharge <connexion@votre-domaine.fr> »]
     "EMAIL_FROM": "Recharge <onboarding@resend.dev>",
-    // Phase 3 : passera à "true" quand Stripe sera branché (la sauvegarde sera réservée aux offres payantes)
-    "REQUIRE_PAID": "false",
+    // La sauvegarde en ligne est réservée aux abonnées (phase 3)
+    "REQUIRE_PAID": "true",
     // Uniquement pour tester sans email : "true" renvoie le lien de connexion dans la réponse. Toujours "false" en ligne.
     "DEV_SHOW_LINK": "false"
   },
