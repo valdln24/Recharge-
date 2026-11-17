@@ -10,15 +10,17 @@
     "binding": "ASSETS",
     "run_worker_first": ["/api/*"]
   },
-  "d1_databases": [
-    {
-      "binding": "DB",
-      "database_name": "recharge",
-      // [À COMPLÉTER : identifiant de la base D1 « recharge », visible dans Cloudflare › Stockage et bases de données › D1]
-      "database_id": "00000000-0000-0000-0000-000000000000",
-      "migrations_dir": "migrations"
-    }
-  ],
+  // Base de données des comptes (phase 2) : mise en pause tant que la base D1 n'existe pas,
+  // sinon la mise en ligne automatique depuis GitHub échoue. Pour l'activer, retirer les « // » ci-dessous.
+  // "d1_databases": [
+  //   {
+  //     "binding": "DB",
+  //     "database_name": "recharge",
+  //     // [À COMPLÉTER : identifiant de la base D1 « recharge », visible dans Cloudflare › Stockage et bases de données › D1]
+  //     "database_id": "00000000-0000-0000-0000-000000000000",
+  //     "migrations_dir": "migrations"
+  //   }
+  // ],
   "vars": {
     // Adresse publique du site (sert à construire le lien de connexion envoyé par email)
     "APP_ORIGIN": "https://recharge.delaineval.workers.dev",
