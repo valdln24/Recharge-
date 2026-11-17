@@ -149,6 +149,11 @@ main{max-width:560px;margin:0 auto;padding:6px 16px 24px}
 .ctile{display:flex;flex-direction:column;align-items:flex-start;gap:2px;border:0;background:var(--surface);border-radius:24px;padding:14px;text-align:left;font:inherit;color:var(--ink);cursor:pointer;box-shadow:var(--shadow)}
 .ctile span{font-size:1.3rem}.ctile b{font-size:1.4rem;letter-spacing:-.03em;margin-top:6px}.ctile small{font-size:.76rem;font-weight:650;color:var(--ink-2)}
 .ctile.hot{background:var(--ink);color:#fff}.ctile.hot small{color:#c9cdcb}
+.chatleft{margin:10px 4px 0;font-size:.84rem;font-weight:650;color:var(--o-text)}.chatleft a{color:inherit}
+.gtypes{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.gtypes button{display:flex;flex-direction:column;align-items:center;gap:4px;border:1.5px solid var(--line-2);background:var(--surface);border-radius:18px;padding:10px 4px;font:inherit;font-size:.74rem;font-weight:750;color:var(--ink);cursor:pointer;line-height:1.2;text-align:center}
+.gtypes button span{font-size:1.3rem}.gtypes button.on{border-color:var(--o1);background:var(--o-soft)}
+button.cbtn{font:inherit;cursor:pointer}
 .lvl{display:flex;gap:14px;align-items:center;margin-top:12px;background:var(--surface);border-radius:24px;padding:14px 16px;box-shadow:var(--shadow)}
 .lvl .lv-e{width:48px;height:48px;flex:none;border-radius:50%;background:var(--o-soft);display:grid;place-items:center;font-size:1.5rem}
 .lvl small{display:block;font-size:.74rem;font-weight:700;color:var(--ink-3);text-transform:uppercase;letter-spacing:.04em}.lvl b{display:block;font-size:1.05rem}
@@ -868,6 +873,18 @@ const MSG = {
     "{p}, {{j'espère que tu vas bien|j'espère que vous allez bien}} ! {{Tu as|Avez-vous}} pu commencer {{ta|votre}} commande {de} ? Je suis là pour {{te|vous}} conseiller ✨",
     "{{Hello|Bonjour}} {p} 👋 Petit suivi après {{ta|votre}} commande {de} : tout va bien ? Un retour de {{ta|votre}} part me ferait très plaisir 😊"
   ],
+  present: [
+    "{{Coucou|Bonjour}} {p} ! 😊 Je voulais {{te|vous}} parler {prod}. C'est un produit que j'aime beaucoup, et je pense qu'il pourrait {{te|vous}} plaire. {{Tu veux|Voulez-vous}} que je {{t'en|vous en}} dise plus ?",
+    "{{Hello|Bonjour}} {p} 🌿 {{Tu connais|Connaissez-vous}} {prodLe} ? Je l'utilise moi-même et j'en suis ravie. Si {{tu veux|vous voulez}}, je {{t'explique|vous explique}} comment il s'utilise.",
+    "{p}, j'ai pensé à {{toi|vous}} en voyant {prodLe} ✨ Je peux {{te|vous}} envoyer une petite présentation, sans engagement bien sûr 😊",
+    "{{Coucou|Bonjour}} {p} ! Petite découverte du moment : {prodLe}. Ce que j'aime : c'est simple à utiliser au quotidien. {{Ça te dit|Cela vous dirait}} d'en savoir plus ?",
+    "{{Hello|Bonjour}} {p} 😊 On m'a souvent demandé conseil pour {prodLe}, alors je {{te|vous}} en parle aussi. {{Tu me dis|Vous me dites}} si ça {{t'intéresse|vous intéresse}} ?",
+    "{{Coucou|Bonjour}} {p} 🌸 Je {{te|vous}} présente {prodLe}, un de mes coups de cœur. Je peux {{te|vous}} montrer comment je l'utilise, si {{tu veux|vous voulez}}.",
+    "{p}, une idée qui pourrait {{te|vous}} plaire : {prodLe} 💛 Pas de pression, je {{te|vous}} réponds avec plaisir si {{tu as|vous avez}} des questions.",
+    "{{Hello|Bonjour}} {p} ! Je {{te|vous}} partage {prodLe} : c'est l'un des produits que mes clients me recommandent le plus 😊 {{Tu veux|Voulez-vous}} essayer ?",
+    "{{Coucou|Bonjour}} {p} ✨ Si {{tu cherches|vous cherchez}} quelque chose de simple et efficace, {{regarde|regardez}} {prodLe}. Je {{t'explique|vous explique}} tout en 2 minutes ?",
+    "{{Hello|Bonjour}} {p} 🌿 Je voulais {{te|vous}} faire découvrir {prodLe}. Je peux {{te|vous}} donner mon avis honnête et quelques conseils d'utilisation."
+  ],
   care: [
     "{{Coucou|Bonjour}} {p}, merci pour {{ton|votre}} retour sincère 🙏 Je voudrais vraiment que {{tu sois|vous soyez}} {{content|satisfait}}. On en parle 5 minutes ? Je suis sûre qu'on va trouver une solution.",
     "{{Hello|Bonjour}} {p} 💛 J'ai bien pensé à ce que {{tu m'as|vous m'avez}} dit. {{Raconte-moi|Racontez-moi}} comment {{tu l'utilises|vous l'utilisez}}, j'ai peut-être un conseil qui peut tout changer.",
@@ -1031,7 +1048,7 @@ const MSG = {
     "{p} ! ✨ {{Tu fais|Vous faites}} partie de mes plus fidèles : {{tu as|vous avez}} droit à ma carte fidélité, gratuite : {avantages}.",
     "{{Coucou|Bonjour}} {p} 💛 J'ai une petite surprise : une carte fidélité à {{ton|votre}} nom ! {avantages}. Je {{te|vous}} l'envoie ?",
     "{{Hello|Bonjour}} {p} ! Merci pour {{tes|vos}} commandes 🙏 Je {{te|vous}} propose ma carte fidélité : {avantages}, et {{tu es|vous êtes}} au courant de mes promos avant tout le monde.",
-    "{{Coucou|Bonjour}} {p} 🌿 Bonne nouvelle : à partir de maintenant, {{tu peux|vous pouvez}} profiter de {avantages} avec ma carte fidélité. Je {{te|vous}} l'ouvre ?",
+    "{{Coucou|Bonjour}} {p} 🌿 Bonne nouvelle : à partir de maintenant, {{tu peux|vous pouvez}} profiter de ces avantages : {avantages} avec ma carte fidélité. Je {{te|vous}} l'ouvre ?",
     "{p}, {{tu me fais|vous me faites}} confiance depuis un moment 😊 Alors je {{te|vous}} offre ma carte fidélité : {avantages}.",
     "{{Hello|Bonjour}} {p} ! 💳 Ma carte fidélité est réservée à mes fidèles… comme {{toi|vous}} ! {avantages}. On l'active ?",
     "{{Coucou|Bonjour}} {p} ✨ Pour chouchouter ceux qui reviennent, j'ai créé une carte fidélité : {avantages}. Elle est pour {{toi|vous}} !",
@@ -1068,7 +1085,7 @@ const MSG = {
     "{{Coucou|Bonjour}} {p} 😊 J'ai pensé à {{toi|vous}} : {offre}{until}. Je {{t'en|vous en}} mets de côté ?",
     "{p} ! 🌿 Bonne nouvelle : {offre}{until}. {{Tu veux|Voulez-vous}} en profiter ?",
     "{{Hello|Bonjour}} {p} 💛 Offre du moment : {offre}{until}. Je {{te|vous}} réserve ça ?",
-    "{{Coucou|Bonjour}} {p} ! C'était le bon moment pour {{te|vous}} écrire : {offre}{until} 🎉",
+    "{{Coucou|Bonjour}} {p} ! C'était le bon moment pour {{t'écrire|vous écrire}} : {offre}{until} 🎉",
     "{{Hello|Bonjour}} {p} 😊 Si {{tu hésitais|vous hésitiez}} encore, c'est l'occasion : {offre}{until}.",
     "{{Coucou|Bonjour}} {p} 🌸 Je {{te|vous}} préviens en avance : {offre}{until}. {{Tu me dis|Vous me dites}} ?",
     "{p}, petit bon plan ✨ {offre}{until}. Je peux {{te|vous}} conseiller pour en profiter au mieux !",
@@ -1223,7 +1240,7 @@ function duePartnerHints() {
 }
 /* ---------- Le coach : chaque opportunité vient d'une règle appliquée aux données réelles ----------
    Domaines : prospect · suivi · reassort · reco · fidelite · promo. Rien n'est inventé : si une donnée manque, on le dit. */
-const OUT_TYPES = ["care", "relance", "pcontact", "suivi", "bouche", "news", "promo", "hint", "wake", "gift", "occasion"];
+const OUT_TYPES = ["gen", "care", "relance", "pcontact", "suivi", "bouche", "news", "promo", "hint", "wake", "gift", "occasion"];
 function lastTouch(id) {
   let d = "";
   for (const e of S.events) if ((e.clientId === id || e.prospectId === id) && OUT_TYPES.includes(e.type) && !e.skip && e.date > d) d = e.date;
@@ -2069,7 +2086,8 @@ function contactBtns(x) {
   if (x.email) b.push(`<a class="cbtn" href="mailto:${esc(x.email)}">✉️<span>Email</span></a>`);
   if (x.insta) b.push(`<a class="cbtn" href="${esc(igUrl(x.insta))}" target="_blank" rel="noopener">📸<span>Instagram</span></a>`);
   if (x.fb) b.push(`<a class="cbtn" href="${esc(fbUrl(x.fb))}" target="_blank" rel="noopener">👥<span>Facebook</span></a>`);
-  return b.length ? `<div class="cbtns">${b.join("")}</div>` : "";
+  b.push(`<button class="cbtn" data-act="genOpen" data-id="${x.id}">✍️<span>Message</span></button>`);
+  return `<div class="cbtns">${b.join("")}</div>`;
 }
 const contactIcons = x => [waNumber(x.phone) ? "💬" : "", x.email ? "✉️" : "", x.insta ? "📸" : "", x.fb ? "👥" : ""].join("");
 /* Ancienneté d'un client et récence d'achat */
@@ -2469,7 +2487,7 @@ function openTheme(th) {
 /* ---------- La page « Mon coach » : le chat IA + tout le coach au même endroit ---------- */
 let chat = [], chatImg = null, chatBusy = false;
 const MARK = `<svg viewBox="40 40 120 120" aria-hidden="true"><path d="M122.4 66.9A44 44 0 1 1 81.4 65.1" fill="none" stroke="currentColor" stroke-width="17"/><path d="M66.5 47.5L101 52.5L80.5 80Z" fill="currentColor"/><path d="M109 76L84 111H99L91 136L118 99H103Z" fill="currentColor"/></svg>`;
-const CHAT_IDEAS = ["Elle me dit que c'est trop cher, je réponds quoi ?", "Comment relancer un prospect qui ne répond plus ?", "Comment demander une recommandation sans être lourde ?", "Écris-moi un message pour présenter un produit"];
+const CHAT_IDEAS = ["Elle me dit que c'est trop cher, je réponds quoi ?", "Comment relancer un prospect qui ne répond plus ?", "Comment demander une recommandation sans être lourde ?", "Elle ne répond plus depuis une semaine"];
 function chatRes(r, i) {
   return `${r.analyse ? `<p class="cr-a">${esc(r.analyse)}</p>` : ""}
     ${r.message ? `<div class="bubble"><div class="top"><span class="small">Réponse proposée · modifiable</span><span class="tbtns"><button class="vary" data-act="chatCopy" data-i="${i}">${I.copy} Copier</button></span></div>
@@ -2489,20 +2507,21 @@ function viewCoach() {
   h += `<div class="card chatbox">
     <div class="chatlog" id="chatlog">${msgs.length ? msgs.map((m, i) => m.role === "user"
       ? `<div class="cm me">${m.img ? `<img src="${m.img}" alt="Capture envoyée">` : ""}${m.text ? `<p>${esc(m.text)}</p>` : ""}${m.ex ? `<span class="tag">Exemple</span>` : ""}</div>`
-      : `<div class="cm bot"><span class="cm-av">${MARK}</span><div class="cm-b">${m.pending ? `<p class="typing"><i></i><i></i><i></i></p>` : m.err ? `<p>${esc(m.err)}</p>` : chatRes(m.res, i)}${m.ex ? `<span class="tag">Exemple</span>` : ""}</div></div>`).join("")
+      : `<div class="cm bot"><span class="cm-av">${MARK}</span><div class="cm-b">${m.pending ? `<p class="typing"><i></i><i></i><i></i></p>` : m.err ? `<p>${esc(m.err)}</p>${m.limit ? `<a class="btn sm orange" style="margin-top:10px" href="/#tarifs" target="_blank" rel="noopener">Voir l'abonnement</a>` : ""}` : chatRes(m.res, i)}${m.ex ? `<span class="tag">Exemple</span>` : ""}</div></div>`).join("")
       : `<p class="chat0">👋 Bonjour${myName() ? " " + esc(myName()) : ""} ! Envoyez-moi la <b>capture d'écran</b> d'une discussion avec un prospect ou un client : je vous dis où il en est et je vous propose quoi répondre.</p>`}</div>
     ${!msgs.length || DEMO ? `<div class="ideas">${CHAT_IDEAS.map(q => `<button data-act="chatIdea">${esc(q)}</button>`).join("")}</div>` : ""}
     ${chatImg ? `<div class="chatimg"><img src="${chatImg}" alt="Capture à envoyer"><button data-act="chatImgX" aria-label="Retirer la capture">${I.x}</button></div>` : ""}
     <form id="chatForm" class="chatin"><label class="chatpic" title="Envoyer une capture">📷<input type="file" id="chatFile" accept="image/*" class="hidden"></label>
       <textarea id="chatQ" rows="1" placeholder="Question ou capture 📷"></textarea>
       <button class="chatgo" type="submit" aria-label="Envoyer" ${chatBusy ? "disabled" : ""}>➤</button></form>
+    ${COACH_OK && !session ? `<p class="chatleft">${coachLeft() > 0 ? `🎁 Encore <b>${coachLeft()} échange${coachLeft() > 1 ? "s" : ""} gratuit${coachLeft() > 1 ? "s" : ""}</b> avec le coach ce mois-ci · illimité avec l'abonnement` : `Vos 3 échanges gratuits du mois sont utilisés · <a href="/#tarifs" target="_blank" rel="noopener">illimité avec l'abonnement</a>`}</p>` : ""}
     <p class="chatpriv">🔒 La capture sert uniquement à préparer la réponse, puis elle est oubliée : rien n'est enregistré. Évitez les informations sensibles (santé, adresse…).</p>
     ${COACH_OK || DEMO ? "" : `<div class="miss">⏳ Le coach IA sera bientôt activé. En attendant, tout le reste du coach ci-dessous fonctionne déjà.</div>`}
   </div>`;
   h += section("Tout mon coach") + `<div class="ctiles">
     <button class="ctile hot" data-tab="today"><span>📋</span><b>${full.length}</b><small>actions à faire aujourd'hui</small></button>
     <button class="ctile" data-tab="results"><span>💸</span><b>${euro(w.total)}</b><small>rapportés ce mois-ci</small></button>
-    <button class="ctile" data-act="chatIdea" data-q="Écris-moi un message pour "><span>✍️</span><b>Écrire</b><small>un message avec le coach</small></button>
+    <button class="ctile" data-act="genOpen"><span>✍️</span><b>Écrire</b><small>un message, 9 types au choix</small></button>
     <button class="ctile" data-act="newPromo"><span>📣</span><b>Promo</b><small>prévenir les bonnes personnes</small></button>
     <button class="ctile" data-act="goto" data-t="dev" data-c=""><span>🌱</span><b>Développer</b><small>réseau, temps forts, idées</small></button>
     <button class="ctile" data-act="newProspect"><span>👋</span><b>Prospect</b><small>noter une rencontre</small></button></div>`;
@@ -2516,24 +2535,94 @@ function shrinkImage(file) {
       URL.revokeObjectURL(url); ok(c.toDataURL("image/jpeg", .82)); };
     img.onerror = () => ko(new Error("image")); img.src = url; });
 }
+/* identifiant aléatoire du téléphone : sert seulement à compter les 3 échanges gratuits du mois */
+function deviceId() { try { let d = localStorage.getItem("recharge.device"); if (!d) { d = (crypto.randomUUID ? crypto.randomUUID() : uid() + uid()); localStorage.setItem("recharge.device", d); } return d; } catch { return "nostore-" + uid(); } }
+const coachLeft = () => S.coachQuota && S.coachQuota.m === today().slice(0, 7) ? S.coachQuota.left : 3;
 async function sendChat() {
   const ta = document.getElementById("chatQ"), q = ta ? ta.value.trim() : "", img = chatImg;
   if (!q && !img) return toast("Écrivez une question ou ajoutez une capture 📷");
   if (chatBusy) return;
   if (!COACH_OK) return toast("Le coach IA sera bientôt activé.");
+  if (!session && coachLeft() <= 0) return toast("Vos 3 échanges gratuits du mois sont utilisés. Avec l'abonnement, le coach est illimité.");
   const history = chat.filter(m => !m.pending && !m.err).map(m => ({ role: m.role, text: m.role === "user" ? (m.text || "(capture d'écran)") : [m.res.analyse, m.res.message, m.res.conseil].filter(Boolean).join("\n") }));
   chat.push({ role: "user", text: q, img }); const bot = { role: "assistant", pending: true }; chat.push(bot);
   chatImg = null; chatBusy = true; render(); scrollChat();
   try {
-    const r = await fetch(new URL("../api/coach", location.href), { method: "POST", headers: { "Content-Type": "application/json" },
+    const hd = { "Content-Type": "application/json", "X-Recharge-Device": deviceId() }; if (session && session.token) hd.Authorization = "Bearer " + session.token;
+    const r = await fetch(new URL("../api/coach", location.href), { method: "POST", headers: hd,
       body: JSON.stringify({ question: q, image: img, history, tone: S.tone === "vous" ? "vous" : "tu", brand: prof().brand || "", univers: univers(), myName: myName() }) });
     const j = await r.json().catch(() => ({}));
+    if (r.status === 402) { S.coachQuota = { m: today().slice(0, 7), left: 0 }; save(); bot.limit = true; }
     if (!r.ok) throw new Error(j.error || "Le coach ne répond pas pour le moment.");
-    bot.res = j;
+    bot.res = j; if (j.left != null) { S.coachQuota = { m: today().slice(0, 7), left: j.left }; save(); }
   } catch (e) { bot.err = e.message && !/fetch/i.test(e.message) ? e.message : "Pas de connexion. Réessayez dans un instant."; }
   bot.pending = false; chatBusy = false; render(); scrollChat();
 }
 const scrollChat = () => setTimeout(() => { const l = document.getElementById("chatlog"); if (l) l.lastElementChild && l.lastElementChild.scrollIntoView({ behavior: "smooth", block: "start" }); }, 30);
+/* ---------- Le générateur de messages : 9 types, pour n'importe quel contact ---------- */
+const GEN = [["contact", "👋", "Prise de contact"], ["present", "🎁", "Présentation produit"], ["follow", "🔁", "Relance prospect"],
+  ["suivi", "💬", "Suivi après achat"], ["reassort", "🔄", "Réassort"], ["promo", "📣", "Promotion"],
+  ["fidel", "💳", "Fidélisation"], ["reco", "🤝", "Recommandation"], ["wake", "😴", "Réactivation"]];
+let gen = { type: "contact", id: "", prod: "", k: 0 };
+const lastSaleOf = c => S.sales.filter(sl => sl.clientId === c.id).sort((a, b) => b.date.localeCompare(a.date))[0];
+/* Construit le message à partir des vraies données du contact ; signale ce qui manque au lieu d'inventer */
+function genMessage(t, x, k, prodName) {
+  const isC = x && !!client(x.id), name = x ? x.name : "[Prénom]", miss = [];
+  const it = x && x.interest ? x.interest.trim().toLowerCase() : "";
+  const sujet = it ? `ce dont on avait parlé (${it})` : univers();
+  if (!x) miss.push("Aucun contact choisi : remplacez le prénom avant d'envoyer");
+  let text = "";
+  if (t === "contact") {
+    const ref = x ? refNameOf(x) : "", lieu = x ? LIEU[x.where] || "" : "";
+    text = msg(ref ? "ref" : lieu ? "met" : "first", name, k, { lieu, ref: firstName(ref), sujet });
+  } else if (t === "present") {
+    const pn = prodName || (x && x.interest) || "";
+    if (!pn) miss.push("Choisissez le produit à présenter");
+    const q = pn ? `«\u00a0${cap(pn.trim())}\u00a0»` : "";
+    text = msg("present", name, k, { prod: q ? "de " + q : "de ce produit", prodLe: q || "ce produit" });
+  } else if (t === "follow") {
+    if (x && !it) miss.push("Intérêt inconnu : le message reste général");
+    text = msg("follow", name, k, { sujet });
+  } else if (t === "suivi" || t === "reassort") {
+    const sl = isC ? lastSaleOf(x) : null;
+    if (!sl) { miss.push(isC ? "Aucune commande enregistrée pour ce client" : "Ce type de message est pour un client qui a déjà commandé"); text = msg(t === "suivi" ? "suivi" : "relance", name, k, { de: "", depuis: "" }).replace(/ {2,}/g, " ").replace(/ ([,.])/g, "$1"); }
+    else text = t === "suivi" ? msg("suivi", name, k, { de: deProd(sl.product) }) : msg(isGeneric(sl) ? "rythme" : "relance", name, k, { de: deProd(sl.product), depuis: depuis(sl.date) });
+  } else if (t === "promo") {
+    const pr = activePromo();
+    if (!pr) { miss.push("Aucune promo en cours : créez-la avec le bouton Promo"); text = msg("promo", name, k, { offre: "[votre offre]", until: "" }); }
+    else text = msg(isC && x.status === "vip" ? "promoVip" : "promo", name, k, { offre: pr.text, until: `, jusqu'au ${fmtLong(pr.until)}` });
+  } else if (t === "fidel") {
+    if (x && !isC) miss.push("La carte fidélité concerne vos clients");
+    const st = isC && x.status === "vip" ? cardState(x) : null;
+    text = st && st.available ? msg("gift", name, k, { gift: S.settings.gift || "un petit cadeau" }) : msg("hint", name, k, { avantages: avantages() });
+  } else if (t === "reco") {
+    const since = x ? (isC ? clientSince(x) : x.createdAt || today()) : today();
+    if (x && isC && unhappy(x)) miss.push("Ce client n'est pas satisfait en ce moment : accompagnez-le d'abord");
+    text = msg(isC || !x ? "recoC" : "recoP", name, k, { mois: duration(since) });
+  } else if (t === "wake") {
+    text = msg("quarter", name, k, { sujet: univers() });
+  }
+  if (x && x.noContact) miss.unshift("Cette personne a demandé à ne plus être contactée");
+  return { text, miss };
+}
+function openGen(type, id) {
+  if (type) gen.type = type; if (id !== undefined) gen.id = id; gen.k = gen.k || 0;
+  const x = gen.id ? person(gen.id) : null, g = genMessage(gen.type, x, gen.k, gen.prod), phone = x && waNumber(x.phone);
+  const opt = (list, sel) => list.map(c => `<option value="${c.id}" ${c.id === sel ? "selected" : ""}>${esc(c.name)}</option>`).join("");
+  openSheet(`<div class="shead"><h3>✍️ Écrire un message</h3>${closeBtn}</div>
+    <p class="lede" style="margin-top:6px">Choisissez le type de message et la personne : le coach prépare un message avec ses vraies informations. Vous le relisez et le modifiez avant d'envoyer.</p>
+    <div class="gtypes">${GEN.map(([k2, e, l]) => `<button class="${gen.type === k2 ? "on" : ""}" data-act="genType" data-t="${k2}"><span>${e}</span>${l}</button>`).join("")}</div>
+    <label class="field"><span>Pour qui ?</span><select class="input" id="genWho"><option value="">Sans contact précis</option>
+      ${S.clients.length ? `<optgroup label="Clients">${opt(S.clients.filter(c => !c.noContact).slice().sort((a, b) => a.name.localeCompare(b.name)), gen.id)}</optgroup>` : ""}
+      ${S.prospects.length ? `<optgroup label="Prospects">${opt(S.prospects.filter(p2 => p2.status !== "client" && !p2.noContact).slice().sort((a, b) => a.name.localeCompare(b.name)), gen.id)}</optgroup>` : ""}</select></label>
+    ${gen.type === "present" ? `<label class="field"><span>Quel produit ?</span><input class="input" id="genProd" list="genProds" value="${esc(gen.prod || (x && x.interest) || "")}" placeholder="ex. : crème visage"><datalist id="genProds">${realProducts().map(pp => `<option value="${esc(pp.name)}">`).join("")}</datalist></label>` : ""}
+    ${g.miss.map(m => `<div class="miss">⚠️ ${esc(m)}</div>`).join("")}
+    <div class="bubble" style="margin-top:12px"><div class="top"><span class="small">Votre message · modifiable</span><span class="tbtns"><button class="vary" data-act="genCopy">${I.copy} Copier</button><button class="vary" data-act="genNext">${I.redo} Autre</button></span></div>
+      <textarea class="msg" id="genMsg" rows="5" aria-label="Message">${esc(g.text)}</textarea></div>
+    <a class="btn primary send" href="#" target="_blank" rel="noopener" data-act="genWa">${I.wa} ${phone ? "Envoyer sur WhatsApp" : "Ouvrir WhatsApp"}</a>
+    <button class="btn soft" style="margin-top:8px" data-act="genAi">✨ Améliorer avec le coach IA</button>`);
+  fitAreas(document.getElementById("sheet"));
+}
 function viewDev() {
   const [e, ti, d, act, lab] = tipOfDay(), st = stats("month");
   let h = `<h1 class="title">Développer ma clientèle 🌱</h1><p class="lede">${longDate()} · votre coach de développement.</p>`;
@@ -3255,6 +3344,21 @@ const actions = {
   },
   devPromo: el => openPromoForm(el.dataset.n),
   devTheme: el => openTheme(el.dataset.th),
+  genOpen: el => { gen.k = 0; openGen(el.dataset.t || null, el.dataset.id !== undefined ? el.dataset.id : undefined); },
+  genType: el => { gen.type = el.dataset.t; gen.k = 0; openGen(); },
+  genNext: () => { gen.k++; openGen(); },
+  genCopy: async () => { const ok = await copyText(document.getElementById("genMsg").value); toast(ok ? "Message copié. Collez-le dans votre messagerie." : "Impossible de copier."); },
+  genWa: el => {
+    const x = gen.id ? person(gen.id) : null, t = document.getElementById("genMsg").value, ph = x && waNumber(x.phone);
+    el.href = ph ? `https://wa.me/${ph}?text=${encodeURIComponent(t)}` : `https://wa.me/?text=${encodeURIComponent(t)}`;
+    if (x) { const isC = !!client(x.id); S.events.push({ id: uid(), type: "gen", gen: gen.type, ...(isC ? { clientId: x.id } : { prospectId: x.id }), product: "", date: today(), example: !!x.example }); save(); }
+    return true;
+  },
+  genAi: () => {
+    const t = document.getElementById("genMsg").value, lab = (GEN.find(g2 => g2[0] === gen.type) || [])[2] || "message";
+    closeSheet(); tab = "coach"; render(); window.scrollTo(0, 0);
+    const ta = document.getElementById("chatQ"); ta.value = `Améliore ce message (${lab.toLowerCase()}), en gardant un ton naturel et sans pression : « ${t} »`; ta.focus();
+  },
   chatIdea: el => { if (tab !== "coach") { tab = "coach"; render(); window.scrollTo(0, 0); } const ta = document.getElementById("chatQ"); ta.value = el.dataset.q || el.textContent; ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); },
   chatImgX: () => { chatImg = null; render(); },
   chatCopy: async el => { const ok = await copyText(document.getElementById("chatmsg-" + el.dataset.i).value); toast(ok ? "Réponse copiée. Collez-la dans votre conversation." : "Impossible de copier."); },
@@ -3524,6 +3628,10 @@ document.addEventListener("change", ev => {
 document.addEventListener("change", async ev => {
   if (ev.target.id !== "chatFile" || !ev.target.files[0]) return;
   try { chatImg = await shrinkImage(ev.target.files[0]); render(); scrollChat(); } catch { toast("Cette image n'a pas pu être lue."); }
+});
+document.addEventListener("change", ev => {
+  if (ev.target.id === "genWho") { gen.id = ev.target.value; gen.k = 0; openGen(); }
+  if (ev.target.id === "genProd") { gen.prod = ev.target.value.trim(); openGen(); }
 });
 document.addEventListener("keydown", ev => { if (ev.target.id === "chatQ" && ev.key === "Enter" && !ev.shiftKey) { ev.preventDefault(); sendChat(); } });
 document.getElementById("importFile").addEventListener("change", async ev => {

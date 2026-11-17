@@ -4,7 +4,8 @@
 // - Coach IA (worker/coach.js) : analyse une question ou une capture et propose une réponse.
 // Aucun secret dans ce fichier : RESEND_API_KEY et ANTHROPIC_API_KEY sont des secrets Cloudflare (Variables et secrets).
 
-import { coach, CoachError } from "./coach.js";
+import { coach, CoachError, Quota } from "./coach.js";
+export { Quota };
 
 const LOGIN_TTL = 15 * 60 * 1000;              // un lien de connexion vaut 15 minutes
 const SESSION_TTL = 180 * 24 * 3600 * 1000;     // une session vaut 180 jours (prolongée à l'usage)
@@ -37,7 +38,9 @@ async function route(request, env, url, ctx) {
   if (p === "/api/coach" && m === "POST") {
     const origin = request.headers.get("Origin");
     if (origin && origin !== url.origin) throw new HttpError(403, "Origine refusée.");
-    return json(await coach(request, env));
+    let plan = "free";
+    if (env.DB && (request.headers.get("Authorization") || "").startsWith("Bearer ")) { try { plan = (await auth(request, env)).plan || "free"; } catch { /* non connecté : version gratuite */ } }
+    return json(await coach(request, env, plan));
   }
   if (!env.DB) throw new HttpError(503, "La base de données n'est pas encore branchée.");
   // Même origine uniquement pour les écritures (protection contre les requêtes d'autres sites)

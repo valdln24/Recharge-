@@ -21,6 +21,9 @@
   //     "migrations_dir": "migrations"
   //   }
   // ],
+  // Compteur d'échanges avec le coach IA (3 gratuits par mois) : créé automatiquement à la mise en ligne
+  "durable_objects": { "bindings": [{ "name": "QUOTA", "class_name": "Quota" }] },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Quota"] }],
   "vars": {
     // Adresse publique du site (sert à construire le lien de connexion envoyé par email)
     "APP_ORIGIN": "https://recharge.delaineval.workers.dev",

@@ -4,6 +4,17 @@
 // Aucun secret ici : ANTHROPIC_API_KEY est un secret Cloudflare (Variables et secrets).
 // Rien n'est conservé : ni la capture, ni la conversation (pas d'écriture en base).
 import Anthropic from "@anthropic-ai/sdk";
+import { DurableObject } from "cloudflare:workers";
+
+const FREE_PER_MONTH = 3;              // échanges gratuits par mois et par téléphone
+const FREE_PER_IP = 12;                // garde-fou : par connexion internet et par mois, pour la version gratuite
+
+/* Compteur d'échanges du mois, tenu par le serveur (un petit stockage Cloudflare, sans base à créer) */
+export class Quota extends DurableObject {
+  async peek(month) { return (await this.ctx.storage.get(month)) || 0; }
+  async add(month) { const n = ((await this.ctx.storage.get(month)) || 0) + 1; await this.ctx.storage.put(month, n); return n; }
+}
+const counter = (env, key) => env.QUOTA.get(env.QUOTA.idFromName(key));
 
 const MODEL = "claude-opus-5-5";
 const MAX_IMAGE = 1.6 * 1024 * 1024;   // capture déjà réduite par l'appli (base64)
@@ -51,9 +62,20 @@ function limit(ip) {
 
 function clean(s, max = MAX_TEXT) { return String(s || "").slice(0, max); }
 
-export async function coach(request, env) {
+export async function coach(request, env, plan = "free") {
   if (!env.ANTHROPIC_API_KEY) throw new CoachError(503, "Le coach IA n'est pas encore activé.");
-  limit(request.headers.get("CF-Connecting-IP") || "?");
+  const ip = request.headers.get("CF-Connecting-IP") || "?";
+  limit(ip);
+  // Version gratuite : 3 échanges par mois. Abonnement : illimité.
+  const paid = plan && plan !== "free", month = new Date().toISOString().slice(0, 7);
+  const device = (request.headers.get("X-Recharge-Device") || "").replace(/[^A-Za-z0-9-]/g, "").slice(0, 64);
+  let used = 0;
+  if (!paid) {
+    if (!device || !env.QUOTA) throw new CoachError(400, "Mettez l'appli à jour pour utiliser le coach.");
+    used = await counter(env, "d:" + device).peek(month);
+    const ipUsed = await counter(env, "ip:" + ip).peek(month);
+    if (used >= FREE_PER_MONTH || ipUsed >= FREE_PER_IP) throw new CoachError(402, `Vous avez utilisé vos ${FREE_PER_MONTH} échanges gratuits avec le coach ce mois-ci. Avec l'abonnement Recharge, le coach est illimité.`);
+  }
   const len = +request.headers.get("Content-Length") || 0;
   if (len > MAX_IMAGE + 64 * 1024) throw new CoachError(413, "La capture est trop lourde.");
   let body; try { body = await request.json(); } catch { throw new CoachError(400, "Demande illisible."); }
@@ -80,7 +102,7 @@ export async function coach(request, env) {
   content.push({ type: "text", text: `${ctx}\n\n${clean(body.question) || "Voici la capture de ma conversation avec un prospect. Que dois-je lui répondre ?"}` });
   messages.push({ role: "user", content });
 
-  const client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY });
+  const client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY, baseURL: env.ANTHROPIC_BASE_URL || undefined });
   let res;
   try {
     res = await client.beta.messages.create({
@@ -99,10 +121,13 @@ export async function coach(request, env) {
     if (e instanceof Anthropic.APIError) { console.error("coach: API", e.status, e.message); throw new CoachError(502, "Le coach ne répond pas pour le moment. Réessayez dans un instant."); }
     throw e;
   }
-  if (res.stop_reason === "refusal") return { analyse: "", message: "", conseil: "Je ne peux pas aider sur cette demande. Reformulez-la, ou envoyez une autre capture.", manque: "" };
+  if (res.stop_reason === "refusal") return { analyse: "", message: "", conseil: "Je ne peux pas aider sur cette demande. Reformulez-la, ou envoyez une autre capture.", manque: "", left: paid ? null : FREE_PER_MONTH - used };
+  // l'échange n'est compté qu'une fois la réponse obtenue
+  let left = null;
+  if (!paid) { const n = await counter(env, "d:" + device).add(month); await counter(env, "ip:" + ip).add(month); left = Math.max(0, FREE_PER_MONTH - n); }
   const text = res.content.filter(b => b.type === "text").map(b => b.text).join("");
-  try { return JSON.parse(text); }
-  catch { return { analyse: "", message: "", conseil: text.slice(0, 1500), manque: "" }; }
+  let out; try { out = JSON.parse(text); } catch { out = { analyse: "", message: "", conseil: text.slice(0, 1500), manque: "" }; }
+  return { ...out, left };
 }
 
 export { CoachError };
