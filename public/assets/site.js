@@ -222,3 +222,13 @@ if (potSvg) {
   let started = false; const go = () => { if (!started) { started = true; run(); } };
   if ("IntersectionObserver" in window) new IntersectionObserver((en, o) => { if (en.some(x => x.isIntersecting)) { go(); o.disconnect(); } }, { threshold: .25 }).observe(potSvg); else go();
 }
+
+/* La pastille « Coach », sur toutes les pages du site */
+(function () {
+  const onCoach = location.pathname.startsWith("/coach");
+  const a = document.createElement("a");
+  a.className = "sfab"; a.href = onCoach ? "/app/#coach" : "/coach/";
+  a.setAttribute("aria-label", onCoach ? "Essayer le coach dans l'appli" : "Découvrir le coach des VDI");
+  a.innerHTML = '<span><svg viewBox="40 40 120 120" aria-hidden="true" style="color:#fff"><path d="M122.4 66.9A44 44 0 1 1 81.4 65.1" fill="none" stroke="currentColor" stroke-width="17"/><path d="M66.5 47.5L101 52.5L80.5 80Z" fill="currentColor"/><path d="M109 76L84 111H99L91 136L118 99H103Z" fill="currentColor"/></svg></span>' + (onCoach ? "Essayer" : "Coach");
+  document.body.appendChild(a);
+})();

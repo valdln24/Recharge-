@@ -640,3 +640,22 @@ mark.todo{display:inline-block;background:#fff3a6;color:#6b5600;border:1px dashe
 .pot-est.shake{animation:potShake .4s}@keyframes potShake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
 .pslide input#potK,.pslide input#potQ{--p:0%}
 .tgrid{margin-top:8px;font-size:.74rem;line-height:1.5;color:var(--ink-3);font-weight:600}
+
+/* ---------- Le coach des VDI ---------- */
+.lk-coach{font-weight:800!important;color:var(--ink)!important}
+.coachsec{display:grid;grid-template-columns:1.05fr .95fr;gap:40px;align-items:center}
+.coachsec .head{text-align:left;margin:0}.coachsec .head p{max-width:none}
+.clist{list-style:none;padding:0;margin:18px 0 0;display:grid;gap:10px}.clist li{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:11px 14px;font-weight:650}
+.coachsec .ctas{margin-top:20px;display:flex;gap:10px;flex-wrap:wrap}
+.mchat{background:var(--surface);border:1px solid var(--line);border-radius:30px;padding:18px;box-shadow:0 30px 60px -30px rgba(16,19,18,.35);display:flex;flex-direction:column;gap:12px;max-width:440px;justify-self:center;width:100%}
+.mc-top{display:flex;align-items:center;gap:10px}.mc-top b{flex:1}.mc-ex{font-size:.72rem;font-weight:700;color:var(--ink-3);background:var(--surface-2,#f3efea);border-radius:99px;padding:4px 10px}
+.mc-av{width:36px;height:36px;border-radius:50%;background:var(--grad);color:#fff;display:grid;place-items:center}.mc-av svg{width:22px;height:22px}
+.mc-me{align-self:flex-end;max-width:85%;background:var(--ink);color:#fff;border-radius:20px 20px 6px 20px;padding:10px 14px;font-weight:600}
+.mc-shot{background:#e5ddd5;border-radius:12px;padding:10px;margin-bottom:8px;color:#111}.mc-shot p{margin:0;background:#fff;border-radius:8px;padding:8px 10px;font-size:.88rem;font-weight:500}.mc-shot small{display:block;margin-top:6px;font-size:.7rem;color:#555}
+.mc-bot{background:var(--surface-2,#f3efea);border-radius:6px 20px 20px 20px;padding:12px 14px}.mc-a{margin:0;font-weight:700}
+.mc-msg{margin-top:10px;background:var(--surface);border-radius:16px;padding:10px 12px;line-height:1.45}.mc-msg small{display:block;color:var(--ink-3);font-weight:650;margin-bottom:4px}
+.mc-wa{display:block;margin-top:8px;text-align:center;background:var(--ink);color:#fff;border-radius:99px;padding:10px;font-weight:750}
+.mc-tip{margin:8px 0 0;font-size:.86rem;color:#3c56e0;background:#ebefff;border-radius:12px;padding:8px 10px;font-weight:600}
+.sfab{position:fixed;right:16px;bottom:calc(18px + var(--badge,0px) + env(safe-area-inset-bottom));z-index:45;display:flex;align-items:center;gap:8px;background:var(--ink);color:#fff;border-radius:99px;padding:7px 16px 7px 7px;font-weight:800;text-decoration:none;box-shadow:0 14px 30px -10px rgba(16,19,18,.55)}
+.sfab span{width:36px;height:36px;border-radius:50%;background:var(--grad);display:grid;place-items:center}.sfab svg{width:22px;height:22px}
+@media (max-width:860px){.coachsec{grid-template-columns:1fr;gap:26px}.sfab{bottom:calc(92px + var(--badge,0px) + env(safe-area-inset-bottom))}}

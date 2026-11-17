@@ -49,6 +49,15 @@ Les autres réglages sont dans `wrangler.jsonc` (rien de secret) :
 | `REQUIRE_PAID` | `false` | passera à `true` en phase 3 (sauvegarde réservée aux offres payantes) |
 | `DEV_SHOW_LINK` | `false` | **toujours `false` en ligne** (sert seulement aux tests sur ordinateur) |
 
+## Activer le coach IA (10 min, une seule fois)
+Le chat du coach (questions et captures d'écran) utilise l'IA d'Anthropic. Sans clé, l'appli affiche « Le coach IA sera bientôt activé » et tout le reste fonctionne.
+1. Créez un compte sur **console.anthropic.com**, ajoutez un moyen de paiement, puis **API Keys › Create Key**. Copiez la clé.
+2. Dans Cloudflare : **Workers & Pages › recharge › Settings › Variables and Secrets › Add**.
+3. Type **Secret**, nom **ANTHROPIC_API_KEY**, valeur : la clé. Enregistrez (« Deploy »).
+4. Vérifiez : `https://recharge.delaineval.workers.dev/api/health` doit afficher `"coach":true`.
+
+Limite intégrée : 30 questions par heure et par connexion, pour éviter les abus. Conseil : fixez aussi une limite de dépense mensuelle dans la console Anthropic (Limits).
+
 ## Vérifier que tout marche
 
 1. Ouvrez l'appli › **Menu** › **Passer à la version complète** › votre email.

@@ -1,7 +1,10 @@
 // Recharge · serveur (Cloudflare Worker)
 // - Sert le site et l'appli (dossier public/) via la liaison ASSETS.
 // - API des comptes légers : connexion par lien envoyé par email (sans mot de passe), sauvegarde des données, suppression du compte.
-// Aucun secret dans ce fichier : RESEND_API_KEY est un secret Cloudflare (Variables et secrets).
+// - Coach IA (worker/coach.js) : analyse une question ou une capture et propose une réponse.
+// Aucun secret dans ce fichier : RESEND_API_KEY et ANTHROPIC_API_KEY sont des secrets Cloudflare (Variables et secrets).
+
+import { coach, CoachError } from "./coach.js";
 
 const LOGIN_TTL = 15 * 60 * 1000;              // un lien de connexion vaut 15 minutes
 const SESSION_TTL = 180 * 24 * 3600 * 1000;     // une session vaut 180 jours (prolongée à l'usage)
@@ -18,7 +21,7 @@ export default {
       res.headers.set("X-Content-Type-Options", "nosniff");
       return res;
     } catch (e) {
-      if (e instanceof HttpError) return json({ error: e.message }, e.status);
+      if (e instanceof HttpError || e instanceof CoachError) return json({ error: e.message }, e.status);
       console.error("API", url.pathname, e && e.stack || e);   // visible dans Cloudflare › Observabilité
       return json({ error: "Une erreur est survenue. Réessayez dans un instant." }, 500);
     }
@@ -30,7 +33,12 @@ const json = (data, status = 200) => new Response(JSON.stringify(data), { status
 
 async function route(request, env, url, ctx) {
   const m = request.method, p = url.pathname;
-  if (p === "/api/health") return json({ ok: true, accounts: !!env.DB });
+  if (p === "/api/health") return json({ ok: true, accounts: !!env.DB, coach: !!env.ANTHROPIC_API_KEY });
+  if (p === "/api/coach" && m === "POST") {
+    const origin = request.headers.get("Origin");
+    if (origin && origin !== url.origin) throw new HttpError(403, "Origine refusée.");
+    return json(await coach(request, env));
+  }
   if (!env.DB) throw new HttpError(503, "La base de données n'est pas encore branchée.");
   // Même origine uniquement pour les écritures (protection contre les requêtes d'autres sites)
   if (m !== "GET") {
