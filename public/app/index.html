@@ -150,6 +150,13 @@ main{max-width:560px;margin:0 auto;padding:6px 16px 24px}
 .pcheer{position:relative;z-index:1;margin:6px 0 0;font-size:.86rem;font-weight:700}
 .askt{margin-top:12px;background:var(--surface);border-radius:24px;padding:14px;box-shadow:var(--shadow)}.askt b{display:block;font-size:1rem}
 .tchips{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:10px}
+.trange{margin:18px 0 20px;text-align:center}.trange b{display:block;font-size:2.2rem;font-weight:800;letter-spacing:-.04em;margin-bottom:12px}
+.trange input{width:100%;accent-color:var(--o1);height:32px}.tscale{display:flex;justify-content:space-between;font-size:.75rem;font-weight:700;color:var(--ink-3)}
+.icard{padding:16px 18px;border-radius:28px}.ihead{display:flex;justify-content:space-between;align-items:center}
+.itier{font-size:.72rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:5px 10px;border-radius:99px;background:var(--surface-2);color:var(--ink-2)}
+.itier.warm{background:#fff1e8;color:#e2501a}.itier.tiede{background:#fdeef2;color:#c2456a}.itier.froid{background:#eef0ff;color:#5b63d6}.itier.reel{background:#e9f8ef;color:#1d8a52}
+.idur{font-size:.8rem;font-weight:800;color:var(--ink-3)}.ititle{display:block;font-size:1.08rem;margin-top:10px;letter-spacing:-.02em}.ihow{margin:6px 0 0;color:var(--ink-2);font-size:.92rem}
+.iacts{display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:12px}.iacts .btn{margin:0}
 .tchips button{border:1.5px solid var(--line-2);background:var(--surface);border-radius:99px;padding:10px 4px;font:inherit;font-weight:800;font-size:.9rem;color:var(--ink);cursor:pointer}
 .tchips button.on{border-color:var(--o1);background:var(--o-soft);color:var(--o-text)}.tchips.big button{padding:16px 4px;font-size:1rem}
 .gofar{display:grid;gap:10px}
@@ -1640,13 +1647,19 @@ const SIMPLE_HOME = true;   // accueil épuré : compteurs et montant gagné cac
 /* ---------- Le plan du jour : le coach remplit le temps disponible, par ordre de priorité ----------
    1) relances : réassorts et suivis après achat  2) prospects  3) recommandations  4) fidélité, s'il reste du temps
    Durées estimées : relance 2 min, suivi 2 min, recommandation 5 min, fidélité 3 min, prospect 5 min. */
-const PLAN_CAT = { sale: [1, 2], suivi: [1, 2], sat: [1, 2], care: [1, 2], prospect: [2, 5], reco: [3, 5], hint: [4, 3], gift: [4, 3], wake: [4, 3], promo: [5, 2], news: [5, 2] };
-const TIME_OPTS = [[15, "15 min"], [30, "30 min"], [45, "45 min"], [60, "1 h"], [120, "Plus"]];
+const PLAN_CAT = { idea: [6, 5], sale: [1, 2], suivi: [1, 2], sat: [1, 2], care: [1, 2], prospect: [2, 5], reco: [3, 5], hint: [4, 3], gift: [4, 3], wake: [4, 3], promo: [5, 2], news: [5, 2] };
+const TIME_OPTS = [[15, "15 min"], [30, "30 min"], [45, "45 min"], [60, "1 h"]];
+const T_MAX = 300;   // « 4 h et + »
+/* Les choix rapides + « Autre » (curseur de 5 min à 4 h et +) */
+function timeChips(cur, act, big) {
+  const other = cur && !TIME_OPTS.some(([m]) => m === cur);
+  return `<div class="tchips${big ? " big" : ""}">${TIME_OPTS.map(([m, l]) => `<button class="${cur === m ? "on" : ""}" data-act="${act}" data-m="${m}">${l}</button>`).join("")}<button class="${other ? "on" : ""}" data-act="timeOther" data-mode="${act}">${other ? fmtMin(cur) : "Autre"}</button></div>`;
+}
 const catOf = it => PLAN_CAT[it.type] || [5, 2];
 const DUR_KEY = { sale: "relance", promo: "relance", news: "relance", suivi: "suivi", sat: "suivi", care: "suivi", reco: "reco", hint: "fid", gift: "fid", wake: "fid", prospect: "prospect" };
 const DUR_DEF = { relance: 2, suivi: 2, reco: 5, fid: 3, prospect: 5 };
-const durOf = it => { const k = DUR_KEY[it.type], d = S.settings.dur && k ? +S.settings.dur[k] : 0; return d > 0 ? d : catOf(it)[1]; };
-const fmtMin = m => m >= 120 ? "plus d'1 h" : m >= 60 ? (m % 60 ? `${Math.floor(m / 60)} h ${m % 60}` : `${m / 60} h`) : `${m} min`;
+const durOf = it => { if (it.type === "idea") return it.idea.d; const k = DUR_KEY[it.type], d = S.settings.dur && k ? +S.settings.dur[k] : 0; return d > 0 ? d : catOf(it)[1]; };
+const fmtMin = m => m > 240 ? "4 h et +" : m >= 60 ? (m % 60 ? `${Math.floor(m / 60)} h ${String(m % 60).padStart(2, "0")}` : `${m / 60} h`) : `${m} min`;
 function planSort(list) {
   return list.slice().sort((a, b) => catOf(a)[0] - catOf(b)[0]
     || (a.type === "prospect" && b.type === "prospect" ? ((a.x.contacts || 0) > 0) - ((b.x.contacts || 0) > 0) : 0)
@@ -1656,7 +1669,7 @@ function planSort(list) {
 function dayPlan(full) {
   const t = today();
   if (!S.day || S.day.d !== t) S.day = { d: t, min: S.lastMin || 30, asked: S.settings.askDaily === false, keys: [], durs: {} };
-  const P = S.day, inList = new Map(full.map(x => [x.k, x])), touched = id => lastTouch(id) === t || S.sales.some(sl => sl.clientId === id && sl.date === t);
+  const P = S.day, inList = new Map(full.map(x => [x.k, x])), touched = id => ideaState(id) === t || lastTouch(id) === t || S.sales.some(sl => sl.clientId === id && sl.date === t);
   const state = k => inList.has(k) ? "todo" : touched(P.who && P.who[k]) ? "done" : "skip";
   P.who = P.who || {};
   let budget = P.keys.reduce((n, k) => n + (state(k) === "skip" ? 0 : P.durs[k] || 2), 0);
@@ -1738,6 +1751,117 @@ function openFind(w) {
       <p class="hint"><b>Comment faire :</b> suivez, commentez, participez. Puis proposez au compte un partenariat (jeu concours, atelier) plutôt que d'écrire à ses abonnés un par un.</p>`);
   }
 }
+/* ---------- Idées de prospection quasi infinies ----------
+   Quand les relances, prospects, recommandations et la fidélité sont faits, le coach remplit le temps qui reste
+   avec des idées pour trouver de nouveaux clients, dans l'ordre : liste de noms (marché chaud), contacts tièdes,
+   contacts froids sur les réseaux, puis dans la vraie vie. Elles tournent chaque jour, une idée faite ne revient
+   pas avant 45 jours, et « Pas pour moi » la retire pour toujours. Rien n'est envoyé : ce sont des pistes et des liens. */
+const IDEA_NET = {
+  ig: ["📸", "Instagram", c => `https://www.instagram.com/explore/search/keyword/?q=${encodeURIComponent(c)}`],
+  fb: ["📘", "Facebook", c => `https://www.facebook.com/search/groups/?q=${encodeURIComponent(c)}`],
+  tt: ["🎵", "TikTok", c => `https://www.tiktok.com/search?q=${encodeURIComponent(c)}`],
+  li: ["💼", "LinkedIn", c => `https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(c)}`],
+  x: ["✖️", "X (Twitter)", c => `https://x.com/search?q=${encodeURIComponent(c)}&f=live`],
+  sc: ["👻", "Snapchat", () => "https://map.snapchat.com/"],
+  pin: ["📌", "Pinterest", c => `https://www.pinterest.fr/search/pins/?q=${encodeURIComponent(c)}`],
+  gm: ["📍", "Google Maps", c => `https://www.google.com/maps/search/${encodeURIComponent(c)}`]
+};
+// Comptes et lieux autour de chez soi où se trouvent des clients : [clé, emoji, libellé, mot-clé de recherche]
+const LOCAL_CATS = [["sport", "🏋️", "clubs et salles de sport", "salle de sport"], ["yoga", "🧘", "yoga, pilates et danse", "yoga"], ["deco", "🛋️", "décoration et ameublement", "décoration"],
+  ["menage", "🧽", "ménage et nettoyage", "ménage"], ["bien", "💆", "bien-être, spa et esthétique", "bien-être"], ["coiff", "💇", "coiffure et ongles", "coiffure"],
+  ["ville", "🏛️", "compte de la ville et mairie", "ville"], ["sortir", "🗺️", "sorties et office du tourisme", "sortir"], ["maman", "👶", "mamans et parents", "maman"],
+  ["ecole", "🎒", "écoles, crèches et assistantes maternelles", "assistante maternelle"], ["asso", "🤝", "associations", "association"], ["comm", "🥖", "commerces de quartier", "commerce"],
+  ["marche", "🧺", "marchés et brocantes", "marché"], ["event", "🎉", "événements et salons", "salon"], ["mariage", "💍", "mariages et EVJF", "mariage"], ["etud", "🎓", "étudiants", "étudiant"],
+  ["entre", "🏢", "entreprises et comités d'entreprise", "entreprise"], ["cafe", "☕", "cafés et salons de thé", "café"], ["anim", "🐾", "animaux", "chien"], ["jardin", "🌿", "jardin et nature", "jardin"],
+  ["cuisine", "🍳", "cuisine et recettes", "recette"], ["mode", "👗", "mode et friperies", "friperie"], ["immo", "🏠", "immobilier et nouveaux arrivants", "nouveaux arrivants"], ["senior", "👵", "seniors et aidants", "seniors"]];
+// Marché chaud : des catégories de personnes déjà connues
+const WARM = [["fam", "👪", "votre famille (parents, cousins, oncles et tantes)"], ["amis", "💛", "vos amis proches"], ["coll", "💼", "vos collègues et anciens collègues"], ["voisins", "🏡", "vos voisins"],
+  ["ecole", "🎒", "les parents de l'école ou de la crèche"], ["sport", "⚽", "les gens de votre sport ou de votre association"], ["comm", "💇", "votre coiffeuse, votre esthéticienne, vos commerçants"],
+  ["classe", "🎓", "vos anciens camarades de classe"], ["fbf", "📘", "vos amis Facebook"], ["igf", "📸", "vos abonnés Instagram"], ["lif", "💼", "vos contacts LinkedIn"], ["wag", "💬", "vos groupes WhatsApp"],
+  ["tel1", "📱", "les contacts de votre téléphone de A à C"], ["tel2", "📱", "les contacts de votre téléphone de D à G"], ["tel3", "📱", "les contacts de votre téléphone de H à L"],
+  ["tel4", "📱", "les contacts de votre téléphone de M à P"], ["tel5", "📱", "les contacts de votre téléphone de Q à T"], ["tel6", "📱", "les contacts de votre téléphone de U à Z"],
+  ["mariage", "💍", "les invités du dernier mariage ou de la dernière fête"], ["pro", "🩺", "ceux que vous croisez chaque semaine (médecin, pharmacie, nounou)"]];
+// Contacts tièdes : des gens qui vous connaissent un peu, ou par quelqu'un
+const TIEDE = [["story", "👀", "Regardez qui a vu votre dernière story", "Répondez à 3 personnes avec un petit mot sincère, sans vendre."],
+  ["likes", "❤️", "Remerciez ceux qui ont aimé vos 3 derniers posts", "Un message court et personnel ouvre la conversation."],
+  ["comm", "💬", "Répondez à ceux qui commentent souvent", "Ce sont vos fans : proposez-leur un échantillon."],
+  ["amiami", "🔗", "Ami d'ami : regardez les amis en commun", "Demandez à une amie de vous présenter à 1 ou 2 personnes intéressées."],
+  ["reco", "🤝", "Demandez 2 noms à une cliente satisfaite", "« Tu connais quelqu'un à qui ça ferait plaisir ? »"],
+  ["sondage", "📊", "Publiez une story sondage", "« Plutôt soin du visage ou bien-être ? » puis écrivez à ceux qui répondent."],
+  ["live", "🎥", "Annoncez un live ou une démo", "Invitez 3 amies à venir, et à amener une personne chacune."],
+  ["atelier", "🏡", "Proposez un atelier chez une cliente", "Elle invite 4 à 6 amies, elle reçoit un cadeau."],
+  ["echant", "🎁", "Offrez 3 échantillons", "À des personnes qui ont montré de l'intérêt, puis demandez leur avis 5 jours après."],
+  ["ancien", "🔄", "Recontactez un ancien prospect", "Une nouveauté ou une promo est un bon prétexte."],
+  ["groupe", "👥", "Partagez un conseil dans un groupe WhatsApp", "Un vrai conseil utile, sans lien de vente."],
+  ["avis", "⭐", "Publiez l'avis d'une cliente", "Avec son accord : la preuve sociale attire les curieux."],
+  ["concours", "🎯", "Lancez un petit jeu concours", "« Identifie une amie qui adorerait ça » : chaque amie est un contact tiède."],
+  ["parrain", "🎟️", "Proposez un parrainage", "Votre cliente reçoit un cadeau si son amie commande."],
+  ["anniv", "🎂", "Souhaitez un anniversaire", "Un vrai message, puis la conversation suit son cours."]];
+// Dans la vraie vie
+const REEL = [["ecole", "🎒", "À la sortie de l'école", "Discutez, laissez votre carte, notez les prénoms intéressés.", "école"],
+  ["marche", "🧺", "Repérez un marché pour un stand", "Un stand rencontre 20 personnes en une matinée.", "marché"],
+  ["vide", "🏷️", "Un vide-grenier ou une brocante", "Prenez des cartes et quelques échantillons.", "vide grenier brocante"],
+  ["salon", "🎪", "Un salon ou une foire près de chez vous", "Visiteuse ou exposante : c'est plein de clients.", "salon foire"],
+  ["coiff", "💇", "Partenariat avec une coiffeuse ou une esthéticienne", "Déposez des échantillons en échange d'une remise pour ses clientes.", "coiffeur esthéticienne"],
+  ["salle", "🏋️", "Votre salle de sport", "Proposez une démo après un cours.", "salle de sport"],
+  ["asso", "🤝", "Une association locale", "Proposez un atelier découverte à ses membres.", "association"],
+  ["cafe", "☕", "Un salon de thé pour un atelier", "Réservez une table pour 6 personnes.", "salon de thé"],
+  ["mairie", "🏛️", "L'agenda de la mairie", "Les fêtes de quartier cherchent souvent des exposants.", "mairie agenda"],
+  ["carte", "📇", "Laissez votre carte sur un tableau d'affichage", "Boulangerie, pharmacie, supermarché.", "boulangerie"],
+  ["ce", "🏢", "Le comité d'entreprise d'une société", "Proposez une vente privée ou un atelier pause-déjeuner.", "entreprise"],
+  ["noel", "🎄", "Un marché de Noël ou de printemps", "Réservez votre stand plusieurs semaines avant.", "marché de noël"]];
+const IG_HOW = [["recherche", "Dans la barre de recherche Instagram, tapez « {q} ». Ouvrez l'onglet Comptes, puis regardez qui commente leurs publications."],
+  ["hashtag", "Ouvrez le hashtag #{tag} et regardez qui publie près de chez vous. Aimez et commentez sincèrement."],
+  ["lieu", "Ouvrez l'onglet Lieux et cherchez « {q} ». Regardez les publications des personnes qui y sont allées."],
+  ["abonnes", "Trouvez le compte « {q} », puis ouvrez la liste de ses abonnés : ce sont des gens de votre coin."]];
+const NET_HOW = { fb: "Cherchez les groupes « {q} », rejoignez-en un et partagez un conseil utile avant toute chose.",
+  tt: "Cherchez « {q} » et regardez les vidéos de gens près de chez vous. Commentez, puis abonnez-vous.",
+  li: "Cherchez des personnes « {q} ». Envoyez une invitation avec un mot personnel, sans vendre.",
+  x: "Cherchez « {q} » en mode Récent et répondez aux gens de votre ville.",
+  sc: "Ouvrez la Snap Map autour de chez vous : repérez les événements et les lieux animés du moment.",
+  pin: "Cherchez « {q} », enregistrez des idées et suivez les comptes locaux qui les publient.",
+  gm: "Cherchez « {q} » : contactez un lieu pour un partenariat, ou lisez les avis pour repérer des passionnés." };
+function ideaPool() {
+  const city = myCity(), cs = slug(city), ci = city || "votre ville", pool = [];
+  for (const [k, e, l] of WARM) pool.push({ id: "w:" + k, tier: "w", d: 5, e, title: `Liste de noms : ${l}`, how: "Écrivez tous les prénoms qui vous viennent, sans vous demander s'ils vont acheter. Objectif : 5 noms.", act: "names" });
+  for (const [k, e, t, how] of TIEDE) pool.push({ id: "t:" + k, tier: "t", d: 5, e, title: t, how });
+  for (const [k, e, l, kw] of LOCAL_CATS) {
+    const q = `${kw} ${city}`.trim();
+    IG_HOW.forEach(([m, how]) => pool.push({ id: `f:ig:${m}:${k}`, tier: "f", d: 10, e: "📸", title: `Instagram · ${l} à ${ci}`, how: how.replace("{q}", q).replace("{tag}", slug(kw) + cs), url: m === "hashtag" ? `https://www.instagram.com/explore/tags/${slug(kw) + cs}/` : IDEA_NET.ig[2](q) }));
+    for (const n of ["fb", "tt", "li", "x", "pin", "gm"]) pool.push({ id: `f:${n}:${k}`, tier: "f", d: 10, e: IDEA_NET[n][0], title: `${IDEA_NET[n][1]} · ${l} à ${ci}`, how: NET_HOW[n].replace("{q}", q), url: IDEA_NET[n][2](q) });
+  }
+  pool.push({ id: "f:sc:map", tier: "f", d: 10, e: "👻", title: `Snapchat · ce qui se passe autour de ${ci}`, how: NET_HOW.sc, url: IDEA_NET.sc[2]() });
+  for (const [k, e, t, how, kw] of REEL) pool.push({ id: "r:" + k, tier: "r", d: 10, e, title: t, how, url: IDEA_NET.gm[2](`${kw} ${city}`.trim()) });
+  return pool;
+}
+function ideaState(id) { if (!id || !String(id).startsWith("idea:")) return null; const I2 = S.ideas || {}; return (I2.done && I2.done[String(id).slice(5)]) || null; }
+// Les idées du jour, dans l'ordre : marché chaud, tiède, froid, vraie vie (mélangées chaque jour, sans répétition)
+function ideaItems(n = 80) {
+  const t = today(), I2 = S.ideas || {}, done = I2.done || {}, no = I2.no || {}, skip = I2.skip || {};
+  let seed = [...t].reduce((a, ch) => a * 31 + ch.charCodeAt(0), 7) >>> 0;
+  const rnd = () => (seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296;
+  const fresh = x => !no[x.id] && skip[x.id] !== t && done[x.id] !== t && !(done[x.id] && diff(t, done[x.id]) < 45);
+  const by = {}; for (const x of ideaPool()) if (fresh(x)) (by[x.tier] = by[x.tier] || []).push(x);
+  for (const k in by) by[k].sort(() => rnd() - .5);
+  // peu de prospects : on commence par le marché chaud, sinon on alterne plus vite vers les réseaux
+  const pattern = S.prospects.filter(p => !p.example).length < 20 ? ["w", "w", "t", "f", "r", "f", "t", "f", "w", "f"] : ["t", "f", "w", "f", "r", "t", "f", "f", "w", "f"];
+  const out = []; let i = 0, guard = 0;
+  while (out.length < n && guard++ < n * 6) { const q = by[pattern[i++ % pattern.length]]; if (q && q.length) out.push(q.shift()); }
+  return out.map(x => ({ k: "idea:" + x.id, who: "idea:" + x.id, type: "idea", score: 0, idea: x }));
+}
+const TIER_LB = { w: ["Marché chaud", "warm"], t: ["Contact tiède", "tiede"], f: ["Réseaux", "froid"], r: ["Vraie vie", "reel"] };
+function ideaCard(it) {
+  const x = it.idea, [lb, cls] = TIER_LB[x.tier];
+  const go = x.act === "names" ? `<button class="btn primary" data-act="findOpen" data-w="names">📝 Ma liste de noms</button>`
+    : x.url ? `<a class="btn primary" href="${esc(x.url)}" target="_blank" rel="noopener">Ouvrir ${x.tier === "r" ? "la carte" : "la recherche"} ↗</a>` : "";
+  return `<article class="card icard" data-k="${esc(it.k)}">
+    <div class="ihead"><span class="itier ${cls}">${lb}</span><span class="idur">⏱ ${x.d} min</span></div>
+    <b class="ititle">${x.e} ${esc(x.title)}</b><p class="ihow">${esc(x.how)}</p>
+    ${!myCity() && x.tier !== "w" && x.tier !== "t" ? `<p class="hint">Indiquez votre ville dans le Menu pour des recherches autour de chez vous.</p>` : ""}
+    <div class="iacts">${go}<button class="btn soft" data-act="ideaDone" data-id="${esc(x.id)}">✓ Fait</button></div>
+    <div class="alt links2"><button data-act="ideaSkip" data-id="${esc(x.id)}">Une autre idée</button> · <button data-act="ideaNo" data-id="${esc(x.id)}">Pas pour moi</button></div></article>`;
+}
+
 /* Quand le plan est fini (ou vide) : des actions pour aller chercher de nouveaux clients */
 function goFurther(extra) {
   const realC = S.clients.filter(c => !c.example), anyData = S.clients.length || S.prospects.length;
@@ -1761,7 +1885,7 @@ function goFurther(extra) {
 }
   // jamais plus de 10 contacts par jour : les autres attendent demain
 function viewToday() {
-  const full = todayList(), dayBefore = JSON.stringify(S.day || null), plan = dayPlan(full), all = coachF ? plan.todo.filter(x => coachMeta(x).dom === coachF) : plan.todo, list = all;
+  const full = todayList().concat(S.settings.ideas === false ? [] : ideaItems()), dayBefore = JSON.stringify(S.day || null), plan = dayPlan(full), all = coachF ? plan.todo.filter(x => x.type === "idea" ? coachF === "prospect" : coachMeta(x).dom === coachF) : plan.todo, list = all;
   if (JSON.stringify(S.day) !== dayBefore) save();
   const n = new Set(list.map(x => x.who)).size;
   const t = today();
@@ -1772,13 +1896,13 @@ function viewToday() {
   const left = plan.todo.length, pct = plan.planned ? Math.min(100, Math.round(plan.used / Math.max(plan.planned, 1) * 100)) : 0;
   const line = left ? `Votre plan pour ${fmtMin(S.day.min)} : ${plural(left, "action", "actions")}, environ ${plan.planned - plan.used} min ☕`
     : plan.done.length ? "Plan terminé pour aujourd'hui. Bravo ! 🎉" : full.length ? "Rien d'urgent dans votre plan. Allez plus loin ci-dessous 🌿" : "Rien d'urgent aujourd'hui : c'est le moment de développer 🌿";
-  const dn = d => full.filter(x => coachMeta(x).dom === d).length;
+  const dn = d => full.filter(x => x.type !== "idea" && coachMeta(x).dom === d).length;
   let h = `<section class="coach hello"><div class="ctop"><span class="chi">${hi}${who ? " " + esc(who) : ""} ${hr >= 18 ? "🌙" : "☀️"}</span><button class="cpill" data-act="planAsk">⏱ ${fmtMin(S.day.min)} · changer</button></div>
     <div class="cbig"><b>${left || (plan.done.length ? "✓" : "☀︎")}</b><span>${left > 1 ? "actions dans<br>votre plan du jour" : left ? "action dans<br>votre plan du jour" : plan.done.length ? "plan du jour<br>terminé" : "rien d'urgent<br>aujourd'hui"}</span></div>
     <p class="cline hl-line">${line}</p>
     ${(() => { const w = worth(today().slice(0, 8) + "01"); return w.total > 0 && !SIMPLE_HOME ? `<button class="cworth" data-act="goto" data-t="results" data-c="">💸 Ce mois-ci, le coach vous a rapporté <b>${euro(w.total)}</b> ›</button>` : ""; })()}
     ${total ? `<div class="hl-bar"><span style="width:${pct}%"></span></div><div class="hl-count">⏱ ${plan.used} / ${plan.planned} min · ✅ ${plan.done.length} / ${total} action${total > 1 ? "s" : ""}</div><p class="pcheer">${planCheer(pct, left)}</p>` : ""}</section>`;
-  if (!S.day.asked) h += `<div class="askt"><b>⏱ Combien de temps aujourd'hui ?</b><div class="tchips">${TIME_OPTS.map(([m, l]) => `<button class="${S.day.min === m ? "on" : ""}" data-act="planTime" data-m="${m}">${l}</button>`).join("")}</div></div>`;
+  if (!S.day.asked) h += `<div class="askt"><b>⏱ Combien de temps aujourd'hui ?</b>${timeChips(S.day.min, "planTime")}</div>`;
   if (!SIMPLE_HOME) h += `<div class="dtiles">${Object.entries(DOMAINS).map(([d, [ic, lb]]) => { const n = dn(d); return `<button class="dtile ${n ? "" : "zero"} ${coachF === d ? "on" : ""}" data-act="coachF" data-d="${d}"><span class="di">${ic}</span><b>${n}</b><small>${lb}</small></button>`; }).join("")}</div>`;
   // conseil du jour, rappel de sauvegarde et fiches d'exemple : sous le plan (voir plus bas)
   if (!SIMPLE_HOME) { h += backupReminder(); h += tipCard(); h += exampleNotice(); }
@@ -1787,7 +1911,7 @@ function viewToday() {
   if (!keys.includes(openCard) && openCard !== "none") openCard = keys[0] || null;
   if (coachF) h += `<p class="hint" style="margin-top:14px">Filtre : <b>${DOMAINS[coachF][1]}</b> · <button class="linkbtn" style="display:inline;margin:0" data-act="coachF" data-d="${coachF}">tout afficher</button></p>`;
   if (list.length) h += section(coachF ? DOMAINS[coachF][1] : "Mon plan du jour", list.length);
-  for (const it of list) h += todayCard(it);
+  for (const it of list) h += it.type === "idea" ? ideaCard(it) : todayCard(it);
   if (!coachF && !left) h += goFurther(plan.extra);
   if (SIMPLE_HOME) { h += tipCard(); h += backupReminder(); }
   if (!coachF && S.settings.showFind !== false && (S.clients.length || S.prospects.length)) h += findBlock();
@@ -2127,9 +2251,10 @@ function viewSettings() {
   const dur = { ...DUR_DEF, ...(S.settings.dur || {}) };
   h += section("Mon plan du jour") + `<div class="card pad">
     <div class="field" style="margin-top:0"><span>Temps par défaut chaque jour</span></div>
-    <div class="tchips">${TIME_OPTS.map(([m, l]) => `<button class="${(S.lastMin || 30) === m ? "on" : ""}" data-act="setDefMin" data-m="${m}">${l}</button>`).join("")}</div>
+    ${timeChips(S.lastMin || 30, "setDefMin")}
     ${tog("setAskDaily", "Me demander mon temps chaque matin", S.settings.askDaily !== false)}
     ${tog("setShowFind", "Afficher « Trouver de nouveaux clients » sous le plan", S.settings.showFind !== false)}
+    ${tog("setIdeas", "Compléter mon plan avec des idées pour trouver des clients", S.settings.ideas !== false)}
     <div class="field"><span>Temps estimé par action <i>· en minutes</i></span></div>
     <div class="durs">${[["relance", "Relance"], ["suivi", "Suivi"], ["prospect", "Prospect"], ["reco", "Recommandation"], ["fid", "Fidélité"]].map(([k, l]) => `<label><span>${l}</span><input class="input num" inputmode="numeric" data-dur="${k}" value="${dur[k]}"></label>`).join("")}</div>
     <p class="hint" style="margin:10px 0 0">Ordre du plan : relances, prospects, recommandations, puis fidélité s'il reste du temps.</p></div>`;
@@ -3611,8 +3736,21 @@ const actions = {
   },
   planAsk: () => openSheet(`<div class="shead"><h3>⏱ Combien de temps aujourd'hui ?</h3>${closeBtn}</div>
     <p class="lede" style="margin-top:8px">Le coach remplit ce temps avec les actions les plus utiles, dans l'ordre : relances, prospects, recommandations, puis fidélité s'il reste du temps.</p>
-    <div class="tchips big">${TIME_OPTS.map(([m, l]) => `<button class="${S.day && S.day.min === m ? "on" : ""}" data-act="planTime" data-m="${m}">${l}</button>`).join("")}</div>`),
-  planMore: () => { S.day.min = Math.min(240, (S.day.min || 30) + 15); S.day.asked = true; save(); render(); toast("15 minutes de plus dans votre plan ✅"); },
+    ${timeChips(S.day && S.day.min, "planTime", true)}`),
+  timeOther: el => {
+    const mode = el.dataset.mode, cur = mode === "setDefMin" ? (S.lastMin || 30) : (S.day && S.day.min) || 30, v0 = Math.min(245, Math.max(5, cur > 240 ? 245 : cur));
+    openSheet(`<div class="shead"><h3>⏱ ${mode === "setDefMin" ? "Mon temps par défaut" : "Combien de temps aujourd'hui ?"}</h3>${closeBtn}</div>
+      <div class="trange"><b id="tVal">${v0 > 240 ? "4 h et +" : fmtMin(v0)}</b>
+      <input type="range" id="tRange" min="5" max="245" step="5" value="${v0}" aria-label="Temps disponible">
+      <div class="tscale"><span>5 min</span><span>1 h</span><span>2 h</span><span>3 h</span><span>4 h et +</span></div></div>
+      <button class="btn primary" data-act="timeOtherGo" data-mode="${esc(mode)}">Valider</button>`);
+    const r = document.getElementById("tRange"); r.oninput = () => { document.getElementById("tVal").textContent = +r.value > 240 ? "4 h et +" : fmtMin(+r.value); };
+  },
+  timeOtherGo: el => { const v = +document.getElementById("tRange").value; actions[el.dataset.mode]({ dataset: { m: String(v > 240 ? T_MAX : v) } }); },
+  ideaDone: el => { const I2 = S.ideas = S.ideas || {}; (I2.done = I2.done || {})[el.dataset.id] = today(); save(); render(); toast(`Bravo, une piste de plus 🌱${cheer()}`); },
+  ideaSkip: el => { const I2 = S.ideas = S.ideas || {}; (I2.skip = I2.skip || {})[el.dataset.id] = today(); save(); render(); toast("Voici une autre idée 💡"); },
+  ideaNo: el => { const I2 = S.ideas = S.ideas || {}; (I2.no = I2.no || {})[el.dataset.id] = 1; save(); render(); toast("Cette idée ne reviendra plus."); },
+  planMore: () => { S.day.min = Math.min(T_MAX, (S.day.min || 30) + 15); S.day.asked = true; save(); render(); toast("15 minutes de plus dans votre plan ✅"); },
   cLater: el => {
     const k = el.dataset.k;
     openSheet(`<div class="shead"><h3>Reporter cette action</h3>${closeBtn}</div><p class="lede" style="margin-top:6px">Recharge vous la reproposera à la date choisie.</p>
@@ -4020,6 +4158,7 @@ document.addEventListener("change", ev => {
   else if (id === "setCity") setProf("city", t.value.trim());
   else if (id === "setAskDaily") S.settings.askDaily = t.checked;
   else if (id === "setShowFind") S.settings.showFind = t.checked;
+  else if (id === "setIdeas") S.settings.ideas = t.checked;
   else if (id === "setBkReminder") S.settings.bkReminder = t.checked;
   else if (t.dataset && t.dataset.dur) { const v = Math.max(1, Math.min(60, parseInt(t.value, 10) || DUR_DEF[t.dataset.dur])); S.settings.dur = { ...(S.settings.dur || {}), [t.dataset.dur]: v }; t.value = v; }
   else return;
