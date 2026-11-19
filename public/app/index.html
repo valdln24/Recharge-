@@ -1659,8 +1659,8 @@ const MAX_TODAY = 10;
 const SIMPLE_HOME = true;   // accueil épuré : compteurs et montant gagné cachés (toujours dans Résultats et le coach)
 /* ---------- Le plan du jour : le coach remplit le temps disponible, par ordre de priorité ----------
    1) relances : réassorts et suivis après achat  2) prospects  3) recommandations  4) fidélité, s'il reste du temps
-   Durées estimées : relance 4 min, suivi 4 min, recommandation 5 min, fidélité 4 min, prospect 5 min (un message ≈ 4 min). */
-const PLAN_CAT = { idea: [6, 5], sale: [1, 4], suivi: [1, 4], sat: [1, 4], care: [1, 4], prospect: [2, 5], reco: [3, 5], hint: [4, 4], gift: [4, 4], wake: [4, 4], promo: [5, 4], news: [5, 4] };
+   Durées estimées : un message = 2 min (relance, suivi, recommandation, fidélité, prospect). */
+const PLAN_CAT = { idea: [6, 5], sale: [1, 2], suivi: [1, 2], sat: [1, 2], care: [1, 2], prospect: [2, 2], reco: [3, 2], hint: [4, 2], gift: [4, 2], wake: [4, 2], promo: [5, 2], news: [5, 2] };
 const TIME_OPTS = [[15, "15 min"], [30, "30 min"], [45, "45 min"], [60, "1 h"]];
 const T_MAX = 300;   // « 4 h et + »
 /* Les choix rapides + « Autre » (curseur de 5 min à 4 h et +) */
@@ -1670,7 +1670,7 @@ function timeChips(cur, act, big) {
 }
 const catOf = it => PLAN_CAT[it.type] || [5, 2];
 const DUR_KEY = { sale: "relance", promo: "relance", news: "relance", suivi: "suivi", sat: "suivi", care: "suivi", reco: "reco", hint: "fid", gift: "fid", wake: "fid", prospect: "prospect" };
-const DUR_DEF = { relance: 4, suivi: 4, reco: 5, fid: 4, prospect: 5 };
+const DUR_DEF = { relance: 2, suivi: 2, reco: 2, fid: 2, prospect: 2 };
 const durOf = it => { if (it.type === "idea") return it.idea.d; const k = DUR_KEY[it.type], d = S.settings.dur && k ? +S.settings.dur[k] : 0; return d > 0 ? d : k ? DUR_DEF[k] : catOf(it)[1]; };
 const fmtMin = m => m > 240 ? "4 h et +" : m >= 60 ? (m % 60 ? `${Math.floor(m / 60)} h ${String(m % 60).padStart(2, "0")}` : `${m / 60} h`) : `${m} min`;
 function planSort(list) {
@@ -1685,7 +1685,7 @@ function dayPlan(full) {
   const P = S.day, inList = new Map(full.map(x => [x.k, x])), touched = id => ideaState(id) === t || lastTouch(id) === t || S.sales.some(sl => sl.clientId === id && sl.date === t);
   const state = k => inList.has(k) ? "todo" : touched(P.who && P.who[k]) ? "done" : "skip";
   P.who = P.who || {};
-  let budget = P.keys.reduce((n, k) => n + (state(k) === "skip" ? 0 : P.durs[k] || 4), 0);
+  let budget = P.keys.reduce((n, k) => n + (state(k) === "skip" ? 0 : P.durs[k] || 2), 0);
   for (const it of planSort(full)) {
     if (P.keys.includes(it.k)) continue;
     const d = durOf(it);
@@ -1694,7 +1694,7 @@ function dayPlan(full) {
   }
   const todo = P.keys.filter(k => state(k) === "todo").map(k => inList.get(k));
   const done = P.keys.filter(k => state(k) === "done");
-  const used = done.reduce((n, k) => n + (P.durs[k] || 4), 0);
+  const used = done.reduce((n, k) => n + (P.durs[k] || 2), 0);
   const planned = used + todo.reduce((n, it) => n + durOf(it), 0);
   const extra = full.filter(it => !P.keys.includes(it.k));
   return { todo: planSort(todo), done, used, planned, extra };
@@ -1843,12 +1843,12 @@ const NET_HOW = { fb: "Cherchez les groupes « {q} », rejoignez-en un et partag
   pin: "Cherchez « {q} », enregistrez des idées et suivez les comptes locaux qui les publient.",
   gm: "Cherchez « {q} » : contactez un lieu pour un partenariat, ou lisez les avis pour repérer des passionnés." };
 // Le marché chaud ne s'arrête pas aux listes : on écrit à ces personnes. Les actions « rep » reviennent chaque jour.
-const WARM_ACTS = [["ecrire", "✍️", "Écrivez à 3 personnes de votre liste de noms", "Un message simple et personnel : prenez des nouvelles d'abord, puis dites ce que vous faites. Sans vendre.", 3, 12],
+const WARM_ACTS = [["ecrire", "✍️", "Écrivez à 3 personnes de votre liste de noms", "Un message simple et personnel : prenez des nouvelles d'abord, puis dites ce que vous faites. Sans vendre.", 3, 6],
   ["appel", "📞", "Appelez un proche que vous n'avez pas eu depuis longtemps", "Une vraie conversation. Parlez de votre activité seulement si ça vient naturellement.", 1, 10],
   ["tester", "🎁", "Faites tester un produit à un proche", "Un échantillon contre un avis sincère : la meilleure façon de commencer.", 2, 5],
-  ["statut", "📲", "Publiez un statut WhatsApp sur un produit que vous aimez", "Tous vos contacts le voient, sans écrire à chacun. Répondez à ceux qui réagissent.", 1, 4],
+  ["statut", "📲", "Publiez un statut WhatsApp sur un produit que vous aimez", "Tous vos contacts le voient, sans écrire à chacun. Répondez à ceux qui réagissent.", 1, 3],
   ["famille", "👪", "Annoncez votre activité dans le groupe de la famille", "« Je me lance et j'aimerais votre avis » : chaleureux et sans pression.", 0, 5],
-  ["avis", "⭐", "Demandez son avis à un proche qui a déjà essayé", "Un avis positif, c'est déjà une recommandation en devenir.", 2, 4]];
+  ["avis", "⭐", "Demandez son avis à un proche qui a déjà essayé", "Un avis positif, c'est déjà une recommandation en devenir.", 2, 2]];
 const MSG_MIN = () => +((S.settings.dur || {}).relance) || DUR_DEF.relance;   // temps estimé pour écrire un message
 function ideaPool() {
   const city = myCity(), cs = slug(city), ci = city || "votre ville", pool = [];
@@ -3827,7 +3827,7 @@ const actions = {
     S.day = { ...(S.day || {}), d: today(), min: m, asked: true, keys: (S.day && S.day.d === today() ? S.day.keys : []), durs: (S.day && S.day.durs) || {}, who: (S.day && S.day.who) || {} };
     // si on réduit le temps, on retire les actions pas encore faites qui dépassent
     const full = todayList(), inL = new Set(full.map(x => x.k));
-    let used = 0; S.day.keys = S.day.keys.filter(k => { if (!inL.has(k)) return true; const d = S.day.durs[k] || 4; if (used + d > m && used > 0) return false; used += d; return true; });
+    let used = 0; S.day.keys = S.day.keys.filter(k => { if (!inL.has(k)) return true; const d = S.day.durs[k] || 2; if (used + d > m && used > 0) return false; used += d; return true; });
     save(); closeSheet(); render(); toast(`Plan prêt pour ${fmtMin(m)} ✅`);
   },
   planAsk: () => openSheet(`<div class="shead"><h3>⏱ Combien de temps aujourd'hui ?</h3>${closeBtn}</div>
