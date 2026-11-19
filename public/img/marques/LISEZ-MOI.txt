@@ -1,7 +1,7 @@
 Logos du mur des marques (page d'accueil).
 Déposez ici le logo officiel de chaque marque, en SVG (de préférence) ou en PNG à fond transparent,
 avec exactement ce nom de fichier :
-  lr.svg  thermomix.svg  herbalife.svg  partylite.svg  captaintortue.svg  stanhome.svg
-  forever.svg  oriflame.svg  charlott.svg  guydemarle.svg  nuskin.svg
+  lr.svg  herbalife.svg  forever.svg  oriflame.svg  nuskin.svg  partylite.svg
+  stanhome.svg  doterra.svg  juiceplus.svg  ringana.svg  bodynature.svg
 Tant qu'un fichier manque, le site affiche le nom de la marque en texte.
 N'utilisez que des logos que vous avez le droit d'utiliser (kit presse ou espace conseillers de la marque, ou accord écrit).
