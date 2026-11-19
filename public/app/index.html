@@ -1766,14 +1766,20 @@ const IDEA_NET = {
   pin: ["📌", "Pinterest", c => `https://www.pinterest.fr/search/pins/?q=${encodeURIComponent(c)}`],
   gm: ["📍", "Google Maps", c => `https://www.google.com/maps/search/${encodeURIComponent(c)}`]
 };
-// Comptes et lieux autour de chez soi où se trouvent des clients : [clé, emoji, libellé, mot-clé de recherche]
-const LOCAL_CATS = [["sport", "🏋️", "clubs et salles de sport", "salle de sport"], ["yoga", "🧘", "yoga, pilates et danse", "yoga"], ["deco", "🛋️", "décoration et ameublement", "décoration"],
-  ["menage", "🧽", "ménage et nettoyage", "ménage"], ["bien", "💆", "bien-être, spa et esthétique", "bien-être"], ["coiff", "💇", "coiffure et ongles", "coiffure"],
-  ["ville", "🏛️", "compte de la ville et mairie", "ville"], ["sortir", "🗺️", "sorties et office du tourisme", "sortir"], ["maman", "👶", "mamans et parents", "maman"],
-  ["ecole", "🎒", "écoles, crèches et assistantes maternelles", "assistante maternelle"], ["asso", "🤝", "associations", "association"], ["comm", "🥖", "commerces de quartier", "commerce"],
-  ["marche", "🧺", "marchés et brocantes", "marché"], ["event", "🎉", "événements et salons", "salon"], ["mariage", "💍", "mariages et EVJF", "mariage"], ["etud", "🎓", "étudiants", "étudiant"],
-  ["entre", "🏢", "entreprises et comités d'entreprise", "entreprise"], ["cafe", "☕", "cafés et salons de thé", "café"], ["anim", "🐾", "animaux", "chien"], ["jardin", "🌿", "jardin et nature", "jardin"],
-  ["cuisine", "🍳", "cuisine et recettes", "recette"], ["mode", "👗", "mode et friperies", "friperie"], ["immo", "🏠", "immobilier et nouveaux arrivants", "nouveaux arrivants"], ["senior", "👵", "seniors et aidants", "seniors"]];
+// Comptes et lieux autour de chez soi où se trouvent des clients : [clé, emoji, libellé, mot-clé, pour quels produits]
+// null = utile quel que soit le produit ; sinon seulement si la personne vend l'une de ces catégories (Menu › Ce que je vends)
+const LOCAL_CATS = [["sport", "🏋️", "clubs et salles de sport", "salle de sport", ["bien", "soin"]], ["yoga", "🧘", "yoga, pilates et danse", "yoga", ["bien", "soin", "parfum"]],
+  ["deco", "🛋️", "décoration et ameublement", "décoration", ["maison", "parfum"]], ["menage", "🧽", "ménage et nettoyage", "ménage", ["maison"]],
+  ["concierge", "🧳", "conciergeries et locations de vacances", "conciergerie airbnb", ["maison", "parfum"]], ["bien", "💆", "bien-être, spa et esthétique", "bien-être", ["bien", "soin", "parfum"]],
+  ["coiff", "💇", "coiffure et ongles", "coiffure", ["soin", "mode"]], ["ville", "🏛️", "compte de la ville et mairie", "ville", null], ["sortir", "🗺️", "sorties et office du tourisme", "sortir", null],
+  ["maman", "👶", "mamans et parents", "maman", null], ["bebe", "🍼", "futurs parents et bébés", "bébé", ["soin", "maison", "bien"]],
+  ["ecole", "🎒", "écoles, crèches et assistantes maternelles", "assistante maternelle", null], ["asso", "🤝", "associations", "association", null], ["comm", "🥖", "commerces de quartier", "commerce", null],
+  ["marche", "🧺", "marchés et brocantes", "marché", null], ["event", "🎉", "événements et salons", "salon", null], ["mariage", "💍", "mariages et EVJF", "mariage", ["soin", "parfum", "mode"]],
+  ["etud", "🎓", "étudiants", "étudiant", null], ["entre", "🏢", "entreprises et comités d'entreprise", "entreprise", null], ["cafe", "☕", "cafés et salons de thé", "café", null],
+  ["anim", "🐾", "animaux", "chien", ["maison"]], ["jardin", "🌿", "jardin et nature", "jardin", ["maison", "cuisine", "bien"]], ["cuisine", "🍳", "cuisine et recettes", "recette", ["cuisine", "maison"]],
+  ["mode", "👗", "mode et friperies", "friperie", ["mode", "soin", "parfum"]], ["immo", "🏠", "immobilier et nouveaux arrivants", "nouveaux arrivants", null], ["senior", "👵", "seniors et aidants", "seniors", ["bien", "maison", "soin"]]];
+// La catégorie convient-elle à ce que vend la personne ? (rien de renseigné ou « Autre » : tout est proposé)
+const fitsMe = forCats => { if (!forCats) return true; const c = cats().filter(k => k !== "autre"); return !c.length || forCats.some(k => c.includes(k)); };
 // Marché chaud : des catégories de personnes déjà connues
 const WARM = [["fam", "👪", "votre famille (parents, cousins, oncles et tantes)"], ["amis", "💛", "vos amis proches"], ["coll", "💼", "vos collègues et anciens collègues"], ["voisins", "🏡", "vos voisins"],
   ["ecole", "🎒", "les parents de l'école ou de la crèche"], ["sport", "⚽", "les gens de votre sport ou de votre association"], ["comm", "💇", "votre coiffeuse, votre esthéticienne, vos commerçants"],
@@ -1802,8 +1808,10 @@ const REEL = [["ecole", "🎒", "À la sortie de l'école", "Discutez, laissez v
   ["marche", "🧺", "Repérez un marché pour un stand", "Un stand rencontre 20 personnes en une matinée.", "marché"],
   ["vide", "🏷️", "Un vide-grenier ou une brocante", "Prenez des cartes et quelques échantillons.", "vide grenier brocante"],
   ["salon", "🎪", "Un salon ou une foire près de chez vous", "Visiteuse ou exposante : c'est plein de clients.", "salon foire"],
-  ["coiff", "💇", "Partenariat avec une coiffeuse ou une esthéticienne", "Déposez des échantillons en échange d'une remise pour ses clientes.", "coiffeur esthéticienne"],
-  ["salle", "🏋️", "Votre salle de sport", "Proposez une démo après un cours.", "salle de sport"],
+  ["coiff", "💇", "Partenariat avec une coiffeuse ou une esthéticienne", "Déposez des échantillons en échange d'une remise pour ses clientes.", "coiffeur esthéticienne", ["soin", "mode", "bien", "parfum"]],
+  ["concierge", "🧳", "Partenariat avec une conciergerie ou des gîtes", "Proposez vos produits pour l'entretien et l'accueil de leurs logements.", "conciergerie gîte", ["maison", "parfum"]],
+  ["agence", "🔑", "Une agence immobilière", "Un cadeau de bienvenue pour les nouveaux propriétaires : c'est vous qui le fournissez.", "agence immobilière", ["maison", "parfum", "cuisine"]],
+  ["salle", "🏋️", "Votre salle de sport", "Proposez une démo après un cours.", "salle de sport", ["bien", "soin"]],
   ["asso", "🤝", "Une association locale", "Proposez un atelier découverte à ses membres.", "association"],
   ["cafe", "☕", "Un salon de thé pour un atelier", "Réservez une table pour 6 personnes.", "salon de thé"],
   ["mairie", "🏛️", "L'agenda de la mairie", "Les fêtes de quartier cherchent souvent des exposants.", "mairie agenda"],
@@ -1825,13 +1833,14 @@ function ideaPool() {
   const city = myCity(), cs = slug(city), ci = city || "votre ville", pool = [];
   for (const [k, e, l] of WARM) pool.push({ id: "w:" + k, tier: "w", d: 5, e, title: `Liste de noms : ${l}`, how: "Écrivez tous les prénoms qui vous viennent, sans vous demander s'ils vont acheter. Objectif : 5 noms.", act: "names" });
   for (const [k, e, t, how] of TIEDE) pool.push({ id: "t:" + k, tier: "t", d: 5, e, title: t, how });
-  for (const [k, e, l, kw] of LOCAL_CATS) {
+  for (const [k, e, l, kw, fc] of LOCAL_CATS) {
+    if (!fitsMe(fc)) continue;
     const q = `${kw} ${city}`.trim();
     IG_HOW.forEach(([m, how]) => pool.push({ id: `f:ig:${m}:${k}`, tier: "f", d: 10, e: "📸", title: `Instagram · ${l} à ${ci}`, how: how.replace("{q}", q).replace("{tag}", slug(kw) + cs), url: m === "hashtag" ? `https://www.instagram.com/explore/tags/${slug(kw) + cs}/` : IDEA_NET.ig[2](q) }));
     for (const n of ["fb", "tt", "li", "x", "pin", "gm"]) pool.push({ id: `f:${n}:${k}`, tier: "f", d: 10, e: IDEA_NET[n][0], title: `${IDEA_NET[n][1]} · ${l} à ${ci}`, how: NET_HOW[n].replace("{q}", q), url: IDEA_NET[n][2](q) });
   }
   pool.push({ id: "f:sc:map", tier: "f", d: 10, e: "👻", title: `Snapchat · ce qui se passe autour de ${ci}`, how: NET_HOW.sc, url: IDEA_NET.sc[2]() });
-  for (const [k, e, t, how, kw] of REEL) pool.push({ id: "r:" + k, tier: "r", d: 10, e, title: t, how, url: IDEA_NET.gm[2](`${kw} ${city}`.trim()) });
+  for (const [k, e, t, how, kw, fc] of REEL) if (fitsMe(fc)) pool.push({ id: "r:" + k, tier: "r", d: 10, e, title: t, how, url: IDEA_NET.gm[2](`${kw} ${city}`.trim()) });
   return pool;
 }
 function ideaState(id) { if (!id || !String(id).startsWith("idea:")) return null; const I2 = S.ideas || {}; return (I2.done && I2.done[String(id).slice(5)]) || null; }
