@@ -162,8 +162,8 @@ main{max-width:560px;margin:0 auto;padding:6px 16px 24px}
 .iseg button{border:0;background:transparent;border-radius:17px;padding:9px 4px;font:inherit;cursor:pointer;color:var(--ink-2);display:flex;flex-direction:column;align-items:center;gap:1px}
 .iseg button span{font-weight:800;font-size:.9rem}.iseg button small{font-size:.68rem;font-weight:700;color:var(--ink-3)}
 .iseg button.on{background:var(--surface);color:var(--ink);box-shadow:0 4px 12px rgba(16,19,18,.08)}
-.cvs{display:grid;gap:10px;margin:14px 0}.cvrow{display:grid;grid-template-columns:1fr 90px auto;gap:10px;align-items:center;padding:12px 14px;border-radius:18px;background:var(--surface-2)}
-.cvrow b{font-size:.95rem}.cvrow small{display:block;font-size:.75rem;color:var(--ink-3);font-weight:650}.cvrow em{font-style:normal;font-weight:800;font-size:.82rem;white-space:nowrap}
+.cvs{display:grid;gap:10px;margin:14px 0}.cvrow{display:grid;grid-template-columns:1fr auto;gap:6px 10px;align-items:center;padding:12px 14px;border-radius:18px;background:var(--surface-2)}.cvrow .cvbar{grid-column:1/-1;order:3}
+.cvrow b{font-size:.95rem}.cvrow small{display:block;font-size:.75rem;color:var(--ink-3);font-weight:650}.cvrow em{font-style:normal;font-weight:800;font-size:.82rem;text-align:right;max-width:9.5em}
 .cvbar{height:8px;border-radius:9px;background:var(--line)}.cvbar span{display:block;height:100%;border-radius:9px;background:#ff6a2a}
 .cvrow.lv-t .cvbar span{background:#e0607a}.cvrow.lv-f .cvbar span{background:#7b83f6}.ihead{display:flex;justify-content:space-between;align-items:center}
 .itier{font-size:.72rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:5px 10px;border-radius:99px;background:var(--surface-2);color:var(--ink-2)}
@@ -1887,12 +1887,12 @@ function ideaItems(n = 80) {
 }
 const TIER_LB = { w: ["Marché chaud", "warm"], t: ["Contact tiède", "tiede"], f: ["Froid · réseaux", "froid"], r: ["Froid · vraie vie", "reel"] };
 /* Les 3 marchés et leur taux de conversion (ordre de grandeur) : pour comprendre pourquoi on commence par le chaud */
-const MARKETS = { w: ["🔥", "Marché chaud", "Les gens qui vous connaissent", "1 sur 5 à 10", 7], t: ["🌤️", "Marché tiède", "Amis d'amis, réseaux, recommandations", "1 sur 20 à 30", 25], f: ["❄️", "Marché froid", "Des inconnus, sur les réseaux ou en vrai", "1 sur 50 à 100 et +", 75] };
+const MARKETS = { w: ["🔥", "Marché chaud", "Les gens qui vous connaissent", "1 vente / 7 messages", 7], t: ["🌤️", "Marché tiède", "Amis d'amis, réseaux, recommandations", "1 vente / 25 messages", 25], f: ["❄️", "Marché froid", "Des inconnus, sur les réseaux ou en vrai", "1 vente / 75 messages et +", 75] };
 const ideaLevel = () => (S.ideas && S.ideas.level) || "w";
 function ideaLevelBar(mins) {
   const lv = ideaLevel(), m = MSG_MIN();
   return `<div class="ilevel"><div class="ilh"><b>💡 Trouver de nouveaux clients</b><small>1 message ≈ ${m} min${mins ? ` · environ ${Math.max(1, Math.floor(mins / m))} messages dans votre temps` : ""}</small></div>
-    <div class="iseg">${Object.entries(MARKETS).map(([k, [e, l, , c]]) => `<button class="${lv === k ? "on" : ""} lv-${k}" data-act="ideaLevel" data-l="${k}"><span>${e} ${l.replace("Marché ", "")}</span><small>${c}</small></button>`).join("")}</div></div>`;
+    <div class="iseg">${Object.entries(MARKETS).map(([k, [e, l, , c]]) => `<button class="${lv === k ? "on" : ""} lv-${k}" data-act="ideaLevel" data-l="${k}"><span>${e} ${l.replace("Marché ", "")}</span><small>${c.replace(" messages et +", " msg +").replace(" messages", " msg")}</small></button>`).join("")}</div></div>`;
 }
 function ideaCard(it) {
   const x = it.idea, [lb, cls] = TIER_LB[x.tier];
@@ -3829,9 +3829,9 @@ const actions = {
     const names = S.prospects.filter(x => !x.example).length, prev = to === "f" && from === "t" ? "t" : "w";
     const bars = Object.entries(MARKETS).map(([k, [e, l, d, c, n]]) => `<div class="cvrow lv-${k}"><div><b>${e} ${l}</b><small>${d}</small></div><div class="cvbar"><span style="width:${Math.round(7 / n * 100)}%"></span></div><em>${c}</em></div>`).join("");
     openSheet(`<div class="shead"><h3>${prev === "w" ? "Avez-vous vraiment fait le tour de votre marché chaud ?" : "Avez-vous fait le tour de votre marché tiède ?"}</h3>${closeBtn}</div>
-      <p class="lede" style="margin-top:8px">Sur combien de personnes contactées, environ <b>une</b> devient cliente :</p>
+      <p class="lede" style="margin-top:8px">Combien de messages faut-il envoyer, en moyenne, pour faire <b>une vente</b> ?</p>
       <div class="cvs">${bars}</div>
-      <p class="lede">Pour trouver <b>1 cliente</b>, il faut écrire à environ <b>${MARKETS.w[4]}</b> personnes de votre entourage, <b>${MARKETS.t[4]}</b> contacts tièdes, ou <b>${MARKETS.f[4]} inconnus et plus</b>. ${prev === "w" ? `Votre liste compte <b>${names} nom${names > 1 ? "s" : ""}</b> : visez au moins 100 noms avant de passer au tiède.` : "Le tiède reste bien plus rentable que le froid."}</p>
+      <p class="lede">Autrement dit : avec <b>10 messages</b> à vos proches, vous pouvez espérer <b>1 à 2 ventes</b>. Avec 10 messages à des inconnus, souvent <b>aucune</b>. Le temps passé est le même, le résultat non. ${prev === "w" ? `Votre liste compte <b>${names} nom${names > 1 ? "s" : ""}</b> : visez au moins 100 noms avant de passer au tiède.` : "Le tiède reste bien plus rentable que le froid."}</p>
       <button class="btn primary" data-act="ideaLevel" data-l="${prev}">${MARKETS[prev][0]} Rester sur le ${MARKETS[prev][1].toLowerCase()} (conseillé)</button>
       <button class="btn soft" style="margin-top:8px" data-act="ideaLevelGo" data-l="${to}">Oui, j'en ai fait le tour : passer au ${MARKETS[to][1].toLowerCase()}</button>`);
   },
