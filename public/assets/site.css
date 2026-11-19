@@ -686,7 +686,7 @@ mark.todo{display:inline-block;background:#fff3a6;color:#6b5600;border:1px dashe
 .mq b{font-size:1.45rem;font-weight:800;letter-spacing:-.04em;white-space:nowrap}
 .mq.b-serif b{font-family:Georgia,"Times New Roman",serif;font-weight:700;letter-spacing:-.02em}
 .mq.b-script b{font-family:"Brush Script MT","Segoe Script","Snell Roundhand",cursive;font-weight:400;font-size:1.75rem;letter-spacing:0}
-.mq-lr b{font-size:1.9rem;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.mq-lr b{font-size:1.9rem}
 .mq .blogo{max-height:40px;max-width:150px}.mq.has-img .blogo{display:block}.mq.has-img b{display:none}
 @media (prefers-reduced-motion:reduce){.mq-track{animation:none;flex-wrap:wrap;width:auto;justify-content:center}.mq[aria-hidden]{display:none}}
 .mq .blogo{mix-blend-mode:multiply}
