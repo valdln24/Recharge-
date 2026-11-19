@@ -122,6 +122,22 @@ main{max-width:560px;margin:0 auto;padding:6px 16px 24px}
 .cfoot button{border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:9px 4px;font:inherit;font-size:.8rem;font-weight:700;color:var(--ink-2);cursor:pointer}
 .rcard{border-radius:28px}
 .later{display:grid;gap:8px;margin-top:14px}
+/* Fiches simplifiées du plan */
+.rcard.lite{position:relative}
+.cmore{position:absolute;top:10px;right:10px;z-index:2;width:38px;height:38px;border-radius:50%;border:0;background:var(--surface-2);color:var(--ink);font-size:1.3rem;font-weight:800;line-height:1;cursor:pointer}
+.rcard.lite .rhead{display:block;padding-right:44px;cursor:pointer}
+.rcard.lite .rhead .name{font-size:1.12rem}
+.rsn{margin-top:4px;font-size:.95rem;font-weight:700;color:var(--o-text);cursor:pointer}
+.rwhy{margin-top:4px;font-size:.78rem;font-weight:700;color:var(--ink-3);cursor:pointer}
+.rcard.lite .cfoot{display:none}
+.rcard.lite:not(.exp) .rhead .ring,.rcard.lite:not(.exp) .rhead .avatar,.rcard.lite:not(.exp) .who .status,.rcard.lite:not(.exp) .who .meta2,
+.rcard.lite:not(.exp) .cact,.rcard.lite:not(.exp) .caction,.rcard.lite:not(.exp) .why,.rcard.lite:not(.exp) .miss,.rcard.lite:not(.exp) .ctip,
+.rcard.lite:not(.exp) .line.mini,.rcard.lite:not(.exp) .bubble,.rcard.lite:not(.exp) .second,.rcard.lite:not(.exp) .links2{display:none}
+.rcard.lite:not(.exp) .send{margin-top:12px}
+.rcard.lite.exp .rhead{display:grid}.rcard.lite.exp .rsn{display:none}
+.cmenu{display:grid;gap:8px;margin-top:14px}.cmenu.two{grid-template-columns:1fr 1fr}
+.cmenu button{display:flex;align-items:center;gap:12px;border:0;background:var(--surface);border-radius:18px;padding:15px 16px;font:inherit;font-size:1.02rem;font-weight:750;color:var(--ink);cursor:pointer;box-shadow:var(--shadow)}
+.cmenu button span{font-size:1.25rem}.cmenu.two button{justify-content:center}
 .pcheer{position:relative;z-index:1;margin:6px 0 0;font-size:.86rem;font-weight:700}
 .askt{margin-top:12px;background:var(--surface);border-radius:24px;padding:14px;box-shadow:var(--shadow)}.askt b{display:block;font-size:1rem}
 .tchips{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
@@ -1719,9 +1735,13 @@ let ctab = DEMO && new URLSearchParams(location.search).get("c") === "prospects"
 /* Une carte de la liste du jour : la raison, le message prêt, deux boutons */
 function cardShell({ k, head, extra = "", msgId, msg, vary, id, waAct, copyAct, phone, second, links }) {
   const ref = k.startsWith("s:") ? `data-sale="${id}"` : k.startsWith("p:") ? `data-prospect="${id}"` : "";
-  const m = CUR && CUR.k === k ? coachMeta(CUR) : null;
-  return `<article class="card rcard open" data-k="${k}" ${ref}>
+  const m = CUR && CUR.k === k ? coachMeta(CUR) : null, type = m ? CUR.type : "";
+  const st = (/class="status[^"]*">([^<]*)</.exec(head) || [])[1] || "";
+  const reason = type === "sale" ? st : m && m.facts[0] ? esc(cap(m.facts[0])) : st;   // st est déjà échappé
+  return `<article class="card rcard open${m ? " lite" : ""}${expCards.has(k) ? " exp" : ""}" data-k="${k}" data-type="${type}" ${ref}>
+      ${m ? `<button class="cmore" data-act="cMenu" data-k="${k}" aria-label="Plus d'actions">⋯</button>` : ""}
       <div class="rhead">${head}</div>
+      ${m ? `<div class="rsn">${reason}</div><div class="rwhy">${expCards.has(k) ? "Masquer le détail ⌃" : "Pourquoi ? ⌄"}</div>` : ""}
       ${coachBlock(m)}
       ${extra}
       <div class="more">
@@ -1748,6 +1768,7 @@ const coachFoot = (m, k) => m ? `<div class="cfoot"><button data-act="cLater" da
 const satBtns = (id, attr = "sale") => `<div class="satb">${Object.entries(SAT).map(([v, [e, l]]) => `<button data-act="satSet" data-${attr}="${id}" data-v="${v}"><span>${e}</span>${l}</button>`).join("")}</div>`;
 const typeTag = label => `<span class="ttag">${label}</span>`;
 let CUR = null;
+const expCards = new Set();   // fiches du plan dont le détail est ouvert
 function todayCard(it) {
   CUR = it;
   if (it.type === "sale") {
@@ -3437,6 +3458,28 @@ const actions = {
   },
   newPromo: () => openPromoForm(),
   coachF: el => { coachF = coachF === el.dataset.d ? null : el.dataset.d; render(); },
+  cMenu: el => {
+    const k = el.dataset.k, it = todayList().find(x => x.k === k); if (!it) return;
+    const m = coachMeta(it), w = person(it.who) || {};
+    openSheet(`<div class="shead"><h3>${esc(w.name || "")}</h3>${closeBtn}</div>
+      <div class="cmenu">${it.type !== "sat" ? `<button data-act="cDone" data-k="${esc(k)}"><span>✅</span>Fait</button>` : ""}
+        <button data-act="cLater" data-k="${esc(k)}"><span>⏰</span>Reporter</button>
+        <button data-act="cIgnore" data-k="${esc(k)}"><span>🙈</span>Ignorer</button>
+        <button data-act="${m.fiche}" data-id="${esc(m.id)}"><span>👤</span>Voir la fiche</button></div>`);
+  },
+  cDone: el => {
+    const k = el.dataset.k, it = todayList().find(x => x.k === k); if (!it) return closeSheet();
+    if (it.type === "sale") return openSheet(`<div class="shead"><h3>${esc(firstName((client(it.s.clientId) || {}).name || ""))} a recommandé ?</h3>${closeBtn}</div>
+      <p class="lede" style="margin-top:8px">${esc(it.s.product)} · acheté le ${fmt(it.s.date)}</p>
+      <div class="cmenu two"><button data-act="saleYes" data-id="${it.s.id}"><span>🛍️</span>Oui</button><button data-act="saleNot" data-id="${it.s.id}"><span>⏳</span>Pas encore</button></div>
+      <p class="hint">Oui : la date d'achat passe à aujourd'hui et la prochaine relance se recalcule toute seule.</p>`);
+    if (it.type === "hint") { closeSheet(); return actions.hintSent({ dataset: { id: it.who } }); }
+    closeSheet();
+    const b = document.querySelector(`.rcard[data-k="${CSS.escape(k)}"] .second`); if (b) b.click();
+  },
+  saleYes: el => { closeSheet(); actions.reco(el); },
+  saleNot: el => { closeSheet(); actions.relance(el); },
+  hintSent: el => { const c = client(el.dataset.id), snap = snapshot(); c.partnerHinted = today(); S.events.push({ id: uid(), type: "hint", clientId: c.id, product: "", date: today(), example: !!c.example }); save(); render(); toast(`Proposition de carte fidélité notée 💳${cheer()}`, snap); },
   planTime: el => {
     const m = +el.dataset.m; S.lastMin = m;
     S.day = { ...(S.day || {}), d: today(), min: m, asked: true, keys: (S.day && S.day.d === today() ? S.day.keys : []), durs: (S.day && S.day.durs) || {}, who: (S.day && S.day.who) || {} };
@@ -3656,7 +3699,7 @@ const actions = {
   pDone: el => {
     const x = prospect(el.dataset.id), snap = snapshot();
     x.contacts = (x.contacts || 0) + 1; x.lastContact = today(); x.next = addDays(today(), x.status === "lost" || x.contacts >= 3 ? 90 : x.contacts === 2 ? 14 : 4); pEvent("pcontact", x);
-    save(); render(); toast(`Bravo ! On le recontactera le ${fmt(x.next)}.${cheer()}`, snap);
+    save(); render(); toast(`Bravo ! On le recontactera le ${fmt(x.next)}${cheer()}`, snap);
   },
   pLater: el => {
     const x = prospect(el.dataset.id), snap = snapshot();
@@ -3741,6 +3784,12 @@ const actions = {
 };
 
 document.addEventListener("click", ev => {
+  const lite = ev.target.closest(".rcard.lite");
+  if (lite && !ev.target.closest("button,a,textarea,input,select,label")) {
+    const k = lite.dataset.k; expCards.has(k) ? expCards.delete(k) : expCards.add(k);
+    lite.classList.toggle("exp", expCards.has(k)); const w = lite.querySelector(".rwhy"); if (w) w.textContent = expCards.has(k) ? "Masquer le détail ⌃" : "Pourquoi ? ⌄";
+    fitAreas(lite); return;
+  }
   const tabBtn = ev.target.closest("[data-tab]");
   if (tabBtn) { tab = tabBtn.dataset.tab; closeSheet(); render(); window.scrollTo(0, 0); return; }
   const el = ev.target.closest("[data-act]");
