@@ -689,3 +689,4 @@ mark.todo{display:inline-block;background:#fff3a6;color:#6b5600;border:1px dashe
 .mq-lr b{font-size:1.9rem;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
 .mq .blogo{max-height:40px;max-width:150px}.mq.has-img .blogo{display:block}.mq.has-img b{display:none}
 @media (prefers-reduced-motion:reduce){.mq-track{animation:none;flex-wrap:wrap;width:auto;justify-content:center}.mq[aria-hidden]{display:none}}
+.mq .blogo{mix-blend-mode:multiply}
