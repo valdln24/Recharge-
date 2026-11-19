@@ -699,3 +699,19 @@ mark.todo{display:inline-block;background:#fff3a6;color:#6b5600;border:1px dashe
 .mq-count b{font-size:2.3rem;font-weight:800;letter-spacing:-.05em;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
 .mq-count span{font-size:.82rem;font-weight:750;line-height:1.15;color:var(--ink);text-align:left}
 @media (max-width:760px){.mq-count b{font-size:1.8rem}.mq-count span{font-size:.74rem}}
+
+/* ---------- Vidéo de présentation ---------- */
+.pubvid{padding:8px 0 30px}
+.vframe{position:relative;max-width:980px;margin:0 auto;padding:10px;border-radius:30px;background:rgba(255,255,255,.75);border:1px solid var(--line);box-shadow:0 30px 70px rgba(60,40,20,.12)}
+.vframe video{display:block;width:100%;aspect-ratio:16/9;border-radius:22px;background:#f1ece6;object-fit:cover}
+.vplay{position:absolute;inset:10px;border:0;border-radius:22px;background:linear-gradient(180deg,rgba(16,19,18,0) 45%,rgba(16,19,18,.35));display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;cursor:pointer;color:#fff;font:inherit}
+.vplay span{width:84px;height:84px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#ffa25a,#ff4f1a);box-shadow:0 0 0 10px rgba(255,255,255,.35),0 18px 40px rgba(255,90,31,.45);transition:transform .2s}
+.vplay span svg{width:36px;height:36px;margin-left:4px}
+.vplay:hover span{transform:scale(1.06)}
+.vplay b{font-weight:800;font-size:1rem;padding:8px 16px;border-radius:99px;background:rgba(16,19,18,.55);backdrop-filter:blur(6px)}
+.vframe.on .vplay{display:none}
+@media (max-width:640px){
+  .vframe{max-width:340px;padding:8px;border-radius:26px}
+  .vframe video{aspect-ratio:9/16}
+  .vplay{inset:8px;border-radius:20px}
+}

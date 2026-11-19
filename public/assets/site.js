@@ -232,3 +232,16 @@ if (potSvg) {
   a.innerHTML = '<span><svg viewBox="40 40 120 120" aria-hidden="true" style="color:#fff"><path d="M122.4 66.9A44 44 0 1 1 81.4 65.1" fill="none" stroke="currentColor" stroke-width="17"/><path d="M66.5 47.5L101 52.5L80.5 80Z" fill="currentColor"/><path d="M109 76L84 111H99L91 136L118 99H103Z" fill="currentColor"/></svg></span>' + (onCoach ? "Essayer" : "Coach");
   document.body.appendChild(a);
 })();
+
+/* Vidéo de présentation : version verticale sur téléphone, chargée seulement au clic */
+(function () {
+  var v = document.getElementById("pubv"); if (!v) return;
+  var mq = window.matchMedia("(max-width:640px)");
+  var pick = function () { v.poster = mq.matches ? v.dataset.pv : v.dataset.ph; };
+  pick(); if (mq.addEventListener) mq.addEventListener("change", function () { if (!v.src) pick(); });
+  var box = v.closest(".vframe"), btn = box.querySelector(".vplay");
+  btn.addEventListener("click", function () {
+    v.src = mq.matches ? v.dataset.v : v.dataset.h; v.controls = true; box.classList.add("on");
+    var p = v.play(); if (p && p.catch) p.catch(function () {});
+  });
+})();
