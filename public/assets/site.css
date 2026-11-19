@@ -692,3 +692,4 @@ mark.todo{display:inline-block;background:#fff3a6;color:#6b5600;border:1px dashe
 .mq .blogo{mix-blend-mode:multiply}
 .mq.has-img .blogo{width:auto;height:auto;max-height:44px;max-width:170px}
 .mq-lr.has-img .blogo{filter:none;opacity:1;max-height:58px}
+@media (max-width:760px){.mq{height:68px;min-width:0;padding:0 20px}.mq b{font-size:1.2rem}.mq.b-script b{font-size:1.45rem}.mq.has-img .blogo{max-height:36px;max-width:130px}.mq-lr.has-img .blogo{max-height:46px}}
