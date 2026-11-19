@@ -150,6 +150,10 @@ main{max-width:560px;margin:0 auto;padding:6px 16px 24px}
 .pcheer{position:relative;z-index:1;margin:6px 0 0;font-size:.86rem;font-weight:700}
 .askt{margin-top:12px;background:var(--surface);border-radius:24px;padding:14px;box-shadow:var(--shadow)}.askt b{display:block;font-size:1rem}
 .tchips{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:10px}
+#bravo{position:fixed;left:0;right:0;top:calc(14px + env(safe-area-inset-top));z-index:120;display:flex;justify-content:center;pointer-events:none;opacity:0;transform:translateY(-16px) scale(.96);transition:opacity .3s,transform .4s cubic-bezier(.2,1.4,.4,1)}
+#bravo.show{opacity:1;transform:none}
+.bravo{display:flex;align-items:center;gap:10px;max-width:min(92vw,460px);padding:12px 18px 12px 12px;border-radius:99px;background:linear-gradient(135deg,#ffa25a,#ff4f1a 60%,#e0607a);color:#fff;font-weight:800;font-size:.95rem;box-shadow:0 14px 34px rgba(255,90,31,.35)}
+.bravo .bz{width:34px;height:34px;flex:none;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.25);font-size:1.05rem}
 .trange{margin:18px 0 20px;text-align:center}.trange b{display:block;font-size:2.2rem;font-weight:800;letter-spacing:-.04em;margin-bottom:12px}
 .trange input{width:100%;accent-color:var(--o1);height:32px}.tscale{display:flex;justify-content:space-between;font-size:.75rem;font-weight:700;color:var(--ink-3)}
 .icard{padding:16px 18px;border-radius:28px}.ihead{display:flex;justify-content:space-between;align-items:center}
@@ -1771,13 +1775,13 @@ const IDEA_NET = {
 const LOCAL_CATS = [["sport", "🏋️", "clubs et salles de sport", "salle de sport", ["bien", "soin"]], ["yoga", "🧘", "yoga, pilates et danse", "yoga", ["bien", "soin", "parfum"]],
   ["deco", "🛋️", "décoration et ameublement", "décoration", ["maison", "parfum"]], ["menage", "🧽", "ménage et nettoyage", "ménage", ["maison"]],
   ["concierge", "🧳", "conciergeries et locations de vacances", "conciergerie airbnb", ["maison", "parfum"]], ["bien", "💆", "bien-être, spa et esthétique", "bien-être", ["bien", "soin", "parfum"]],
-  ["coiff", "💇", "coiffure et ongles", "coiffure", ["soin", "mode"]], ["ville", "🏛️", "compte de la ville et mairie", "ville", null], ["sortir", "🗺️", "sorties et office du tourisme", "sortir", null],
+  ["coiff", "💇", "coiffure et ongles", "coiffure", ["soin"]], ["ville", "🏛️", "compte de la ville et mairie", "ville", null], ["sortir", "🗺️", "sorties et office du tourisme", "sortir", null],
   ["maman", "👶", "mamans et parents", "maman", null], ["bebe", "🍼", "futurs parents et bébés", "bébé", ["soin", "maison", "bien"]],
   ["ecole", "🎒", "écoles, crèches et assistantes maternelles", "assistante maternelle", null], ["asso", "🤝", "associations", "association", null], ["comm", "🥖", "commerces de quartier", "commerce", null],
-  ["marche", "🧺", "marchés et brocantes", "marché", null], ["event", "🎉", "événements et salons", "salon", null], ["mariage", "💍", "mariages et EVJF", "mariage", ["soin", "parfum", "mode"]],
+  ["marche", "🧺", "marchés et brocantes", "marché", null], ["event", "🎉", "événements et salons", "salon", null], ["mariage", "💍", "mariages et EVJF", "mariage", ["soin", "parfum"]],
   ["etud", "🎓", "étudiants", "étudiant", null], ["entre", "🏢", "entreprises et comités d'entreprise", "entreprise", null], ["cafe", "☕", "cafés et salons de thé", "café", null],
   ["anim", "🐾", "animaux", "chien", ["maison"]], ["jardin", "🌿", "jardin et nature", "jardin", ["maison", "cuisine", "bien"]], ["cuisine", "🍳", "cuisine et recettes", "recette", ["cuisine", "maison"]],
-  ["mode", "👗", "mode et friperies", "friperie", ["mode", "soin", "parfum"]], ["immo", "🏠", "immobilier et nouveaux arrivants", "nouveaux arrivants", null], ["senior", "👵", "seniors et aidants", "seniors", ["bien", "maison", "soin"]]];
+  ["mode", "👗", "mode et friperies", "friperie", ["mode"]], ["immo", "🏠", "immobilier et nouveaux arrivants", "nouveaux arrivants", null], ["senior", "👵", "seniors et aidants", "seniors", ["bien", "maison", "soin"]]];
 // La catégorie convient-elle à ce que vend la personne ? (rien de renseigné ou « Autre » : tout est proposé)
 const fitsMe = forCats => { if (!forCats) return true; const c = cats().filter(k => k !== "autre"); return !c.length || forCats.some(k => c.includes(k)); };
 // Marché chaud : des catégories de personnes déjà connues
@@ -1808,7 +1812,7 @@ const REEL = [["ecole", "🎒", "À la sortie de l'école", "Discutez, laissez v
   ["marche", "🧺", "Repérez un marché pour un stand", "Un stand rencontre 20 personnes en une matinée.", "marché"],
   ["vide", "🏷️", "Un vide-grenier ou une brocante", "Prenez des cartes et quelques échantillons.", "vide grenier brocante"],
   ["salon", "🎪", "Un salon ou une foire près de chez vous", "Visiteuse ou exposante : c'est plein de clients.", "salon foire"],
-  ["coiff", "💇", "Partenariat avec une coiffeuse ou une esthéticienne", "Déposez des échantillons en échange d'une remise pour ses clientes.", "coiffeur esthéticienne", ["soin", "mode", "bien", "parfum"]],
+  ["coiff", "💇", "Partenariat avec une coiffeuse ou une esthéticienne", "Déposez des échantillons en échange d'une remise pour ses clientes.", "coiffeur esthéticienne", ["soin", "bien", "parfum"]],
   ["concierge", "🧳", "Partenariat avec une conciergerie ou des gîtes", "Proposez vos produits pour l'entretien et l'accueil de leurs logements.", "conciergerie gîte", ["maison", "parfum"]],
   ["agence", "🔑", "Une agence immobilière", "Un cadeau de bienvenue pour les nouveaux propriétaires : c'est vous qui le fournissez.", "agence immobilière", ["maison", "parfum", "cuisine"]],
   ["salle", "🏋️", "Votre salle de sport", "Proposez une démo après un cours.", "salle de sport", ["bien", "soin"]],
@@ -2669,7 +2673,7 @@ function openOnboarding(step = 0, profileOnly) {
     <label class="field"><span>Votre marque</span><input class="input" id="obBrand" list="obBrands" value="${esc(ob.brand)}" placeholder="Écrivez le nom de votre marque"></label>
     <datalist id="obBrands">${OB_BRANDS.map(b => `<option value="${esc(b)}">`).join("")}</datalist>`;
   if (ob.i === 1) body = `<h3 class="obq">Vos produits et votre ton</h3><p class="lede">Deux appuis, pour des messages qui vous ressemblent.</p>
-    <div class="field"><span>Que vendez-vous ? <i>· plusieurs choix possibles</i></span></div>${chips(OB_CATS, "cats", true)}
+    <div class="field"><span>Que vendez-vous ? <i>· plusieurs choix possibles</i></span></div>${chips(OB_CATS.filter(([k]) => k !== "mode" || ob.cats.includes("mode")), "cats", true)}
     <div class="field"><span>Le ton de vos messages</span></div>
     <div class="obtones" style="margin-top:8px">${OB_TONES.map(([k, l, d]) => `<button type="button" class="obtone ${ob.tone === k ? "on" : ""}" data-act="obPick" data-k="tone" data-v="${k}"><b>${l}</b><small>${d}</small></button>`).join("")}</div>`;
   if (ob.i === 2) body = `<h3 class="obq">Vos 3 premiers clients</h3><p class="lede">Juste le nom, le produit et quand ils l'ont acheté. Recharge calcule le bon moment pour les relancer.</p>
@@ -3609,8 +3613,35 @@ document.addEventListener("change", async ev => {
 const snapshot = () => JSON.stringify(S);
 let toastTimer;
 /* Encouragement : combien il en reste aujourd'hui */
+/* 50 encouragements, un toutes les 3 actions faites (dans un ordre mélangé, sans répétition avant d'avoir tout vu) */
+const BRAVO = ["Vous êtes sur une super lancée 🚀", "Chaque message compte : vos clients le sentent 💛", "Régularité = réussite. Et vous tenez le rythme 💪",
+  "Encore 3 actions de faites, bravo ! 🌟", "Votre activité grandit un message à la fois 🌱", "Vous faites ce que 90 % n'osent pas faire : relancer 👏",
+  "Vos clients ont de la chance de vous avoir 🤝", "C'est comme ça qu'on construit une clientèle fidèle 🏡", "Petit pas après petit pas, vous avancez vite 👣",
+  "Vous de demain vous dira merci 🙌", "Vous transformez votre temps en résultats ⏱️➡️💶", "Impressionnant, continuez comme ça ✨",
+  "Une relance aujourd'hui, une commande demain 🛍️", "Vous êtes en train de prendre une belle habitude 🔁", "Bravo, vous ne laissez passer aucune occasion 🎯",
+  "La fidélité se construit exactement comme ça 💞", "Vous gérez ! Votre plan du jour avance 📈", "Quelle énergie aujourd'hui ⚡",
+  "Vos efforts d'aujourd'hui sont vos ventes de demain 🌤️", "Encore un pas vers vos objectifs 🏁", "Votre organisation fait la différence 🗂️",
+  "Ce que vous semez aujourd'hui, vous le récolterez 🌾", "Bel élan ! On ne lâche rien 💥", "Vous prenez soin de vos clients, ils vous le rendront 🤍",
+  "Top ! Vous jouez dans la cour des grands 🏆", "C'est ça, l'esprit Recharge 🔋", "Encore 3 actions : votre réseau s'agrandit 🕸️",
+  "Du travail de pro en relation client 💼", "Vous rendez la vente simple et humaine 😊", "On sent la motivation, bravo 🔥",
+  "Votre carnet n'aurait jamais fait ça. Vous, si 📒➡️📱", "Rien ne vous arrête aujourd'hui 🚦", "Chaque contact est une graine de recommandation 🌻",
+  "Vous avancez plus vite que vous ne le pensez 🏃‍♀️", "Belle constance, c'est la clé 🗝️", "Vos clients se souviendront de votre attention 💌",
+  "Mission accomplie, et ce n'est que le début 🎬", "Vous faites grandir votre activité avec le sourire 😄", "Prenez une seconde pour savourer ce progrès 🥇",
+  "Encore 3 de faites : ça mérite un café ☕", "Votre persévérance paie toujours 💎", "Une relation à la fois, une réussite à la fois 🧩",
+  "C'est en relançant qu'on fidélise, et vous le faites 🔄", "Personne ne parle de vos produits mieux que vous 🌟", "Toujours un temps d'avance sur vos clients ⏩",
+  "Votre activité vous ressemble : sérieuse et chaleureuse 🌈", "Vous venez de créer de nouvelles opportunités 🚪", "Quel rythme ! Gardez-le 🎵",
+  "Bravo pour votre engagement, ça se voit 👀", "Encore une belle journée de construite 🧱"];
+const bravoOrder = (() => { const o = BRAVO.map((_, i) => i); let sd = 7; for (let i = o.length - 1; i > 0; i--) { sd = (sd * 16807) % 2147483647; const j = sd % (i + 1); [o[i], o[j]] = [o[j], o[i]]; } return o; })();
+function bravo(text) {
+  let el = document.getElementById("bravo"); if (!el) { el = document.createElement("div"); el.id = "bravo"; el.setAttribute("role", "status"); document.body.appendChild(el); }
+  el.innerHTML = `<div class="bravo"><span class="bz">🎉</span><span>${esc(text)}</span></div>`; el.className = "show";
+  clearTimeout(el._t); el._t = setTimeout(() => { el.className = ""; }, 3800);
+}
 function cheer() {
   const n = Math.min(MAX_TODAY, todayList().length);
+  S.cheerN = (S.cheerN || 0) + 1;
+  if (S.cheerN % 3 === 0) { const i = (S.cheerI || 0) % BRAVO.length; S.cheerI = i + 1; setTimeout(() => bravo(BRAVO[bravoOrder[i]]), 1300); }
+  save();
   return n === 0 ? " Tout est fait pour aujourd'hui 🎉" : n === 1 ? " Plus qu'une 💪" : n <= 3 ? ` Plus que ${n} 💪` : "";
 }
 function toast(text, snap) {
