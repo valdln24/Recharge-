@@ -164,7 +164,7 @@ main{max-width:560px;margin:0 auto;padding:6px 16px 24px}
 .iseg button.on{background:var(--surface);color:var(--ink);box-shadow:0 4px 12px rgba(16,19,18,.08)}
 .cvs{display:grid;gap:10px;margin:14px 0}.cvrow{display:grid;grid-template-columns:1fr auto;gap:6px 10px;align-items:center;padding:12px 14px;border-radius:18px;background:var(--surface-2)}.cvrow .cvbar{grid-column:1/-1;order:3}
 .cvrow b{font-size:.95rem}.cvrow small{display:block;font-size:.75rem;color:var(--ink-3);font-weight:650}.cvrow em{font-style:normal;font-weight:800;font-size:.82rem;text-align:right;max-width:9.5em}
-.cvbar{height:8px;border-radius:9px;background:var(--line)}.cvbar span{display:block;height:100%;border-radius:9px;background:#ff6a2a}
+.cvme{grid-column:1/-1;order:4;margin:2px 0 0;font-size:.8rem;font-weight:800;color:var(--ink)}.cvbar{height:8px;border-radius:9px;background:var(--line)}.cvbar span{display:block;height:100%;border-radius:9px;background:#ff6a2a}
 .cvrow.lv-t .cvbar span{background:#e0607a}.cvrow.lv-f .cvbar span{background:#7b83f6}.ihead{display:flex;justify-content:space-between;align-items:center}
 .itier{font-size:.72rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:5px 10px;border-radius:99px;background:var(--surface-2);color:var(--ink-2)}
 .itier.warm{background:#fff1e8;color:#e2501a}.itier.tiede{background:#fdeef2;color:#c2456a}.itier.froid{background:#eef0ff;color:#5b63d6}.itier.reel{background:#e9f8ef;color:#1d8a52}
@@ -1887,12 +1887,29 @@ function ideaItems(n = 80) {
 }
 const TIER_LB = { w: ["Marché chaud", "warm"], t: ["Contact tiède", "tiede"], f: ["Froid · réseaux", "froid"], r: ["Froid · vraie vie", "reel"] };
 /* Les 3 marchés et leur taux de conversion (ordre de grandeur) : pour comprendre pourquoi on commence par le chaud */
-const MARKETS = { w: ["🔥", "Marché chaud", "Les gens qui vous connaissent", "1 vente / 7 messages", 7], t: ["🌤️", "Marché tiède", "Amis d'amis, réseaux, recommandations", "1 vente / 25 messages", 25], f: ["❄️", "Marché froid", "Des inconnus, sur les réseaux ou en vrai", "1 vente / 75 messages et +", 75] };
+const MARKETS = { w: ["🔥", "Marché chaud", "Les gens qui vous connaissent", "≈ 1 vente pour 7 personnes", 7], t: ["🌤️", "Marché tiède", "Amis d'amis, réseaux, recommandations", "≈ 1 vente pour 25 personnes", 25], f: ["❄️", "Marché froid", "Des inconnus, sur les réseaux ou en vrai", "≈ 1 vente pour 75 personnes et +", 75] };
+/* Le marché d'un prospect : choisi dans sa fiche, sinon déduit (liste de noms = chaud, recommandé = tiède, salon ou marché = froid) */
+function mktOf(x) {
+  if (x.mkt) return x.mkt;
+  if (x.note === "Liste de noms") return "w";
+  if (x.referredBy || x.referredByName || x.where === "bao" || x.where === "reunion") return "t";
+  if (x.where === "salon" || x.where === "marche") return "f";
+  return null;
+}
+/* Vos chiffres : personnes contactées et ventes, par marché (affichés à partir de 15 personnes contactées) */
+function myConv(m) {
+  const ps = S.prospects.filter(x => !x.example && mktOf(x) === m && ((x.contacts || 0) > 0 || x.status === "client" || x.status === "lost"));
+  if (ps.length < 15) return null;
+  const won = ps.filter(x => x.status === "client").length;
+  if (!won) return { short: `0 / ${ps.length} pers.`, long: `aucune vente pour l'instant sur ${ps.length} personnes contactées` };
+  const r = Math.max(1, Math.round(ps.length / won));
+  return { short: `1 / ${r} pers.`, long: `1 vente pour ${r} personne${r > 1 ? "s" : ""} contactée${r > 1 ? "s" : ""} (${won} sur ${ps.length})` };
+}
 const ideaLevel = () => (S.ideas && S.ideas.level) || "w";
 function ideaLevelBar(mins) {
   const lv = ideaLevel(), m = MSG_MIN();
   return `<div class="ilevel"><div class="ilh"><b>💡 Trouver de nouveaux clients</b><small>1 message ≈ ${m} min${mins ? ` · environ ${Math.max(1, Math.floor(mins / m))} messages dans votre temps` : ""}</small></div>
-    <div class="iseg">${Object.entries(MARKETS).map(([k, [e, l, , c]]) => `<button class="${lv === k ? "on" : ""} lv-${k}" data-act="ideaLevel" data-l="${k}"><span>${e} ${l.replace("Marché ", "")}</span><small>${c.replace(" messages et +", " msg +").replace(" messages", " msg")}</small></button>`).join("")}</div></div>`;
+    <div class="iseg">${Object.entries(MARKETS).map(([k, [e, l, , c]]) => `<button class="${lv === k ? "on" : ""} lv-${k}" data-act="ideaLevel" data-l="${k}"><span>${e} ${l.replace("Marché ", "")}</span><small>${myConv(k) ? "vous : " + myConv(k).short : c.replace("≈ 1 vente pour ", "1 vente / ").replace(" personnes et +", " pers. +").replace(" personnes", " pers.")}</small></button>`).join("")}</div></div>`;
 }
 function ideaCard(it) {
   const x = it.idea, [lb, cls] = TIER_LB[x.tier];
@@ -2596,13 +2613,15 @@ function openReferral(saleId) {
   fitAreas(sheetEl);
 }
 let pform = { where: "", touched: false, kind: "client" };
+const MKT_CHIPS = [["w", "🔥 Oui, un proche"], ["t", "🌤️ Par quelqu'un ou en ligne"], ["f", "❄️ Non, inconnu"]];
 function drawWhere() {
+  const mk = document.getElementById("mktChips"); if (mk) mk.innerHTML = MKT_CHIPS.map(([k, l]) => `<button type="button" class="pchip ${pform.mkt === k ? "on" : ""}" data-act="pickMkt" data-m="${k}">${l}</button>`).join("");
   const el = document.getElementById("whereChips"); if (!el) return;
   el.innerHTML = WHERE.map(([k, l]) => `<button type="button" class="pchip ${pform.where === k ? "on" : ""}" data-act="pickWhere" data-w="${k}">${l}</button>`).join("");
 }
 function openProspectForm(id, opts = {}) {
   const x = id ? prospect(id) : null;
-  pform = { where: x ? x.where || "" : opts.where || (opts.refId ? "bao" : ""), touched: !!x, kind: "client" };
+  pform = { where: x ? x.where || "" : opts.where || (opts.refId ? "bao" : ""), mkt: x ? x.mkt || "" : opts.refId ? "t" : "", touched: !!x, kind: "client" };
   const ref = x ? refNameOf(x) : opts.refId ? (person(opts.refId) || {}).name || "" : "";
   const names = S.clients.concat(S.prospects.filter(y => !x || y.id !== x.id)).map(c => `<option value="${esc(c.name)}">`).join("");
   const prods = realProducts().map(pp => `<option value="${esc(pp.name)}">`).join("");
@@ -2622,6 +2641,7 @@ function openProspectForm(id, opts = {}) {
         <div class="two" style="grid-template-columns:1fr 1fr"><label class="field"><span>Instagram</span><input class="input" id="pInsta" value="${x ? esc(x.insta || "") : esc(opts.insta || "")}" placeholder="@pseudo"></label>
           <label class="field"><span>Facebook</span><input class="input" id="pFb" value="${x ? esc(x.fb || "") : ""}" placeholder="nom ou lien"></label></div></details>
       <label class="field"><span>Ville <i>· lieu de vie, facultatif</i></span><input class="input" id="pCity" list="cityList-p" data-city="1" value="${x ? esc(cityLabel(x.city)) : esc(opts.city || "")}" placeholder="ex. : Lyon" autocomplete="off"></label><datalist id="cityList-p"></datalist>
+      <div class="field"><span>Vous connaissez cette personne ? <i>· pour vos statistiques</i></span><div class="pchips" id="mktChips"></div></div>
       <div class="field"><span>Lieu de la rencontre <i>· facultatif</i></span><div class="pchips" id="whereChips"></div></div>
       <label class="field"><span>Intéressé par <i>· facultatif, sert aux promos ciblées</i></span><input class="input" id="pInterest" list="prodNames" placeholder="ex. : Gel aloe vera" value="${x ? esc(x.interest) : esc(opts.interest || "")}"></label>
       <datalist id="prodNames">${prods}</datalist>
@@ -2658,7 +2678,7 @@ function submitProspect(formEl) {
   x.interest = document.getElementById("pInterest").value.trim();
   x.note = document.getElementById("pNote").value.trim();
   x.next = document.getElementById("pNext").value || today();
-  x.where = pform.where; x.kind = pform.kind;
+  x.where = pform.where; x.kind = pform.kind; if (pform.mkt) x.mkt = pform.mkt;
   const refName = document.getElementById("pRef").value.trim();
   let r = refName ? findPerson(refName) : null; if (r === x) r = null;
   x.referredBy = r ? r.id : null; x.referredByName = r ? "" : refName;
@@ -3758,6 +3778,7 @@ const actions = {
   },
   toRencontre: () => { const name = document.getElementById("fName").value.trim(), phone = document.getElementById("fPhone").value.trim(); closeSheet(); openProspectForm(null, { name, phone }); },
   toVente: () => { closeSheet(); openNewSale(); },
+  pickMkt: el => { pform.mkt = pform.mkt === el.dataset.m ? "" : el.dataset.m; drawWhere(); },
   pickWhere: el => {
     pform.where = pform.where === el.dataset.w ? "" : el.dataset.w; drawWhere();
     if (!pform.touched) document.getElementById("pNext").value = pform.where === "bao" ? today() : addDays(today(), 1);
@@ -3775,7 +3796,7 @@ const actions = {
     const snap = snapshot(), have = new Set(S.prospects.concat(S.clients).map(x => norm(x.name)));
     let n = 0;
     for (const name of names) { if (have.has(norm(name))) continue; have.add(norm(name));
-      S.prospects.push({ id: uid(), name, phone: "", contacts: 0, status: "open", createdAt: today(), next: today(), msg: Math.floor(Math.random() * 2), where: "autre", note: "Liste de noms", example: false }); n++; }
+      S.prospects.push({ id: uid(), name, phone: "", contacts: 0, status: "open", createdAt: today(), next: today(), msg: Math.floor(Math.random() * 2), where: "autre", note: "Liste de noms", mkt: "w", example: false }); n++; }
     save(); closeSheet(); render();
     toast(n ? `${plural(n, "prospect ajouté", "prospects ajoutés")} 🎉 Le coach vous proposera de leur écrire.` : "Ces personnes sont déjà dans vos contacts.", snap);
   },
@@ -3826,12 +3847,12 @@ const actions = {
     const to = el.dataset.l, from = ideaLevel(), order = "wtf";
     const go = () => { S.ideas = S.ideas || {}; S.ideas.level = to; save(); closeSheet(); render(); toast(`${MARKETS[to][0]} ${MARKETS[to][1]} : c'est parti`); };
     if (order.indexOf(to) <= order.indexOf(from)) return go();
-    const names = S.prospects.filter(x => !x.example).length, prev = to === "f" && from === "t" ? "t" : "w";
-    const bars = Object.entries(MARKETS).map(([k, [e, l, d, c, n]]) => `<div class="cvrow lv-${k}"><div><b>${e} ${l}</b><small>${d}</small></div><div class="cvbar"><span style="width:${Math.round(7 / n * 100)}%"></span></div><em>${c}</em></div>`).join("");
+    const names = S.prospects.filter(x => !x.example && mktOf(x) === "w").length, prev = to === "f" && from === "t" ? "t" : "w";
+    const bars = Object.entries(MARKETS).map(([k, [e, l, d, c, n]]) => `<div class="cvrow lv-${k}"><div><b>${e} ${l}</b><small>${d}</small></div><div class="cvbar"><span style="width:${Math.round(7 / n * 100)}%"></span></div><em>${c}</em>${myConv(k) ? `<p class="cvme">📊 Vos chiffres : ${myConv(k).long}</p>` : ""}</div>`).join("");
     openSheet(`<div class="shead"><h3>${prev === "w" ? "Avez-vous vraiment fait le tour de votre marché chaud ?" : "Avez-vous fait le tour de votre marché tiède ?"}</h3>${closeBtn}</div>
-      <p class="lede" style="margin-top:8px">Combien de messages faut-il envoyer, en moyenne, pour faire <b>une vente</b> ?</p>
+      <p class="lede" style="margin-top:8px">Combien de personnes faut-il contacter, en moyenne, pour faire <b>une vente</b> ? <i>(ordre de grandeur constaté en vente directe, souvent avec plusieurs messages par personne)</i></p>
       <div class="cvs">${bars}</div>
-      <p class="lede">Autrement dit : avec <b>10 messages</b> à vos proches, vous pouvez espérer <b>1 à 2 ventes</b>. Avec 10 messages à des inconnus, souvent <b>aucune</b>. Le temps passé est le même, le résultat non. ${prev === "w" ? `Votre liste compte <b>${names} nom${names > 1 ? "s" : ""}</b> : visez au moins 100 noms avant de passer au tiède.` : "Le tiède reste bien plus rentable que le froid."}</p>
+      <p class="lede">Autrement dit : en contactant <b>10 proches</b>, vous pouvez espérer <b>1 à 2 ventes</b>. En contactant 10 inconnus, souvent <b>aucune</b>. Le temps passé est le même, le résultat non. ${prev === "w" ? `Votre liste compte <b>${names} nom${names > 1 ? "s" : ""}</b> : visez au moins 100 noms avant de passer au tiède.` : "Le tiède reste bien plus rentable que le froid."}</p>
       <button class="btn primary" data-act="ideaLevel" data-l="${prev}">${MARKETS[prev][0]} Rester sur le ${MARKETS[prev][1].toLowerCase()} (conseillé)</button>
       <button class="btn soft" style="margin-top:8px" data-act="ideaLevelGo" data-l="${to}">Oui, j'en ai fait le tour : passer au ${MARKETS[to][1].toLowerCase()}</button>`);
   },
