@@ -122,6 +122,12 @@ main{max-width:560px;margin:0 auto;padding:6px 16px 24px}
 .cfoot button{border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:9px 4px;font:inherit;font-size:.8rem;font-weight:700;color:var(--ink-2);cursor:pointer}
 .rcard{border-radius:28px}
 .later{display:grid;gap:8px;margin-top:14px}
+.bknag{display:flex;align-items:center;gap:8px;margin-top:12px;background:var(--surface);border:1px dashed var(--line-2);border-radius:16px;padding:8px 8px 8px 14px;font-size:.84rem;font-weight:650;color:var(--ink-2)}
+.bknag span{flex:1}.bknag button{border:0;background:var(--ink);color:#fff;border-radius:99px;padding:7px 12px;font:inherit;font-size:.8rem;font-weight:750;cursor:pointer}
+.bknag button.x{background:none;color:var(--ink-3);padding:6px;display:grid;place-items:center}.bknag svg{width:14px;height:14px}
+.hsteps{list-style:none;padding:0;margin:8px 0 0;display:grid;gap:8px}.hsteps li{display:flex;gap:12px;align-items:flex-start;background:var(--surface);border-radius:16px;padding:10px 12px}
+.hsteps li>span{width:26px;height:26px;flex:none;border-radius:50%;background:var(--grad);color:#fff;font-weight:800;display:grid;place-items:center;font-size:.85rem}.hsteps p{margin:2px 0 0;font-size:.92rem;line-height:1.4}
+.sheet h4{margin:16px 0 0;font-size:1rem}
 .coachfab{position:fixed;right:16px;bottom:calc(96px + var(--badge) + env(safe-area-inset-bottom));z-index:31;display:flex;align-items:center;gap:8px;border:0;border-radius:99px;padding:7px 16px 7px 7px;
   background:var(--ink);color:#fff;font:inherit;font-weight:800;font-size:.92rem;box-shadow:0 14px 30px -10px rgba(16,19,18,.55);cursor:pointer}
 .coachfab .cf-ring{width:38px;height:38px;border-radius:50%;background:var(--grad);display:grid;place-items:center;color:#fff}.coachfab svg{width:24px;height:24px}
@@ -689,7 +695,7 @@ function askConflict(serverInfo) {
     <p class="lede" style="margin-top:8px">Votre compte contient déjà des données${serverInfo && serverInfo.updatedAt ? `, sauvegardées le ${fmt(new Date(serverInfo.updatedAt).toISOString().slice(0, 10))}` : ""}, et ce téléphone aussi. Lesquelles voulez-vous garder ?</p>
     <button class="btn primary" style="margin-top:14px" data-act="keepAccount">☁️ Celles de mon compte</button>
     <button class="btn outline" style="margin-top:8px" data-act="keepPhone">📱 Celles de ce téléphone</button>
-    <p class="hint">Astuce : avant de choisir, vous pouvez exporter les données de ce téléphone dans un fichier (Menu › Sauvegarde dans un fichier).</p>`);
+    <p class="hint">Astuce : avant de choisir, vous pouvez exporter les données de ce téléphone dans un fichier (Menu › Sauvegarder mes clients).</p>`);
 }
 
 /* Après connexion (lien ou code) : on rapproche les données du téléphone et celles du compte */
@@ -749,7 +755,7 @@ async function verifyCode(code) {
 function openDeleteAccount() {
   openSheet(`<div class="shead"><h3>Supprimer mon compte</h3>${closeBtn}</div>
     <p class="lede" style="margin-top:8px">Votre compte, votre sauvegarde et toutes vos données seront <b>définitivement effacés</b>, sur nos serveurs et sur ce téléphone. Impossible de revenir en arrière.</p>
-    <p class="hint">Vous voulez garder une copie ? Exportez d'abord vos données dans un fichier (Menu › Sauvegarde dans un fichier).</p>
+    <p class="hint">Vous voulez garder une copie ? Exportez d'abord vos données dans un fichier (Menu › Sauvegarder mes clients).</p>
     <label class="field"><span>Pour confirmer, tapez SUPPRIMER</span><input class="input" id="delConfirm" autocomplete="off" autocapitalize="characters"></label>
     <button class="btn danger" style="margin-top:14px" data-act="accDeleteGo">Supprimer définitivement</button>`);
 }
@@ -775,6 +781,42 @@ function save() {
   try { localStorage.setItem(KEY, JSON.stringify(S)); storageOk = true; }
   catch (e) { storageOk = false; }
   syncLater();
+  maybeHomeScreen();
+}
+/* Demande au navigateur de ne jamais effacer les données de Recharge (place disque faible, ménage automatique) */
+if (!DEMO && navigator.storage && navigator.storage.persist) navigator.storage.persisted().then(ok => ok || navigator.storage.persist()).catch(() => {});
+/* Après le premier vrai client : expliquer comment installer l'appli sur l'écran d'accueil (une seule fois) */
+const isInstalled = () => (window.matchMedia && matchMedia("(display-mode: standalone)").matches) || navigator.standalone === true;
+function maybeHomeScreen() {
+  if (DEMO || !S || S.homeShown || isInstalled() || (navigator.webdriver && !window.__homeTest)) return;
+  if (!S.clients.some(c => !c.example)) return;
+  S.homeShown = today(); try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {}
+  const show = () => document.querySelector(".sheet") ? setTimeout(show, 1500) : openHomeScreen();
+  setTimeout(show, 1200);
+}
+function openHomeScreen() {
+  const ios = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  const step = (n, t) => `<li><span>${n}</span><p>${t}</p></li>`;
+  const IOS = `<h4>📱 Sur iPhone ou iPad (Safari)</h4><ol class="hsteps">${step(1, "Touchez le bouton <b>Partager</b> <span class=\"hsi\">⬆️</span> en bas de l'écran (en haut sur iPad).")}${step(2, "Faites défiler et touchez <b>« Sur l'écran d'accueil »</b>.")}${step(3, "Touchez <b>Ajouter</b> : l'icône Recharge apparaît avec vos autres applis.")}</ol>`;
+  const AND = `<h4>🤖 Sur Android (Chrome)</h4><ol class="hsteps">${step(1, "Touchez les <b>3 petits points</b> ⋮ en haut à droite.")}${step(2, "Touchez <b>« Ajouter à l'écran d'accueil »</b> ou <b>« Installer l'application »</b>.")}${step(3, "Confirmez : l'icône Recharge apparaît avec vos autres applis.")}</ol>`;
+  openSheet(`<div class="shead"><h3>🎉 Votre premier client est enregistré !</h3>${closeBtn}</div>
+    <p class="lede" style="margin-top:8px">Pour retrouver Recharge en un geste et <b>protéger vos clients</b>, ajoutez l'appli à l'écran d'accueil de votre téléphone. C'est gratuit et ça prend 10 secondes.</p>
+    ${ios ? IOS + AND : AND + IOS}
+    <p class="hint">💡 Pensez aussi à sauvegarder vos clients de temps en temps : Menu › Sauvegarder mes clients.</p>
+    <button class="btn primary" style="margin-top:12px" data-act="close">C'est noté</button>`);
+}
+/* Dernière sauvegarde connue : fichier exporté, ou sauvegarde en ligne du compte */
+function lastBackupDate() {
+  const cloud = session && sync.lastAt ? new Date(sync.lastAt).toISOString().slice(0, 10) : "";
+  return [S.lastExport || "", cloud].sort().pop() || "";
+}
+function backupReminder() {
+  const real = S.clients.filter(c => !c.example);
+  if (DEMO || !real.length || (S.bkSnooze && S.bkSnooze > today())) return "";
+  const last = lastBackupDate(), since = last || real.map(c => c.createdAt || today()).sort()[0];
+  const days = diff(today(), since);
+  if (days < 7) return "";
+  return `<div class="bknag"><span>💾 ${last ? `Dernière sauvegarde il y a ${days} jours` : "Vos clients ne sont pas encore sauvegardés"}</span><button data-act="export">Sauvegarder</button><button class="x" data-act="bkLater" aria-label="Plus tard">${I.x}</button></div>`;
 }
 S = load();
 let needCities = false;
@@ -1572,6 +1614,7 @@ function viewToday() {
     ${(() => { const w = worth(today().slice(0, 8) + "01"); return w.total > 0 ? `<button class="cworth" data-act="goto" data-t="results" data-c="">💸 Ce mois-ci, le coach vous a rapporté <b>${euro(w.total)}</b> ›</button>` : ""; })()}
     ${total ? `<div class="hl-bar"><span style="width:${pct}%"></span></div><div class="hl-count">${doneToday ? `${doneToday} sur ${total} fait${doneToday > 1 ? "s" : ""} 💪` : "C'est parti !"}</div>` : ""}</section>`;
   h += `<div class="dtiles">${Object.entries(DOMAINS).map(([d, [ic, lb]]) => { const n = dn(d); return `<button class="dtile ${n ? "" : "zero"} ${coachF === d ? "on" : ""}" data-act="coachF" data-d="${d}"><span class="di">${ic}</span><b>${n}</b><small>${lb}</small></button>`; }).join("")}</div>`;
+  h += backupReminder();
   h += tipCard();
   h += exampleNotice();
 
@@ -1889,7 +1932,8 @@ function viewResults() {
 function viewSettings() {
   const MODS = [["👋", "Prospects", "goto", "clients", "prospects"], ["🛍️", "Clients", "goto", "clients", "clients"], ["🌱", "Développer", "goto", "dev", ""],
     ["💳", "Fidélité", "goto", "settings", "Carte fidélité"], ["👥", "Équipe", "goto", "settings", "Mon équipe"], ["📣", "Promo", "newPromo", "", ""],
-    ["📊", "Bilan du mois", "openBilan", "", ""], ["🗺️", "Carte", "goto", "map", ""], ["📸", "Importer", "openImport", "", ""]];
+    ["📊", "Bilan du mois", "openBilan", "", ""], ["🗺️", "Carte", "goto", "map", ""], ["📸", "Importer", "openImport", "", ""],
+    ["💾", "Sauvegarder", "goto", "settings", "Sauvegarder mes clients"], ["📂", "Restaurer", "import", "", ""]];
   let h = `<h1 class="title">Menu</h1><p class="lede">Tous les modules de Recharge, et vos réglages.</p>
     <div class="mods">${MODS.map(([e, l, a, t2, c2]) => `<button class="mod" data-act="${a}" data-t="${t2}" data-c="${esc(c2)}"><span>${e}</span><b>${l}</b></button>`).join("")}</div>`;
   h += accountSection();
@@ -1957,10 +2001,11 @@ function viewSettings() {
     <label class="field" style="display:flex;align-items:center;justify-content:space-between;gap:12px"><span style="margin:0">Emojis dans les messages 😊</span><input type="checkbox" id="setEmoji" ${S.emoji === false ? "" : "checked"} style="width:22px;height:22px;accent-color:var(--o1)"></label>
     <div class="card pad" style="margin-top:10px"><span class="small">Exemple de message</span><p style="margin:6px 0 0;font-size:.92rem">${esc(msg("relance", "Marie Dupont", 0, { de: "de gel aloe vera", depuis: "il y a 4 semaines" }))}</p></div>`;
 
-  h += section("Sauvegarde dans un fichier", S.lastExport ? "Dernière : " + fmt(S.lastExport) : "Jamais faite") + `<div class="card pad">
+  h += section("Sauvegarder mes clients", S.lastExport ? "Dernière : " + fmt(S.lastExport) : "Jamais faite") + `<div class="card pad">
     <div style="font-size:.9rem;color:var(--ink-2)">${session ? "Votre compte sauvegarde déjà vos données. Vous pouvez aussi en garder une copie dans un fichier." : "Vos données restent uniquement dans ce téléphone."} Exportez-les régulièrement (par exemple en vous envoyant le fichier par e-mail) pour ne rien perdre.</div>
-    <button class="btn primary" style="margin-top:14px" data-act="export">${I.down} Exporter mes données</button>
-    <button class="btn outline" style="margin-top:8px" data-act="import">${I.up} Importer une sauvegarde</button></div>`;
+    <button class="btn primary" style="margin-top:14px" data-act="export">💾 Sauvegarder mes clients</button>
+    <button class="btn outline" style="margin-top:8px" data-act="import">📂 Restaurer une sauvegarde</button>
+    <p class="hint" style="margin:10px 0 0">Le fichier contient tous vos clients, prospects, ventes et réglages. Gardez-le dans Fichiers, Google Drive ou envoyez-le-vous par email.</p></div>`;
 
   if (S.clients.some(c => c.example) || S.prospects.some(x => x.example)) {
     h += section("Exemples") + `<button class="btn danger" data-act="clearExamples">Effacer les clients d'exemple</button>`;
@@ -3587,14 +3632,22 @@ const actions = {
     S.prospects = S.prospects.filter(x => !x.example);
     save(); render(); toast("Exemples effacés", snap);
   },
-  export: () => {
+  export: async () => {
+    const name = `recharge-sauvegarde-${today()}.json`, text = JSON.stringify({ ...S, lastExport: today() }, null, 2);
+    const file = typeof File === "function" ? new File([text], name, { type: "application/json" }) : null;
+    const touch = /iPhone|iPad|iPod|Android/.test(navigator.userAgent);
+    if (touch && file && navigator.canShare && navigator.canShare({ files: [file] })) {
+      try { await navigator.share({ files: [file], title: "Sauvegarde Recharge" }); S.lastExport = today(); save(); render(); return toast("Sauvegarde enregistrée ✅ Gardez bien ce fichier."); }
+      catch (e) { if (e && e.name === "AbortError") return; }
+    }
     S.lastExport = today(); save();
-    const blob = new Blob([JSON.stringify(S, null, 2)], { type: "application/json" });
+    const blob = new Blob([text], { type: "application/json" });
     const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
-    a.download = `recharge-sauvegarde-${today()}.json`; document.body.appendChild(a); a.click(); a.remove();
+    a.download = name; document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(a.href), 2000);
-    render(); toast("Sauvegarde téléchargée");
+    render(); toast("Sauvegarde téléchargée ✅ Gardez bien ce fichier.");
   },
+  bkLater: () => { S.bkSnooze = addDays(today(), 3); save(); render(); },
   import: () => document.getElementById("importFile").click()
 };
 
@@ -3706,9 +3759,9 @@ document.getElementById("importFile").addEventListener("change", async ev => {
   try {
     const data = JSON.parse(await file.text());
     if (!data || !Array.isArray(data.products) || !Array.isArray(data.clients) || !Array.isArray(data.sales) || !Array.isArray(data.events)) throw new Error("format");
-    if (!confirm(`Remplacer les données actuelles par cette sauvegarde (${plural(data.clients.length, "client", "clients")}) ?`)) return;
+    if (!confirm(`Restaurer cette sauvegarde (${plural(data.clients.length, "client", "clients")}${data.lastExport ? `, du ${fmt(data.lastExport)}` : ""}) ? Les données actuelles de ce téléphone seront remplacées.`)) return;
     migrate(data);
-    const snap = snapshot(); S = data; save(); tab = "today"; render(); toast("Sauvegarde importée", snap);
+    const snap = snapshot(); S = data; save(); tab = "today"; render(); toast("Vos clients sont restaurés ✅", snap);
   } catch (e) { toast("Ce fichier n'est pas une sauvegarde Recharge valide."); }
 });
 document.addEventListener("keydown", ev => { if (ev.key === "Escape") closeSheet(); });
