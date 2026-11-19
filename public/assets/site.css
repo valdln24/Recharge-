@@ -673,3 +673,6 @@ mark.todo{display:inline-block;background:#fff3a6;color:#6b5600;border:1px dashe
 .b-more{filter:none}.b-more b{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
 .bw-n{margin:12px 0 0;text-align:center;font-size:.72rem;color:var(--ink-3)}
 @media (max-width:760px){.bgrid{grid-template-columns:repeat(2,1fr)}.bcell{min-height:104px}}
+.blogo{display:none;max-width:72%;max-height:46px;object-fit:contain;filter:grayscale(1) contrast(1.1);opacity:.8;transition:opacity .2s,filter .2s}
+.bcell.has-img .blogo{display:block}.bcell.has-img b,.bcell.has-img small{display:none}
+.bcell:hover .blogo{filter:none;opacity:1}
