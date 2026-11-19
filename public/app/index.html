@@ -149,7 +149,7 @@ main{max-width:560px;margin:0 auto;padding:6px 16px 24px}
 .cmenu button span{font-size:1.25rem}.cmenu.two button{justify-content:center}
 .pcheer{position:relative;z-index:1;margin:6px 0 0;font-size:.86rem;font-weight:700}
 .askt{margin-top:12px;background:var(--surface);border-radius:24px;padding:14px;box-shadow:var(--shadow)}.askt b{display:block;font-size:1rem}
-.tchips{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+.tchips{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:10px}
 .tchips button{border:1.5px solid var(--line-2);background:var(--surface);border-radius:99px;padding:10px 4px;font:inherit;font-weight:800;font-size:.9rem;color:var(--ink);cursor:pointer}
 .tchips button.on{border-color:var(--o1);background:var(--o-soft);color:var(--o-text)}.tchips.big button{padding:16px 4px;font-size:1rem}
 .gofar{display:grid;gap:10px}
@@ -1641,7 +1641,7 @@ const SIMPLE_HOME = true;   // accueil épuré : compteurs et montant gagné cac
    1) relances : réassorts et suivis après achat  2) prospects  3) recommandations  4) fidélité, s'il reste du temps
    Durées estimées : relance 2 min, suivi 2 min, recommandation 5 min, fidélité 3 min, prospect 5 min. */
 const PLAN_CAT = { sale: [1, 2], suivi: [1, 2], sat: [1, 2], care: [1, 2], prospect: [2, 5], reco: [3, 5], hint: [4, 3], gift: [4, 3], wake: [4, 3], promo: [5, 2], news: [5, 2] };
-const TIME_OPTS = [[15, "15 min"], [30, "30 min"], [60, "1 h"], [120, "Plus"]];
+const TIME_OPTS = [[15, "15 min"], [30, "30 min"], [45, "45 min"], [60, "1 h"], [120, "Plus"]];
 const catOf = it => PLAN_CAT[it.type] || [5, 2];
 const DUR_KEY = { sale: "relance", promo: "relance", news: "relance", suivi: "suivi", sat: "suivi", care: "suivi", reco: "reco", hint: "fid", gift: "fid", wake: "fid", prospect: "prospect" };
 const DUR_DEF = { relance: 2, suivi: 2, reco: 5, fid: 3, prospect: 5 };
