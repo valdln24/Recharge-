@@ -1659,8 +1659,8 @@ const MAX_TODAY = 10;
 const SIMPLE_HOME = true;   // accueil épuré : compteurs et montant gagné cachés (toujours dans Résultats et le coach)
 /* ---------- Le plan du jour : le coach remplit le temps disponible, par ordre de priorité ----------
    1) relances : réassorts et suivis après achat  2) prospects  3) recommandations  4) fidélité, s'il reste du temps
-   Durées estimées : un message = 2 min (relance, suivi, recommandation, fidélité, prospect). */
-const PLAN_CAT = { idea: [6, 5], sale: [1, 2], suivi: [1, 2], sat: [1, 2], care: [1, 2], prospect: [2, 2], reco: [3, 2], hint: [4, 2], gift: [4, 2], wake: [4, 2], promo: [5, 2], news: [5, 2] };
+   Durées estimées : 2 min pour une relance, un suivi ou la fidélité (message prêt) ; 3 min pour un prospect ou une demande de recommandation (plus personnel). */
+const PLAN_CAT = { idea: [6, 5], sale: [1, 2], suivi: [1, 2], sat: [1, 2], care: [1, 2], prospect: [2, 3], reco: [3, 3], hint: [4, 2], gift: [4, 2], wake: [4, 2], promo: [5, 2], news: [5, 2] };
 const TIME_OPTS = [[15, "15 min"], [30, "30 min"], [45, "45 min"], [60, "1 h"]];
 const T_MAX = 300;   // « 4 h et + »
 /* Les choix rapides + « Autre » (curseur de 5 min à 4 h et +) */
@@ -1670,7 +1670,7 @@ function timeChips(cur, act, big) {
 }
 const catOf = it => PLAN_CAT[it.type] || [5, 2];
 const DUR_KEY = { sale: "relance", promo: "relance", news: "relance", suivi: "suivi", sat: "suivi", care: "suivi", reco: "reco", hint: "fid", gift: "fid", wake: "fid", prospect: "prospect" };
-const DUR_DEF = { relance: 2, suivi: 2, reco: 2, fid: 2, prospect: 2 };
+const DUR_DEF = { relance: 2, suivi: 2, reco: 3, fid: 2, prospect: 3 };
 const durOf = it => { if (it.type === "idea") return it.idea.d; const k = DUR_KEY[it.type], d = S.settings.dur && k ? +S.settings.dur[k] : 0; return d > 0 ? d : k ? DUR_DEF[k] : catOf(it)[1]; };
 const fmtMin = m => m > 240 ? "4 h et +" : m >= 60 ? (m % 60 ? `${Math.floor(m / 60)} h ${String(m % 60).padStart(2, "0")}` : `${m / 60} h`) : `${m} min`;
 function planSort(list) {
