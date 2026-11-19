@@ -679,7 +679,7 @@ mark.todo{display:inline-block;background:#fff3a6;color:#6b5600;border:1px dashe
 
 /* ---------- Bandeau défilant des marques (de gauche à droite) ---------- */
 .marquee{overflow:hidden;padding:6px 0;-webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
-.mq-track{list-style:none;margin:0;padding:0;display:flex;width:max-content;animation:mq 110s linear infinite}
+.mq-track{list-style:none;margin:0;padding:0;display:flex;width:max-content;animation:mq 55s linear infinite}
 .marquee:hover .mq-track{animation-play-state:paused}
 @keyframes mq{from{transform:translateX(-50%)}to{transform:translateX(0)}}
 .mq{flex:none;display:flex;align-items:center;justify-content:center;height:84px;min-width:150px;padding:0 30px;border-right:1px solid var(--line);color:#2a2e2c}
@@ -693,3 +693,9 @@ mark.todo{display:inline-block;background:#fff3a6;color:#6b5600;border:1px dashe
 .mq.has-img .blogo{width:auto;height:auto;max-height:44px;max-width:170px}
 .mq-lr.has-img .blogo{filter:none;opacity:1;max-height:58px}
 @media (max-width:760px){.mq{height:68px;min-width:0;padding:0 20px}.mq b{font-size:1.2rem}.mq.b-script b{font-size:1.45rem}.mq.has-img .blogo{max-height:36px;max-width:130px}.mq-lr.has-img .blogo{max-height:46px}}
+/* tous les logos en couleur, et la case « +50 marques compatibles » */
+.mq .blogo{filter:none!important;opacity:1!important;mix-blend-mode:multiply}
+.mq-count{gap:10px;min-width:0}
+.mq-count b{font-size:2.3rem;font-weight:800;letter-spacing:-.05em;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.mq-count span{font-size:.82rem;font-weight:750;line-height:1.15;color:var(--ink);text-align:left}
+@media (max-width:760px){.mq-count b{font-size:1.8rem}.mq-count span{font-size:.74rem}}
