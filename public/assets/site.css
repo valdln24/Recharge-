@@ -715,3 +715,78 @@ mark.todo{display:inline-block;background:#fff3a6;color:#6b5600;border:1px dashe
   .vframe video{aspect-ratio:9/16}
   .vplay{inset:8px;border-radius:20px}
 }
+
+/* =====================================================================
+   Identité « Marine » (phase 2, site) : haut de page, bandeaux et blocs
+   forts en bleu marine ; contenu sur fond blanc / blanc cassé ; orange
+   réservé aux actions ; vert pour le positif. Recoloration uniquement.
+   ===================================================================== */
+:root{
+  --navy:#08152E; --navy-2:#102B50; --navy-3:#163A66; --orange:#FF8A32; --paper:#F1F4F8; --green:#35B879;
+  --bg:#F1F4F8; --surface:#fff; --surface-2:#EAEFF5; --line:#DFE5EE;
+  --ink:#08152E; --ink-2:#44536B; --ink-3:#6B7A92;
+  --o1:#FF8A32; --o-soft:#FFF0E4; --o-text:#D9661A;
+  --b1:#2D5BB8; --b-soft:#E6EEFB; --b-text:#2D5BB8;
+  --grad:linear-gradient(135deg,#FFA352 0%,#FF8A32 60%,#F5741F 100%);
+  --gradB:linear-gradient(135deg,#2F62AE 0%,#163A66 100%);
+  --shadow:0 1px 2px rgba(8,21,46,.05),0 18px 40px -22px rgba(8,21,46,.28);
+  --dark:radial-gradient(60% 70% at 0% 0%,rgba(255,138,50,.2),transparent 70%),radial-gradient(60% 70% at 100% 100%,rgba(91,141,239,.32),transparent 70%),linear-gradient(160deg,#0E2547,#08152E);
+}
+::selection{background:rgba(255,138,50,.3)}
+.btn.orange{color:var(--navy);box-shadow:0 14px 30px -14px rgba(255,138,50,.85)}
+.btn.dark{background:var(--navy);color:#fff}
+.btn.blue{background:var(--navy-2);color:#fff;box-shadow:0 14px 30px -14px rgba(8,21,46,.6)}
+.kicker i,.chipf .i,.mc-av,.flow .hl,.ladder span:last-child,.kpi2 .soon,.plan .badge{color:var(--navy)}
+.logo-svg path[fill="#111111"]{fill:var(--navy);stroke:var(--navy)}
+.logo-svg path[fill="#7B83F6"]:not([stroke]){fill:var(--orange)}
+.grad-text{background:linear-gradient(100deg,#FFB067 0%,#FF8A32 55%,#FF7A1F 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+
+/* navigation : toujours sur fond marine */
+header.nav .logo-svg path[fill="#111111"]{fill:var(--paper);stroke:var(--paper)}
+header.nav .links{color:#B4C0D3}header.nav .links a:hover,header.nav .links a.on{color:#fff}
+header.nav.solid{background:rgba(8,21,46,.86);box-shadow:0 1px 0 rgba(241,244,248,.08)}
+header.nav .btn.dark{background:var(--orange);color:var(--navy)}
+.burger i{background:var(--paper)}
+.menu{background:var(--navy)}.menu-main a:hover,.menu-main a:active{color:var(--orange)}
+
+/* haut de page en bleu marine, le téléphone et les pastilles blanches ressortent */
+.hero{background:linear-gradient(180deg,#08152E 0%,#0C1F3F 100%);color:var(--paper);isolation:isolate}
+.hero .blob{z-index:0;opacity:.55}.hero .grid,.hero .wrap{position:relative;z-index:1}
+.blob.o{background:radial-gradient(circle,rgba(255,138,50,.55) 0%,rgba(255,138,50,0) 65%)}
+.blob.p{background:radial-gradient(circle,rgba(91,141,239,.45) 0%,rgba(91,141,239,0) 65%)}
+.blob.b{background:radial-gradient(circle,rgba(91,141,239,.6) 0%,rgba(91,141,239,0) 65%)}
+.hero .dots{background-image:radial-gradient(rgba(241,244,248,.09) 1px,transparent 1.3px)}
+.hero h1{color:#fff}.hero .lead{color:#B4C0D3}.hero .note{color:#8B9AB4}
+.hero .kicker{background:rgba(241,244,248,.07);border-color:rgba(241,244,248,.14);color:#D5DDEA}
+.hero .btn.ghost{background:transparent;border:1px solid rgba(241,244,248,.25);color:#fff}
+.hero .btn.ghost:hover{background:rgba(241,244,248,.06)}
+.phone{box-shadow:0 0 0 2px #24395a inset,0 50px 90px -30px rgba(0,0,0,.7),0 0 0 1px rgba(241,244,248,.06)}
+.chipf{background:rgba(255,255,255,.96)}
+
+/* sections de contenu : blanc et blanc cassé */
+.vframe{background:#fff;box-shadow:0 30px 70px rgba(8,21,46,.12)}
+.vplay span{background:var(--orange);color:var(--navy)}
+
+/* blocs forts : bleu marine profond, orange en accent */
+.band,.kband,.sim .gain,.duo2 .win,.plan.hot,.vtc.dark,.promise,.final{background:var(--dark)}
+.plan.hot{border-color:var(--navy)}
+.bao-stat,.guarantee{background:var(--navy)}
+.fdr{background:#08152E}
+.band p,.bandline,.kband .head p{color:#B4C0D3}
+.promise,.final{color:#fff}
+.promise::before,.final::before{background-image:radial-gradient(rgba(241,244,248,.1) 1px,transparent 1.3px)}
+.final .btn.dark,.plan.hot .btn.dark{background:var(--orange);color:var(--navy)}
+.guarantee .seal{color:var(--orange)}
+.mcta{background:rgba(255,255,255,.94)}
+.sfab{background:var(--navy)}
+header.nav .lk-coach{color:#fff!important}
+.chipf{color:var(--navy)}
+/* pages secondaires : même haut de page marine que l'accueil */
+.phero{background:radial-gradient(60% 80% at 100% 0%,rgba(91,141,239,.3),transparent 70%),radial-gradient(50% 70% at 0% 100%,rgba(255,138,50,.14),transparent 70%),linear-gradient(180deg,#08152E,#0C1F3F);color:var(--paper);isolation:isolate}
+.phero h1{color:#fff}.phero .lead{color:#B4C0D3}
+.phero h1 em{background:linear-gradient(100deg,#FFB067 0%,#FF8A32 55%,#FF7A1F 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.phero .crumb,.phero .crumb a{color:#8B9AB4}.phero .crumb a:hover{color:#fff}
+.phero .kicker{background:rgba(241,244,248,.07);border-color:rgba(241,244,248,.14);color:#D5DDEA}
+.phero .btn.ghost{background:transparent;border:1px solid rgba(241,244,248,.25);color:#fff}
+.phero .note{color:#8B9AB4}
+.phero .blob{opacity:.4}
