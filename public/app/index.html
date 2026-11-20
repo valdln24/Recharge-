@@ -606,10 +606,10 @@ body{background:radial-gradient(80% 40% at 100% -6%,var(--glowB),transparent 65%
 /* états « sélectionné » : blanc cassé sur marine (l'orange reste pour l'action) */
 .seg button.on,.pchip.on,.fchips button.on,.theme.on{background:var(--chip-on);color:var(--chip-on-ink);border-color:var(--chip-on)}
 .pchip.on small,.fchips button.on small{color:#4A5B76}
-/* tuiles mises en avant : bleu plus clair et liseré orange, pas de grand aplat blanc */
-.dtile.on,.gf.hot,.ctile.hot{background:linear-gradient(160deg,#1D4577,#143561);color:var(--paper);border-color:rgba(255,138,50,.55);box-shadow:0 0 0 1px rgba(255,138,50,.18),0 16px 32px -18px rgba(0,0,0,.7)}
-.dtile.on small,.gf.hot small,.ctile.hot small{color:var(--ink-2)}
-.dtile.on .di,.gf.hot span{background:rgba(255,138,50,.16)}
+/* tuile mise en avant : une touche de blanc, texte marine */
+.dtile.on,.gf.hot,.ctile.hot{background:#fff;color:var(--navy);border-color:#fff;box-shadow:0 18px 36px -20px rgba(0,0,0,.75)}
+.dtile.on small,.gf.hot small,.ctile.hot small{color:#4A5B76}
+.dtile.on .di,.gf.hot span{background:#FFF0E4}
 .rsn{color:#FFC497}
 .iseg button.on{background:var(--navy-3);box-shadow:none}
 .tchips button.on,.gtypes button.on,.satb button.on,.obtone.on,.upplan.on{border-color:var(--o1);background:var(--o-soft);color:var(--ink)}
@@ -673,6 +673,25 @@ nav.tabs .tab.on svg{background:var(--paper);color:var(--navy);box-shadow:none}
 .toast{background:var(--paper);color:var(--navy)}.toast button{color:#D9661A}
 .line.late span{background:linear-gradient(90deg,#FF9A8A,var(--late))}
 .cmore,.chev,.close,.x{background:rgba(241,244,248,.07)}
+ /* panneaux (formulaires, détails) en blanc : plus clairs à remplir, et une respiration dans l'interface */
+.sheet{--bg:#fff;--surface:#fff;--surface-2:#F1F4F8;--line:#E3E8EF;--line-2:#D3DBE6;--ink:#08152E;--ink-2:#44536B;--ink-3:#6B7A92;
+  --o-text:#D9661A;--o-soft:#FFF0E4;--b-text:#2D5BB8;--b-soft:#E8EFFC;--g-text:#1F8F58;--g-soft:#E3F6EC;--late:#D93A4E;--late-soft:#FDE9EC;
+  --chip-on:#08152E;--chip-on-ink:#F1F4F8;--seg-off:#E3E8EF;--shadow:0 1px 2px rgba(8,21,46,.05),0 10px 26px -16px rgba(8,21,46,.22);
+  color:var(--ink);background:#fff;border-top:0;color-scheme:light}
+.sheet .card{background:#fff}
+.sheet .btn.soft{background:#E9EEF5;color:var(--navy)}
+.sheet .acts .ic{background:var(--navy);color:#fff;box-shadow:none}
+.sheet .iseg button.on{background:#fff;box-shadow:0 4px 12px rgba(8,21,46,.1)}
+.sheet .cm.me{background:var(--navy);color:#fff;border:0}
+.sheet .close,.sheet .x,.sheet .chev,.sheet .cmore{background:#EEF2F7}
+.sheet .input::placeholder,.sheet textarea::placeholder{color:#8A97AB}
+.sheet .tchips button.on,.sheet .gtypes button.on,.sheet .satb button.on,.sheet .obtone.on,.sheet .upplan.on{color:var(--navy)}
+.sheet .pill{background:#F1F4F8}
+.sheet .rsn{color:#D9661A}
+.sheet .miss{background:#FFF4E0;color:#9A5B12}
+.sheet .itier.tiede{background:#FDEEF2;color:#C2456A}
+.sheet .pot-viz .ln{stroke:#FFD2BD}.sheet .pot-viz .ln.b{stroke:#CFD8FF}
+.sheet .pot-mid{background:var(--navy);color:#fff}
 @media (min-width:760px){nav.tabs .tab:hover,nav.tabs .tab.on{background:rgba(241,244,248,.06)}}
 </style>
 </head>
