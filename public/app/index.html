@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#08152E">
-<meta name="color-scheme" content="dark">
+<meta name="color-scheme" content="only light">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Recharge">
@@ -569,130 +569,70 @@ nav.tabs .tab.on svg{width:38px;height:38px;padding:8px;margin:-8px 0 -5px;borde
 }
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 /* =====================================================================
-   Identité « Marine » (phase 1) : bleu marine dominant, orange pour l'action,
-   vert pour la validation. Ce bloc ne fait que recolorer : structure,
-   composants et fonctionnement restent identiques. Pour revenir en arrière,
-   il suffit de supprimer ce bloc.
+   Identité « Marine », version entre-deux : l'appli reste claire et épurée,
+   le bleu marine structure (barre du haut, grand bloc d'accueil, boutons),
+   l'orange n'est plus qu'un petit accent (notifications, repères).
+   Même logique que le site : haut en marine, contenu sur blanc.
+   Recoloration uniquement ; supprimer ce bloc pour revenir à l'ancien design.
    ===================================================================== */
 :root{
   --navy:#08152E; --navy-2:#102B50; --navy-3:#163A66; --orange:#FF8A32; --paper:#F1F4F8; --green:#35B879;
-  --bg:#08152E; --surface:#102B50; --surface-2:#0C2040; --line:rgba(241,244,248,.08); --line-2:rgba(241,244,248,.15);
-  --ink:#F1F4F8; --ink-2:#B4C0D3; --ink-3:#8494AE;
-  --o1:#FF8A32; --o2:#FFA45C; --o3:#FFC497; --o-soft:rgba(255,138,50,.14); --o-text:#FFA45C;
-  --grad:linear-gradient(135deg,#FFA352 0%,#FF8A32 60%,#F5741F 100%);
-  --btn:#FF8A32; --btn-ink:#08152E;
-  --b1:#5B8DEF; --b-soft:rgba(91,141,239,.16); --b-text:#A9C4FF;
-  --gradB:linear-gradient(135deg,#2A5A9E 0%,#1C4680 100%);
-  --g:#35B879; --g-soft:rgba(53,184,121,.15); --g-text:#5FD49B;
-  --late:#FF6B7A; --late-soft:rgba(255,107,122,.14); --seg-off:rgba(241,244,248,.08);
-  --glow:rgba(255,138,50,.07); --glowB:rgba(91,141,239,.14);
-  --shadow:0 1px 0 rgba(241,244,248,.04) inset,0 14px 34px -18px rgba(0,0,0,.6);
-  --chip-on:#F1F4F8; --chip-on-ink:#08152E;
-  color-scheme:dark;
+  --bg:#F4F6FA; --surface:#ffffff; --surface-2:#EEF2F7; --line:#E4E9F0; --line-2:#D6DEE8;
+  --ink:#08152E; --ink-2:#44536B; --ink-3:#7A879B;
+  --o1:#FF8A32; --o2:#FF9F55; --o3:#FFC497; --o-soft:#FFF1E6; --o-text:#D9661A;
+  --grad:linear-gradient(135deg,#FFA352 0%,#FF8A32 100%);
+  --btn:#08152E; --btn-ink:#ffffff;
+  --b1:#2D5BB8; --b-soft:#E8EFFB; --b-text:#2D5BB8;
+  --gradB:linear-gradient(135deg,#2F62AE 0%,#163A66 100%);
+  --g:#35B879; --g-soft:#E5F6EE; --g-text:#1F8F58;
+  --glow:rgba(91,141,239,.10); --glowB:rgba(91,141,239,.10);
+  --shadow:0 1px 2px rgba(8,21,46,.04),0 12px 30px -18px rgba(8,21,46,.22);
+  --navyblock:radial-gradient(70% 90% at 100% 0%,rgba(91,141,239,.32),transparent 60%),radial-gradient(60% 80% at 0% 100%,rgba(255,138,50,.12),transparent 65%),linear-gradient(155deg,#12305A,#08152E);
 }
-body{background:radial-gradient(80% 40% at 100% -6%,var(--glowB),transparent 65%) no-repeat,radial-gradient(70% 36% at 0% -8%,var(--glow),transparent 65%) no-repeat,var(--bg)}
-::selection{background:rgba(255,138,50,.35)}
-:focus-visible{outline-color:var(--o2)}
-/* logo : mot en blanc cassé, point orange, éclair clair */
-.logo-svg path[fill="#111111"]{fill:var(--paper);stroke:var(--paper)}
+:focus-visible{outline-color:var(--b1)}
+/* barre du haut en marine, comme le menu du site */
+.topbar{background:rgba(8,21,46,.94);color:var(--paper);box-shadow:0 1px 0 rgba(241,244,248,.06)}
+.topbar .logo-svg path[fill="#111111"]{fill:var(--paper);stroke:var(--paper)}
+.topbar .pill,.topbar .micbtn{background:rgba(241,244,248,.08);border-color:rgba(241,244,248,.12);color:#D5DDEA;box-shadow:none}
+.topbar .micbtn span{color:#fff}
 .logo-svg path[fill="#7B83F6"]:not([stroke]){fill:var(--orange)}
-.pill{background:rgba(241,244,248,.06)}
-/* cartes : bleu profond avec un liseré fin, plus de grandes surfaces blanches */
-.card,.dtile,.fc,.flink,.cmenu button,.askt,.gf,.ctile,.lvl,.theme,.mod,.bilan div,.impopt,.improw,.tip,.satf,.perks li,.kstats div,details.cfields,.hsteps li,.mapempty{border:1px solid var(--line)}
-.card{background:linear-gradient(180deg,#123059 0%,var(--surface) 100%)}
-.input,.search,.stepper,.pchip,.tchips button,.fchips button,.ideas button,.setidx button,.gtypes button,.satb button,.obtone,.upplan,.cfoot button,.micbtn,.vary,.cbtn,.nhints span{background:var(--surface-2)}
-.input::placeholder,textarea::placeholder{color:#6F7F99}
-.input:focus{border-color:var(--o1);box-shadow:0 0 0 4px rgba(255,138,50,.16)}
-/* états « sélectionné » : blanc cassé sur marine (l'orange reste pour l'action) */
-.seg button.on,.pchip.on,.fchips button.on,.theme.on{background:var(--chip-on);color:var(--chip-on-ink);border-color:var(--chip-on)}
-.pchip.on small,.fchips button.on small{color:#4A5B76}
-/* tuile mise en avant : une touche de blanc, texte marine */
-.dtile.on,.gf.hot,.ctile.hot{background:#fff;color:var(--navy);border-color:#fff;box-shadow:0 18px 36px -20px rgba(0,0,0,.75)}
-.dtile.on small,.gf.hot small,.ctile.hot small{color:#4A5B76}
-.dtile.on .di,.gf.hot span{background:#FFF0E4}
-.rsn{color:#FFC497}
-.iseg button.on{background:var(--navy-3);box-shadow:none}
-.tchips button.on,.gtypes button.on,.satb button.on,.obtone.on,.upplan.on{border-color:var(--o1);background:var(--o-soft);color:var(--ink)}
-/* boutons : orange = action principale, texte marine pour la lisibilité */
-.btn.primary,.btn.orange{background:var(--orange);color:var(--navy);box-shadow:0 10px 24px -12px rgba(255,138,50,.75)}
-.btn.soft{background:var(--navy-3)}
-.btn.outline{border-color:var(--line-2)}
-.acts .ic{background:var(--navy-3);color:var(--paper);box-shadow:inset 0 0 0 1px var(--line-2)}
-.acts .reco .ic{background:var(--orange);color:var(--navy)}
-.acts .later .ic{background:var(--gradB);color:var(--paper);box-shadow:inset 0 0 0 1px var(--line-2)}
-.plus{background:var(--orange);color:var(--navy);border-color:var(--bg);box-shadow:0 10px 26px -6px rgba(255,138,50,.6)}
-.chatgo,.cm-av,.coachfab .cf-ring,.hsteps li>span,.obrow>b,.upplan i{background:var(--orange);color:var(--navy)}
-.bknag button,.chatimg button{background:var(--orange);color:var(--navy)}
-/* validations et indicateurs positifs : vert */
-.status.ok,.chip.ok,.chip.done{color:var(--g-text)}
-.chip.ok,.chip.done{background:var(--g-soft)}
-.improw.ok{border-color:rgba(53,184,121,.45)}
-.itier.reel{background:var(--g-soft);color:var(--g-text)}
-.cbtn.wa{background:var(--g-soft);border-color:rgba(53,184,121,.3)}
-/* accueil et coach : marine profond, l'orange en simple accent */
-.hello,.devtip{background:radial-gradient(90% 120% at 100% 0%,rgba(91,141,239,.22),transparent 60%),linear-gradient(160deg,#16386A,var(--surface));border:1px solid var(--line);box-shadow:var(--shadow)}
-.hl-line,.devtip p{color:var(--ink-2)}
-.hl-count{color:var(--ink-3)}
-.hl-bar{background:rgba(241,244,248,.1)}
-.devtip .dt-k{color:var(--o2)}
-.coach,.coachhero,.kpi{background:radial-gradient(70% 90% at 100% 0%,rgba(255,138,50,.22),transparent 60%),radial-gradient(80% 100% at 0% 100%,rgba(91,141,239,.25),transparent 65%),linear-gradient(150deg,#173D70,#0E2647);
-  color:var(--paper);border:1px solid rgba(241,244,248,.1);box-shadow:0 20px 44px -24px rgba(0,0,0,.8)}
-.coach::after{background:rgba(255,138,50,.08)}
-.coach .hl-bar{background:rgba(241,244,248,.12)}.coach .hl-bar span{background:var(--orange)}
-.coach .cbig b,.kpi .val{color:var(--paper)}
-.coach .cpill,.coachhero .ch-mark,.cworth,.worthx{background:rgba(241,244,248,.1)}
+.logo-svg path[fill="#111111"]{fill:var(--navy);stroke:var(--navy)}
+.topbar .logo-svg path[fill="#111111"]{fill:var(--paper);stroke:var(--paper)}
+/* grands blocs (accueil, coach, résultats) : marine profond, comme les bandeaux du site */
+.coach,.coachhero,.kpi{background:var(--navyblock);box-shadow:0 20px 40px -24px rgba(8,21,46,.7)}
+.coach::after{background:rgba(241,244,248,.05)}
+.coach .hl-bar{background:rgba(241,244,248,.14)}.coach .hl-bar span{background:var(--orange)}
 .kpi::before{background-image:radial-gradient(rgba(241,244,248,.12) 1px,transparent 1.3px)}
-.kpi .split,.kpi .split div+div{border-color:rgba(241,244,248,.12)}
-.hero{background:radial-gradient(70% 60% at 0% 0%,rgba(255,138,50,.18),transparent 70%),radial-gradient(70% 60% at 100% 0%,rgba(91,141,239,.3),transparent 70%),#0B1C3A;border:1px solid var(--line);box-shadow:0 20px 44px -24px rgba(0,0,0,.8)}
-.lcard{background:radial-gradient(80% 90% at 100% 0%,rgba(91,141,239,.4),transparent 60%),radial-gradient(70% 80% at 0% 100%,rgba(255,138,50,.35),transparent 65%),#0A1A36;border:1px solid var(--line)}
+.hero{background:radial-gradient(70% 60% at 0% 0%,rgba(255,138,50,.16),transparent 70%),radial-gradient(70% 60% at 100% 0%,rgba(91,141,239,.32),transparent 70%),#0B1C3A}
+.lcard{background:radial-gradient(80% 90% at 100% 0%,rgba(91,141,239,.42),transparent 60%),radial-gradient(70% 80% at 0% 100%,rgba(255,138,50,.28),transparent 65%),#0A1A36}
 .lc-stamps i.on{background:var(--orange)}
-.bravo{background:var(--orange);color:var(--navy)}.bravo .bz{background:rgba(8,21,46,.12)}
-.miss{background:rgba(255,184,77,.12);color:#FFC774}
-.itier.warm{background:var(--o-soft);color:var(--o2)}.itier.tiede{background:rgba(224,96,122,.16);color:#F28BA2}.itier.froid{background:var(--b-soft);color:var(--b-text)}
-.cvbar span{background:var(--orange)}
-/* discussion */
-.cm.me{background:var(--navy-3);color:var(--paper);border:1px solid var(--line-2)}
-.cm-b{background:var(--surface-2);border:1px solid var(--line)}
-.chatin{background:var(--surface-2);border:1px solid var(--line)}
-/* cagnotte / potentiel */
-.pot-mid{background:var(--navy);border:1px solid var(--line-2);box-shadow:0 14px 30px -12px rgba(0,0,0,.7)}
-.pot-mid span{color:var(--ink-3)}
-.pot-viz .ln{stroke:rgba(255,164,92,.35)}.pot-viz .ln.b{stroke:rgba(169,196,255,.3)}
-.pslide input[type=range]{background:linear-gradient(90deg,#FFA352 0%,#FF8A32 var(--p,0%),var(--surface-2) var(--p,0%))}
-.pslide input[type=range]::-webkit-slider-thumb{background:var(--paper);border-color:var(--orange)}
-.pslide.b input[type=range]{background:linear-gradient(90deg,#7FA6F5 0%,#3F6FD0 var(--p,0%),var(--surface-2) var(--p,0%))}
-.mapbox{background:var(--surface-2)}
-/* panneaux, barre de navigation, notifications */
-.sheet{background:linear-gradient(180deg,#0E2142,var(--bg) 40%);border-top:1px solid var(--line-2)}
-.sheet-bg{background:rgba(3,9,22,.62)}
-.topbar{background:color-mix(in srgb,var(--bg) 78%,transparent);border-bottom:1px solid var(--line)}
-nav.tabs .in{background:color-mix(in srgb,#0D2244 88%,transparent);border-color:var(--line-2);box-shadow:0 18px 40px -16px rgba(0,0,0,.75)}
-nav.tabs .tab.on svg{background:var(--paper);color:var(--navy);box-shadow:none}
-.coachfab{background:var(--navy-2);color:var(--paper);border:1px solid var(--line-2);box-shadow:0 14px 30px -10px rgba(0,0,0,.7)}
-.dot{background:var(--orange);color:var(--navy);border-color:var(--bg)}
-.toast{background:var(--paper);color:var(--navy)}.toast button{color:#D9661A}
-.line.late span{background:linear-gradient(90deg,#FF9A8A,var(--late))}
-.cmore,.chev,.close,.x{background:rgba(241,244,248,.07)}
- /* panneaux (formulaires, détails) en blanc : plus clairs à remplir, et une respiration dans l'interface */
-.sheet{--bg:#fff;--surface:#fff;--surface-2:#F1F4F8;--line:#E3E8EF;--line-2:#D3DBE6;--ink:#08152E;--ink-2:#44536B;--ink-3:#6B7A92;
-  --o-text:#D9661A;--o-soft:#FFF0E4;--b-text:#2D5BB8;--b-soft:#E8EFFC;--g-text:#1F8F58;--g-soft:#E3F6EC;--late:#D93A4E;--late-soft:#FDE9EC;
-  --chip-on:#08152E;--chip-on-ink:#F1F4F8;--seg-off:#E3E8EF;--shadow:0 1px 2px rgba(8,21,46,.05),0 10px 26px -16px rgba(8,21,46,.22);
-  color:var(--ink);background:#fff;border-top:0;color-scheme:light}
-.sheet .card{background:#fff}
-.sheet .btn.soft{background:#E9EEF5;color:var(--navy)}
-.sheet .acts .ic{background:var(--navy);color:#fff;box-shadow:none}
-.sheet .iseg button.on{background:#fff;box-shadow:0 4px 12px rgba(8,21,46,.1)}
-.sheet .cm.me{background:var(--navy);color:#fff;border:0}
-.sheet .close,.sheet .x,.sheet .chev,.sheet .cmore{background:#EEF2F7}
-.sheet .input::placeholder,.sheet textarea::placeholder{color:#8A97AB}
-.sheet .tchips button.on,.sheet .gtypes button.on,.sheet .satb button.on,.sheet .obtone.on,.sheet .upplan.on{color:var(--navy)}
-.sheet .pill{background:#F1F4F8}
-.sheet .rsn{color:#D9661A}
-.sheet .miss{background:#FFF4E0;color:#9A5B12}
-.sheet .itier.tiede{background:#FDEEF2;color:#C2456A}
-.sheet .pot-viz .ln{stroke:#FFD2BD}.sheet .pot-viz .ln.b{stroke:#CFD8FF}
-.sheet .pot-mid{background:var(--navy);color:#fff}
-@media (min-width:760px){nav.tabs .tab:hover,nav.tabs .tab.on{background:rgba(241,244,248,.06)}}
+.hello,.devtip{background:linear-gradient(150deg,#EAF0FA,#F7F9FC);box-shadow:var(--shadow);border:1px solid var(--line)}
+.hl-line,.devtip p{color:var(--ink-2)}.hl-count{color:var(--ink-3)}.devtip .dt-k{color:var(--b-text)}
+.coach.hello{background:var(--navyblock);border:0;box-shadow:0 20px 40px -24px rgba(8,21,46,.7)}
+.coach.hello .hl-line{color:#C6D0DF}.coach.hello .hl-count{color:#fff}
+/* boutons : marine sobre ; l'orange ne fait plus de gros aplats */
+.btn.primary,.btn.orange{background:var(--navy);color:#fff;box-shadow:0 10px 22px -14px rgba(8,21,46,.6)}
+.btn.soft{background:var(--surface-2);color:var(--navy)}
+.acts .reco .ic{background:var(--navy);color:#fff;box-shadow:0 8px 18px -10px rgba(8,21,46,.6)}
+.acts .later .ic{background:var(--navy-3);color:#fff;box-shadow:none}
+.plus{background:var(--navy);color:#fff;box-shadow:0 10px 24px -8px rgba(8,21,46,.55),inset 0 0 0 2px rgba(255,138,50,.9)}
+.chatgo,.hsteps li>span,.obrow>b,.upplan i{background:var(--navy);color:#fff}
+.cm-av,.coachfab .cf-ring{background:var(--navy-2);color:var(--orange)}
+.coachfab{background:var(--navy)}
+.bravo{background:var(--navy);color:#fff;box-shadow:0 14px 30px -12px rgba(8,21,46,.6)}.bravo .bz{background:rgba(255,138,50,.2)}
+.tchips button.on,.gtypes button.on,.satb button.on,.obtone.on,.upplan.on{border-color:var(--navy);background:#EEF2F8;color:var(--navy)}
+.pslide input[type=range]{background:linear-gradient(90deg,#2F62AE 0%,#08152E var(--p,0%),var(--surface-2) var(--p,0%))}
+.pslide input[type=range]::-webkit-slider-thumb{border-color:var(--navy);box-shadow:0 4px 12px rgba(8,21,46,.35)}
+.trange input{accent-color:var(--navy)}
+/* positif en vert */
+.status.ok,.chip.ok,.chip.done{color:var(--g-text)}.chip.ok,.chip.done{background:var(--g-soft)}
+.improw.ok{border-color:rgba(53,184,121,.45)}.itier.reel{background:var(--g-soft);color:var(--g-text)}
+/* navigation du bas : blanche, onglet actif marine */
+nav.tabs .tab.on svg{background:var(--navy);color:#fff;box-shadow:0 8px 18px -8px rgba(8,21,46,.55)}
+.dot{background:var(--orange);color:#fff}
+.toast{background:var(--navy);color:#fff}.toast button{color:var(--o2)}
+.sheet{background:#fff}
+.input:focus{border-color:var(--navy-3);box-shadow:0 0 0 4px rgba(45,91,184,.12)}
 </style>
 </head>
 <body>

@@ -790,3 +790,7 @@ header.nav .lk-coach{color:#fff!important}
 .phero .btn.ghost{background:transparent;border:1px solid rgba(241,244,248,.25);color:#fff}
 .phero .note{color:#8B9AB4}
 .phero .blob{opacity:.4}
+/* boutons sobres (même logique que l'appli) : marine sur fond clair, blanc sur fond marine */
+.btn.orange{background:var(--navy);color:#fff;box-shadow:0 12px 26px -14px rgba(8,21,46,.6)}
+.hero .btn.orange,.phero .btn.orange,.final .btn.dark,.plan.hot .btn.dark,.band .btn.orange,.kband .btn.orange,header.nav .btn.dark,.menu .btn.orange,.menu .btn.dark{background:#fff;color:var(--navy);box-shadow:0 12px 28px -14px rgba(0,0,0,.55)}
+.vplay span{background:#fff;color:var(--navy)}
