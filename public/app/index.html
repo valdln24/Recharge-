@@ -646,6 +646,7 @@ nav.tabs .tab.on svg{background:var(--navy);color:#fff;box-shadow:0 8px 18px -8p
 .durrow{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px;margin-top:10px}.durrow b{display:block}.durrow small{display:block;color:var(--ink-3);font-weight:650;margin:2px 0 10px}
 .durrow .unit .input{width:90px}
 .prodrow .input.estd{border-color:var(--orange);background:var(--o-soft)}
+.endlink{border:0;background:none;padding:0;font:inherit;font-size:inherit;color:var(--o-text);font-weight:700;text-decoration:underline;text-underline-offset:2px;cursor:pointer}
 </style>
 </head>
 <body>
@@ -2141,7 +2142,7 @@ function todayCard(it) {
           <div class="status ${tm.cls}">${why}</div><div class="meta2">${typeTag(CSTATUS[c.status] || "Client")} · ${esc(sl.product)} × ${sl.qty}</div></div>`,
       extra: `<div class="line ${tm.cls} mini"><span style="width:${pct}%"></span></div>`,
       second: `<button class="btn orange second" data-act="reco" data-id="${sl.id}">${I.bag} A déjà commandé</button>`,
-      links: `<button data-act="relance" data-id="${sl.id}">Déjà relancé</button>` });
+      links: `<button data-act="relance" data-id="${sl.id}">Déjà relancé</button> · <button data-act="endAdj" data-id="${sl.id}">📅 Ajuster la fin</button>` });
   }
   if (it.type === "prospect") {
     const pr = it.x, ref = refNameOf(pr);
@@ -2545,6 +2546,8 @@ function openNewSale(clientId, fromProspect) {
         <label class="field"><span>Date d'achat</span><input class="input" id="fDate" type="date" value="${today()}" max="${addDays(today(), 1)}"></label>
       </div>
       <div class="summary" id="endBox"></div>
+      <button type="button" class="linkbtn" style="margin:6px 0 0" data-act="fEndOpen">📅 Ajuster la fin au jour près</button>
+      <label class="field hidden" id="fEndWrap"><span>Fin de consommation <i>· vous le savez mieux que le calcul</i></span><input class="input" type="date" id="fEnd"></label>
       <button class="btn primary" style="margin-top:14px" type="submit">Enregistrer la vente</button>
     </form>`);
   drawChips(); updateEnd();
@@ -2563,7 +2566,9 @@ function updateEnd() {
   if (!p) { box.innerHTML = `<span>Choisissez un produit.</span>`; return; }
   const nm = (document.getElementById("fName") || {}).value || "", cl = nm.trim() && S.clients.find(x => x.name.toLowerCase() === nm.trim().toLowerCase());
   const rh = cl && p.id !== "rythme" ? learnedRhythm(cl.id, p.name, p.days, date) : null;
-  const end = addDays(date, (rh ? rh.days : p.days) * form.qty);
+  const fe = document.getElementById("fEnd"), own = fe && fe.dataset.touched && fe.value >= date ? fe.value : null;
+  const end = own || addDays(date, (rh ? rh.days : p.days) * form.qty);
+  if (fe && !own) { fe.value = end; fe.min = date; }
   const d = diff(end, today());
   box.innerHTML = `<div><span class="small">Fin estimée${rh ? ` · rythme de ${esc(firstName(cl.name))}` : ""}</span><b>${cap(fmtLong(end))}</b>
     <span style="font-size:.82rem;color:var(--ink-2)">${d >= 0 ? "dans " + plural(d, "jour", "jours") : "déjà passée"}${rh ? ` · rachète environ tous les ${rh.real} j` : ""}</span></div>` +
@@ -2587,6 +2592,11 @@ function submitSale() {
     if (r) c.referredBy = r.id; else c.referredByName = refName;
   }
   const counted = recordSale(c, p, form.qty, date);
+  const fe = document.getElementById("fEnd");
+  if (fe && fe.dataset.touched && fe.value >= date) {   // fin réglée à la main pour cet achat
+    const ns = S.sales.filter(x => x.clientId === c.id && x.product === p.name && x.date === date).pop();
+    if (ns) { ns.end = fe.value; ns.endSet = true; ns.days = Math.max(1, Math.round(diff(fe.value, date) / Math.max(1, ns.qty))); }
+  }
   const pr = form.prospectId ? prospect(form.prospectId) : null;
   if (pr) {
     pr.status = "client"; pr.clientId = c.id; pr.convertedAt = today();
@@ -2622,6 +2632,8 @@ function learnedRhythm(clientId, productName, baseDays, beforeDate) {
 }
 function applyRhythm(sale, clientId, p) {
   if (isGeneric(sale)) return;
+  const cl = client(clientId), own = cl && cl.prodDays && cl.prodDays[p.name || sale.product];
+  if (own) { sale.days = own; sale.end = addDays(sale.date, own * sale.qty); sale.ownDays = true; return; }
   const base = p.days || sale.days, r = learnedRhythm(clientId, p.name || sale.product, base, sale.date);
   if (!r) return;
   sale.days = r.days; sale.end = addDays(sale.date, r.days * sale.qty); sale.learned = r.n; sale.realDays = r.real;
@@ -2672,6 +2684,7 @@ function openFiche(id) {
     ${contactBtns(c)}
     <div class="kstats"><div><b class="num">${sales.length}</b><span>commande${sales.length > 1 ? "s" : ""}</span></div><div><b class="num">${euro(total)}</b><span>au total</span></div>
       <div><b class="num">${lastOrder(c) ? diff(today(), lastOrder(c)) + " j" : "–"}</b><span>dernier achat</span></div></div>
+    ${c.prodDays && Object.keys(c.prodDays).length ? `<div class="ltip" style="margin-top:10px"><b>📅 Durées réglées par vous</b><p>${Object.entries(c.prodDays).map(([k, v]) => `${esc(k)} : ${v} jours`).join("<br>")}</p></div>` : ""}
     ${(() => { const rh = clientRhythms(c); return rh.length ? `<div class="ltip" style="margin-top:10px"><b>🔁 Son rythme, appris de ses commandes</b><p>${rh.map(r => `${esc(r.product)} : environ tous les <span style="font-weight:800;color:var(--ink)">${r.real} jours</span>${Math.abs(r.real - r.base) >= 3 ? ` <i style="font-style:normal;color:var(--ink-3)">(durée prévue : ${r.base} j)</i>` : ""}`).join("<br>")}</p></div>` : ""; })()}
     <div class="satf"><span>Son ressenti${lastSat(c) ? ` <i>· noté ${ago(lastSat(c).date)}</i>` : ""}</span>${satBtns(c.id, "client").replace(/data-v="(\w+)"/g, (a, v) => a + (lastSat(c) && lastSat(c).v === v ? ' class="on"' : ""))}</div>
     ${diff(today(), clientSince(c)) >= 90 ? `<div class="notice" style="margin-top:10px"><span>🤝 Client depuis plus de 3 mois : c'est le bon moment pour lui demander une recommandation.</span></div>` : ""}
@@ -2698,7 +2711,7 @@ function openFiche(id) {
     <button class="btn primary" style="margin-top:14px" data-act="newSaleFor" data-id="${c.id}">Nouvelle vente pour ${esc(firstName(c.name))}</button>
     <button class="btn outline" style="margin-top:8px" data-act="askRef" data-id="${c.id}">Demander des contacts à ${esc(firstName(c.name))}</button>
     <div class="section"><h2>Historique des commandes</h2><span class="pill num">${sales.length}</span></div>
-    <div class="card"><ul class="hist">${sales.map(s => `<li><span style="min-width:0"><b>${esc(s.product)} × ${s.qty}</b><br><small>Acheté le ${fmt(s.date)} · fin ${fmt(s.end)}${s.price ? " · " + euro(s.price * s.qty) : ""}</small></span>
+    <div class="card"><ul class="hist">${sales.map(s => `<li><span style="min-width:0"><b>${esc(s.product)} × ${s.qty}</b><br><small>Acheté le ${fmt(s.date)} · ${s.status === "open" || s.status === "relance" ? `<button class="endlink" data-act="endAdj" data-id="${s.id}">fin ${fmt(s.end)} ✎</button>` : `fin ${fmt(s.end)}`}${s.price ? " · " + euro(s.price * s.qty) : ""}</small></span>
       <span style="display:flex;gap:8px;align-items:center"><span class="chip ${STATUS[s.status]?.[1] || ""}">${STATUS[s.status]?.[0] || ""}</span><button class="x" data-act="delSale" data-id="${s.id}" aria-label="Supprimer cet achat">${I.x}</button></span></li>`).join("") || `<li><small>Aucun achat.</small></li>`}</ul></div>
     <div class="section"><h2>Relances</h2><span class="pill num">${evs.length}</span></div>
     <div class="card"><ul class="hist">${evs.map(e => `<li><span><b style="font-weight:620">${EV[e.type] || e.type}</b><br><small>${esc(e.product)}</small></span><small class="num">${fmt(e.date)}${e.amount ? " · " + euro(e.amount) : ""}</small></li>`).join("") || `<li><small>Aucune relance pour l'instant.</small></li>`}</ul></div>
@@ -3522,6 +3535,28 @@ function openBilan(m) {
    La reconnaissance se fait par le navigateur (Chrome, Safari). Sinon, le micro du clavier fait l'affaire. */
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 let rec = null;
+/* ---------- Ajuster au jour près la fin d'un produit ----------
+   La partenaire sait parfois mieux que le calcul (« elle en prend 2 par jour », « elle part en vacances ») :
+   elle déplace la date de fin, la relance suit. Elle peut aussi le retenir pour les prochains achats de ce client. */
+let endAdj = null;
+function openEndAdjust(saleId) {
+  const sl = sale(saleId); if (!sl) return; const c = client(sl.clientId) || { name: "?" };
+  endAdj = { id: sl.id, end: sl.end };
+  const keep = !!(c.prodDays && c.prodDays[sl.product]);
+  openSheet(`<div class="shead"><h3>Fin ${deProd(sl.product)}</h3>${closeBtn}</div>
+    <p class="lede" style="margin-top:8px">Pour <b>${esc(c.name)}</b>, acheté le ${esc(fmtLong(sl.date))}. Quand pensez-vous qu'elle l'aura fini ?</p>
+    <label class="field"><span>Date de fin</span><input class="input" type="date" id="endIn" value="${sl.end}" min="${sl.date}"></label>
+    <div class="tchips" style="margin-top:10px">${[[-7, "−1 sem."], [-3, "−3 j"], [-1, "−1 j"], [1, "+1 j"], [3, "+3 j"], [7, "+1 sem."]].map(([d, l]) => `<button type="button" data-act="endShift" data-d="${d}">${l}</button>`).join("")}</div>
+    <p class="devnet" id="endInfo" style="margin-top:12px"></p>
+    ${isGeneric(sl) ? "" : `<label class="field" style="display:flex;align-items:center;justify-content:space-between;gap:12px"><span style="margin:0">Retenir pour ses prochains achats ${deProd(sl.product)}</span><input type="checkbox" id="endKeep" ${keep ? "checked" : ""} style="width:22px;height:22px;accent-color:var(--o1);flex:none"></label>`}
+    <button class="btn primary" style="margin-top:14px" data-act="endSave">Enregistrer</button>`);
+  endInfo();
+}
+function endInfo() {
+  const el = document.getElementById("endInfo"), sl = sale(endAdj.id); if (!el || !sl) return;
+  const end = document.getElementById("endIn").value || sl.end, rd = S.settings.relanceDays || 5, rel = addDays(end, -rd), d = diff(rel, today()), dur = Math.max(1, Math.round(diff(end, sl.date) / Math.max(1, sl.qty)));
+  el.innerHTML = `Fin le <b>${esc(fmtLong(end))}</b> · durée ${plural(dur, "jour", "jours")}${sl.qty > 1 ? " par produit" : ""}<br>${d <= 0 ? "Relance : <b>dès aujourd'hui</b>" : `Relance le <b>${esc(fmtLong(rel))}</b> (dans ${plural(d, "jour", "jours")})`}`;
+}
 /* ---------- Durée d'un nouveau produit : Recharge propose, la partenaire confirme ----------
    Une estimation selon le type de produit (prudente, affichée comme telle). La partenaire la corrige en un appui,
    et après 2 achats d'un même client, le rythme réel prend le relais. */
@@ -4245,6 +4280,18 @@ const actions = {
   voiceStart: () => startListening(),
   voiceGo: () => runVoice(document.getElementById("voiceText").value),
   saisieSave: () => saveSaisie(),
+  endAdj: el => { openEndAdjust(el.dataset.id); },
+  fEndOpen: el => { document.getElementById("fEndWrap").classList.remove("hidden"); el.remove(); document.getElementById("fEnd").focus(); },
+  endShift: el => { const i = document.getElementById("endIn"); const sl = sale(endAdj.id); let v = addDays(i.value || sl.end, +el.dataset.d); if (v < sl.date) v = sl.date; i.value = v; endInfo(); },
+  endSave: () => {
+    const sl = sale(endAdj.id); if (!sl) return closeSheet(); const snap = snapshot();
+    const end = document.getElementById("endIn").value || sl.end; if (end < sl.date) return toast("La fin ne peut pas être avant l'achat.");
+    sl.end = end; sl.endSet = true; sl.days = Math.max(1, Math.round(diff(end, sl.date) / Math.max(1, sl.qty)));
+    const k = document.getElementById("endKeep"), c = client(sl.clientId);
+    if (k && c) { c.prodDays = c.prodDays || {}; if (k.checked) c.prodDays[sl.product] = sl.days; else delete c.prodDays[sl.product]; }
+    if (sl.snooze && sl.snooze > today()) sl.snooze = null;
+    save(); closeSheet(); render(); toast(`Fin réglée au ${fmt(end)} : la relance suit ✅`, snap);
+  },
   durPick: el => { const row = el.closest(".durrow"); row.querySelectorAll(".tchips button").forEach(b => b.classList.toggle("on", b === el)); row.querySelector("[data-durin]").value = el.dataset.d; },
   durSave: () => { document.querySelectorAll("[data-durin]").forEach(i => { const p = S.products.find(x => x.id === i.dataset.durin); if (p) setProductDays(p, Math.max(1, Math.round(num(i.value)) || p.days)); }); save(); closeSheet(); render(); toast("Durées enregistrées : les relances sont calées dessus ✅"); },
   saisieEx: el => { const ta = document.getElementById("voiceText"); ta.value = el.textContent; saisiePreview(ta.value); },
@@ -4577,6 +4624,8 @@ document.addEventListener("input", ev => {
   if (t.id === "npName") { const e = estimateDays(t.value), d = document.getElementById("npDays"), h = document.getElementById("npEst");
     if (!d.dataset.touched) d.value = e.days; if (h) h.textContent = t.value.trim() ? (e.why ? `Estimation Recharge (${e.why}) : ${e.days} jours. Ajustez si vous savez mieux.` : "Pas d'estimation précise : 30 jours par défaut, ajustez si besoin.") : ""; }
   if (t.id === "npDays") t.dataset.touched = "1";
+  if (t.id === "endIn") endInfo();
+  if (t.id === "fEnd") { t.dataset.touched = "1"; updateEnd(); }
   if (t.id === "pNext") pform.touched = true;
   if (t.id === "fName") {
     const known = S.clients.some(x => x.name.toLowerCase() === t.value.trim().toLowerCase());
