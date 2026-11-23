@@ -647,6 +647,8 @@ nav.tabs .tab.on svg{background:var(--navy);color:#fff;box-shadow:0 8px 18px -8p
 .durrow .unit .input{width:90px}
 .prodrow .input.estd{border-color:var(--orange);background:var(--o-soft)}
 .endlink{border:0;background:none;padding:0;font:inherit;font-size:inherit;color:var(--o-text);font-weight:700;text-decoration:underline;text-underline-offset:2px;cursor:pointer}
+.durtip .em{font-weight:800;color:var(--ink)}
+.prodtip{grid-column:1/-1;font-size:.8rem;font-weight:600;color:var(--ink-2);margin:4px 2px 8px}.prodtip b{color:var(--ink)}
 </style>
 </head>
 <body>
@@ -2063,6 +2065,7 @@ function viewToday() {
     ${(() => { const w = worth(today().slice(0, 8) + "01"); return w.total > 0 && !SIMPLE_HOME ? `<button class="cworth" data-act="goto" data-t="results" data-c="">💸 Ce mois-ci, le coach vous a rapporté <b>${euro(w.total)}</b> ›</button>` : ""; })()}
     ${total ? `<div class="hl-bar"><span style="width:${pct}%"></span></div><div class="hl-count">⏱ ${plan.used} / ${plan.planned} min · ✅ ${plan.done.length} / ${total} action${total > 1 ? "s" : ""}</div><p class="pcheer">${planCheer(pct, left)}</p>` : ""}</section>`;
   if (!S.day.asked) h += `<div class="askt"><b>⏱ Combien de temps aujourd'hui ?</b>${timeChips(S.day.min, "planTime")}</div>`;
+  h += durTipCard();
   if (!SIMPLE_HOME) h += `<div class="dtiles">${Object.entries(DOMAINS).map(([d, [ic, lb]]) => { const n = dn(d); return `<button class="dtile ${n ? "" : "zero"} ${coachF === d ? "on" : ""}" data-act="coachF" data-d="${d}"><span class="di">${ic}</span><b>${n}</b><small>${lb}</small></button>`; }).join("")}</div>`;
   // conseil du jour, rappel de sauvegarde et fiches d'exemple : sous le plan (voir plus bas)
   if (!SIMPLE_HOME) { h += backupReminder(); h += tipCard(); h += exampleNotice(); }
@@ -2444,6 +2447,7 @@ function viewSettings() {
       <input class="input num${p.est ? " estd" : ""}" data-field="days" inputmode="numeric" value="${p.days}" aria-label="Durée en jours"${p.est ? ' title="Durée estimée par Recharge : à vérifier"' : ""}>
       <input class="input num" data-field="price" inputmode="decimal" value="${String(p.price).replace(".", ",")}" aria-label="Prix">
       <button class="x" data-act="delProduct" data-id="${p.id}" aria-label="Supprimer ${esc(p.name)}">${I.x}</button></div>`;
+    { const a = productAverage(p); if (a) h += `<div class="prodtip">💡 Vos clients : en moyenne <b>${a.days} j</b> (${plural(a.n, "rachat", "rachats")})${durGapOk(a, p) ? ` <button class="endlink" data-act="durApply" data-pid="${p.id}" data-d="${a.days}">passer à ${a.days} j</button>` : " ✓"}</div>`; }
   }
   h += `<p class="hint" style="margin:10px 0 0">Jours = durée d'un produit. Prix = prix de vente au client.${realProducts().some(x => x.est) ? " Les durées en orange sont des estimations de Recharge : vérifiez-les." : ""}</p>
     <button class="btn soft" style="margin-top:12px" data-act="addProductRow">Ajouter un produit</button></div>`;
@@ -3535,6 +3539,30 @@ function openBilan(m) {
    La reconnaissance se fait par le navigateur (Chrome, Safari). Sinon, le micro du clavier fait l'affaire. */
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 let rec = null;
+/* ---------- Tips Recharge par produit ----------
+   À partir des commandes de la partenaire (jamais celles des autres) : combien de temps ses clients gardent
+   vraiment chaque produit, et la durée conseillée. Il faut au moins 3 rachats mesurés pour en parler. */
+function productAverage(p) {
+  const base = p.days || 30, iv = [], cl = new Set(), byC = {};
+  S.sales.filter(x => x.product === p.name && !x.example && !isGeneric(x)).forEach(x => (byC[x.clientId] = byC[x.clientId] || []).push(x));
+  for (const [cid, arr] of Object.entries(byC)) {
+    arr.sort((a, b) => a.date.localeCompare(b.date));
+    for (let i = 1; i < arr.length; i++) { const d = diff(arr[i].date, arr[i - 1].date); if (d <= 0) continue; const per = d / Math.max(1, arr[i - 1].qty || 1); if (per >= base * .4 && per <= base * 2.5) { iv.push(per); cl.add(cid); } }
+  }
+  if (iv.length < 3) return null;
+  iv.sort((a, b) => a - b); const m = iv.length % 2 ? iv[(iv.length - 1) / 2] : (iv[iv.length / 2 - 1] + iv[iv.length / 2]) / 2;
+  return { days: Math.round(m), n: iv.length, clients: cl.size };
+}
+const durGapOk = (a, p) => a && Math.abs(a.days - p.days) >= Math.max(4, p.days * .15);
+function durTipCard() {
+  const off = S.settings.durTipOff || {};
+  for (const p of realProducts()) {
+    const a = productAverage(p); if (!durGapOk(a, p) || off[p.id] === a.days) continue;
+    return `<div class="tip durtip"><span>💡</span><p><b>Tips Recharge · ${esc(p.name)}</b>Vos clients le gardent en moyenne <span class="em">${a.days} jours</span> (${plural(a.n, "rachat mesuré", "rachats mesurés")} chez ${plural(a.clients, "client", "clients")}). Il est réglé à ${p.days} jours : on vous conseille <span class="em">${a.days} jours</span>, pour relancer au bon moment.
+      <span class="tipbtns"><button class="btn sm primary tipgo" data-act="durApply" data-pid="${p.id}" data-d="${a.days}">Passer à ${a.days} jours</button><button class="btn sm soft tipgo" data-act="durDismiss" data-pid="${p.id}" data-d="${a.days}">Garder ${p.days} j</button></span></p></div>`;
+  }
+  return "";
+}
 /* ---------- Ajuster au jour près la fin d'un produit ----------
    La partenaire sait parfois mieux que le calcul (« elle en prend 2 par jour », « elle part en vacances ») :
    elle déplace la date de fin, la relance suit. Elle peut aussi le retenir pour les prochains achats de ce client. */
@@ -3547,6 +3575,10 @@ function openEndAdjust(saleId) {
     <p class="lede" style="margin-top:8px">Pour <b>${esc(c.name)}</b>, acheté le ${esc(fmtLong(sl.date))}. Quand pensez-vous qu'elle l'aura fini ?</p>
     <label class="field"><span>Date de fin</span><input class="input" type="date" id="endIn" value="${sl.end}" min="${sl.date}"></label>
     <div class="tchips" style="margin-top:10px">${[[-7, "−1 sem."], [-3, "−3 j"], [-1, "−1 j"], [1, "+1 j"], [3, "+3 j"], [7, "+1 sem."]].map(([d, l]) => `<button type="button" data-act="endShift" data-d="${d}">${l}</button>`).join("")}</div>
+    ${(() => { if (isGeneric(sl)) return ""; const pp = S.products.find(x => x.name === sl.product) || { name: sl.product, days: sl.days }, a = productAverage(pp), e = estimateDays(sl.product);
+      const d = a ? a.days : e.why ? e.days : 0; if (!d) return "";
+      return `<div class="ltip" style="margin-top:12px"><b>💡 Tips Recharge</b><p>${a ? `En moyenne, vos clients gardent ce produit <span style="font-weight:800;color:var(--ink)">${a.days} jours</span> (${plural(a.n, "rachat mesuré", "rachats mesurés")}).` : `En général, ce type de produit (${esc(e.why)}) dure environ <span style="font-weight:800;color:var(--ink)">${e.days} jours</span> : c'est une estimation.`}</p>
+        <button type="button" class="btn sm soft tipgo" style="margin-top:8px;background:#fff" data-act="endUseAvg" data-d="${d}">Utiliser ${d} jours</button></div>`; })()}
     <p class="devnet" id="endInfo" style="margin-top:12px"></p>
     ${isGeneric(sl) ? "" : `<label class="field" style="display:flex;align-items:center;justify-content:space-between;gap:12px"><span style="margin:0">Retenir pour ses prochains achats ${deProd(sl.product)}</span><input type="checkbox" id="endKeep" ${keep ? "checked" : ""} style="width:22px;height:22px;accent-color:var(--o1);flex:none"></label>`}
     <button class="btn primary" style="margin-top:14px" data-act="endSave">Enregistrer</button>`);
@@ -4281,6 +4313,9 @@ const actions = {
   voiceGo: () => runVoice(document.getElementById("voiceText").value),
   saisieSave: () => saveSaisie(),
   endAdj: el => { openEndAdjust(el.dataset.id); },
+  endUseAvg: el => { const sl = sale(endAdj.id); document.getElementById("endIn").value = addDays(sl.date, +el.dataset.d * Math.max(1, sl.qty)); endInfo(); },
+  durApply: el => { const p = S.products.find(x => x.id === el.dataset.pid); if (!p) return; const snap = snapshot(); setProductDays(p, +el.dataset.d); save(); render(); toast(`${p.name} : ${el.dataset.d} jours. Les relances en cours sont recalées ✅`, snap); },
+  durDismiss: el => { S.settings.durTipOff = { ...(S.settings.durTipOff || {}), [el.dataset.pid]: +el.dataset.d }; save(); render(); toast("Durée gardée : Recharge ne vous le redemandera que si la moyenne change"); },
   fEndOpen: el => { document.getElementById("fEndWrap").classList.remove("hidden"); el.remove(); document.getElementById("fEnd").focus(); },
   endShift: el => { const i = document.getElementById("endIn"); const sl = sale(endAdj.id); let v = addDays(i.value || sl.end, +el.dataset.d); if (v < sl.date) v = sl.date; i.value = v; endInfo(); },
   endSave: () => {
