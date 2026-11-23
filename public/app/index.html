@@ -1501,6 +1501,7 @@ function coachMeta(it) {
     action = isGeneric(sl) ? "Proposer la prochaine commande, au rythme habituel" : left < 0 ? "Prendre de ses nouvelles et proposer de renouveler" : `Proposer le réassort avant la fin ${deProd(sl.product)}`;
     facts.push(isGeneric(sl) ? `Dernière commande ${ago(sl.date)}` : `Achat ${deProd(sl.product)} ${ago(sl.date)}`);
     if (!isGeneric(sl)) facts.push(left < 0 ? `fini depuis ${-left} j (estimation)` : left === 0 ? "fini aujourd'hui (estimation)" : `fin estimée dans ${left} j`);
+    if (sl.learned && sl.realDays) facts.push(`rythme appris : rachète environ tous les ${sl.realDays} jours`);
     else missing.push(`Produit non précisé : relance au bout de ${S.settings.cycle || 30} jours`);
     const n = ordersOf(who); if (n > 1) facts.push(`${n} commandes`);
   } else if (it.type === "sat") {
@@ -2542,10 +2543,12 @@ function updateEnd() {
   document.getElementById("fQty").textContent = form.qty;
   const box = document.getElementById("endBox");
   if (!p) { box.innerHTML = `<span>Choisissez un produit.</span>`; return; }
-  const end = addDays(date, p.days * form.qty);
+  const nm = (document.getElementById("fName") || {}).value || "", cl = nm.trim() && S.clients.find(x => x.name.toLowerCase() === nm.trim().toLowerCase());
+  const rh = cl && p.id !== "rythme" ? learnedRhythm(cl.id, p.name, p.days, date) : null;
+  const end = addDays(date, (rh ? rh.days : p.days) * form.qty);
   const d = diff(end, today());
-  box.innerHTML = `<div><span class="small">Fin estimée</span><b>${cap(fmtLong(end))}</b>
-    <span style="font-size:.82rem;color:var(--ink-2)">${d >= 0 ? "dans " + plural(d, "jour", "jours") : "déjà passée"}</span></div>` +
+  box.innerHTML = `<div><span class="small">Fin estimée${rh ? ` · rythme de ${esc(firstName(cl.name))}` : ""}</span><b>${cap(fmtLong(end))}</b>
+    <span style="font-size:.82rem;color:var(--ink-2)">${d >= 0 ? "dans " + plural(d, "jour", "jours") : "déjà passée"}${rh ? ` · rachète environ tous les ${rh.real} j` : ""}</span></div>` +
     (p.price ? `<span class="price num">${euro(p.price * form.qty)}</span>` : "");
 }
 function submitSale() {
@@ -2582,6 +2585,34 @@ function submitSale() {
 }
 
 /* Une nouvelle vente du même produit remplace la précédente en cours */
+/* ---------- Rythme réel de chaque client ----------
+   Après 2 achats du même produit, Recharge mesure en combien de temps ce client le finit vraiment
+   (intervalle entre deux commandes, ramené à la quantité achetée), et s'en sert pour la prochaine relance.
+   On garde le plus récent (3 derniers intervalles, valeur médiane) et on ignore les écarts aberrants. */
+function learnedRhythm(clientId, productName, baseDays, beforeDate) {
+  const hist = S.sales.filter(x => x.clientId === clientId && x.product === productName && (!beforeDate || x.date <= beforeDate)).sort((a, b) => a.date.localeCompare(b.date));
+  const iv = [];
+  for (let i = 1; i < hist.length; i++) {
+    const d = diff(hist[i].date, hist[i - 1].date); if (d <= 0) continue;
+    const per = d / Math.max(1, hist[i - 1].qty || 1);
+    if (per >= baseDays * .4 && per <= baseDays * 2.5) iv.push(per);
+  }
+  if (!iv.length) return null;
+  const last = iv.slice(-3).sort((a, b) => a - b), m = last.length % 2 ? last[(last.length - 1) / 2] : (last[last.length / 2 - 1] + last[last.length / 2]) / 2;
+  const w = iv.length >= 2 ? .8 : .5;                       // une seule mesure : on reste prudent, moitié théorie moitié réalité
+  return { days: Math.max(3, Math.round(baseDays * (1 - w) + m * w)), real: Math.round(m), n: iv.length + 1 };
+}
+function applyRhythm(sale, clientId, p) {
+  if (isGeneric(sale)) return;
+  const base = p.days || sale.days, r = learnedRhythm(clientId, p.name || sale.product, base, sale.date);
+  if (!r) return;
+  sale.days = r.days; sale.end = addDays(sale.date, r.days * sale.qty); sale.learned = r.n; sale.realDays = r.real;
+}
+function clientRhythms(c) {
+  const names = [...new Set(S.sales.filter(x => x.clientId === c.id && !isGeneric(x)).map(x => x.product))];
+  return names.map(nm => { const pr = S.products.find(x => x.name === nm), last = S.sales.filter(x => x.clientId === c.id && x.product === nm).sort((a, b) => b.date.localeCompare(a.date))[0];
+    const base = (pr && pr.days) || (last && last.days) || 30, r = learnedRhythm(c.id, nm, base); return r ? { product: nm, real: r.real, base, n: r.n } : null; }).filter(Boolean);
+}
 function recordSale(c, p, qty, date) {
   let counted = false;
   for (const old of S.sales) {
@@ -2591,6 +2622,7 @@ function recordSale(c, p, qty, date) {
     }
   }
   const ns = makeSale(c.id, p, qty, date, c.example);
+  applyRhythm(ns, c.id, p);
   if (S.sales.some(x => x.clientId === c.id && x.product === p.name && x.date > date)) ns.status = "rachete";
   S.sales.push(ns);
   return counted;
@@ -2622,6 +2654,7 @@ function openFiche(id) {
     ${contactBtns(c)}
     <div class="kstats"><div><b class="num">${sales.length}</b><span>commande${sales.length > 1 ? "s" : ""}</span></div><div><b class="num">${euro(total)}</b><span>au total</span></div>
       <div><b class="num">${lastOrder(c) ? diff(today(), lastOrder(c)) + " j" : "–"}</b><span>dernier achat</span></div></div>
+    ${(() => { const rh = clientRhythms(c); return rh.length ? `<div class="ltip" style="margin-top:10px"><b>🔁 Son rythme, appris de ses commandes</b><p>${rh.map(r => `${esc(r.product)} : environ tous les <span style="font-weight:800;color:var(--ink)">${r.real} jours</span>${Math.abs(r.real - r.base) >= 3 ? ` <i style="font-style:normal;color:var(--ink-3)">(durée prévue : ${r.base} j)</i>` : ""}`).join("<br>")}</p></div>` : ""; })()}
     <div class="satf"><span>Son ressenti${lastSat(c) ? ` <i>· noté ${ago(lastSat(c).date)}</i>` : ""}</span>${satBtns(c.id, "client").replace(/data-v="(\w+)"/g, (a, v) => a + (lastSat(c) && lastSat(c).v === v ? ' class="on"' : ""))}</div>
     ${diff(today(), clientSince(c)) >= 90 ? `<div class="notice" style="margin-top:10px"><span>🤝 Client depuis plus de 3 mois : c'est le bon moment pour lui demander une recommandation.</span></div>` : ""}
     <details class="cfields"><summary>Coordonnées et infos</summary>
@@ -3883,6 +3916,7 @@ const actions = {
     if (s.status !== "relance") { logEvent("relance", s); s.relancedAt = today(); }
     s.status = "recommande";
     const n = makeSale(s.clientId, p, s.qty, today(), s.example);
+    applyRhythm(n, s.clientId, p);
     S.sales.push(n);
     logEvent("recommande", s, { amount: p.price * s.qty, newSaleId: n.id });
     save(); render(); toast(`Bravo ! Nouvelle vente créée pour ${firstName(client(s.clientId).name)}`, snap);
@@ -4332,7 +4366,7 @@ document.addEventListener("input", ev => {
     app.firstElementChild.classList.remove("enter");
   }
   if (t.classList.contains("msg")) fitAreas(t.parentNode);
-  if (t.id === "fDate") updateEnd();
+  if (t.id === "fDate" || t.id === "fName") updateEnd();
   if (t.id === "pNext") pform.touched = true;
   if (t.id === "fName") {
     const known = S.clients.some(x => x.name.toLowerCase() === t.value.trim().toLowerCase());
@@ -4360,7 +4394,7 @@ document.addEventListener("change", ev => {
   }
   if (t.id === "setCycle") {
     S.settings.cycle = Math.max(7, Math.min(180, Math.round(num(t.value)) || 30)); const g = genericProduct();
-    for (const sl of S.sales) if (sl.productId === g.id && sl.status === "open") { sl.days = g.days; sl.end = addDays(sl.date, g.days * sl.qty); }
+    for (const sl of S.sales) if (sl.productId === g.id && sl.status === "open" && !sl.learned) { sl.days = g.days; sl.end = addDays(sl.date, g.days * sl.qty); }
     save(); toast(`Relance ${S.settings.cycle} jours après une commande sans produit précis`); return;
   }
   if (t.id === "setBasket") { S.settings.basket = Math.max(0, Math.round(num(t.value)) || 0); save(); const sh = sheetEl.querySelector(".bilan"); if (sh) openBilan(document.querySelector("[data-act=bilanMonth].on").dataset.m); toast("Panier moyen enregistré"); return; }
