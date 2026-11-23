@@ -2871,7 +2871,8 @@ function openNetIntro(n) {
     <p class="lede" style="margin-top:8px">Avec ${plural(n, "votre premier client", `vos ${n} premiers clients`).replace(/^\d+ /, "")}, vous pouvez déjà toucher environ <b id="niNet">${n * K}</b> personnes : leurs proches, leurs collègues, leurs voisins.</p>
     <div class="pot-viz" style="max-width:250px;margin-top:6px"><svg id="niSvg" viewBox="-200 -200 400 400" role="img" aria-label="Votre réseau : vos clients et les personnes qu'ils peuvent vous présenter"></svg><div class="pot-mid"><b id="niTot">0</b><span>personnes<br>à toucher</span></div></div>
     <label class="pslide o" for="niK"><span>Chaque client pourrait me présenter <b id="niKOut">${K}</b></span><input type="range" id="niK" min="1" max="15" value="${K}"></label>
-    ${an && an.clients > n ? `<p class="hint" style="margin-top:6px">Avec vos ~${an.clients} clients, ce serait environ <b id="niAll">${an.clients * K}</b> personnes. Ce sont des estimations, à ajuster selon votre réalité.</p>` : `<p class="hint" style="margin-top:6px">Ce sont des estimations, à ajuster selon votre réalité.</p>`}
+    <p class="devnet" style="margin-top:10px">Si 1 personne sur 10 devient cliente : <b id="niEur">≈ 0 €</b> de ventes en plus par an.</p>
+    ${an && an.clients > n ? `<p class="hint" style="margin-top:6px">Avec vos ~${an.clients} clients, ce serait environ <b id="niAll">${an.clients * K}</b> personnes, soit <b id="niAllEur">≈ 0 €</b> de ventes par an. Ce sont des estimations, à ajuster selon votre réalité.</p>` : `<p class="hint" style="margin-top:6px">Ce sont des estimations, à ajuster selon votre réalité.</p>`}
     <div class="ltip"><b>Le plan du coach</b><p>1. ${first ? `Relancez <span style="font-weight:800">${esc(firstName(first.name))}</span> au bon moment : Recharge vous prévient le jour venu, avec le message prêt.` : "Relancez chaque client au bon moment : Recharge vous prévient, avec le message prêt."}<br>2. Après sa prochaine commande, demandez-lui à qui elle pense : le message est prêt dans sa fiche.<br>3. Ajoutez vos autres clients petit à petit : plus Recharge connaît votre activité, plus il vous aide.</p></div>
     <button class="btn orange" style="margin-top:14px" data-act="niGo">Voir mes relances du jour</button>`);
   const svg = document.getElementById("niSvg"), k = document.getElementById("niK");
@@ -2879,6 +2880,9 @@ function openNetIntro(n) {
   const run = () => {
     const kv = +k.value; document.getElementById("niKOut").textContent = kv; k.style.setProperty("--p", ((kv - 1) / 14 * 100) + "%");
     upd(n, 0, kv, 0, false); document.getElementById("niNet").textContent = n * kv;
+    const vc = an && an.valClient ? an.valClient : an && an.panier ? an.panier * 365 / (an.duree || 45) * .6 : 35 * 365 / 45 * .6;
+    document.getElementById("niEur").textContent = "≈ " + (Math.round(n * kv / 10 * vc / 10) * 10).toLocaleString("fr-FR") + " €";
+    const ae = document.getElementById("niAllEur"); if (ae && an) ae.textContent = "≈ " + (Math.round(an.clients * kv / 10 * vc / 10) * 10).toLocaleString("fr-FR") + " €";
     const all = document.getElementById("niAll"); if (all && an) all.textContent = (an.clients * kv).toLocaleString("fr-FR");
   };
   upd(n, 0, 0, 0, false); setTimeout(run, 700);

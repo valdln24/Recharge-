@@ -83,6 +83,11 @@ body{background:var(--bg)}
 .rsave .btn{flex:0 0 auto;min-height:50px}
 .rsave label.ck{display:flex;gap:8px;align-items:flex-start;margin-top:10px;font-size:.8rem;color:var(--ink-3);font-weight:600;line-height:1.4}
 .rsave .ok{color:#1F8F58;font-weight:700}.rsave .err{color:#C2362B;font-weight:700;margin-top:8px}
+.rgain{margin-top:22px;border-radius:24px;padding:22px 20px;color:#fff;background:var(--dark)}
+.rg-k{font-size:.78rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#CFC8D6}
+.rg-v{font-size:clamp(2.6rem,10vw,3.6rem);font-weight:800;letter-spacing:-.05em;line-height:1.05;margin:6px 0 14px;color:var(--orange);font-variant-numeric:tabular-nums}
+.rg-row{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-top:1px solid rgba(255,255,255,.1);font-size:.9rem;color:#E4DEEA}
+.rg-row b{color:#fff;white-space:nowrap}
 .rtabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:4px;border-radius:16px;background:#EDE5DB;margin:22px 0 4px}
 .rtabs button{border:0;background:transparent;border-radius:12px;padding:11px 4px;font:inherit;font-size:.86rem;font-weight:750;color:var(--ink-2);cursor:pointer;line-height:1.2}
 .rtabs button.on{background:#fff;color:var(--ink);box-shadow:0 4px 14px -6px rgba(28,26,34,.25)}
@@ -176,26 +181,29 @@ body{background:var(--bg)}
     var n = CLIENTS[st.clients][1], c = CATS[st.cat], o = ORDERS[st.orders][1];
     var rate = 0.6, renouv = Math.max(1, Math.round(n * 30 / c[3] * rate)), ecart = Math.max(0, renouv - o);
     var enjeu = Math.round(ecart * c[4] / 10) * 10, semaine = Math.max(1, Math.round(n * 7 / c[3] * rate));
-    return { clients: n, cat: c[0], catLabel: c[1], orders: o, pains: st.pains.slice(), renouv: renouv, ecart: ecart, enjeu: enjeu, panier: c[4], duree: c[3], semaine: semaine, at: new Date().toISOString().slice(0, 10) };
+    // Sur un an : les rachats oubliés + les clients que l'entourage de vos clients peut vous amener
+    var valClient = Math.round(c[4] * 365 / c[3] * rate), relAn = enjeu * 12, nouveaux = Math.round(n * 5 / 10);
+    var resAn = Math.round(nouveaux * valClient / 10) * 10;
+    return { clients: n, cat: c[0], catLabel: c[1], orders: o, pains: st.pains.slice(), renouv: renouv, ecart: ecart, enjeu: enjeu, panier: c[4], duree: c[3], semaine: semaine,
+      valClient: Math.round(valClient), relAn: relAn, nouveaux: nouveaux, resAn: resAn, totalAn: relAn + resAn, at: new Date().toISOString().slice(0, 10) };
   }
   function result() {
     var a = compute();
     try { localStorage.setItem(KEY, JSON.stringify(a)); } catch (e) {}
     track("analyse_resultat");
     var max = Math.max(a.renouv, a.orders, 1);
-    var head = a.ecart > 0
-      ? "Environ <em>" + a.renouv + " renouvellements</em> vous attendent chaque mois."
-      : "Votre rythme de commandes suit déjà <em>vos clients</em>.";
-    var sub = a.ecart > 0
-      ? "Avec environ " + fmt(a.clients) + " clients en " + esc(a.catLabel.toLowerCase()) + ", une partie des rachats possibles ne se fait pas, simplement parce que personne ne relance au bon moment."
-      : "Avec environ " + fmt(a.clients) + " clients en " + esc(a.catLabel.toLowerCase()) + ", vous êtes déjà très régulier(e). Recharge vous aide à garder ce rythme sans y penser, et à faire grandir votre clientèle.";
+    var head = "Jusqu’à <em>~" + fmt(a.totalAn) + " € par an</em> à aller chercher dans votre activité.";
+    var sub = "Avec environ " + fmt(a.clients) + " clients en " + esc(a.catLabel.toLowerCase()) + (a.ecart > 0 ? " : des rachats qui se perdent faute de relance au bon moment, et des clients que votre entourage pourrait vous amener." : " : vos commandes suivent déjà bien le rythme de vos clients. Le potentiel est surtout dans les clients que votre entourage pourrait vous amener.");
+    var gain = '<div class="rgain"><div class="rg-k">Votre potentiel sur un an</div><div class="rg-v">~<b id="rgTotal">0</b> €</div>' +
+      '<div class="rg-row"><span>' + (a.ecart > 0 ? "Rachats à ne plus laisser passer" : "Rachats : déjà au bon rythme") + '</span><b>' + (a.ecart > 0 ? "~" + fmt(a.relAn) + " €" : "✓") + '</b></div>' +
+      '<div class="rg-row"><span>Nouveaux clients amenés par vos clients (<span id="rgNew">' + a.nouveaux + '</span>)</span><b>~<span id="rgRes">' + fmt(a.resAn) + '</span> €</b></div></div>';
     var stats = '<div class="rstats"><div class="rs"><b>' + a.renouv + '</b><span>renouvellements possibles par mois</span></div>' +
       '<div class="rs"><b>~' + a.orders + '</b><span>commandes aujourd’hui par mois</span></div>' +
       (a.ecart > 0 ? '<div class="rs hl"><b>~' + fmt(a.enjeu) + ' €</b><span>de chiffre d’affaires en jeu chaque mois</span></div>' : '<div class="rs hl"><b>' + a.semaine + '</b><span>clients à recontacter cette semaine</span></div>') + "</div>";
     var bars = '<div class="rbars"><div class="rbar o"><small><span>Renouvellements possibles</span><span>' + a.renouv + '</span></small><i><span style="width:' + Math.round(a.renouv / max * 100) + '%"></span></i></div>' +
       '<div class="rbar"><small><span>Vos commandes aujourd’hui</span><span>~' + a.orders + '</span></small><i><span style="width:' + Math.round(a.orders / max * 100) + '%"></span></i></div></div>';
     var week = '<div class="rweek">Cette semaine, environ ' + a.semaine + " de vos clients arrivent au bout de leur produit. C’est le bon moment pour leur écrire.</div>";
-    var hyp = '<p class="rhyp">Estimation, pas une promesse : produit racheté ' + esc(CATS[st.cat][2]) + ", 6 clients sur 10 qui rachètent, panier moyen d’environ " + a.panier + " €. Avec vos vrais clients, Recharge calcule tout précisément.</p>";
+    var hyp = '<p class="rhyp">Estimation, pas une promesse : produit racheté ' + esc(CATS[st.cat][2]) + ", 6 clients sur 10 qui rachètent, panier moyen d’environ " + a.panier + " €, soit environ " + fmt(a.valClient) + " € par an pour un client fidèle. Côté réseau : 5 personnes présentées par client, dont 1 sur 10 devient cliente. Avec vos vrais clients, Recharge calcule tout précisément.</p>";
     var keys = a.pains.length ? a.pains : ["oubli", "quoi", "temps"];
     var forList = keys.slice(0, 4).map(function (k) { return "<li><i>" + CHECK + "</i><span>" + FOR[k] + "</span></li>"; }).join("");
     var save = '<div class="rsave" id="rsave"><h3>Gardez votre analyse</h3><p>Recevez un lien d’accès par email : vous retrouvez vos résultats dans Recharge, sur n’importe quel téléphone.</p>' +
@@ -206,7 +214,7 @@ body{background:var(--bg)}
     var pane1 = '<div class="rpane" data-pane="1" hidden><div class="rnet"><h3>Votre micro-marché</h3><p class="lede2">Vos clients connaissent des proches, des collègues, des voisins qui pourraient avoir besoin de vos produits.</p>' +
       '<div class="pot-viz"><svg id="anSvg" viewBox="-200 -200 400 400" role="img" aria-label="Votre réseau : vos clients et les personnes qu’ils peuvent vous présenter"></svg><div class="pot-mid"><b id="anTot">0</b><span>personnes<br>à toucher</span></div></div>' +
       '<label class="pslide o" for="anK"><span>Chaque client pourrait vous présenter <b id="anKOut">5</b></span><input type="range" id="anK" min="1" max="15" value="5" aria-label="Personnes présentées par client"></label>' +
-      '<div class="pot-res"><div><b id="anNet">0</b><span>personnes que vos clients peuvent vous présenter</span></div><div class="hl"><b id="anNew">+0</b><span>nouveaux clients si 1 sur 10 achète</span></div><div><b id="anCA">≈ 0 €</b><span>de ventes en plus chaque mois</span></div></div>' +
+      '<div class="pot-res"><div><b id="anNet">0</b><span>personnes que vos clients peuvent vous présenter</span></div><div class="hl"><b id="anNew">+0</b><span>nouveaux clients si 1 sur 10 achète</span></div><div><b id="anCA">≈ 0 €</b><span>de ventes en plus par an</span></div></div>' +
       '<p class="n">Ce sont des estimations à ajuster selon votre réalité : 1 personne présentée sur 10 qui devient cliente, panier moyen d’environ ' + a.panier + ' €.</p></div></div>';
     var k5 = Math.min(5, a.clients), contacts = k5 * 2;
     var extra = a.pains.indexOf("equipe") >= 0 ? ["Partagez Recharge avec vos filleuls", "Chacun suit ses clients, vous voyez les résultats de l’équipe."]
@@ -222,13 +230,14 @@ body{background:var(--bg)}
     var pane2 = '<div class="rpane" data-pane="2" hidden><div class="rcoach"><div class="who"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 9 9"/><path d="M13 7l-3 5h4l-3 5"/></svg></span><div><b>Votre coach Recharge</b><small>Voici par où je commencerais</small></div></div>' +
       "<ol>" + plan.map(function (x) { return "<li><div><b>" + esc(x[0]) + "</b><em>" + esc(x[1]) + "</em></div></li>"; }).join("") + "</ol>" +
       '<p class="n">Des estimations pour vous donner un ordre de grandeur, pas des résultats garantis. Dans l’appli, le coach s’appuie sur vos vrais clients.</p></div></div>';
-    draw('<div class="abar"><span style="width:100%"></span></div><div class="rk">Votre analyse</div><h1 class="rh">' + head + '</h1><p class="rsub">' + sub + "</p>" + tabs + pane0 + pane1 + pane2 +
+    draw('<div class="abar"><span style="width:100%"></span></div><div class="rk">Votre analyse</div><h1 class="rh">' + head + '</h1><p class="rsub">' + sub + "</p>" + gain + tabs + pane0 + pane1 + pane2 +
       '<div class="rfor"><h2>Ce que Recharge fait pour vous</h2><ul>' + forList + "</ul></div>" +
       '<div class="rtry"><h2>Passez de l’estimation à vos vrais clients</h2><p>Ajoutez vos 3 premiers clients : Recharge vous dit qui relancer cette semaine, avec le message prêt. Gratuit, sans compte, vos données restent dans votre téléphone.</p>' +
       '<a class="btn orange" id="tryGo" href="/app/?from=analyse">Essayer avec mes clients' + ARROW + "</a><small>2 minutes · Toutes marques</small></div>" +
       (accounts ? save : save.replace('class="rsave"', 'class="rsave" hidden')) +
       '<button type="button" class="again" data-a="again">Refaire l’analyse</button>');
     netA = a; netUpd = null;
+    (function (el, to) { var t0 = performance.now(), d = 1100; (function step(t) { var k = Math.min(1, (t - t0) / d), v = to * (1 - Math.pow(1 - k, 3)); el.textContent = fmt(Math.round(v / 10) * 10); if (k < 1) requestAnimationFrame(step); })(t0); })(document.getElementById("rgTotal"), a.totalAn);
     var f = document.getElementById("saveForm");
     if (f) f.addEventListener("submit", submitSave);
     if (accounts) { var b = document.getElementById("rsave"); if (b) b.hidden = false; }
@@ -257,7 +266,10 @@ body{background:var(--bg)}
       var kv = +k.value; document.getElementById("anKOut").textContent = kv; k.style.setProperty("--p", ((kv - 1) / 14 * 100) + "%");
       var r = netUpd(netA.clients, 0, kv, 0, false), nw = Math.round(r.net / 10);
       document.getElementById("anNet").textContent = fmt(r.net); document.getElementById("anNew").textContent = "+" + fmt(nw);
-      document.getElementById("anCA").textContent = "≈ " + fmt(nw * netA.panier * 30 / netA.duree) + " €";
+      var an = Math.round(nw * netA.valClient / 10) * 10;
+      document.getElementById("anCA").textContent = "≈ " + fmt(an) + " €";
+      document.getElementById("rgNew").textContent = nw; document.getElementById("rgRes").textContent = fmt(an);
+      document.getElementById("rgTotal").textContent = fmt(netA.relAn + an);
     };
     if (!netUpd) {
       netUpd = constellation(svg, svg.parentNode.querySelector(".pot-mid"), document.getElementById("anTot"));
