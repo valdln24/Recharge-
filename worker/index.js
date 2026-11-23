@@ -55,6 +55,7 @@ async function route(request, env, url, ctx) {
   if (p === "/api/event" && m === "POST") return trackEvent(request, env);
   if (p === "/api/lead" && m === "POST") return saveLead(request, env, url);
   if (p === "/api/stats" && m === "GET") return stats(request, env);
+  if (p === "/api/referral" && m === "GET") return referral(request, env, url);
   if (p === "/api/auth/request" && m === "POST") return requestLink(request, env, url);
   if (p === "/api/auth/verify" && m === "POST") return verifyLink(request, env);
   if (p === "/api/auth/logout" && m === "POST") return logout(request, env);
@@ -194,6 +195,7 @@ async function verifyLink(request, env) {
     user = { id: crypto.randomUUID(), email: row.email, plan: "free", created_at: now() };
     await env.DB.prepare("INSERT INTO users (id, email, plan, created_at, last_seen_at) VALUES (?, ?, 'free', ?, ?)").bind(user.id, user.email, user.created_at, now()).run();
     isNew = true;
+    await attachReferrer(env, user.id, body.ref);
   }
   return json(await openSession(env, user, isNew));
 }
@@ -222,11 +224,43 @@ async function me(request, env) {
   return json({ user: publicUser(u, env), backup: b ? { rev: b.rev, size: b.size, updatedAt: b.updated_at } : null, analyse });
 }
 
+/* ---------- Parrainage ----------
+   Chaque compte a un code personnel. Une personne qui crée son compte avec ce code est rattachée à sa marraine
+   (uniquement à la création : on ne peut pas se rattacher après coup, ni à soi-même).
+   La récompense (1 mois chacune) est donnée au premier vrai paiement de l'invitée : voir billing.js. */
+const REF_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";   // sans 0/O ni 1/I/L, pour éviter les confusions
+const cleanRef = v => String(v || "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 12);
+async function attachReferrer(env, userId, ref) {
+  const code = cleanRef(ref); if (code.length < 4) return;
+  try {
+    const r = await env.DB.prepare("SELECT id FROM users WHERE ref_code = ?").bind(code).first();
+    if (r && r.id !== userId) await env.DB.prepare("UPDATE users SET referred_by = ? WHERE id = ? AND referred_by IS NULL").bind(r.id, userId).run();
+  } catch (e) { console.error("parrainage", e && e.message); }
+}
+async function referral(request, env, url) {
+  const u = await auth(request, env);
+  let row = await env.DB.prepare("SELECT ref_code, ref_pending FROM users WHERE id = ?").bind(u.id).first();
+  let code = row && row.ref_code;
+  if (!code) {
+    const base = (u.email.split("@")[0] || "").toUpperCase().replace(/[^A-Z]/g, "").slice(0, 5) || "RECH";
+    for (let k = 0; k < 6 && !code; k++) {
+      const rnd = [...crypto.getRandomValues(new Uint8Array(Math.max(3, 7 - base.length)))].map(b => REF_ALPHABET[b % REF_ALPHABET.length]).join("");
+      const cand = base + rnd;
+      const taken = await env.DB.prepare("SELECT 1 AS x FROM users WHERE ref_code = ?").bind(cand).first();
+      if (!taken) { await env.DB.prepare("UPDATE users SET ref_code = ? WHERE id = ? AND ref_code IS NULL").bind(cand, u.id).run(); code = cand; }
+    }
+    row = await env.DB.prepare("SELECT ref_code, ref_pending FROM users WHERE id = ?").bind(u.id).first(); code = row && row.ref_code;
+  }
+  const inv = await env.DB.prepare("SELECT COUNT(*) AS n, SUM(CASE WHEN ref_rewarded_at IS NOT NULL THEN 1 ELSE 0 END) AS paid FROM users WHERE referred_by = ?").bind(u.id).first();
+  const origin = env.APP_ORIGIN || url.origin;
+  return json({ code, link: `${origin}/?parrain=${code}`, invited: (inv && inv.n) || 0, paid: (inv && inv.paid) || 0, pending: (row && row.ref_pending) || 0, cap: 12 });
+}
+
 /* ---------- Mesure anonyme du parcours ----------
    Un compteur par jour et par étape. Aucun cookie, aucune adresse IP, aucun identifiant : on sait combien de
    personnes passent chaque étape, jamais qui. Les noms d'étapes sont limités à une liste connue. */
 const EVENTS = new Set(["site_visite", "analyse_cta", "analyse_debut", "analyse_q1", "analyse_q2", "analyse_q3", "analyse_q4", "analyse_resultat",
-  "analyse_reseau", "analyse_coach", "analyse_email", "analyse_essai", "app_ouverte", "app_depuis_analyse", "onboarding_fin", "premiers_clients", "premiere_relance", "compte_cree"]);
+  "analyse_reseau", "analyse_coach", "analyse_email", "analyse_essai", "parrain_visite", "parrainage_ouvert", "parrainage_partage", "app_ouverte", "app_depuis_analyse", "onboarding_fin", "premiers_clients", "premiere_relance", "compte_cree"]);
 async function trackEvent(request, env) {
   const body = await readJson(request, 1024);
   const name = String(body.e || "");
@@ -315,7 +349,12 @@ async function billingCheckout(request, env, url) {
   const body = await readJson(request);
   const u = await optionalUser(request, env);
   if (u && isPaid(u)) throw new HttpError(400, "Votre abonnement est déjà actif.");
-  return json({ url: await checkout(env, env.APP_ORIGIN || url.origin, body.period === "year" ? "year" : "month", u) });
+  // Parrainage : 1 mois de plus d'essai pour une invitée, et les mois gagnés par une marraine qui s'abonne
+  let refMonths = 0, invited = false;
+  if (u && !u.stripe_sub) {
+    try { const r = await env.DB.prepare("SELECT referred_by, ref_pending FROM users WHERE id = ?").bind(u.id).first(); invited = !!(r && r.referred_by); refMonths = Math.min(12, (r && r.ref_pending) || 0); } catch { /* colonnes absentes : pas de parrainage */ }
+  }
+  return json({ url: await checkout(env, env.APP_ORIGIN || url.origin, body.period === "year" ? "year" : "month", u, { invited, refMonths }) });
 }
 async function billingConfirm(request, env) {
   const body = await readJson(request);
@@ -333,7 +372,7 @@ async function billingConfirm(request, env) {
     isNew = true;
   }
   await env.DB.batch([
-    env.DB.prepare("UPDATE users SET plan = 'recharge', stripe_customer = ?, stripe_sub = ?, plan_checked_at = ? WHERE id = ?").bind(c.customer, c.sub, now(), user.id),
+    env.DB.prepare("UPDATE users SET plan = 'recharge', stripe_customer = ?, stripe_sub = ?, plan_checked_at = ?, ref_pending = MAX(0, ref_pending - ?) WHERE id = ?").bind(c.customer, c.sub, now(), c.refMonths || 0, user.id),
     env.DB.prepare("INSERT INTO checkout_used (id, used_at) VALUES (?, ?)").bind(id, now())
   ]);
   user = { ...user, plan: "recharge", stripe_customer: c.customer };

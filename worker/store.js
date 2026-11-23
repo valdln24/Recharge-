@@ -6,8 +6,9 @@ import { DurableObject } from "cloudflare:workers";
 import m1 from "../migrations/0001_comptes.sql";
 import m2 from "../migrations/0002_abonnement.sql";
 import m3 from "../migrations/0003_mesure.sql";
+import m4 from "../migrations/0004_parrainage.sql";
 
-const MIGRATIONS = [m1, m2, m3];
+const MIGRATIONS = [m1, m2, m3, m4];
 const statements = sql => sql.split("\n").map(l => l.replace(/--.*$/, "")).join("\n").split(";").map(x => x.trim()).filter(Boolean);
 
 export class Store extends DurableObject {

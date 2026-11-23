@@ -786,3 +786,9 @@ header.nav.solid{background:rgba(244,239,232,.86)}
 .blob.o{opacity:.55}.blob.p{opacity:.6}
 .acard{border-color:#EADFD3}
 .achips button{background:#FAF6F1}
+/* bandeau d'invitation (parrainage) */
+.pbanner{position:fixed;left:12px;right:12px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:60;max-width:560px;margin:0 auto;display:flex;align-items:center;gap:12px;padding:12px 12px 12px 14px;border-radius:18px;background:var(--navy);color:#fff;font-size:.9rem;line-height:1.4;box-shadow:0 20px 40px -18px rgba(28,26,34,.6);animation:rise .5s cubic-bezier(.2,.8,.2,1) both}
+.pbanner .pb-i{width:34px;height:34px;flex:none;border-radius:50%;background:var(--orange);display:grid;place-items:center}
+.pbanner b{color:#fff}.pbanner span{flex:1}
+.pbanner button{flex:none;width:32px;height:32px;border:0;border-radius:50%;background:rgba(255,255,255,.12);color:#fff;font-size:1.2rem;line-height:1;cursor:pointer}
+.pnote{margin-top:18px;text-align:center;font-weight:650;color:var(--ink-2)}.pnote b{color:var(--ink)}

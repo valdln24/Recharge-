@@ -762,6 +762,10 @@ const rcTrack = e => { if (DEMO || !location.protocol.startsWith("http")) return
 /* L'analyse gratuite du site (réponses aux 4 questions) : elle personnalise l'accueil */
 const readAnalyse = () => { try { return JSON.parse(localStorage.getItem("recharge.analyse") || "null"); } catch (e) { return null; } };
 const FROM_ANALYSE = !DEMO && new URLSearchParams(location.search).get("from") === "analyse";
+/* Parrainage : le code de l'invitation (lien « ?parrain=CODE »), gardé dans ce téléphone jusqu'à la création du compte */
+const REF_KEY = "recharge.parrain";
+(() => { const c = DEMO ? "" : (new URLSearchParams(location.search).get("parrain") || "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 12); if (c.length >= 4) try { localStorage.setItem(REF_KEY, c); } catch (e) {} })();
+const readRef = () => { try { return localStorage.getItem(REF_KEY) || undefined; } catch (e) { return undefined; } };
 const isPaidS = () => !!(session && session.paid);
 if (!DEMO && location.protocol.startsWith("http")) fetch(new URL("../api/health", location.href)).then(r => r.ok ? r.json() : null).then(j => { if (!j) return; API_OK = !!j.accounts; COACH_OK = !!j.coach; BILLING_OK = !!j.billing; if ((API_OK || COACH_OK || BILLING_OK) && typeof render === "function" && S) render(); }).catch(() => {});
 let sync = readLS(SYNC_KEY) || { rev: 0, dirty: false, lastAt: 0 };
@@ -825,6 +829,8 @@ function askConflict(serverInfo) {
 /* Après connexion (lien ou code) : on rapproche les données du téléphone et celles du compte */
 async function afterLogin(r) {
   if (r.isNew) rcTrack("compte_cree");
+  let ensuite = null; try { ensuite = localStorage.getItem("recharge.ensuite"); localStorage.removeItem("recharge.ensuite"); } catch (e) {}
+  if (ensuite === "parrain") setTimeout(() => openParrain(), 900);
   if (r.analyse && !S.analyse) { S.analyse = r.analyse; save(); }
   session = { token: r.session, email: r.user.email, plan: r.user.plan, paid: !!r.user.paid, billing: !!r.user.billing, canSync: r.user.canSync };
   writeLS(SESSION_KEY, session);
@@ -850,8 +856,9 @@ function openUpgrade() {
     ${!session && API_OK ? `<button class="linkbtn" data-act="accLogin">J'ai déjà un compte : me connecter</button>` : ""}`);
 }
 function openAccountForm(mode) {
-  openSheet(`<div class="shead"><h3>${mode === "login" ? "Me connecter" : "Passer à la version complète"}</h3>${closeBtn}</div>
-    ${mode === "login" ? `<p class="lede" style="margin-top:8px">Indiquez l'email de votre compte : vous recevez un lien et un code pour retrouver vos clients.</p>` : `<p class="lede" style="margin-top:8px">Votre email suffit : pas de mot de passe. Vous recevez un lien et un code pour vous connecter.</p>
+  try { if (mode === "parrain") localStorage.setItem("recharge.ensuite", "parrain"); else localStorage.removeItem("recharge.ensuite"); } catch (e) {}
+  openSheet(`<div class="shead"><h3>${mode === "login" ? "Me connecter" : mode === "parrain" ? "Mon lien d'invitation" : "Passer à la version complète"}</h3>${closeBtn}</div>
+    ${mode === "parrain" ? `<p class="lede" style="margin-top:8px">Votre email suffit, sans mot de passe. Vous recevez un lien de connexion, puis votre lien d'invitation s'affiche ici.</p>` : mode === "login" ? `<p class="lede" style="margin-top:8px">Indiquez l'email de votre compte : vous recevez un lien et un code pour retrouver vos clients.</p>` : `<p class="lede" style="margin-top:8px">Votre email suffit : pas de mot de passe. Vous recevez un lien et un code pour vous connecter.</p>
     <ul class="perks"><li>☁️ <b>Sauvegarde automatique</b> de vos clients, prospects et relances</li><li>📱 Vous les retrouvez sur un <b>nouveau téléphone</b></li><li>♾️ <b>Clients illimités</b> (la version gratuite va jusqu'à 10)</li><li>🔒 Vos données restent les vôtres, jamais revendues</li></ul>
     <p class="hint" style="margin-top:6px">${hasRealData(S) ? "Vos données de ce téléphone seront envoyées sur votre compte, sans rien perdre." : ""}</p>`}
     <form id="accForm" autocomplete="on"><label class="field"><span>Votre email</span><input class="input" id="accEmail" type="email" inputmode="email" autocomplete="email" required placeholder="vous@exemple.fr" value="${esc(loginEmail || "")}"></label>
@@ -875,7 +882,7 @@ async function sendLink() {
   } catch (e) { toast(e.message); }
 }
 async function verifyCode(code) {
-  try { await afterLogin(await api("POST", "auth/verify", { email: loginEmail, code })); }
+  try { await afterLogin(await api("POST", "auth/verify", { email: loginEmail, code, ref: readRef() })); }
   catch (e) { toast(e.message); }
 }
 function openDeleteAccount() {
@@ -2369,7 +2376,7 @@ function viewSettings() {
     ["📸", "Importer", "openImport", "", ""], ["💾", "Sauvegarder", "goto", "settings", "Sauvegarder mes clients"], ["📂", "Restaurer", "import", "", ""]];
   /* Plus de fonctionnalités : le coach les propose dans le plan au bon moment, on peut aussi les gérer ici */
   const MORE = [["💳", "Fidélité", "goto", "settings", "Carte fidélité"], ["📣", "Promo", "newPromo", "", ""], ["👥", "Équipe", "goto", "settings", "Mon équipe"],
-    ["🌱", "Développer", "goto", "dev", ""], ["📊", "Bilan du mois", "openBilan", "", ""], ["🗺️", "Carte", "goto", "map", ""]];
+    ["🌱", "Développer", "goto", "dev", ""], ["📊", "Bilan du mois", "openBilan", "", ""], ["🗺️", "Carte", "goto", "map", ""], ["🎁", "Parrainage", "openParrain", "", ""]];
   let h = `<h1 class="title">Menu</h1><p class="lede">Tous les modules de Recharge, et vos réglages.</p>
     <div class="mods">${MODS.map(([e, l, a, t2, c2]) => `<button class="mod" data-act="${a}" data-t="${t2}" data-c="${esc(c2)}"><span>${e}</span><b>${l}</b></button>`).join("")}</div>
     <div class="section"><h2>Plus de fonctionnalités</h2></div>
@@ -2829,6 +2836,33 @@ function obApply() {
   S.tone = ob.tone === "pro" ? "vous" : "tu"; S.emoji = ob.tone !== "simple";
   S.settings.myName = ob.name;
   if (!S.settings.shopName && (ob.name || ob.brand)) S.settings.shopName = [ob.name, ob.brand].filter(Boolean).join(" · ");
+}
+/* ---------- Parrainage ----------
+   Règle simple : quand une personne invitée s'abonne et paie son premier mois, vous gagnez chacune 1 mois offert
+   (plafond : 12 mois par an). Le lien et le suivi sont rattachés au compte. */
+async function openParrain() {
+  rcTrack("parrainage_ouvert");
+  const rules = `<ul class="perks"><li>🎁 <b>1 mois offert pour vous</b> à chaque personne invitée qui s'abonne</li><li>🤝 <b>1 mois offert pour elle</b> aussi, en plus de ses 14 jours d'essai</li><li>📅 Jusqu'à <b>12 mois offerts par an</b> : une année entière de Recharge</li></ul>`;
+  if (!session) {
+    openSheet(`<div class="shead"><h3>Parrainez une collègue</h3>${closeBtn}</div>
+      <p class="lede" style="margin-top:8px">Vous connaissez d'autres conseillères ou conseillers ? Invitez-les : vous gagnez chacune un mois.</p>${rules}
+      ${API_OK ? `<button class="btn primary" style="margin-top:14px" data-act="parrainAccount">Créer mon lien d'invitation</button><p class="hint" style="text-align:center">Votre email suffit, sans mot de passe : votre lien est rattaché à votre compte.</p>`
+        : `<p class="hint" style="margin-top:12px">Le parrainage arrive très bientôt 🙂</p>`}`);
+    return;
+  }
+  openSheet(`<div class="shead"><h3>Parrainez une collègue</h3>${closeBtn}</div><p class="lede" style="margin-top:8px">Chargement de votre lien…</p>`);
+  let r; try { r = await api("GET", "referral"); } catch (e) { return openSheet(`<div class="shead"><h3>Parrainage</h3>${closeBtn}</div><p class="lede" style="margin-top:8px">${esc(e.message)}</p>`); }
+  const msgTxt = `Coucou ! J'utilise Recharge pour savoir quand relancer mes clientes, avec le message déjà prêt (fini le carnet 😅). Si tu veux essayer, avec mon lien tu as 1 mois offert : ${r.link}`;
+  openSheet(`<div class="shead"><h3>Parrainez une collègue</h3>${closeBtn}</div>
+    <p class="lede" style="margin-top:8px">Invitez les conseillères et conseillers que vous connaissez : vous gagnez chacune un mois.</p>
+    <div class="kstats"><div><b class="num">${r.invited}</b><span>invitées inscrites</span></div><div><b class="num">${r.paid}</b><span>abonnées</span></div><div><b class="num">${Math.min(r.paid, r.cap)}</b><span>mois gagnés</span></div></div>
+    <div class="bubble"><div class="top"><span class="small">Votre message</span><span class="ttag new">${esc(r.code)}</span></div><textarea class="msg" id="msg-parrain" rows="4" aria-label="Message d'invitation">${esc(msgTxt)}</textarea></div>
+    <a class="btn primary send" href="https://wa.me/?text=${encodeURIComponent(msgTxt)}" target="_blank" rel="noopener" data-act="parrainShare">${I.wa} Envoyer sur WhatsApp</a>
+    <button class="btn soft" style="margin-top:8px" data-act="parrainCopy" data-l="${esc(r.link)}">${I.copy} Copier mon lien</button>
+    ${rules}
+    ${r.pending ? `<p class="notice" style="margin-top:12px"><span>🎁 ${plural(r.pending, "mois offert vous attend", "mois offerts vous attendent")} : ils s'ajoutent automatiquement quand vous vous abonnez.</span></p>` : ""}
+    <p class="hint">Les mois sont gagnés quand la personne invitée paie son premier mois, après son essai. ${BILLING_OK ? "" : "Le paiement en ligne arrive bientôt : vos mois offerts s'appliqueront automatiquement."}</p>`);
+  fitAreas(sheetEl);
 }
 /* Fin du 2e onboarding : le réseau que ces premiers clients ouvrent, et le plan du coach */
 function openNetIntro(n) {
@@ -4088,6 +4122,10 @@ const actions = {
     if (!po && n) { setTimeout(() => openNetIntro(n), 380); return; }
     toast(po ? "Profil enregistré" : "C'est parti !");
   },
+  openParrain: () => { openParrain(); },
+  parrainAccount: () => { loginEmail = ""; openAccountForm("parrain"); },
+  parrainShare: el => { rcTrack("parrainage_partage"); const t = document.getElementById("msg-parrain"); if (t) el.href = "https://wa.me/?text=" + encodeURIComponent(t.value); return true; },
+  parrainCopy: async el => { rcTrack("parrainage_partage"); const ok = await copyText(el.dataset.l); toast(ok ? "Lien copié : collez-le dans votre message." : "Impossible de copier : sélectionnez le lien à la main."); },
   niGo: () => { closeSheet(); tab = "today"; render(); window.scrollTo(0, 0); toast("Voici vos relances du jour"); },
   obBack: () => { obRead(); openOnboarding(ob.i - 1); },
   obSkip: () => { obRead(); if (ob.name || ob.brand) obApply(); else if (!S.profile) S.profile = { skipped: today() }; save(); ob = null; closeSheet(); render(); toast("Vous pourrez compléter votre profil dans Menu › Mon profil"); },
@@ -4408,7 +4446,7 @@ if (paidParam) {
   api("POST", "billing/confirm", { id: paidParam }).then(async r => { await afterLogin(r); toast("Bienvenue dans Recharge 🎉 Vos 14 jours gratuits commencent."); }).catch(e => toast(e.message));
 } else if (loginParam) {
   history.replaceState(null, "", location.pathname);
-  api("POST", "auth/verify", { token: loginParam }).then(afterLogin).catch(e => toast(e.message));
+  api("POST", "auth/verify", { token: loginParam, ref: readRef() }).then(afterLogin).catch(e => toast(e.message));
 } else if (session) {
   /* Au démarrage : on récupère ce qu'un autre téléphone aurait sauvegardé, ou on envoie ce qui attend */
   api("GET", "me").then(async r => {

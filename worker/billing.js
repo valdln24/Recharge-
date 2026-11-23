@@ -40,13 +40,15 @@ async function stripe(env, method, path, params) {
 }
 
 /* 1. Ouvrir la page de paiement */
-export async function checkout(env, origin, period, user) {
+export async function checkout(env, origin, period, user, ref = {}) {
   const p = PLANS[period]; if (!p) throw new BillingError(400, "Formule inconnue.");
+  // Parrainage : +30 jours d'essai pour une invitée, +30 jours par mois gagné en tant que marraine
+  const bonus = (ref.invited ? 30 : 0) + 30 * (ref.refMonths || 0);
   const s = await stripe(env, "POST", "checkout/sessions", {
     mode: "subscription",
     locale: "fr",
     line_items: { 0: { quantity: 1, price_data: { currency: "eur", unit_amount: p.amount, recurring: { interval: p.interval }, product_data: { name: p.label } } } },
-    subscription_data: { trial_period_days: user && user.stripe_sub ? undefined : TRIAL_DAYS },
+    subscription_data: { trial_period_days: user && user.stripe_sub ? undefined : TRIAL_DAYS + bonus, metadata: { ref_months: ref.refMonths || 0 } },
     allow_promotion_codes: "true",
     customer: user && user.stripe_customer ? user.stripe_customer : undefined,
     customer_email: user && !user.stripe_customer ? user.email : undefined,
@@ -65,7 +67,7 @@ export async function confirm(env, id) {
   if (s.mode !== "subscription" || s.status !== "complete" || !sub || !ACTIVE.includes(sub.status)) throw new BillingError(402, "Le paiement n'est pas terminé.");
   const email = String((s.customer_details && s.customer_details.email) || s.customer_email || "").trim().toLowerCase();
   if (!email) throw new BillingError(400, "Email introuvable sur ce paiement.");
-  return { email, customer: typeof s.customer === "string" ? s.customer : s.customer && s.customer.id, sub: sub.id, userId: s.client_reference_id || null };
+  return { email, customer: typeof s.customer === "string" ? s.customer : s.customer && s.customer.id, sub: sub.id, userId: s.client_reference_id || null, refMonths: Math.max(0, +((sub.metadata && sub.metadata.ref_months) || 0)) };
 }
 
 /* 3. L'espace client Stripe : carte, factures, résiliation */
@@ -78,13 +80,41 @@ export async function portal(env, origin, user) {
 /* 4. Le statut de l'abonnement, revérifié au plus toutes les 12 h */
 export async function refreshPlan(env, db, u) {
   if (!u.stripe_sub || !env.STRIPE_SECRET_KEY) return u.plan;
-  if (u.plan_checked_at && Date.now() - u.plan_checked_at < RECHECK) return u.plan;
+  if (u.plan_checked_at && Date.now() - u.plan_checked_at < (env.PLAN_RECHECK_MS ? +env.PLAN_RECHECK_MS : RECHECK)) return u.plan;
   try {
     const sub = await stripe(env, "GET", `subscriptions/${u.stripe_sub}`);
     const plan = ACTIVE.includes(sub.status) ? "recharge" : "free";
     await db.prepare("UPDATE users SET plan = ?, plan_checked_at = ? WHERE id = ?").bind(plan, Date.now(), u.id).run();
+    if (sub.status === "active") await rewardReferral(env, db, u.id);   // premier vrai paiement, après l'essai
     return plan;
   } catch (e) { return u.plan; }   // Stripe injoignable : on garde le dernier statut connu
+}
+
+/* Parrainage : au premier vrai paiement d'une invitée, sa marraine gagne 1 mois (plafond : 12 par an).
+   Si la marraine est abonnée, le mois est déduit de sa prochaine facture (crédit Stripe) ;
+   sinon il est mis de côté et ajouté à son essai quand elle s'abonnera. */
+async function rewardReferral(env, db, userId) {
+  try {
+    const me = await db.prepare("SELECT referred_by, ref_rewarded_at FROM users WHERE id = ?").bind(userId).first();
+    if (!me || !me.referred_by || me.ref_rewarded_at) return;
+    const done = await db.prepare("SELECT COUNT(*) AS n FROM users WHERE referred_by = ? AND ref_rewarded_at > ?").bind(me.referred_by, Date.now() - 365 * 864e5).first();
+    const upd = await db.prepare("UPDATE users SET ref_rewarded_at = ? WHERE id = ? AND ref_rewarded_at IS NULL").bind(Date.now(), userId).run();
+    if (!upd.meta || !upd.meta.changes) return;                 // déjà récompensée (deux vérifications en même temps)
+    if (done && done.n >= 12) return;                           // plafond annuel atteint pour la marraine
+    const sp = await db.prepare("SELECT stripe_customer, stripe_sub FROM users WHERE id = ?").bind(me.referred_by).first();
+    if (sp && sp.stripe_customer && sp.stripe_sub) {
+      try {
+        const sub = await stripe(env, "GET", `subscriptions/${sp.stripe_sub}`);
+        const price = sub.items && sub.items.data && sub.items.data[0] && sub.items.data[0].price;
+        if (ACTIVE.includes(sub.status) && price) {
+          const amount = price.recurring && price.recurring.interval === "year" ? Math.round(price.unit_amount / 12) : price.unit_amount;
+          await stripe(env, "POST", `customers/${sp.stripe_customer}/balance_transactions`, { amount: -amount, currency: "eur", description: "Parrainage Recharge : 1 mois offert" });
+          return;
+        }
+      } catch (e) { console.error("parrainage: crédit Stripe impossible, mis de côté", e && e.message); }
+    }
+    await db.prepare("UPDATE users SET ref_pending = MIN(ref_pending + 1, 12) WHERE id = ?").bind(me.referred_by).run();
+  } catch (e) { console.error("parrainage", e && e.message); }
 }
 
 /* 5. Suppression du compte : l'abonnement s'arrête aussi, pour ne plus rien payer */

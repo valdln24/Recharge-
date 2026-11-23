@@ -272,3 +272,16 @@ window.rcTrack = function (e) {
     upd(); addEventListener("scroll", upd, { passive: true });
   }
 })();
+
+/* ---------- Parrainage : lien « ?parrain=CODE » ----------
+   Le code est gardé dans ce téléphone (pas de cookie) jusqu'à la création du compte dans l'appli. */
+(function () {
+  var c = (new URLSearchParams(location.search).get("parrain") || "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 12);
+  if (c.length < 4) return;
+  try { localStorage.setItem("recharge.parrain", c); } catch (e) {}
+  window.rcTrack && window.rcTrack("parrain_visite");
+  var b = document.createElement("div"); b.className = "pbanner"; b.setAttribute("role", "status");
+  b.innerHTML = '<span class="pb-i">🎁</span><span><b>Vous êtes invité(e) sur Recharge.</b> Votre premier mois est offert, en plus des 14 jours d’essai.</span><button type="button" aria-label="Fermer">×</button>';
+  b.querySelector("button").addEventListener("click", function () { b.remove(); });
+  document.body.appendChild(b);
+})();
