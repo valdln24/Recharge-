@@ -151,3 +151,9 @@ body.home .sfab{display:none!important}
 .home header.nav:not(.solid) .links a,.home header.nav .links a{color:var(--ink-2)}
 .home header.nav .links a:hover{color:var(--ink)}
 @media (max-width:860px){.home header.nav{padding-left:10px;padding-right:10px}.home header.nav .wrap{padding:6px 6px 6px 16px}}
+/* carte « suivi » et dernière carte en pleine largeur */
+.sat3{display:grid;gap:10px}
+.smile{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.smile span{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 4px;border-radius:14px;background:var(--surface-2);font-size:1.3rem}
+.smile span b{font-size:.68rem;font-weight:750;color:var(--ink-2)}.smile span.on{background:var(--o-soft);box-shadow:0 0 0 1.5px var(--orange) inset}
+.sat3 .mini.wa{box-shadow:0 14px 30px -18px rgba(28,26,34,.45);border:1px solid var(--line)}
+@media (min-width:861px){.bx.wide{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;column-gap:30px;align-items:center;min-height:0}.bx.wide .vis{grid-row:1/5;grid-column:2;padding-top:0}}
