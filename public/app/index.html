@@ -632,6 +632,17 @@ nav.tabs .tab.on svg{background:var(--navy);color:#fff;box-shadow:0 8px 18px -8p
 .coach .hl-bar span,.hl-bar span{background:linear-gradient(90deg,#FFA352,#FF8A32);box-shadow:0 0 12px rgba(255,138,50,.55)}
 .bravo .bz{background:var(--orange);color:#fff}
 .kpi .val{background:linear-gradient(100deg,#FFB067,#FF8A32 60%);-webkit-background-clip:text;background-clip:text;color:transparent}
+/* saisie en une phrase */
+.sx-ex{display:flex;gap:6px;overflow-x:auto;margin:12px -2px 0;padding:2px;scrollbar-width:none}.sx-ex button{flex:none;border:1px solid var(--line-2);background:var(--surface);border-radius:99px;padding:7px 11px;font:inherit;font-size:.8rem;font-weight:650;color:var(--ink-2);cursor:pointer}
+.sx-in{position:relative;margin-top:12px}.sx-in textarea{min-height:92px;padding:14px 62px 14px 14px;font-size:16px;line-height:1.45;resize:none}
+.sx-mic{position:absolute;right:10px;bottom:10px;width:46px;height:46px;border-radius:50%;border:0;background:var(--orange);color:var(--navy);font-size:1.25rem;cursor:pointer;box-shadow:0 8px 18px -8px rgba(255,120,46,.7)}
+.sx-mic.listening{animation:micPulse 1.2s infinite}
+.sx-prev{margin-top:12px;display:grid;gap:8px;min-height:44px}
+.sx{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:12px 14px;animation:rise .25s ease both}
+.sx-h{display:flex;gap:10px;align-items:center}.sx-h .avatar{width:36px;height:36px;font-size:.8rem}.sx-h b{display:block}.sx-h small{color:var(--ink-3);font-weight:650;font-size:.78rem}
+.sx-i{display:flex;justify-content:space-between;gap:10px;align-items:baseline;margin-top:8px;padding-top:8px;border-top:1px solid var(--line);font-size:.9rem}.sx-i small{color:var(--ink-3);font-weight:650;font-size:.76rem;white-space:nowrap}
+.sx-short{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;margin-top:12px;border:1.5px dashed var(--orange);background:var(--o-soft);border-radius:16px;padding:12px 14px;font:inherit;color:var(--ink);text-align:left;cursor:pointer}
+.sx-short span{font-size:.8rem;color:var(--ink-2);font-weight:600}
 </style>
 </head>
 <body>
@@ -641,7 +652,7 @@ nav.tabs .tab.on svg{background:var(--navy);color:#fff;box-shadow:0 8px 18px -8p
 </defs></svg>
 <header class="topbar" id="topbar"><div class="in">
   <div class="brand"><svg class="logo-svg" viewBox="10 40 620 125" style="height:26px;width:auto" role="img" aria-label="Recharge"><g class="rmark"><defs><linearGradient id="rgappindexhtml1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F59A4A"/><stop offset=".5" stop-color="#DB6578"/><stop offset="1" stop-color="#7C7CF2"/></linearGradient></defs><path d="M122.4 66.9A44 44 0 1 1 81.4 65.1" fill="none" stroke="url(#rgappindexhtml1)" stroke-width="17"/><path d="M66.5 47.5L101 52.5L80.5 80Z" fill="#7B83F6" stroke="#7B83F6" stroke-width="3" stroke-linejoin="round"/><path d="M109 76L84 111H99L91 136L118 99H103Z" fill="#111111" stroke="#111111" stroke-width="3" stroke-linejoin="round"/></g><path d="M214.5 135.0H230.625V109.640625C230.625 102.609375 234.609375 98.578125 240.375 98.578125C242.71875 98.578125 245.578125 98.671875 246.75 98.71875V85.40625C245.4375 85.359375 244.078125 85.3125 242.34375 85.3125C235.734375 85.3125 232.03125 87.9375 230.25 94.21875H230.109375V85.5H214.5ZM272.83875 136.125C285.354375 136.125 295.33875 129.140625 297.166875 119.15625H282.6825C281.510625 122.4375 278.135625 124.5 273.40125 124.5C267.02625 124.5 263.27625 120.515625 263.08875 114.234375H297.541875V109.875C297.541875 94.875 287.27625 84.375 272.416875 84.375C257.745 84.375 247.33875 95.15625 247.33875 110.25C247.33875 125.34375 257.65125 136.125 272.83875 136.125ZM263.1825 104.578125C263.885625 99.375 267.40125 96.28125 272.83875 96.28125C278.229375 96.28125 281.791875 99.375 282.495 104.578125ZM324.943125 136.125C338.95875 136.125 348.89625 127.5 349.224375 115.40625H333.615C333.005625 120.234375 330.0525 123.328125 325.27125 123.328125C319.27125 123.328125 315.70875 118.359375 315.70875 110.25C315.70875 102.140625 319.224375 97.171875 325.27125 97.171875C330.0525 97.171875 333.14625 100.21875 333.661875 104.953125H349.224375C348.52125 92.8125 338.724375 84.375 324.943125 84.375C309.615 84.375 299.349375 94.875 299.349375 110.25C299.349375 125.671875 309.615 136.125 324.943125 136.125ZM369.219375 108.09375C369.219375 101.34375 372.500625 98.203125 377.61 98.203125C382.719375 98.203125 385.6725 101.390625 385.6725 107.25V135.0H401.7975V103.875C401.7975 91.6875 395.51625 84.421875 384.781875 84.421875C377.51625 84.421875 372.5475 87.703125 369.219375 93.140625V65.15625H353.094375V135.0H369.219375ZM423.058125 135.84375C430.0425 135.84375 434.495625 133.40625 437.44875 128.0625H437.63625V135.0H453.38625V101.671875C453.38625 90.75 445.464375 84.421875 431.07375 84.421875C416.73 84.421875 408.620625 90.796875 407.9175 101.53125H422.9175C423.245625 98.15625 426.01125 96.0 430.51125 96.0C434.776875 96.0 437.401875 98.015625 437.401875 100.96875V101.203125C437.401875 104.15625 434.1675 104.859375 425.308125 105.609375C414.76125 106.453125 406.089375 110.0625 406.089375 121.171875C406.089375 131.015625 413.1675 135.84375 423.058125 135.84375ZM427.98 125.296875C424.0425 125.296875 421.370625 123.46875 421.370625 120.421875C421.370625 117.1875 424.464375 115.40625 428.776875 114.75C432.76125 114.09375 435.808125 113.484375 437.5425 112.6875V117.1875C437.5425 122.0625 433.370625 125.296875 427.98 125.296875ZM459.50625 135.0H475.63125V109.640625C475.63125 102.609375 479.615625 98.578125 485.38125 98.578125C487.725 98.578125 490.584375 98.671875 491.75625 98.71875V85.40625C490.44375 85.359375 489.084375 85.3125 487.35 85.3125C480.740625 85.3125 477.0375 87.9375 475.25625 94.21875H475.115625V85.5H459.50625ZM518.829375 155.25C534.298125 155.25 544.048125 148.40625 544.048125 132.28125V85.5H528.016875V92.4375H527.97C524.87625 87.234375 520.048125 84.421875 513.62625 84.421875C501.06375 84.421875 492.345 95.015625 492.345 109.734375C492.345 124.265625 500.7825 134.671875 513.766875 134.671875C520.235625 134.671875 525.345 132.09375 527.97 126.234375H528.016875V133.875C528.016875 140.4375 524.829375 143.8125 518.829375 143.8125C514.18875 143.8125 511.048125 141.9375 510.204375 138.84375H494.7825C496.2825 148.359375 503.595 155.25 518.829375 155.25ZM518.266875 122.015625C512.360625 122.015625 508.704375 117.328125 508.704375 109.453125C508.704375 101.625 512.360625 96.9375 518.266875 96.9375C524.360625 96.9375 528.5325 101.859375 528.5325 109.453125C528.5325 117.09375 524.360625 122.015625 518.266875 122.015625ZM573.605625 136.125C586.12125 136.125 596.105625 129.140625 597.93375 119.15625H583.449375C582.2775 122.4375 578.9025 124.5 574.168125 124.5C567.793125 124.5 564.043125 120.515625 563.855625 114.234375H598.30875V109.875C598.30875 94.875 588.043125 84.375 573.18375 84.375C558.511875 84.375 548.105625 95.15625 548.105625 110.25C548.105625 125.34375 558.418125 136.125 573.605625 136.125ZM563.949375 104.578125C564.6525 99.375 568.168125 96.28125 573.605625 96.28125C578.99625 96.28125 582.55875 99.375 583.261875 104.578125Z" fill="#111111"/><path d="M614.793125 135.890625C619.668125 135.890625 623.605625 131.953125 623.605625 127.03125C623.605625 122.15625 619.668125 118.21875 614.793125 118.21875C609.918125 118.21875 605.980625 122.15625 605.980625 127.03125C605.980625 131.953125 609.918125 135.890625 614.793125 135.890625Z" fill="#7B83F6"/></svg></div>
-  <div style="display:flex;gap:8px;align-items:center"><button class="micbtn" data-act="voice" aria-label="Dicter une vente ou un prospect">🎤<span>Dicter</span></button><div class="pill" id="topMeta"></div></div>
+  <div style="display:flex;gap:8px;align-items:center"><button class="micbtn" data-act="voice" aria-label="Saisir une vente en une phrase">🎤<span>Dicter</span></button><div class="pill" id="topMeta"></div></div>
 </div></header>
 
 <main id="app"></main>
@@ -2506,6 +2517,7 @@ function openNewSale(clientId, fromProspect) {
   const names = S.clients.map(x => `<option value="${esc(x.name)}">`).join("");
   const refNames = S.clients.concat(S.prospects.filter(y => y.status === "open")).map(x => `<option value="${esc(x.name)}">`).join("");
   openSheet(`<div class="shead"><h3>Nouvelle vente</h3>${closeBtn}</div>
+    ${!c && !pr ? `<button type="button" class="sx-short" data-act="voice">✨ <b>Plus rapide : dites-le en une phrase</b><span>« Julie a pris 2 gels aloe vera hier »</span></button>` : ""}
     ${!c && !pr ? `<div class="seg" style="margin:12px 0 0"><button type="button" class="on">Une vente</button><button type="button" data-act="toRencontre">Une rencontre</button></div>` : ""}
     <form id="saleForm" autocomplete="off">
       <label class="field"><span>Client</span><input class="input" id="fName" list="clientNames" required placeholder="Prénom Nom" value="${c ? esc(c.name) : pr ? esc(pr.name) : ""}" enterkeyhint="next"></label>
@@ -3504,25 +3516,169 @@ function openBilan(m) {
    La reconnaissance se fait par le navigateur (Chrome, Safari). Sinon, le micro du clavier fait l'affaire. */
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 let rec = null;
+/* ---------- Saisie sans effort : une phrase suffit ----------
+   « Julie a pris 2 gels aloe vera et une crème visage hier ; Karim, un shampoing »
+   Recharge comprend le client, les produits, les quantités et la date, montre ce qu'il a compris pendant qu'on parle
+   ou qu'on écrit, et tout s'enregistre d'un appui. Tout se passe dans le téléphone : rien n'est envoyé. */
+const NUMW = { un: 1, une: 1, deux: 2, trois: 3, quatre: 4, cinq: 5, six: 6, sept: 7, huit: 8, neuf: 9, dix: 10 };
+const SAISIE_STOP = new Set(["de", "du", "des", "la", "le", "les", "l", "d", "un", "une", "et", "au", "aux", "a", "en", "pour", "avec", "son", "sa", "ses", "mon", "ma", "mes"]);
+const singW = w => w.length > 3 ? w.replace(/aux$/, "al").replace(/[sx]$/, "") : w;
+const sigToks = t => norm(t).split(" ").filter(w => w && !SAISIE_STOP.has(w)).map(singW);
+const DATE_WORDS = /\b(aujourd'?hui|avant[- ]hier|hier|ce matin|ce soir|tout à l'heure|il y a (?:\d+|un|une|deux|trois|quatre) (?:jours?|semaines?))\b/gi;
+function saisieDate(n, fallback) {
+  if (/avant.?hier/.test(n)) return addDays(today(), -2);
+  if (/\bhier\b/.test(n)) return addDays(today(), -1);
+  const m = n.match(/il y a (\d+|un|une|deux|trois|quatre) (jour|semaine)/);
+  if (m) { const k = NUMW[m[1]] || +m[1]; return addDays(today(), -k * (m[2] === "semaine" ? 7 : 1)); }
+  if (/aujourd ?hui|ce matin|ce soir/.test(n)) return today();
+  return fallback;
+}
+/* Le produit qui correspond le mieux à un morceau de phrase (« 2 gels aloe » → Gel aloe vera) */
+function saisieProduct(chunk) {
+  const T = sigToks(chunk); if (!T.length) return null;
+  const has = w => T.some(t => t === w || (w.length >= 5 && t.length >= 5 && t.slice(0, 5) === w.slice(0, 5)));
+  let best = null, bs = 0;
+  for (const p of realProducts()) {
+    const pw = sigToks(p.name); if (!pw.length) continue;
+    const hit = pw.filter(has).length, score = hit / pw.length;
+    if (!has(pw[0]) && score < .67) continue;
+    const firstUnique = has(pw[0]) && realProducts().filter(q => sigToks(q.name)[0] === pw[0]).length === 1;
+    if ((score >= .5 || firstUnique) && score + (has(pw[0]) ? .01 : 0) > bs) { best = p; bs = score + (has(pw[0]) ? .01 : 0); }
+  }
+  return best;
+}
+/* Le client : un client connu (nom complet, ou prénom s'il est unique), sinon un nouveau nom */
+const saisieClients = () => DEMO ? S.clients : S.clients.filter(x => !x.example);   // hors démo : jamais les fiches d'exemple
+function saisiePerson(str) {
+  const n = norm(str); if (!n) return null;
+  const pool = saisieClients(), full = pool.find(x => n.includes(norm(x.name)));
+  if (full) return { c: full };
+  const fn = n.split(" ")[0], byFirst = pool.filter(x => norm(firstName(x.name)) === fn);
+  if (byFirst.length === 1) return { c: byFirst[0] };
+  const pr = S.prospects.find(x => x.status !== "client" && (DEMO || !x.example) && n.includes(norm(x.name)));
+  if (pr) return { p: pr, name: pr.name };
+  return null;
+}
+function parseSaisieSeg(part, gdate) {
+  const n = norm(part), date = saisieDate(n, gdate);
+  let s = part.replace(DATE_WORDS, " ").replace(/\s+/g, " ").trim();
+  // client | produits : autour du verbe (« a pris », « a commandé »…), sinon « Julie : … » ou « Julie, … »
+  const vm = s.match(/^(.*?)(?:^|\s)(?:a |m'a |vient de )?(?:pris|repris|prend|reprend|achet[ée]e?s?|command[ée]e?s?|recommand[ée]e?s?|veut|voulait)(?=\s|$|[,.;:])(.*)$/i);
+  let who, what;
+  if (vm) { who = vm[1]; what = vm[2]; }
+  else { const k = s.search(/[:,]/); if (k > 0) { who = s.slice(0, k); what = s.slice(k + 1); } else { who = s; what = s; } }
+  who = who.replace(/^\s*(?:vente|commande|nouvelle vente|nouvelle commande)?\s*(?:pour|de|à|a|chez)?\s*/i, "").replace(/\b(?:a|elle|il)\s*$/i, "").trim();
+  const known = saisiePerson(who) || saisiePerson(s);
+  let name;
+  if (known) name = known.c ? known.c.name : known.name;
+  else {   // nom nouveau : le premier mot, et le suivant s'il commence par une majuscule (« Léa Moreau »)
+    const ws = who.split(/\s+/).filter(w => /^\p{L}[\p{L}'-]*$/u.test(w) && !SAISIE_STOP.has(norm(w)));
+    name = ws.length ? [ws[0]].concat(ws[1] && /^\p{Lu}/u.test(ws[1]) && !saisieProduct(ws[1]) ? [ws[1]] : []).map(w => w[0].toUpperCase() + w.slice(1)).join(" ") : "";
+  }
+  if (what === s && name) {   // ni verbe ni « : » : on retire le nom de la phrase pour ne garder que les produits
+    const nw = new Set(norm(name).split(" ").concat(known && known.c ? norm(known.c.name).split(" ") : []));
+    let dropped = 0; what = s.split(/\s+/).filter(w => { if (dropped < 2 && nw.has(norm(w))) { dropped++; return false; } return true; }).join(" ");
+  }
+  // produits : « 2 gels aloe vera et une crème visage, 1 shampoing »
+  const items = [];
+  for (let ch of String(what).split(/\s*(?:,|\bet\b|\bplus\b|\bavec\b|\+)\s*/i)) {
+    ch = ch.trim(); if (!ch) continue;
+    let qty = 1; const qm = ch.match(/^(\d+|un|une|deux|trois|quatre|cinq|six|sept|huit|neuf|dix)\b\s*/i);
+    if (qm) { qty = NUMW[norm(qm[1])] || +qm[1] || 1; ch = ch.slice(qm[0].length); }
+    const xm = ch.match(/\b(?:x|fois)\s*(\d+)\b|\b(\d+)\s*(?:x|fois)\b/i); if (xm) { qty = +(xm[1] || xm[2]); ch = ch.replace(xm[0], " "); }
+    ch = ch.replace(/^(?:de |d'|du |des |la |le |les |l'|un |une )+/i, "").replace(/[.!?]+$/, "").trim();
+    if (!ch || sigToks(ch).length === 0) continue;
+    if (name && norm(ch) === norm(name)) continue;
+    const p = saisieProduct(ch);
+    if (p) { const ex = items.find(i => i.p === p); if (ex) ex.qty += qty; else items.push({ p, qty }); }
+    else if (/\p{L}{3,}/u.test(ch) && sigToks(ch).length <= 4) items.push({ p: null, name: ch[0].toUpperCase() + ch.slice(1), qty });
+  }
+  if (!name && !items.length) return null;
+  return { name, c: known && known.c || null, pr: known && known.p || null, items, date };
+}
+function parseSaisie(text) {
+  const raw = (text || "").trim(), n = norm(raw);
+  if (!raw) return { kind: "sale", segs: [] };
+  if (/^promo/.test(n)) return { kind: "promo" };
+  if (/\bprospect\b|rencontr|interess/.test(n) && !/\b(pris|achete|commande)\b/.test(n)) return { kind: "prospect" };
+  const gdate = saisieDate(n, today());
+  // une nouvelle cliente commence aussi après une virgule quand le morceau suivant commence par un client connu
+  const firsts = new Set(saisieClients().map(x => norm(firstName(x.name))).concat(saisieClients().map(x => norm(x.name))));
+  const parts = [];
+  for (const part of raw.split(/\s*(?:;|\n|\bpuis\b|\bensuite\b|\bet aussi\b)\s*/i)) {
+    const bits = part.split(/\s*,\s*/); let cur = bits[0];
+    for (let i = 1; i < bits.length; i++) { const w = norm(bits[i]).split(" "); if (firsts.has(w[0]) || firsts.has(w.slice(0, 2).join(" "))) { parts.push(cur); cur = bits[i]; } else cur += ", " + bits[i]; }
+    parts.push(cur);
+  }
+  const segs = parts.map(x => parseSaisieSeg(x, gdate)).filter(Boolean);
+  return { kind: "sale", segs };
+}
+function saisieEnd(seg, it) {
+  const p = it.p || { name: it.name, days: 30 };
+  const rh = seg.c && it.p ? learnedRhythm(seg.c.id, p.name, p.days, seg.date) : null;
+  return { end: addDays(seg.date, (rh ? rh.days : p.days) * it.qty), rh };
+}
+function saisiePreview(text) {
+  const box = document.getElementById("saisiePrev"), go = document.getElementById("saisieSave"); if (!box) return;
+  const r = parseSaisie(text);
+  if (r.kind !== "sale") {
+    box.innerHTML = `<p class="hint" style="margin:0">${r.kind === "promo" ? "📣 C'est une promo : appuyez sur « Continuer »." : "👋 C'est une rencontre : appuyez sur « Continuer » pour créer le prospect."}</p>`;
+    go.textContent = "Continuer"; go.disabled = false; go.dataset.k = r.kind; return;
+  }
+  go.dataset.k = "sale";
+  const ok = r.segs.filter(sg => sg.name && sg.items.length);
+  if (!r.segs.length) { box.innerHTML = `<p class="hint" style="margin:0">Ce que Recharge comprend s'affiche ici, pendant que vous parlez.</p>`; go.disabled = true; go.textContent = "Enregistrer"; return; }
+  box.innerHTML = r.segs.map(sg => `<div class="sx"><div class="sx-h"><span class="avatar">${esc(initials(sg.name || "?"))}</span><span class="grow"><b>${esc(sg.name || "Client à préciser")}</b>
+      <small>${sg.c ? "Client connu" : sg.pr ? "Prospect → devient client" : sg.name ? "Nouveau client" : "Dites son nom"} · ${sg.date === today() ? "aujourd'hui" : esc(fmtLong(sg.date))}</small></span></div>
+    ${sg.items.length ? sg.items.map(it => { const e = saisieEnd(sg, it); return `<div class="sx-i"><span><b>${it.qty} × ${esc(it.p ? it.p.name : it.name)}</b>${it.p ? "" : ` <i class="ttag new">nouveau produit</i>`}</span>
+      <small>fin estimée ${esc(fmt(e.end))}${e.rh ? ` · son rythme : ${e.rh.real} j` : ""}</small></div>`; }).join("") : `<p class="hint" style="margin:6px 0 0">Quel produit ?</p>`}</div>`).join("");
+  const nv = ok.reduce((t, sg) => t + sg.items.length, 0);
+  go.disabled = !ok.length; go.textContent = nv > 1 ? `Enregistrer les ${nv} ventes` : "Enregistrer la vente";
+}
 function openVoice() {
-  openSheet(`<div class="shead"><h3>Commande vocale 🎤</h3>${closeBtn}</div>
-    <p class="lede" style="margin-top:8px">Dites par exemple :</p>
-    <ul class="perks"><li>🛍️ « Vente pour <b>Marie Dupont</b>, <b>gel aloe vera</b>, hier »</li><li>👋 « Prospect <b>Julie Martin</b> rencontrée au <b>salon</b>, intéressée par la <b>crème</b> »</li><li>📣 « Promo <b>moins 20 % sur les coffrets</b> »</li></ul>
-    ${SR ? `<button class="btn orange micgo" data-act="voiceStart" id="voiceGo">🎤 Appuyez et parlez</button>` : ""}
-    <label class="field"><span>${SR ? "Ou écrivez (ou dictez avec le micro du clavier)" : "Dictez avec le micro de votre clavier 🎙️, ou écrivez"}</span><input class="input" id="voiceText" placeholder="Vente pour Marie Dupont, gel aloe vera, hier"></label>
-    <button class="btn primary" style="margin-top:10px" data-act="voiceGo">Continuer</button>
-    <p class="hint">Recharge remplit la fiche pour vous : vous vérifiez, puis vous validez.</p>`);
+  openSheet(`<div class="shead"><h3>Saisie en une phrase ✨</h3>${closeBtn}</div>
+    <p class="lede" style="margin-top:8px">Dites ou écrivez la vente comme vous la raconteriez. Recharge s'occupe du reste.</p>
+    <div class="sx-ex">${["Julie a pris 2 gels aloe vera hier", "Karim : une crème visage et un shampoing", "Marie un gel ; puis Inès deux crèmes"].map(t => `<button type="button" data-act="saisieEx">${esc(t)}</button>`).join("")}</div>
+    <div class="sx-in"><textarea class="input" id="voiceText" rows="3" placeholder="ex. : Julie a pris 2 gels aloe vera hier" aria-label="La vente, en une phrase"></textarea>
+      ${SR ? `<button class="sx-mic" data-act="voiceStart" id="voiceGo" aria-label="Dicter">🎤</button>` : ""}</div>
+    ${SR ? "" : `<p class="hint" style="margin:6px 0 0">Astuce : le micro 🎙️ de votre clavier marche très bien.</p>`}
+    <div class="sx-prev" id="saisiePrev"><p class="hint" style="margin:0">Ce que Recharge comprend s'affiche ici, pendant que vous parlez.</p></div>
+    <button class="btn orange" id="saisieSave" style="margin-top:12px" data-act="saisieSave" disabled>Enregistrer</button>
+    <button class="linkbtn" data-act="saisieForm">Remplir le formulaire classique</button>`);
+  const ta = document.getElementById("voiceText");
+  ta.addEventListener("input", () => saisiePreview(ta.value));
+  setTimeout(() => ta.focus(), 120);
 }
 function startListening() {
   if (!SR) return;
   try { rec && rec.abort(); } catch (e) {}
-  rec = new SR(); rec.lang = "fr-FR"; rec.interimResults = true; rec.maxAlternatives = 1;
-  const btn = document.getElementById("voiceGo"), inp = document.getElementById("voiceText");
-  btn.textContent = "👂 Je vous écoute…"; btn.classList.add("listening");
-  rec.onresult = e => { const txt = [...e.results].map(r => r[0].transcript).join(" "); inp.value = txt; if (e.results[e.results.length - 1].isFinal) { rec.stop(); runVoice(txt); } };
-  rec.onerror = e => { btn.textContent = "🎤 Appuyez et parlez"; btn.classList.remove("listening"); toast(e.error === "not-allowed" ? "Autorisez le micro pour Recharge dans les réglages du téléphone." : "Je n'ai pas bien entendu. Réessayez, ou écrivez."); };
-  rec.onend = () => { if (btn) { btn.textContent = "🎤 Appuyez et parlez"; btn.classList.remove("listening"); } };
+  rec = new SR(); rec.lang = "fr-FR"; rec.interimResults = true; rec.continuous = false; rec.maxAlternatives = 1;
+  const btn = document.getElementById("voiceGo"), inp = document.getElementById("voiceText"), before = inp.value ? inp.value.trim() + " ; " : "";
+  btn.classList.add("listening"); btn.textContent = "👂";
+  rec.onresult = e => { const txt = [...e.results].map(r => r[0].transcript).join(" "); inp.value = before + txt; saisiePreview(inp.value); };
+  rec.onerror = e => { toast(e.error === "not-allowed" ? "Autorisez le micro pour Recharge dans les réglages du téléphone." : "Je n'ai pas bien entendu. Réessayez, ou écrivez."); };
+  rec.onend = () => { if (btn) { btn.textContent = "🎤"; btn.classList.remove("listening"); } };
   rec.start();
+}
+function saveSaisie() {
+  const ta = document.getElementById("voiceText"), text = ta ? ta.value : "", r = parseSaisie(text);
+  if (r.kind !== "sale") return runVoice(text);
+  const segs = r.segs.filter(sg => sg.name && sg.items.length); if (!segs.length) return toast("Dites le nom du client et le produit.");
+  const snap = snapshot(); let nVentes = 0, nNew = 0;
+  if (!DEMO && S.clients.every(x => x.example)) clearExampleData();
+  for (const sg of segs) {
+    let c = sg.c && client(sg.c.id) || S.clients.find(x => norm(x.name) === norm(sg.name));
+    if (!c) { c = { id: uid(), name: sg.name, phone: sg.pr ? sg.pr.phone || "" : "", example: false, createdAt: today(), status: "direct", statusLog: [{ s: "direct", date: today() }] }; S.clients.push(c); nNew++; }
+    for (const it of sg.items) {
+      let p = it.p;
+      if (!p) { p = S.products.find(x => norm(x.name) === norm(it.name)); if (!p) { p = { id: uid(), name: cap(it.name), days: 30, price: 0 }; S.products.push(p); } }
+      recordSale(c, p, it.qty, sg.date); nVentes++;
+      if (sg.pr && sg.pr.status !== "client") { sg.pr.status = "client"; sg.pr.clientId = c.id; sg.pr.convertedAt = today(); S.events.push({ id: uid(), type: "pclient", prospectId: sg.pr.id, clientId: c.id, product: p.name, amount: (p.price || 0) * it.qty, date: today(), example: false }); }
+    }
+  }
+  rcTrack("saisie_phrase");
+  save(); closeSheet(); tab = "today"; render();
+  toast(`${plural(nVentes, "vente enregistrée", "ventes enregistrées")}${nNew ? ` · ${plural(nNew, "nouveau client", "nouveaux clients")}` : ""} ✅`, snap);
 }
 const VOICE_STOP = new Set("une un de du des la le les pour avec a à au aux et chez ma mon sa son vente commande nouvelle nouveau ajoute ajouter note noter prospect cliente client rencontré rencontrée intéressé intéressée par hier aujourd'hui il y jours jour semaines semaine".split(" "));
 function parseVoice(text) {
@@ -4042,6 +4198,9 @@ const actions = {
   voice: () => { openVoice(); },
   voiceStart: () => startListening(),
   voiceGo: () => runVoice(document.getElementById("voiceText").value),
+  saisieSave: () => saveSaisie(),
+  saisieEx: el => { const ta = document.getElementById("voiceText"); ta.value = el.textContent; saisiePreview(ta.value); },
+  saisieForm: () => { const t = (document.getElementById("voiceText") || {}).value || ""; if (t.trim()) runVoice(t); else openNewSale(); },
   prPick: el => el.classList.toggle("on"),
   setRelDays: el => { S.settings.relanceDays = +el.dataset.n; save(); render(); toast(`Relance ${el.dataset.n} jours avant la fin du produit`); },
   setSuivi: el => { S.settings.suiviDays = +el.dataset.n; save(); render(); toast(+el.dataset.n ? `Suivi ${el.dataset.n} jours après l'achat` : "Pas de suivi après l'achat"); },

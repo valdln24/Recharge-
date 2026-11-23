@@ -260,7 +260,7 @@ async function referral(request, env, url) {
    Un compteur par jour et par étape. Aucun cookie, aucune adresse IP, aucun identifiant : on sait combien de
    personnes passent chaque étape, jamais qui. Les noms d'étapes sont limités à une liste connue. */
 const EVENTS = new Set(["site_visite", "analyse_cta", "analyse_debut", "analyse_q1", "analyse_q2", "analyse_q3", "analyse_q4", "analyse_resultat",
-  "analyse_reseau", "analyse_coach", "analyse_email", "analyse_essai", "parrain_visite", "parrainage_ouvert", "parrainage_partage", "app_ouverte", "app_depuis_analyse", "onboarding_fin", "premiers_clients", "premiere_relance", "compte_cree"]);
+  "analyse_reseau", "analyse_coach", "analyse_email", "analyse_essai", "parrain_visite", "parrainage_ouvert", "parrainage_partage", "app_ouverte", "app_depuis_analyse", "onboarding_fin", "premiers_clients", "premiere_relance", "compte_cree", "saisie_phrase"]);
 async function trackEvent(request, env) {
   const body = await readJson(request, 1024);
   const name = String(body.e || "");
