@@ -650,6 +650,14 @@ nav.tabs .tab.on svg{background:var(--navy);color:#fff;box-shadow:0 8px 18px -8p
 .endlink{border:0;background:none;padding:0;font:inherit;font-size:inherit;color:var(--o-text);font-weight:700;text-decoration:underline;text-underline-offset:2px;cursor:pointer}
 .durtip .em{font-weight:800;color:var(--ink)}
 .prodtip{grid-column:1/-1;font-size:.8rem;font-weight:600;color:var(--ink-2);margin:4px 2px 8px}.prodtip b{color:var(--ink)}
+.dscr{position:relative;margin-top:8px}
+.dscr::before{content:"";position:absolute;left:50%;top:4px;width:62px;height:52px;transform:translateX(-50%);border-radius:16px;background:var(--o-soft);border:1.5px solid var(--orange);pointer-events:none}
+.dscr-t{position:relative;display:flex;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px calc(50% - 28px);scrollbar-width:none;-webkit-mask-image:linear-gradient(90deg,transparent,#000 25%,#000 75%,transparent);mask-image:linear-gradient(90deg,transparent,#000 25%,#000 75%,transparent)}
+.dscr-t::-webkit-scrollbar{display:none}
+.dscr-t button{flex:0 0 56px;height:52px;border:0;background:none;font:inherit;font-weight:700;font-size:1.05rem;color:var(--ink-2);opacity:.55;scroll-snap-align:center;font-variant-numeric:tabular-nums;transition:font-size .15s,opacity .15s}
+.dscr-t button.on{color:var(--ink);opacity:1;font-size:1.5rem;font-weight:800}
+.dscr-l{text-align:center;font-size:.85rem;font-weight:600;color:var(--ink-2);margin:6px 0 0}
+.prodrow .dbtn{display:flex;align-items:center;justify-content:center;font-weight:700;cursor:pointer;white-space:nowrap;padding:0 4px}
 </style>
 </head>
 <body>
@@ -2445,7 +2453,7 @@ function viewSettings() {
   for (const p of realProducts()) {
     h += `<div class="prodrow" data-pid="${p.id}">
       <input class="input" data-field="name" value="${esc(p.name)}" aria-label="Nom du produit">
-      <input class="input num${p.est ? " estd" : ""}" data-field="days" inputmode="numeric" value="${p.days}" aria-label="Durée en jours"${p.est ? ' title="Durée estimée par Recharge : à vérifier"' : ""}>
+      <button type="button" class="input num dbtn${p.est ? " estd" : ""}" data-act="pickDays" data-pid="${p.id}" aria-label="Durée : ${p.days} jours, modifier">${p.days} j</button>
       <input class="input num" data-field="price" inputmode="decimal" value="${String(p.price).replace(".", ",")}" aria-label="Prix">
       <button class="x" data-act="delProduct" data-id="${p.id}" aria-label="Supprimer ${esc(p.name)}">${I.x}</button></div>`;
     { const a = productAverage(p); if (a) h += `<div class="prodtip">💡 Vos clients : en moyenne <b>${a.days} j</b> (${plural(a.n, "rachat", "rachats")})${durGapOk(a, p) ? ` <button class="endlink" data-act="durApply" data-pid="${p.id}" data-d="${a.days}">passer à ${a.days} j</button>` : " ✓"}</div>`; }
@@ -2515,6 +2523,7 @@ const sheetEl = document.getElementById("sheet");
 function openSheet(html) {
   sheetEl.innerHTML = `<div class="sheet-bg" data-act="closeBg"><div class="sheet" role="dialog" aria-modal="true"><div class="grab"></div>${html}</div></div>`;
   document.body.style.overflow = "hidden"; document.body.classList.add("sheet-open");
+  requestAnimationFrame(() => initScrollers(sheetEl));
 }
 function closeSheet() { sheetEl.innerHTML = ""; document.body.style.overflow = ""; document.body.classList.remove("sheet-open"); }
 const closeBtn = `<button class="close" data-act="close" aria-label="Fermer">${I.x}</button>`;
@@ -2539,10 +2548,8 @@ function openNewSale(clientId, fromProspect) {
       <div id="newProd" class="subform hidden">
         <label class="field"><span>Nom du produit</span><input class="input" id="npName" placeholder="ex. : Dentifrice aloe vera"></label>
         <p class="hint" id="npEst" style="margin:6px 0 0"></p>
-        <div class="two" style="grid-template-columns:1fr 1fr">
-          <label class="field"><span>Durée (jours)</span><input class="input" id="npDays" inputmode="numeric" value="30"></label>
-          <label class="field"><span>Prix (€)</span><input class="input" id="npPrice" inputmode="decimal" placeholder="0"></label>
-        </div>
+        <div class="field"><span>Durée du produit</span>${dayScroller('id="npDays"', 30)}</div>
+        <label class="field"><span>Prix (€)</span><input class="input" id="npPrice" inputmode="decimal" placeholder="0"></label>
         <button type="button" class="btn soft" style="margin-top:12px" data-act="saveNewProduct">Ajouter ce produit</button>
       </div>
       <div class="two">
@@ -3616,14 +3623,44 @@ const newProduct = name => { const e = estimateDays(name); return { id: uid(), n
 let durPids = [];
 function openDurations(pids) {
   durPids = pids.filter(id => S.products.some(x => x.id === id)); if (!durPids.length) return;
-  const CH = [[14, "2 sem."], [30, "1 mois"], [45, "6 sem."], [60, "2 mois"], [90, "3 mois"]];
   openSheet(`<div class="shead"><h3>Combien de temps durent-ils ?</h3>${closeBtn}</div>
     <p class="lede" style="margin-top:8px">C'est ce qui donne la date de relance. Recharge a fait une estimation : vous le savez mieux que lui, ajustez si besoin. Ensuite, il apprendra le vrai rythme de chaque client.</p>
     ${durPids.map(id => { const p = S.products.find(x => x.id === id), e = estimateDays(p.name); return `<div class="durrow" data-pid="${p.id}"><b>${esc(p.name)}</b>
       <small>${e.why ? `Estimation Recharge (${esc(e.why)}) : ${e.days} jours` : "Pas d'estimation précise : 1 mois par défaut"}</small>
-      <div class="tchips">${CH.map(([d, l]) => `<button type="button" class="${p.days === d ? "on" : ""}" data-act="durPick" data-pid="${p.id}" data-d="${d}">${l}</button>`).join("")}</div>
-      <div class="unit" style="margin-top:8px"><input class="input num" data-durin="${p.id}" inputmode="numeric" value="${p.days}" aria-label="Durée en jours"><b>jours</b></div></div>`; }).join("")}
+      ${dayScroller(`data-durin="${p.id}"`, p.days)}</div>`; }).join("")}
     <button class="btn primary" style="margin-top:16px" data-act="durSave">Valider</button>`);
+}
+/* ---------- Molette de durée : on fait défiler de 5 en 5 jours au lieu de taper ---------- */
+const DSTEPS = v => [...new Set([...Array.from({ length: 36 }, (_, i) => (i + 1) * 5), v])].filter(x => x > 0).sort((a, b) => a - b);
+const durLabel = d => { const m = Math.round(d / 15) / 2; return `${d} jours` + (d >= 25 ? ` · environ ${String(m).replace(".", ",")} mois` : d >= 7 ? ` · environ ${Math.round(d / 7)} sem.` : ""); };
+const dsTrack = v => DSTEPS(v).map(d => `<button type="button" data-act="dsPick" data-dv="${d}" class="${d === v ? "on" : ""}">${d}</button>`).join("");
+function dayScroller(attrs, v) {
+  v = Math.max(1, Math.round(+v) || 30);
+  return `<div class="dscr"><div class="dscr-t">${dsTrack(v)}</div><input type="hidden" ${attrs} value="${v}"><p class="dscr-l">${durLabel(v)}</p></div>`;
+}
+function dsCenter(t, smooth) { if (smooth) t._lock = Date.now() + 700; const b = t.querySelector("button.on"); if (b) t.scrollTo({ left: b.offsetLeft + b.offsetWidth / 2 - t.clientWidth / 2, behavior: smooth ? "smooth" : "instant" }); }
+function initScrollers(root) { (root || document).querySelectorAll(".dscr-t").forEach(t => { if (t.offsetParent) dsCenter(t); }); }
+function dsSet(input, v, silent) {   // fixe la valeur depuis le code (ex. estimation Recharge)
+  const w = input.closest(".dscr"), t = w.querySelector(".dscr-t");
+  if (!t.querySelector(`[data-dv="${v}"]`)) t.innerHTML = dsTrack(v);
+  t.querySelectorAll("button").forEach(b => b.classList.toggle("on", +b.dataset.dv === v));
+  input.value = v; w.querySelector(".dscr-l").textContent = durLabel(v); if (t.offsetParent) dsCenter(t, true);
+}
+function dsFromScroll(t) {
+  const mid = t.scrollLeft + t.clientWidth / 2; let best = null, bd = 1e9;
+  t.querySelectorAll("button").forEach(b => { const d = Math.abs(b.offsetLeft + b.offsetWidth / 2 - mid); if (d < bd) { bd = d; best = b; } });
+  if (!best || (t._lock && Date.now() < t._lock)) return; const w = t.closest(".dscr"), inp = w.querySelector("input"), v = +best.dataset.dv;
+  t.querySelectorAll("button").forEach(b => b.classList.toggle("on", b === best));
+  w.querySelector(".dscr-l").textContent = durLabel(v);
+  if (+inp.value !== v) { inp.value = v; inp.dataset.touched = "1"; inp.dispatchEvent(new Event("input", { bubbles: true })); }
+}
+document.addEventListener("scroll", ev => { const t = ev.target; if (t.classList && t.classList.contains("dscr-t")) { dsFromScroll(t); } }, true);
+function openDaysPicker(pid) {
+  const p = S.products.find(x => x.id === pid); if (!p) return;
+  openSheet(`<div class="shead"><h3>${esc(p.name)}</h3>${closeBtn}</div>
+    <p class="lede" style="margin-top:8px">Combien de temps dure ce produit ? Faites défiler.</p>
+    ${dayScroller(`id="dpIn" data-pid="${p.id}"`, p.days)}
+    <button class="btn primary" style="margin-top:16px" data-act="dpSave">Valider</button>`);
 }
 function setProductDays(p, d) {
   p.days = d; p.est = false;
@@ -4157,7 +4194,10 @@ const actions = {
   fiche: el => openFiche(el.dataset.id),
   pick: el => { form.pid = el.dataset.id; drawChips(); updateEnd(); },
   qty: el => { form.qty = Math.max(1, Math.min(99, form.qty + Number(el.dataset.d))); updateEnd(); },
-  toggleNewProd: () => { document.getElementById("newProd").classList.toggle("hidden"); document.getElementById("npName").focus(); },
+  toggleNewProd: () => { const np = document.getElementById("newProd"); np.classList.toggle("hidden"); initScrollers(np); document.getElementById("npName").focus(); },
+  dsPick: el => { const t = el.parentNode, inp = t.closest(".dscr").querySelector("input"); dsSet(inp, +el.dataset.dv); inp.dataset.touched = "1"; inp.dispatchEvent(new Event("input", { bubbles: true })); },
+  pickDays: el => openDaysPicker(el.dataset.pid),
+  dpSave: () => { const i = document.getElementById("dpIn"), p = S.products.find(x => x.id === i.dataset.pid); if (!p) return closeSheet(); const snap = snapshot(); setProductDays(p, +i.value); save(); closeSheet(); render(); toast(`${p.name} : ${p.days} jours`, snap); },
   saveNewProduct: () => {
     const name = document.getElementById("npName").value.trim();
     if (!name) return toast("Indiquez le nom du produit.");
@@ -4658,7 +4698,7 @@ document.addEventListener("input", ev => {
   if (t.classList.contains("msg")) fitAreas(t.parentNode);
   if (t.id === "fDate" || t.id === "fName") updateEnd();
   if (t.id === "npName") { const e = estimateDays(t.value), d = document.getElementById("npDays"), h = document.getElementById("npEst");
-    if (!d.dataset.touched) d.value = e.days; if (h) h.textContent = t.value.trim() ? (e.why ? `Estimation Recharge (${e.why}) : ${e.days} jours. Ajustez si vous savez mieux.` : "Pas d'estimation précise : 30 jours par défaut, ajustez si besoin.") : ""; }
+    if (!d.dataset.touched) dsSet(d, e.days); if (h) h.textContent = t.value.trim() ? (e.why ? `Estimation Recharge (${e.why}) : ${e.days} jours. Ajustez si vous savez mieux.` : "Pas d'estimation précise : 30 jours par défaut, ajustez si besoin.") : ""; }
   if (t.id === "npDays") t.dataset.touched = "1";
   if (t.id === "endIn") endInfo();
   if (t.id === "fEnd") { t.dataset.touched = "1"; updateEnd(); }
