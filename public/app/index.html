@@ -1035,7 +1035,7 @@ function addDemoHistory(s) {
 }
 /* Clients, et clients avec la carte fidélité (gratuite : remise permanente, cadeau tous les N achats, promos en avant-première) */
 const CSTATUS = { direct: "Client", vip: "Carte fidélité" };
-const SET_DEFAULTS = { vipOrders: 3, vipPct: 10, discountOn: false, margin: 30, every: 5, gift: "un petit cadeau", basket: 35, cycle: 30, relanceDays: 3, suiviDays: 7, newsFreq: "off", newsC: true, newsP: true, newsText: "", netC: 10, netP: 5, shopName: "", shopPhone: "", myName: "", leader: false };
+const SET_DEFAULTS = { vipOrders: 3, vipPct: 10, discountOn: false, margin: 30, every: 5, gift: "un petit cadeau", basket: 35, cycle: 30, relanceDays: 5, suiviDays: 7, newsFreq: "off", newsC: true, newsP: true, newsText: "", netC: 10, netP: 5, shopName: "", shopPhone: "", myName: "", leader: false };
 /* La remise en % est une option, désactivée par défaut */
 /* Commande sans produit précis (ex. back-office qui ne montre que la date) : relance au rythme, après N jours */
 function genericProduct() {
@@ -1050,6 +1050,8 @@ const vipPerk = () => discountOn() ? `${S.settings.vipPct} % de remise sur chaqu
 function migrate(d) {
   if (!Array.isArray(d.prospects)) d.prospects = [];
   d.settings = { ...SET_DEFAULTS, ...(d.settings || {}) };
+  // Relance 5 jours avant la fin du produit (avant : 3 jours) : appliqué une fois à tous les comptes
+  if (!d.settings.relJ5) { if (!d.settings.relanceDays || d.settings.relanceDays < 5) d.settings.relanceDays = 5; d.settings.relJ5 = true; }
   d.clients.forEach(c => {
     if (!CSTATUS[c.status]) c.status = c.status === "partenaire" || c.status === "business" ? "vip" : "direct";
     if (!Array.isArray(c.statusLog)) c.statusLog = [{ s: c.status, date: c.createdAt || today() }];
@@ -1451,7 +1453,7 @@ function cardUrl(c) {
 }
 const dueGifts = () => S.clients.filter(c => c.status === "vip" && cardState(c).notify);
 /* Suivi après l'achat : quelques jours après une commande, prendre des nouvelles */
-const dueSuivis = () => { const t = today(), d = S.settings.suiviDays || 7; return S.settings.suiviDays === 0 ? [] : S.sales.filter(sl => !sl.suiviDone && (sl.status === "open" || sl.status === "relance") && diff(t, sl.date) >= d && diff(t, sl.date) <= d + 6 && diff(sl.end, t) > (S.settings.relanceDays || 3)); };
+const dueSuivis = () => { const t = today(), d = S.settings.suiviDays || 7; return S.settings.suiviDays === 0 ? [] : S.sales.filter(sl => !sl.suiviDone && (sl.status === "open" || sl.status === "relance") && diff(t, sl.date) >= d && diff(t, sl.date) <= d + 6 && diff(sl.end, t) > (S.settings.relanceDays || 5)); };
 /* Satisfaction après le suivi : la réponse du client oriente le coach */
 const SAT = { ok: ["😊", "Satisfait", "satisfait"], mixed: ["😐", "Mitigé", "mitigé"], ko: ["😟", "Pas satisfait", "pas satisfait"] };
 const lastSat = c => (c.satLog || []).filter(x => x.v !== "none").slice(-1)[0] || null;
@@ -1615,7 +1617,7 @@ function waNumber(phone) {
 /* ---------- Calculs ---------- */
 function dueSales() {
   const t = today();
-  return S.sales.filter(s => s.status === "open" && diff(s.end, t) <= (S.settings.relanceDays || 3) && (!s.snooze || s.snooze <= t))
+  return S.sales.filter(s => s.status === "open" && diff(s.end, t) <= (S.settings.relanceDays || 5) && (!s.snooze || s.snooze <= t))
     .sort((a, b) => a.end.localeCompare(b.end));
 }
 function waitingSales() {
@@ -1626,7 +1628,7 @@ function timing(s) {
   if (left < 0) return { cls: "late", txt: left === -1 ? "Terminé depuis hier" : `Terminé depuis ${-left} jours` };
   if (left === 0) return { cls: "late", txt: "Se termine aujourd'hui" };
   if (left === 1) return { cls: "soon", txt: "Se termine demain" };
-  if (left <= 3) return { cls: "soon", txt: `Se termine dans ${left} jours` };
+  if (left <= (S.settings.relanceDays || 5)) return { cls: "soon", txt: `Se termine dans ${left} jours` };
   return { cls: "ok", txt: `Fin le ${fmt(s.end)}` };
 }
 function shortTiming(s) {
@@ -2286,7 +2288,7 @@ function viewClients() {
   h += `<button class="btn outline" style="margin-top:12px" data-act="openImport">${I.up} Importer des commandes</button>`;
   h += exampleNotice();
   if (ctab === "prospects") return h + viewProspects(q);
-  const t = today(), CF = [["all", "Tous", () => true], ["due", "À relancer", c => S.sales.some(sl => sl.clientId === c.id && sl.status === "open" && diff(sl.end, t) <= (S.settings.relanceDays || 3))],
+  const t = today(), CF = [["all", "Tous", () => true], ["due", "À relancer", c => S.sales.some(sl => sl.clientId === c.id && sl.status === "open" && diff(sl.end, t) <= (S.settings.relanceDays || 5))],
     ["vip", "Carte fidélité", c => c.status === "vip"], ["reco", "Recommandation", c => diff(t, clientSince(c)) >= 90], ["sleep", "À réveiller", c => lastOrder(c) && diff(t, lastOrder(c)) >= 90]];
   const cf = (CF.find(z => z[0] === cfilter) || CF[0])[2];
   h += `<div class="fchips">${CF.map(([k, l, fn]) => `<button class="${cfilter === k ? "on" : ""}" data-act="cfilter" data-f="${k}">${l} <small>${S.clients.filter(fn).length}</small></button>`).join("")}</div>`;
@@ -2447,7 +2449,7 @@ function viewSettings() {
 
   const keep = S.settings.margin - S.settings.vipPct;
   h += section("Mes relances") + `<div class="card pad">
-    <div class="field" style="margin-top:0"><span>Relancer avant la fin du produit</span><div class="seg" style="margin-top:6px">${[2, 3, 4].map(n => `<button class="${(S.settings.relanceDays || 3) === n ? "on" : ""}" data-act="setRelDays" data-n="${n}">J-${n}</button>`).join("")}</div></div>
+    <div class="field" style="margin-top:0"><span>Relancer avant la fin du produit</span><div class="seg" style="margin-top:6px">${[3, 5, 7].map(n => `<button class="${(S.settings.relanceDays || 5) === n ? "on" : ""}" data-act="setRelDays" data-n="${n}">J-${n}</button>`).join("")}</div></div>
     <div class="field"><span>Suivi après l'achat</span><div class="seg" style="margin-top:6px">${[[0, "Jamais"], [3, "J+3"], [7, "J+7"], [14, "J+14"]].map(([n, l]) => `<button class="${(S.settings.suiviDays ?? 7) === n ? "on" : ""}" data-act="setSuivi" data-n="${n}">${l}</button>`).join("")}</div></div>
     <p class="hint" style="margin:10px 0 0">Recommandation : Recharge vous propose de la demander à chaque client et prospect après 3 mois, puis tous les 3 mois. Prospects : relancés après la rencontre, à chaque promo, puis tous les 3 mois.</p></div>`;
   h += section("Message régulier") + `<div class="card pad">
