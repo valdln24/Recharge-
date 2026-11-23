@@ -1,0 +1,65 @@
+"use strict";
+/* Accueil v3 : apparitions au défilement, cartes flottantes en parallaxe, cartes à faire glisser sur mobile, période des tarifs. */
+(function () {
+  var reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  /* 1. Apparition en fondu */
+  var els = document.querySelectorAll(".rv");
+  if ("IntersectionObserver" in window && !reduce) {
+    var io = new IntersectionObserver(function (en) { en.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }); }, { threshold: .12, rootMargin: "0px 0px -6% 0px" });
+    els.forEach(function (e) { io.observe(e); });
+  } else els.forEach(function (e) { e.classList.add("in"); });
+  /* 2. Téléphone et cartes flottantes qui glissent avec le défilement */
+  var phone = document.querySelector(".h3stage .phone"), cards = document.querySelectorAll(".fcard[data-sp]"), ticking = false;
+  function para() {
+    ticking = false; var y = Math.min(scrollY, 900);
+    if (phone) { phone.style.setProperty("--py", (-y * .06).toFixed(1)); phone.style.setProperty("--ps", (1 + Math.min(y, 500) / 500 * .04).toFixed(3)); }
+    cards.forEach(function (c) { c.style.setProperty("--fy", (-y * +c.dataset.sp).toFixed(1)); });
+  }
+  if (!reduce) { addEventListener("scroll", function () { if (!ticking) { ticking = true; requestAnimationFrame(para); } }, { passive: true }); para(); }
+  /* 3. Mobile : les cartes se fondent et se redressent pendant qu'on les fait glisser */
+  document.querySelectorAll("[data-swipe]").forEach(function (box) {
+    var items = [].slice.call(box.children), dots = box.parentNode.querySelector(".swdots");
+    if (dots) dots.innerHTML = items.map(function () { return "<i></i>"; }).join("");
+    var di = dots ? [].slice.call(dots.children) : [];
+    function upd() {
+      if (box.scrollWidth <= box.clientWidth + 4) { items.forEach(function (it) { it.style.removeProperty("--o"); it.style.removeProperty("--s"); }); return; }
+      var mid = box.scrollLeft + box.clientWidth / 2, best = 0, bd = 1e9;
+      items.forEach(function (it, i) {
+        var c = it.offsetLeft + it.offsetWidth / 2, d = Math.abs(c - mid) / it.offsetWidth;
+        it.style.setProperty("--o", Math.max(.45, 1 - d * .55).toFixed(3)); it.style.setProperty("--s", Math.max(.92, 1 - d * .08).toFixed(3));
+        if (d < bd) { bd = d; best = i; }
+      });
+      di.forEach(function (d, i) { d.classList.toggle("on", i === best); });
+    }
+    box.addEventListener("scroll", function () { requestAnimationFrame(upd); }, { passive: true }); addEventListener("resize", upd); upd();
+  });
+  /* 4. Petit réseau dessiné : vous, vos clients, et les personnes qu'ils connaissent */
+  var svg = document.getElementById("netMini");
+  if (svg) {
+    var NS = "http://www.w3.org/2000/svg", h = "", GA = 2.39996;
+    for (var i = 0; i < 9; i++) {
+      var a = i * GA, r = 46 + (i % 3) * 6, x = Math.cos(a) * r, y = Math.sin(a) * r;
+      h += '<line x1="0" y1="0" x2="' + x.toFixed(1) + '" y2="' + y.toFixed(1) + '" stroke="rgba(255,255,255,.18)"/>';
+      for (var j = 0; j < 5; j++) { var aa = a + (j - 2) * .11, rr = 86 + ((i * 7 + j * 13) % 20); h += '<circle cx="' + (Math.cos(aa) * rr).toFixed(1) + '" cy="' + (Math.sin(aa) * rr).toFixed(1) + '" r="2.4" fill="' + (j % 2 ? "#FFB98F" : "#B8BCFF") + '" opacity=".85"/>'; }
+      h += '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="6" fill="#FF782E"/>';
+    }
+    h += '<circle r="20" fill="#fff"/><text y="5" text-anchor="middle" font-size="13" font-weight="800" fill="#17151B">Vous</text>';
+    svg.innerHTML = h;
+  }
+  /* 5. Mobile : le bouton « Analyser » collé en bas apparaît une fois la carte du haut passée, et disparaît sur l'appel final */
+  var mc = document.getElementById("mcta"), ac = document.getElementById("acard"), fin = document.querySelector(".fin3");
+  if (mc && ac && fin) {
+    var mcu = function () { var past = ac.getBoundingClientRect().bottom < 0, end = fin.getBoundingClientRect().top < innerHeight * .9; mc.classList.toggle("show", past && !end); };
+    addEventListener("scroll", mcu, { passive: true }); mcu();
+  }
+  /* 6. Tarifs : l'annuel par défaut */
+  var tog = document.querySelector(".tog");
+  if (tog) tog.addEventListener("click", function (e) {
+    var b = e.target.closest("button"); if (!b) return;
+    tog.querySelectorAll("button").forEach(function (x) { x.classList.toggle("on", x === b); });
+    var y = b.dataset.p === "year";
+    document.getElementById("pPrice").textContent = y ? "7,42 €" : "9,90 €";
+    document.getElementById("pSub").textContent = y ? "Facturé 89 € par an : 29,80 € d'économie. Remboursé dès 2 à 3 commandes récupérées." : "Sans engagement. À l'année, vous économiseriez 29,80 €.";
+    document.getElementById("pBadge").textContent = y ? "Meilleur choix" : "Passez à l'année : −25 %";
+  });
+})();
