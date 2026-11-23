@@ -290,7 +290,7 @@ async function saveLead(request, env, url) {
   if (!validEmail(email)) throw new HttpError(400, "Cette adresse email ne semble pas valide.");
   const a = body.analyse && typeof body.analyse === "object" ? body.analyse : {};
   const keep = {};
-  for (const k of ["clients", "cat", "orders", "pains", "renouv", "ecart", "enjeu", "panier", "duree", "at"]) if (a[k] !== undefined) keep[k] = typeof a[k] === "number" ? a[k] : Array.isArray(a[k]) ? a[k].slice(0, 8).map(x => String(x).slice(0, 30)) : String(a[k]).slice(0, 40);
+  for (const k of ["clients", "cat", "catLabel", "dorm", "pains", "renouv", "panier", "duree", "semaine", "valClient", "revenus", "reveilAn", "nouveaux", "resAn", "totalAn", "prio", "fois", "at"]) if (a[k] !== undefined) keep[k] = typeof a[k] === "number" ? a[k] : Array.isArray(a[k]) ? a[k].slice(0, 8).map(x => String(x).slice(0, 30)) : String(a[k]).slice(0, 40);
   await env.DB.prepare("INSERT INTO leads (email, analyse, news, created_at, updated_at) VALUES (?, ?, ?, ?, ?) ON CONFLICT(email) DO UPDATE SET analyse = excluded.analyse, news = MAX(news, excluded.news), updated_at = excluded.updated_at")
     .bind(email, JSON.stringify(keep), body.news ? 1 : 0, now(), now()).run();
   return requestLink(request, env, url, { email });

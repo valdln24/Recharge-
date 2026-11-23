@@ -88,6 +88,11 @@ body{background:var(--bg)}
 .rg-v{font-size:clamp(2.6rem,10vw,3.6rem);font-weight:800;letter-spacing:-.05em;line-height:1.05;margin:6px 0 14px;color:var(--orange);font-variant-numeric:tabular-nums}
 .rg-row{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-top:1px solid rgba(255,255,255,.1);font-size:.9rem;color:#E4DEEA}
 .rg-row b{color:#fff;white-space:nowrap}
+.rsub b{color:var(--ink)}
+.rroi{margin-top:10px;display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center;background:#fff;border:1.5px solid var(--orange);border-radius:22px;padding:16px 18px}
+.ro-p b{display:block;white-space:nowrap;font-size:2rem;letter-spacing:-.05em;line-height:1}.ro-p span{display:block;font-size:.76rem;font-weight:700;color:var(--ink-2);margin-top:4px;line-height:1.3}
+.ro-t p{margin:0 0 4px;font-size:.95rem;line-height:1.4}.ro-t b{color:var(--o-text)}.ro-t small{display:block;margin-top:6px;color:var(--ink-3);font-weight:600;font-size:.78rem;line-height:1.4}
+@media (max-width:520px){.rroi{grid-template-columns:1fr;gap:10px}.ro-p{display:flex;align-items:baseline;gap:10px}.ro-p span br{display:none}}
 .rtabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:4px;border-radius:16px;background:#EDE5DB;margin:22px 0 4px}
 .rtabs button{border:0;background:transparent;border-radius:12px;padding:11px 4px;font:inherit;font-size:.86rem;font-weight:750;color:var(--ink-2);cursor:pointer;line-height:1.2}
 .rtabs button.on{background:#fff;color:var(--ink);box-shadow:0 4px 14px -6px rgba(28,26,34,.25)}
@@ -129,7 +134,7 @@ body{background:var(--bg)}
   var CATS = [["bien", "Bien-être, compléments", "racheté environ tous les mois", 30, 45], ["soin", "Cosmétiques, soins", "environ toutes les 6 semaines", 45, 38],
     ["maison", "Maison, entretien", "environ tous les 2 mois", 60, 30], ["cuisine", "Cuisine", "environ tous les 3 mois", 90, 40],
     ["parfum", "Bougies, parfums", "environ toutes les 6 semaines", 45, 32], ["autre", "Autre", "environ toutes les 6 semaines", 45, 35]];
-  var ORDERS = [["Moins de 5", 3], ["5 à 15", 10], ["15 à 30", 22], ["Plus de 30", 40]];
+  var DORM = [["Aucun ou presque", 1], ["1 à 5", 3], ["5 à 10", 7], ["10 à 20", 15], ["Plus de 20", 25], ["Je ne sais pas", -1]];
   var PAINS = [["oubli", "J'oublie de relancer", "Les clients passent entre les mailles"], ["quoi", "Je ne sais pas quoi écrire", "Peur de déranger, message qui sonne faux"],
     ["temps", "Je manque de temps", "Tout se fait entre deux rendez-vous"], ["nouveaux", "Trouver de nouveaux clients", "Le carnet ne grandit plus"],
     ["equipe", "Suivre mon équipe", "Mes filleuls ont besoin d'aide"], ["dispersé", "Tout est dispersé", "Carnet, notes, messages, mémoire…"]];
@@ -144,7 +149,7 @@ body{background:var(--bg)}
   var CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l4.5 4.5L19.5 6.5"/></svg>';
   var ARROW = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
   var el = document.getElementById("an");
-  var st = { i: 0, clients: null, cat: null, orders: null, pains: [] };
+  var st = { i: 0, clients: null, cat: null, dorm: null, pains: [] };
   var track = function (e) { try { var b = JSON.stringify({ e: e }); if (navigator.sendBeacon) navigator.sendBeacon("/api/event", new Blob([b], { type: "application/json" })); else fetch("/api/event", { method: "POST", headers: { "Content-Type": "application/json" }, body: b, keepalive: true }); } catch (x) {} };
   var esc = function (s) { return String(s).replace(/[&<>"']/g, function (m) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]; }); };
   var fmt = function (n) { return Math.round(n).toLocaleString("fr-FR"); };
@@ -159,7 +164,7 @@ body{background:var(--bg)}
     return [
       { k: "clients", t: "Combien de clients suivez-vous ?", s: "Les personnes qui vous achètent régulièrement, même de temps en temps.", o: CLIENTS.map(function (x, n) { return [n, x[0], ""]; }) },
       { k: "cat", t: "Que vendez-vous surtout ?", s: "Recharge connaît la durée habituelle de chaque type de produit.", o: CATS.map(function (x, n) { return [n, x[1], x[2]]; }) },
-      { k: "orders", t: "Combien de commandes passez-vous par mois ?", s: "Une estimation suffit.", o: ORDERS.map(function (x, n) { return [n, x[0], ""]; }) },
+      { k: "dorm", t: "Combien de clients n’ont rien commandé depuis plus de 3 mois ?", s: "Une estimation suffit. Tout le monde en a : ce sont des ventes à récupérer.", o: DORM.map(function (x, n) { return [n, x[0], ""]; }) },
       { k: "pains", multi: true, t: "Qu'est-ce qui vous freine aujourd'hui ?", s: "Plusieurs réponses possibles.", o: PAINS.map(function (x) { return [x[0], x[1], x[2]]; }) }
     ];
   }
@@ -178,38 +183,50 @@ body{background:var(--bg)}
       (q.multi ? '<button type="button" class="btn orange" data-a="next"' + (st.pains.length ? "" : " disabled") + ">Voir mon analyse" + ARROW + "</button>" : "") + "</div>");
   }
   function compute() {
-    var n = CLIENTS[st.clients][1], c = CATS[st.cat], o = ORDERS[st.orders][1];
-    var rate = 0.6, renouv = Math.max(1, Math.round(n * 30 / c[3] * rate)), ecart = Math.max(0, renouv - o);
-    var enjeu = Math.round(ecart * c[4] / 10) * 10, semaine = Math.max(1, Math.round(n * 7 / c[3] * rate));
-    // Sur un an : les rachats oubliés + les clients que l'entourage de vos clients peut vous amener
-    var valClient = Math.round(c[4] * 365 / c[3] * rate), relAn = enjeu * 12, nouveaux = Math.round(n * 5 / 10);
-    var resAn = Math.round(nouveaux * valClient / 10) * 10;
-    return { clients: n, cat: c[0], catLabel: c[1], orders: o, pains: st.pains.slice(), renouv: renouv, ecart: ecart, enjeu: enjeu, panier: c[4], duree: c[3], semaine: semaine,
-      valClient: Math.round(valClient), relAn: relAn, nouveaux: nouveaux, resAn: resAn, totalAn: relAn + resAn, at: new Date().toISOString().slice(0, 10) };
+    var n = CLIENTS[st.clients][1], c = CATS[st.cat], d = DORM[st.dorm][1];
+    var rate = 0.6, renouv = Math.max(1, Math.round(n * 30 / c[3] * rate)), semaine = Math.max(1, Math.round(n * 7 / c[3] * rate));
+    var dorm = d < 0 ? Math.max(1, Math.round(n * .25)) : Math.min(d, n);
+    var r10 = function (v) { return Math.round(v / 10) * 10; };
+    // Un client fidèle sur un an : panier × nombre de rachats possibles × 6 sur 10
+    var valClient = Math.round(c[4] * 365 / c[3] * rate);
+    var revenus = Math.max(1, Math.round(dorm / 3)), reveilAn = r10(dorm / 3 * valClient);       // 1 client endormi sur 3 revient après un message
+    var nouveaux = Math.round(n * 5 / 10), resAn = r10(nouveaux * valClient);                     // 5 personnes présentées par client, 1 sur 10 achète
+    var totalAn = reveilAn + resAn;
+    var prio = n <= 25 ? "croissance" : dorm >= n * .2 ? "reveil" : "rachats";
+    return { clients: n, cat: c[0], catLabel: c[1], dorm: dorm, pains: st.pains.slice(), renouv: renouv, panier: c[4], duree: c[3], semaine: semaine,
+      valClient: valClient, revenus: revenus, reveilAn: reveilAn, nouveaux: nouveaux, resAn: resAn, totalAn: totalAn, prio: prio,
+      fois: Math.floor(totalAn / 89), cmdRemb: Math.max(1, Math.ceil(89 / c[4])), at: new Date().toISOString().slice(0, 10) };
   }
   function result() {
     var a = compute();
     try { localStorage.setItem(KEY, JSON.stringify(a)); } catch (e) {}
     track("analyse_resultat");
-    var max = Math.max(a.renouv, a.orders, 1);
+    var max = Math.max(a.clients, 1);
     var head = "Jusqu’à <em>~" + fmt(a.totalAn) + " € par an</em> à aller chercher dans votre activité.";
-    var sub = "Avec environ " + fmt(a.clients) + " clients en " + esc(a.catLabel.toLowerCase()) + (a.ecart > 0 ? " : des rachats qui se perdent faute de relance au bon moment, et des clients que votre entourage pourrait vous amener." : " : vos commandes suivent déjà bien le rythme de vos clients. Le potentiel est surtout dans les clients que votre entourage pourrait vous amener.");
+    var PRIO = { croissance: "votre priorité : <b>agrandir votre clientèle</b>. Vos clients connaissent des personnes qui ont besoin de vos produits.",
+      reveil: "dont ~" + a.dorm + " qui n’ont rien commandé depuis 3 mois, votre priorité : <b>réveiller vos clients endormis</b>.",
+      rachats: "votre priorité : <b>ne plus laisser passer un seul rachat</b>, au bon moment pour chaque client." };
+    var sub = "Avec environ " + fmt(a.clients) + " clients en " + esc(a.catLabel.toLowerCase()) + ", " + PRIO[a.prio];
     var gain = '<div class="rgain"><div class="rg-k">Votre potentiel sur un an</div><div class="rg-v">~<b id="rgTotal">0</b> €</div>' +
-      '<div class="rg-row"><span>' + (a.ecart > 0 ? "Rachats à ne plus laisser passer" : "Rachats : déjà au bon rythme") + '</span><b>' + (a.ecart > 0 ? "~" + fmt(a.relAn) + " €" : "✓") + '</b></div>' +
+      '<div class="rg-row"><span>Clients endormis à réveiller (' + a.dorm + ', si 1 sur 3 revient)</span><b>~' + fmt(a.reveilAn) + ' €</b></div>' +
       '<div class="rg-row"><span>Nouveaux clients amenés par vos clients (<span id="rgNew">' + a.nouveaux + '</span>)</span><b>~<span id="rgRes">' + fmt(a.resAn) + '</span> €</b></div></div>';
+    var roi = '<div class="rroi"><div class="ro-p"><b>89 €</b><span>par an avec Recharge, <br>soit 7,42 € par mois</span></div><div class="ro-t">' +
+      '<p>Remboursé dès la <b>' + a.cmdRemb + (a.cmdRemb > 1 ? "e" : "re") + ' commande récupérée</b>.</p>' +
+      (a.fois >= 2 ? '<p>Votre potentiel représente <b id="rgFois">' + a.fois + ' fois</b> son prix.</p>' : "") +
+      '<small>Au mois : 9,90 € (118,80 € sur un an). L’annuel vous fait économiser 29,80 €.</small></div></div>';
     var stats = '<div class="rstats"><div class="rs"><b>' + a.renouv + '</b><span>renouvellements possibles par mois</span></div>' +
-      '<div class="rs"><b>~' + a.orders + '</b><span>commandes aujourd’hui par mois</span></div>' +
-      (a.ecart > 0 ? '<div class="rs hl"><b>~' + fmt(a.enjeu) + ' €</b><span>de chiffre d’affaires en jeu chaque mois</span></div>' : '<div class="rs hl"><b>' + a.semaine + '</b><span>clients à recontacter cette semaine</span></div>') + "</div>";
-    var bars = '<div class="rbars"><div class="rbar o"><small><span>Renouvellements possibles</span><span>' + a.renouv + '</span></small><i><span style="width:' + Math.round(a.renouv / max * 100) + '%"></span></i></div>' +
-      '<div class="rbar"><small><span>Vos commandes aujourd’hui</span><span>~' + a.orders + '</span></small><i><span style="width:' + Math.round(a.orders / max * 100) + '%"></span></i></div></div>';
+      '<div class="rs"><b>~' + a.dorm + '</b><span>clients endormis depuis 3 mois</span></div>' +
+      '<div class="rs hl"><b>~' + fmt(a.valClient) + ' €</b><span>par an pour un client fidèle</span></div></div>';
+    var bars = '<div class="rbars"><div class="rbar"><small><span>Clients actifs</span><span>~' + (a.clients - a.dorm) + '</span></small><i><span style="width:' + Math.round((a.clients - a.dorm) / max * 100) + '%"></span></i></div>' +
+      '<div class="rbar o"><small><span>Clients endormis, à réveiller</span><span>~' + a.dorm + '</span></small><i><span style="width:' + Math.round(a.dorm / max * 100) + '%"></span></i></div></div>';
     var week = '<div class="rweek">Cette semaine, environ ' + a.semaine + " de vos clients arrivent au bout de leur produit. C’est le bon moment pour leur écrire.</div>";
-    var hyp = '<p class="rhyp">Estimation, pas une promesse : produit racheté ' + esc(CATS[st.cat][2]) + ", 6 clients sur 10 qui rachètent, panier moyen d’environ " + a.panier + " €, soit environ " + fmt(a.valClient) + " € par an pour un client fidèle. Côté réseau : 5 personnes présentées par client, dont 1 sur 10 devient cliente. Avec vos vrais clients, Recharge calcule tout précisément.</p>";
+    var hyp = '<p class="rhyp">Estimation, pas une promesse : produit racheté ' + esc(CATS[st.cat][2]) + ", 6 clients sur 10 qui rachètent, panier moyen d’environ " + a.panier + " €, soit environ " + fmt(a.valClient) + " € par an pour un client fidèle. 1 client endormi sur 3 qui revient après un message. Côté réseau : 5 personnes présentées par client, dont 1 sur 10 devient cliente. Avec vos vrais clients, Recharge calcule tout précisément.</p>";
     var keys = a.pains.length ? a.pains : ["oubli", "quoi", "temps"];
     var forList = keys.slice(0, 4).map(function (k) { return "<li><i>" + CHECK + "</i><span>" + FOR[k] + "</span></li>"; }).join("");
     var save = '<div class="rsave" id="rsave"><h3>Gardez votre analyse</h3><p>Recevez un lien d’accès par email : vous retrouvez vos résultats dans Recharge, sur n’importe quel téléphone.</p>' +
       '<form id="saveForm" novalidate><input type="email" id="saveEmail" inputmode="email" autocomplete="email" placeholder="vous@exemple.fr" required aria-label="Votre email"><button class="btn dark" type="submit">Recevoir mon lien</button></form>' +
       '<label class="ck"><input type="checkbox" id="saveNews"> Je veux aussi recevoir des conseils de vente par email (1 à 2 par mois, désinscription en 1 clic).</label><div id="saveMsg"></div></div>';
-    var tabs = '<div class="rtabs" role="tablist"><button type="button" class="on" data-tab="0" role="tab">Vos renouvellements</button><button type="button" data-tab="1" role="tab">Votre réseau</button><button type="button" data-tab="2" role="tab">Plan du coach</button></div>';
+    var tabs = '<div class="rtabs" role="tablist"><button type="button" class="on" data-tab="0" role="tab">Vos clients</button><button type="button" data-tab="1" role="tab">Votre réseau</button><button type="button" data-tab="2" role="tab">Plan du coach</button></div>';
     var pane0 = '<div class="rpane" data-pane="0">' + stats + bars + week + hyp + "</div>";
     var pane1 = '<div class="rpane" data-pane="1" hidden><div class="rnet"><h3>Votre micro-marché</h3><p class="lede2">Vos clients connaissent des proches, des collègues, des voisins qui pourraient avoir besoin de vos produits.</p>' +
       '<div class="pot-viz"><svg id="anSvg" viewBox="-200 -200 400 400" role="img" aria-label="Votre réseau : vos clients et les personnes qu’ils peuvent vous présenter"></svg><div class="pot-mid"><b id="anTot">0</b><span>personnes<br>à toucher</span></div></div>' +
@@ -220,17 +237,20 @@ body{background:var(--bg)}
     var extra = a.pains.indexOf("equipe") >= 0 ? ["Partagez Recharge avec vos filleuls", "Chacun suit ses clients, vous voyez les résultats de l’équipe."]
       : a.pains.indexOf("nouveaux") >= 0 ? ["Activez votre micro-marché local", "Commerçants, salles de sport, associations de votre ville : Recharge vous donne des idées concrètes chaque semaine."]
       : a.pains.indexOf("temps") >= 0 ? ["Bloquez 15 minutes chaque matin", "Le plan du jour est prêt : vous ouvrez, vous envoyez, c’est fait."]
-      : ["Notez chaque nouvelle vente en 10 secondes", "Recharge calcule tout seul la prochaine relance."];
-    var plan = [
-      ["Cette semaine, écrivez aux ~" + a.semaine + " clients qui arrivent au bout de leur produit", "Si 6 sur 10 rachètent : ≈ " + Math.max(1, Math.round(a.semaine * .6)) + " commandes, ≈ " + fmt(Math.max(1, Math.round(a.semaine * .6)) * a.panier) + " €"],
-      ["Demandez à vos " + k5 + " clients les plus fidèles à qui ils pensent", "S’ils vous donnent 2 noms chacun : " + contacts + " contacts chauds, qui vous font déjà confiance"],
-      ["Offrez la carte fidélité à vos clients réguliers", "Une raison de racheter chez vous, et pas ailleurs"],
-      extra
-    ];
+      : ["Activez votre micro-marché local", "Commerçants, salles de sport, associations de votre ville : Recharge vous donne des idées concrètes chaque semaine."];
+    var P = {
+      reveil: ["Écrivez à vos ~" + a.dorm + " clients endormis, un message simple et sans pression", "Si 1 sur 3 revient : ≈ " + a.revenus + " clients, ≈ " + fmt(a.reveilAn) + " € par an"],
+      relance: ["Cette semaine, écrivez aux ~" + a.semaine + " clients qui arrivent au bout de leur produit", "Si 6 sur 10 rachètent : ≈ " + Math.max(1, Math.round(a.semaine * .6)) + " commandes, ≈ " + fmt(Math.max(1, Math.round(a.semaine * .6)) * a.panier) + " €"],
+      reco: ["Demandez à vos " + k5 + " clients les plus fidèles à qui ils pensent", "S’ils vous donnent 2 noms chacun : " + contacts + " contacts chauds, qui vous font déjà confiance"],
+      carte: ["Offrez la carte fidélité à vos clients réguliers", "Une raison de racheter chez vous, et pas ailleurs"],
+      extra: extra
+    };
+    var order = a.prio === "croissance" ? ["reco", "extra", "reveil", "relance"] : a.prio === "reveil" ? ["reveil", "relance", "reco", "carte"] : ["relance", "carte", "reco", "reveil"];
+    var plan = order.map(function (k) { return P[k]; });
     var pane2 = '<div class="rpane" data-pane="2" hidden><div class="rcoach"><div class="who"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 9 9"/><path d="M13 7l-3 5h4l-3 5"/></svg></span><div><b>Votre coach Recharge</b><small>Voici par où je commencerais</small></div></div>' +
       "<ol>" + plan.map(function (x) { return "<li><div><b>" + esc(x[0]) + "</b><em>" + esc(x[1]) + "</em></div></li>"; }).join("") + "</ol>" +
       '<p class="n">Des estimations pour vous donner un ordre de grandeur, pas des résultats garantis. Dans l’appli, le coach s’appuie sur vos vrais clients.</p></div></div>';
-    draw('<div class="abar"><span style="width:100%"></span></div><div class="rk">Votre analyse</div><h1 class="rh">' + head + '</h1><p class="rsub">' + sub + "</p>" + gain + tabs + pane0 + pane1 + pane2 +
+    draw('<div class="abar"><span style="width:100%"></span></div><div class="rk">Votre analyse</div><h1 class="rh">' + head + '</h1><p class="rsub">' + sub + "</p>" + gain + roi + tabs + pane0 + pane1 + pane2 +
       '<div class="rfor"><h2>Ce que Recharge fait pour vous</h2><ul>' + forList + "</ul></div>" +
       '<div class="rtry"><h2>Passez de l’estimation à vos vrais clients</h2><p>Ajoutez vos 3 premiers clients : Recharge vous dit qui relancer cette semaine, avec le message prêt. Gratuit, sans compte, vos données restent dans votre téléphone.</p>' +
       '<a class="btn orange" id="tryGo" href="/app/?from=analyse">Essayer avec mes clients' + ARROW + "</a><small>2 minutes · Toutes marques</small></div>" +
@@ -269,7 +289,8 @@ body{background:var(--bg)}
       var an = Math.round(nw * netA.valClient / 10) * 10;
       document.getElementById("anCA").textContent = "≈ " + fmt(an) + " €";
       document.getElementById("rgNew").textContent = nw; document.getElementById("rgRes").textContent = fmt(an);
-      document.getElementById("rgTotal").textContent = fmt(netA.relAn + an);
+      document.getElementById("rgTotal").textContent = fmt(netA.reveilAn + an);
+      var fo = document.getElementById("rgFois"); if (fo) fo.textContent = Math.floor((netA.reveilAn + an) / 89) + " fois";
     };
     if (!netUpd) {
       netUpd = constellation(svg, svg.parentNode.querySelector(".pot-mid"), document.getElementById("anTot"));
@@ -297,7 +318,7 @@ body{background:var(--bg)}
     if (!a) return;
     if (a.dataset.a === "back") { st.i = Math.max(0, st.i - 1); question(); }
     if (a.dataset.a === "next") { track("analyse_q4"); result(); }
-    if (a.dataset.a === "again") { st = { i: 0, clients: null, cat: null, orders: null, pains: [] }; question(); }
+    if (a.dataset.a === "again") { st = { i: 0, clients: null, cat: null, dorm: null, pains: [] }; question(); }
   });
   question();
 })();

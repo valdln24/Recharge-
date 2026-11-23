@@ -216,6 +216,7 @@ main{max-width:560px;margin:0 auto;padding:6px 16px 24px}
 .upplan b{font-size:1.5rem;letter-spacing:-.03em}.upplan span{font-size:.8rem;font-weight:650;color:var(--ink-2)}
 .upplan i{position:absolute;top:-11px;font-style:normal;font-size:.7rem;font-weight:800;color:#fff;background:var(--grad);border-radius:99px;padding:3px 9px}
 .upplan.on{border-color:var(--o1);background:var(--o-soft)}
+.upyear{grid-template-columns:1.35fr 1fr}.upyear .upplan small{font-size:.72rem;font-weight:800;color:var(--o-text);margin-top:2px}.upyear .upplan:first-child b{font-size:1.8rem}
 .plan-line{margin:4px 0 10px;font-weight:700;color:var(--o-text)}
 .chatleft{margin:10px 4px 0;font-size:.84rem;font-weight:650;color:var(--o-text)}.chatleft a{color:inherit}
 .gtypes{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
@@ -848,9 +849,10 @@ function openUpgrade() {
   openSheet(`<div class="shead"><h3>✨ Passer à Recharge</h3>${closeBtn}</div>
     <p class="lede" style="margin-top:8px"><b>14 jours gratuits</b>, puis sans engagement : vous résiliez en 1 clic quand vous voulez.</p>
     <ul class="perks"><li>♾️ <b>Clients illimités</b> (la version gratuite va jusqu'à 10)</li><li>🧭 <b>Coach IA illimité</b> : captures, réponses, messages</li><li>☁️ <b>Sauvegarde automatique</b> et vos clients sur un nouveau téléphone</li><li>💸 Ce que Recharge vous rapporte, chaque mois</li></ul>
-    <div class="upplans">
-      <button class="upplan ${upPeriod === "month" ? "on" : ""}" data-act="upPeriod" data-p="month"><b>9,90 €</b><span>par mois</span></button>
-      <button class="upplan ${upPeriod === "year" ? "on" : ""}" data-act="upPeriod" data-p="year"><i>−25 %</i><b>89 €</b><span>par an</span></button></div>
+    ${(() => { const an = S.analyse; return an && an.totalAn >= 178 ? `<p class="devnet" style="margin-top:12px">Votre analyse : jusqu'à <b>~${an.totalAn.toLocaleString("fr-FR")} € par an</b> à aller chercher, soit <b>${Math.floor(an.totalAn / 89)} fois</b> le prix de l'abonnement annuel.</p>` : ""; })()}
+    <div class="upplans upyear">
+      <button class="upplan ${upPeriod === "year" ? "on" : ""}" data-act="upPeriod" data-p="year"><i>Meilleur choix · −25 %</i><b>7,42 €</b><span>par mois, facturé 89 € par an</span><small>29,80 € d'économie</small></button>
+      <button class="upplan ${upPeriod === "month" ? "on" : ""}" data-act="upPeriod" data-p="month"><b>9,90 €</b><span>par mois, sans engagement</span></button></div>
     <button class="btn orange" style="margin-top:14px" data-act="upGo">Commencer mes 14 jours gratuits</button>
     <p class="hint" style="text-align:center">🔒 Paiement sécurisé par Stripe : Recharge ne voit jamais votre carte. Aucun prélèvement avant la fin de l'essai.</p>
     ${!session && API_OK ? `<button class="linkbtn" data-act="accLogin">J'ai déjà un compte : me connecter</button>` : ""}`);
@@ -2800,7 +2802,7 @@ function openOnboarding(step = 0, profileOnly) {
   const dots = `<div class="obbar"><span style="width:${Math.round((ob.i + 1) / (last + 1) * 100)}%"></span></div>`;
   const chips = (list, key, multi) => `<div class="pchips obchips">${list.map(([k, l]) => `<button type="button" class="pchip ${multi ? (ob[key].includes(k) ? "on" : "") : ob[key] === k ? "on" : ""}" data-act="obPick" data-k="${key}" data-v="${k}" data-m="${multi ? 1 : ""}">${l}</button>`).join("")}</div>`;
   let body = "";
-  if (ob.i === 0) body = `<h3 class="obq">${ob.profileOnly ? "Mon profil" : "Bienvenue sur Recharge 👋"}</h3><p class="lede">${ob.profileOnly ? "Ces infos rendent vos messages plus personnels." : ob.an && ob.an.renouv ? `Votre analyse est prête : environ <b>${ob.an.renouv} renouvellements</b> possibles chaque mois. Créons votre espace : 3 étapes, moins de 2 minutes.` : "3 étapes, moins de 2 minutes. Ensuite, Recharge vous dit qui relancer aujourd'hui."}</p>
+  if (ob.i === 0) body = `<h3 class="obq">${ob.profileOnly ? "Mon profil" : "Bienvenue sur Recharge 👋"}</h3><p class="lede">${ob.profileOnly ? "Ces infos rendent vos messages plus personnels." : ob.an && ob.an.totalAn ? `Votre analyse est prête : jusqu'à <b>~${ob.an.totalAn.toLocaleString("fr-FR")} € par an</b> à aller chercher. Créons votre espace : 3 étapes, moins de 2 minutes.` : ob.an && ob.an.renouv ? `Votre analyse est prête : environ <b>${ob.an.renouv} renouvellements</b> possibles chaque mois. Créons votre espace : 3 étapes, moins de 2 minutes.` : "3 étapes, moins de 2 minutes. Ensuite, Recharge vous dit qui relancer aujourd'hui."}</p>
     <label class="field"><span>Votre prénom</span><input class="input" id="obName" value="${esc(ob.name)}" placeholder="ex. : Laura" autocomplete="given-name"></label>
     <label class="field"><span>Votre marque</span><input class="input" id="obBrand" list="obBrands" value="${esc(ob.brand)}" placeholder="Écrivez le nom de votre marque"></label>
     <datalist id="obBrands">${OB_BRANDS.map(b => `<option value="${esc(b)}">`).join("")}</datalist>`;
