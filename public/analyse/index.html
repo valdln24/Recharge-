@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F7F6F3">
+<meta name="color-scheme" content="only light">
+<title>Analyser mon activité · Recharge</title>
+<meta name="description" content="En 2 minutes, estimez les renouvellements qui vous attendent ce mois-ci et ce que vos relances oubliées vous coûtent. Gratuit, sans compte.">
+<link rel="canonical" href="https://recharge.delaineval.workers.dev/analyse/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Recharge">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:url" content="https://recharge.delaineval.workers.dev/analyse/">
+<meta property="og:title" content="Analyser mon activité · Recharge">
+<meta property="og:description" content="En 2 minutes, estimez les renouvellements qui vous attendent ce mois-ci et ce que vos relances oubliées vous coûtent. Gratuit, sans compte.">
+<meta property="og:image" content="https://recharge.delaineval.workers.dev/og-image.jpg?v=3">
+<meta property="og:image:secure_url" content="https://recharge.delaineval.workers.dev/og-image.jpg?v=3">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Recharge, le coach des VDI : l'appli affichée sur un téléphone">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Analyser mon activité · Recharge">
+<meta name="twitter:description" content="En 2 minutes, estimez les renouvellements qui vous attendent ce mois-ci et ce que vos relances oubliées vous coûtent. Gratuit, sans compte.">
+<meta name="twitter:image" content="https://recharge.delaineval.workers.dev/og-image.jpg?v=3">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3">
+<link rel="icon" href="/favicon.ico?v=3" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=3">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 200%22%3E%3Crect width=%22200%22 height=%22200%22 rx=%2246%22 fill=%22%23FF7A33%22/%3E%3Cg transform=%22translate%280 -5%29%22%3E%3Cpath d=%22M122.4 66.9A44 44 0 1 1 81.4 65.1%22 fill=%22none%22 stroke=%22%23ffffff%22 stroke-width=%2217%22/%3E%3Cpath d=%22M66.5 47.5L101 52.5L80.5 80Z%22 fill=%22%23ffffff%22 stroke=%22%23ffffff%22 stroke-width=%223%22 stroke-linejoin=%22round%22/%3E%3Cpath d=%22M109 76L84 111H99L91 136L118 99H103Z%22 fill=%22%23ffffff%22 stroke=%22%23ffffff%22 stroke-width=%223%22 stroke-linejoin=%22round%22/%3E%3C/g%3E%3C/svg%3E">
+<link rel="stylesheet" href="/assets/site.css?v=6">
+
+<style>
+body{background:var(--bg)}
+.sfab,.mcta{display:none!important}
+.an{position:relative;isolation:isolate;min-height:100svh;padding:calc(88px + env(safe-area-inset-top)) 0 70px}
+.an::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background-image:linear-gradient(rgba(20,35,59,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(20,35,59,.045) 1px,transparent 1px);background-size:44px 44px;-webkit-mask-image:radial-gradient(60% 50% at 50% 10%,#000,transparent 75%);mask-image:radial-gradient(60% 50% at 50% 10%,#000,transparent 75%)}
+.an .wrap{max-width:620px}
+.atop{position:fixed;top:0;left:0;right:0;z-index:20;padding:calc(12px + env(safe-area-inset-top)) 0 12px;background:rgba(247,246,243,.88);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.atop .wrap{max-width:620px;display:flex;align-items:center;justify-content:space-between}
+.atop a.q{font-size:.88rem;font-weight:700;color:var(--ink-3)}
+.abar{height:6px;border-radius:9px;background:#E9E6E1;overflow:hidden;margin-bottom:28px}.abar span{display:block;height:100%;background:var(--orange);border-radius:9px;transition:width .35s}
+.astep{font-size:.78rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--o-text)}
+.aq{font-size:clamp(1.8rem,5.4vw,2.5rem);letter-spacing:-.04em;line-height:1.1;margin:10px 0 8px}
+.asub{color:var(--ink-2);margin:0 0 22px;font-size:1rem}
+.aopts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.aopt{display:flex;flex-direction:column;gap:3px;text-align:left;border:1.5px solid var(--line);background:#fff;border-radius:18px;padding:16px;font:inherit;color:var(--ink);cursor:pointer;transition:border-color .15s,transform .1s,background .15s}
+.aopt:active{transform:scale(.98)}.aopt b{font-size:1.04rem;letter-spacing:-.01em}.aopt small{color:var(--ink-3);font-weight:600;font-size:.82rem}
+.aopt.on{border-color:var(--navy);background:var(--navy);color:#fff}.aopt.on small{color:#B9C3D3}
+.aopts.wide{grid-template-columns:1fr}
+.anav{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:24px}
+.anav .back{background:none;border:0;font:inherit;font-weight:700;color:var(--ink-3);cursor:pointer;padding:10px 4px}
+.anav .btn{min-width:180px}
+.btn[disabled]{opacity:.45;pointer-events:none}
+/* résultats */
+.rk{font-size:.78rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--o-text)}
+.rh{font-size:clamp(1.9rem,5.6vw,2.7rem);letter-spacing:-.045em;line-height:1.08;margin:10px 0 10px}
+.rh em{font-style:normal;color:var(--orange)}
+.rsub{color:var(--ink-2);font-size:1.02rem;margin:0}
+.rstats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:24px 0 12px}
+.rs{background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px 14px}
+.rs b{display:block;font-size:1.9rem;letter-spacing:-.05em;line-height:1}.rs span{display:block;font-size:.78rem;font-weight:650;color:var(--ink-2);margin-top:6px;line-height:1.3}
+.rs.hl{background:var(--navy);border-color:var(--navy);color:#fff}.rs.hl b{color:var(--orange)}.rs.hl span{color:#B9C3D3}
+.rbars{background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px;display:grid;gap:12px}
+.rbar small{display:flex;justify-content:space-between;font-size:.82rem;font-weight:700;color:var(--ink-2);margin-bottom:6px}
+.rbar i{display:block;height:10px;border-radius:9px;background:#EEEBE6;overflow:hidden}.rbar i span{display:block;height:100%;border-radius:9px;background:var(--navy)}.rbar.o i span{background:var(--orange)}
+.rweek{margin-top:12px;padding:14px 16px;border-radius:16px;background:var(--o-soft);font-weight:650;color:#7A3A12}
+.rhyp{margin:12px 2px 0;font-size:.8rem;color:var(--ink-3);line-height:1.5}
+.rfor{margin-top:30px}.rfor h2{font-size:1.35rem;letter-spacing:-.03em;margin:0 0 12px}
+.rfor ul{list-style:none;padding:0;margin:0;display:grid;gap:8px}
+.rfor li{display:flex;gap:12px;align-items:flex-start;background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px 16px;font-size:.95rem;line-height:1.45}
+.rfor li i{flex:none;width:24px;height:24px;border-radius:50%;background:var(--orange);display:grid;place-items:center;margin-top:1px}
+.rfor li i svg{width:13px;height:13px;color:var(--navy)}
+.rtry{margin-top:30px;border-radius:24px;padding:26px 22px;color:#fff;background:var(--dark)}
+.rtry h2{font-size:1.5rem;letter-spacing:-.035em;margin:0 0 8px}.rtry p{color:#C3CCDA;margin:0 0 18px}
+.rtry .btn{width:100%}
+.rtry small{display:block;text-align:center;margin-top:10px;color:#9FAAC0;font-weight:600;font-size:.8rem}
+.rsave{margin-top:14px;background:#fff;border:1px solid var(--line);border-radius:24px;padding:20px}
+.rsave h3{margin:0 0 4px;font-size:1.08rem;letter-spacing:-.02em}.rsave p{margin:0 0 12px;color:var(--ink-2);font-size:.9rem}
+.rsave form{display:flex;gap:8px;flex-wrap:wrap}
+.rsave input[type=email]{flex:1 1 220px;min-height:50px;border:1px solid var(--line);border-radius:14px;padding:0 14px;font:inherit;font-size:16px;background:var(--bg);color:var(--ink)}
+.rsave input[type=email]:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 4px rgba(20,35,59,.08)}
+.rsave .btn{flex:0 0 auto;min-height:50px}
+.rsave label.ck{display:flex;gap:8px;align-items:flex-start;margin-top:10px;font-size:.8rem;color:var(--ink-3);font-weight:600;line-height:1.4}
+.rsave .ok{color:#1F8F58;font-weight:700}.rsave .err{color:#C2362B;font-weight:700;margin-top:8px}
+.again{display:block;margin:22px auto 0;background:none;border:0;font:inherit;font-weight:700;color:var(--ink-3);text-decoration:underline;cursor:pointer}
+.fade{animation:afade .35s cubic-bezier(.2,.8,.2,1) both}@keyframes afade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media (max-width:520px){.rstats{grid-template-columns:1fr 1fr}.rstats .rs.hl{grid-column:1/-1}.rsave .btn{width:100%}}
+@media (max-width:360px){.aopts{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){.fade{animation:none}}
+</style>
+</head>
+<body>
+<header class="atop"><div class="wrap"><a class="logo" href="/" aria-label="Recharge, accueil"><svg class="logo-svg" viewBox="10 40 620 125" style="height:30px;width:auto" role="img" aria-label="Recharge"><g class="rmark"><defs><linearGradient id="rganalyseindexhtml1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F59A4A"/><stop offset=".5" stop-color="#DB6578"/><stop offset="1" stop-color="#7C7CF2"/></linearGradient></defs><path d="M122.4 66.9A44 44 0 1 1 81.4 65.1" fill="none" stroke="url(#rganalyseindexhtml1)" stroke-width="17"/><path d="M66.5 47.5L101 52.5L80.5 80Z" fill="#7B83F6" stroke="#7B83F6" stroke-width="3" stroke-linejoin="round"/><path d="M109 76L84 111H99L91 136L118 99H103Z" fill="#111111" stroke="#111111" stroke-width="3" stroke-linejoin="round"/></g><path d="M214.5 135.0H230.625V109.640625C230.625 102.609375 234.609375 98.578125 240.375 98.578125C242.71875 98.578125 245.578125 98.671875 246.75 98.71875V85.40625C245.4375 85.359375 244.078125 85.3125 242.34375 85.3125C235.734375 85.3125 232.03125 87.9375 230.25 94.21875H230.109375V85.5H214.5ZM272.83875 136.125C285.354375 136.125 295.33875 129.140625 297.166875 119.15625H282.6825C281.510625 122.4375 278.135625 124.5 273.40125 124.5C267.02625 124.5 263.27625 120.515625 263.08875 114.234375H297.541875V109.875C297.541875 94.875 287.27625 84.375 272.416875 84.375C257.745 84.375 247.33875 95.15625 247.33875 110.25C247.33875 125.34375 257.65125 136.125 272.83875 136.125ZM263.1825 104.578125C263.885625 99.375 267.40125 96.28125 272.83875 96.28125C278.229375 96.28125 281.791875 99.375 282.495 104.578125ZM324.943125 136.125C338.95875 136.125 348.89625 127.5 349.224375 115.40625H333.615C333.005625 120.234375 330.0525 123.328125 325.27125 123.328125C319.27125 123.328125 315.70875 118.359375 315.70875 110.25C315.70875 102.140625 319.224375 97.171875 325.27125 97.171875C330.0525 97.171875 333.14625 100.21875 333.661875 104.953125H349.224375C348.52125 92.8125 338.724375 84.375 324.943125 84.375C309.615 84.375 299.349375 94.875 299.349375 110.25C299.349375 125.671875 309.615 136.125 324.943125 136.125ZM369.219375 108.09375C369.219375 101.34375 372.500625 98.203125 377.61 98.203125C382.719375 98.203125 385.6725 101.390625 385.6725 107.25V135.0H401.7975V103.875C401.7975 91.6875 395.51625 84.421875 384.781875 84.421875C377.51625 84.421875 372.5475 87.703125 369.219375 93.140625V65.15625H353.094375V135.0H369.219375ZM423.058125 135.84375C430.0425 135.84375 434.495625 133.40625 437.44875 128.0625H437.63625V135.0H453.38625V101.671875C453.38625 90.75 445.464375 84.421875 431.07375 84.421875C416.73 84.421875 408.620625 90.796875 407.9175 101.53125H422.9175C423.245625 98.15625 426.01125 96.0 430.51125 96.0C434.776875 96.0 437.401875 98.015625 437.401875 100.96875V101.203125C437.401875 104.15625 434.1675 104.859375 425.308125 105.609375C414.76125 106.453125 406.089375 110.0625 406.089375 121.171875C406.089375 131.015625 413.1675 135.84375 423.058125 135.84375ZM427.98 125.296875C424.0425 125.296875 421.370625 123.46875 421.370625 120.421875C421.370625 117.1875 424.464375 115.40625 428.776875 114.75C432.76125 114.09375 435.808125 113.484375 437.5425 112.6875V117.1875C437.5425 122.0625 433.370625 125.296875 427.98 125.296875ZM459.50625 135.0H475.63125V109.640625C475.63125 102.609375 479.615625 98.578125 485.38125 98.578125C487.725 98.578125 490.584375 98.671875 491.75625 98.71875V85.40625C490.44375 85.359375 489.084375 85.3125 487.35 85.3125C480.740625 85.3125 477.0375 87.9375 475.25625 94.21875H475.115625V85.5H459.50625ZM518.829375 155.25C534.298125 155.25 544.048125 148.40625 544.048125 132.28125V85.5H528.016875V92.4375H527.97C524.87625 87.234375 520.048125 84.421875 513.62625 84.421875C501.06375 84.421875 492.345 95.015625 492.345 109.734375C492.345 124.265625 500.7825 134.671875 513.766875 134.671875C520.235625 134.671875 525.345 132.09375 527.97 126.234375H528.016875V133.875C528.016875 140.4375 524.829375 143.8125 518.829375 143.8125C514.18875 143.8125 511.048125 141.9375 510.204375 138.84375H494.7825C496.2825 148.359375 503.595 155.25 518.829375 155.25ZM518.266875 122.015625C512.360625 122.015625 508.704375 117.328125 508.704375 109.453125C508.704375 101.625 512.360625 96.9375 518.266875 96.9375C524.360625 96.9375 528.5325 101.859375 528.5325 109.453125C528.5325 117.09375 524.360625 122.015625 518.266875 122.015625ZM573.605625 136.125C586.12125 136.125 596.105625 129.140625 597.93375 119.15625H583.449375C582.2775 122.4375 578.9025 124.5 574.168125 124.5C567.793125 124.5 564.043125 120.515625 563.855625 114.234375H598.30875V109.875C598.30875 94.875 588.043125 84.375 573.18375 84.375C558.511875 84.375 548.105625 95.15625 548.105625 110.25C548.105625 125.34375 558.418125 136.125 573.605625 136.125ZM563.949375 104.578125C564.6525 99.375 568.168125 96.28125 573.605625 96.28125C578.99625 96.28125 582.55875 99.375 583.261875 104.578125Z" fill="#111111"/><path d="M614.793125 135.890625C619.668125 135.890625 623.605625 131.953125 623.605625 127.03125C623.605625 122.15625 619.668125 118.21875 614.793125 118.21875C609.918125 118.21875 605.980625 122.15625 605.980625 127.03125C605.980625 131.953125 609.918125 135.890625 614.793125 135.890625Z" fill="#7B83F6"/></svg></a><a class="q" href="/">Quitter</a></div></header>
+<main class="an"><div class="wrap" id="an" aria-live="polite"></div></main>
+<script src="/assets/site.js?v=6" defer></script>
+<script>
+(function () {
+  "use strict";
+  var KEY = "recharge.analyse";
+  var CLIENTS = [["1 à 10", 6], ["10 à 25", 18], ["25 à 50", 38], ["50 à 100", 75], ["100 et plus", 130]];
+  // Durée moyenne d'un produit avant d'être racheté, et panier moyen : des hypothèses prudentes, affichées dans les résultats
+  var CATS = [["bien", "Bien-être, compléments", "racheté environ tous les mois", 30, 45], ["soin", "Cosmétiques, soins", "environ toutes les 6 semaines", 45, 38],
+    ["maison", "Maison, entretien", "environ tous les 2 mois", 60, 30], ["cuisine", "Cuisine", "environ tous les 3 mois", 90, 40],
+    ["parfum", "Bougies, parfums", "environ toutes les 6 semaines", 45, 32], ["autre", "Autre", "environ toutes les 6 semaines", 45, 35]];
+  var ORDERS = [["Moins de 5", 3], ["5 à 15", 10], ["15 à 30", 22], ["Plus de 30", 40]];
+  var PAINS = [["oubli", "J'oublie de relancer", "Les clients passent entre les mailles"], ["quoi", "Je ne sais pas quoi écrire", "Peur de déranger, message qui sonne faux"],
+    ["temps", "Je manque de temps", "Tout se fait entre deux rendez-vous"], ["nouveaux", "Trouver de nouveaux clients", "Le carnet ne grandit plus"],
+    ["equipe", "Suivre mon équipe", "Mes filleuls ont besoin d'aide"], ["dispersé", "Tout est dispersé", "Carnet, notes, messages, mémoire…"]];
+  var FOR = {
+    oubli: "Chaque matin, la liste des clients à relancer, calculée selon la durée de chacun de leurs produits.",
+    quoi: "Le message est déjà écrit pour chaque client, avec son prénom et à votre ton : il suffit de l'envoyer sur WhatsApp.",
+    temps: "Un plan du jour adapté au temps que vous avez : 15 minutes, 30 minutes ou une heure.",
+    nouveaux: "Des idées de prospection et des demandes de recommandation au bon moment, quand un client est satisfait.",
+    equipe: "L'offre Équipe : chaque filleul a son Recharge, et vous suivez les résultats de l'équipe.",
+    "dispersé": "Tous vos clients, leurs achats et vos relances au même endroit, même sans connexion internet."
+  };
+  var CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l4.5 4.5L19.5 6.5"/></svg>';
+  var ARROW = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+  var el = document.getElementById("an");
+  var st = { i: 0, clients: null, cat: null, orders: null, pains: [] };
+  var track = function (e) { try { var b = JSON.stringify({ e: e }); if (navigator.sendBeacon) navigator.sendBeacon("/api/event", new Blob([b], { type: "application/json" })); else fetch("/api/event", { method: "POST", headers: { "Content-Type": "application/json" }, body: b, keepalive: true }); } catch (x) {} };
+  var esc = function (s) { return String(s).replace(/[&<>"']/g, function (m) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]; }); };
+  var fmt = function (n) { return Math.round(n).toLocaleString("fr-FR"); };
+  var accounts = false;
+  fetch("/api/health").then(function (r) { return r.ok ? r.json() : null; }).then(function (j) { accounts = !!(j && j.accounts); var b = document.getElementById("rsave"); if (b) { if (accounts) b.hidden = false; else b.remove(); } }).catch(function () {});
+
+  var c0 = new URLSearchParams(location.search).get("c");
+  if (c0 !== null && CLIENTS[+c0]) { st.clients = +c0; st.i = 1; track("analyse_q1"); }
+  track("analyse_debut");
+
+  function steps() {
+    return [
+      { k: "clients", t: "Combien de clients suivez-vous ?", s: "Les personnes qui vous achètent régulièrement, même de temps en temps.", o: CLIENTS.map(function (x, n) { return [n, x[0], ""]; }) },
+      { k: "cat", t: "Que vendez-vous surtout ?", s: "Recharge connaît la durée habituelle de chaque type de produit.", o: CATS.map(function (x, n) { return [n, x[1], x[2]]; }) },
+      { k: "orders", t: "Combien de commandes passez-vous par mois ?", s: "Une estimation suffit.", o: ORDERS.map(function (x, n) { return [n, x[0], ""]; }) },
+      { k: "pains", multi: true, t: "Qu'est-ce qui vous freine aujourd'hui ?", s: "Plusieurs réponses possibles.", o: PAINS.map(function (x) { return [x[0], x[1], x[2]]; }) }
+    ];
+  }
+  function draw(html) { el.innerHTML = '<div class="fade">' + html + "</div>"; window.scrollTo(0, 0); }
+  function question() {
+    var S = steps(), q = S[st.i], val = st[q.k];
+    var opts = q.o.map(function (o) {
+      var on = q.multi ? st.pains.indexOf(o[0]) >= 0 : val === o[0];
+      return '<button type="button" class="aopt' + (on ? " on" : "") + '" data-v="' + o[0] + '"><b>' + esc(o[1]) + "</b>" + (o[2] ? "<small>" + esc(o[2]) + "</small>" : "") + "</button>";
+    }).join("");
+    draw('<div class="abar"><span style="width:' + Math.round((st.i + 1) / (S.length + 1) * 100) + '%"></span></div>' +
+      '<div class="astep">Question ' + (st.i + 1) + " sur " + S.length + "</div>" +
+      '<h1 class="aq">' + q.t + '</h1><p class="asub">' + q.s + "</p>" +
+      '<div class="aopts' + (q.o.length < 5 && !q.multi ? "" : "") + '">' + opts + "</div>" +
+      '<div class="anav">' + (st.i > 0 ? '<button type="button" class="back" data-a="back">← Retour</button>' : "<span></span>") +
+      (q.multi ? '<button type="button" class="btn orange" data-a="next"' + (st.pains.length ? "" : " disabled") + ">Voir mon analyse" + ARROW + "</button>" : "") + "</div>");
+  }
+  function compute() {
+    var n = CLIENTS[st.clients][1], c = CATS[st.cat], o = ORDERS[st.orders][1];
+    var rate = 0.6, renouv = Math.max(1, Math.round(n * 30 / c[3] * rate)), ecart = Math.max(0, renouv - o);
+    var enjeu = Math.round(ecart * c[4] / 10) * 10, semaine = Math.max(1, Math.round(n * 7 / c[3] * rate));
+    return { clients: n, cat: c[0], catLabel: c[1], orders: o, pains: st.pains.slice(), renouv: renouv, ecart: ecart, enjeu: enjeu, panier: c[4], duree: c[3], semaine: semaine, at: new Date().toISOString().slice(0, 10) };
+  }
+  function result() {
+    var a = compute();
+    try { localStorage.setItem(KEY, JSON.stringify(a)); } catch (e) {}
+    track("analyse_resultat");
+    var max = Math.max(a.renouv, a.orders, 1);
+    var head = a.ecart > 0
+      ? "Environ <em>" + a.renouv + " renouvellements</em> vous attendent chaque mois."
+      : "Votre rythme de commandes suit déjà <em>vos clients</em>.";
+    var sub = a.ecart > 0
+      ? "Avec environ " + fmt(a.clients) + " clients en " + esc(a.catLabel.toLowerCase()) + ", une partie des rachats possibles ne se fait pas, simplement parce que personne ne relance au bon moment."
+      : "Avec environ " + fmt(a.clients) + " clients en " + esc(a.catLabel.toLowerCase()) + ", vous êtes déjà très régulier(e). Recharge vous aide à garder ce rythme sans y penser, et à faire grandir votre clientèle.";
+    var stats = '<div class="rstats"><div class="rs"><b>' + a.renouv + '</b><span>renouvellements possibles par mois</span></div>' +
+      '<div class="rs"><b>~' + a.orders + '</b><span>commandes aujourd’hui par mois</span></div>' +
+      (a.ecart > 0 ? '<div class="rs hl"><b>~' + fmt(a.enjeu) + ' €</b><span>de chiffre d’affaires en jeu chaque mois</span></div>' : '<div class="rs hl"><b>' + a.semaine + '</b><span>clients à recontacter cette semaine</span></div>') + "</div>";
+    var bars = '<div class="rbars"><div class="rbar o"><small><span>Renouvellements possibles</span><span>' + a.renouv + '</span></small><i><span style="width:' + Math.round(a.renouv / max * 100) + '%"></span></i></div>' +
+      '<div class="rbar"><small><span>Vos commandes aujourd’hui</span><span>~' + a.orders + '</span></small><i><span style="width:' + Math.round(a.orders / max * 100) + '%"></span></i></div></div>';
+    var week = '<div class="rweek">Cette semaine, environ ' + a.semaine + " de vos clients arrivent au bout de leur produit. C’est le bon moment pour leur écrire.</div>";
+    var hyp = '<p class="rhyp">Estimation, pas une promesse : produit racheté ' + esc(CATS[st.cat][2]) + ", 6 clients sur 10 qui rachètent, panier moyen d’environ " + a.panier + " €. Avec vos vrais clients, Recharge calcule tout précisément.</p>";
+    var keys = a.pains.length ? a.pains : ["oubli", "quoi", "temps"];
+    var forList = keys.slice(0, 4).map(function (k) { return "<li><i>" + CHECK + "</i><span>" + FOR[k] + "</span></li>"; }).join("");
+    var save = '<div class="rsave" id="rsave"><h3>Gardez votre analyse</h3><p>Recevez un lien d’accès par email : vous retrouvez vos résultats dans Recharge, sur n’importe quel téléphone.</p>' +
+      '<form id="saveForm" novalidate><input type="email" id="saveEmail" inputmode="email" autocomplete="email" placeholder="vous@exemple.fr" required aria-label="Votre email"><button class="btn dark" type="submit">Recevoir mon lien</button></form>' +
+      '<label class="ck"><input type="checkbox" id="saveNews"> Je veux aussi recevoir des conseils de vente par email (1 à 2 par mois, désinscription en 1 clic).</label><div id="saveMsg"></div></div>';
+    draw('<div class="abar"><span style="width:100%"></span></div><div class="rk">Votre analyse</div><h1 class="rh">' + head + '</h1><p class="rsub">' + sub + "</p>" + stats + bars + week + hyp +
+      '<div class="rfor"><h2>Ce que Recharge fait pour vous</h2><ul>' + forList + "</ul></div>" +
+      '<div class="rtry"><h2>Passez de l’estimation à vos vrais clients</h2><p>Ajoutez vos 3 premiers clients : Recharge vous dit qui relancer cette semaine, avec le message prêt. Gratuit, sans compte, vos données restent dans votre téléphone.</p>' +
+      '<a class="btn orange" id="tryGo" href="/app/?from=analyse">Essayer avec mes clients' + ARROW + "</a><small>2 minutes · Toutes marques</small></div>" +
+      (accounts ? save : save.replace('class="rsave"', 'class="rsave" hidden')) +
+      '<button type="button" class="again" data-a="again">Refaire l’analyse</button>');
+    var f = document.getElementById("saveForm");
+    if (f) f.addEventListener("submit", submitSave);
+    if (accounts) { var b = document.getElementById("rsave"); if (b) b.hidden = false; }
+    document.getElementById("tryGo").addEventListener("click", function () { track("analyse_essai"); });
+  }
+  function submitSave(ev) {
+    ev.preventDefault();
+    var email = document.getElementById("saveEmail").value.trim(), msg = document.getElementById("saveMsg"), btn = ev.target.querySelector("button");
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { msg.innerHTML = '<p class="err">Cette adresse email ne semble pas valide.</p>'; return; }
+    btn.disabled = true; msg.innerHTML = "";
+    var a = {}; try { a = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch (e) {}
+    fetch("/api/lead", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: email, news: document.getElementById("saveNews").checked, analyse: a }) })
+      .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+      .then(function (x) {
+        btn.disabled = false;
+        if (!x.ok) { msg.innerHTML = '<p class="err">' + esc(x.j.error || "Une erreur est survenue. Réessayez.") + "</p>"; return; }
+        track("analyse_email");
+        ev.target.outerHTML = '<p class="ok">C’est envoyé ! Ouvrez l’email depuis ce téléphone : le lien vous connecte à Recharge avec votre analyse.</p>' + (x.j.devLink ? '<p><a href="' + esc(x.j.devLink) + '">Lien de test</a> · code ' + esc(x.j.devCode) + "</p>" : "");
+      })
+      .catch(function () { btn.disabled = false; msg.innerHTML = '<p class="err">Pas de connexion internet pour le moment.</p>'; });
+  }
+  el.addEventListener("click", function (e) {
+    var o = e.target.closest(".aopt"), a = e.target.closest("[data-a]");
+    if (o) {
+      var q = steps()[st.i], v = o.dataset.v;
+      if (q.multi) { var k = st.pains.indexOf(v); if (k >= 0) st.pains.splice(k, 1); else st.pains.push(v); question(); return; }
+      st[q.k] = +v; track("analyse_q" + (st.i + 1));
+      o.classList.add("on"); setTimeout(function () { st.i++; question(); }, 180); return;
+    }
+    if (!a) return;
+    if (a.dataset.a === "back") { st.i = Math.max(0, st.i - 1); question(); }
+    if (a.dataset.a === "next") { track("analyse_q4"); result(); }
+    if (a.dataset.a === "again") { st = { i: 0, clients: null, cat: null, orders: null, pains: [] }; question(); }
+  });
+  question();
+})();
+</script>
+</body>
+</html>

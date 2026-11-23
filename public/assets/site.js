@@ -245,3 +245,30 @@ if (potSvg) {
     var p = v.play(); if (p && p.catch) p.catch(function () {});
   });
 })();
+
+/* ---------- Mesure anonyme du parcours : un simple compteur par étape (aucun cookie, aucun identifiant) ---------- */
+window.rcTrack = function (e) {
+  try {
+    var body = JSON.stringify({ e: e });
+    if (navigator.sendBeacon) navigator.sendBeacon("/api/event", new Blob([body], { type: "application/json" }));
+    else fetch("/api/event", { method: "POST", headers: { "Content-Type": "application/json" }, body: body, keepalive: true });
+  } catch (x) {}
+};
+(function () {
+  if (location.pathname === "/" || location.pathname === "/index.html") window.rcTrack("site_visite");
+  /* Haut de page : le nombre de clients choisi ouvre l'analyse gratuite à la bonne question */
+  var card = document.getElementById("acard"); if (!card) return;
+  var go = document.getElementById("acGo"), chips = card.querySelectorAll(".achips button");
+  chips.forEach(function (b) {
+    b.addEventListener("click", function () {
+      chips.forEach(function (x) { x.classList.toggle("on", x === b); });
+      go.href = "/analyse/?c=" + b.dataset.c;
+    });
+  });
+  go.addEventListener("click", function () { window.rcTrack("analyse_cta"); });
+  var fab = document.querySelector(".sfab");
+  if (fab) {
+    var upd = function () { fab.classList.toggle("wait", card.getBoundingClientRect().bottom > 0); };
+    upd(); addEventListener("scroll", upd, { passive: true });
+  }
+})();

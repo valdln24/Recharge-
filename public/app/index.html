@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#08152E">
+<meta name="theme-color" content="#F7F6F3">
 <meta name="color-scheme" content="only light">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -569,37 +569,30 @@ nav.tabs .tab.on svg{width:38px;height:38px;padding:8px;margin:-8px 0 -5px;borde
 }
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 /* =====================================================================
-   Identité « Marine », version entre-deux : l'appli reste claire et épurée,
-   le bleu marine structure (barre du haut, grand bloc d'accueil, boutons),
-   l'orange n'est plus qu'un petit accent (notifications, repères).
-   Même logique que le site : haut en marine, contenu sur blanc.
+   Identité « Fusion » : la clarté du Recharge d'origine + la profondeur du bleu nuit.
+   Fond clair, logo d'origine, grands blocs et boutons courants en bleu nuit,
+   orange plein (sans dégradé ni halo) pour le bouton + et les actions clés.
    Recoloration uniquement ; supprimer ce bloc pour revenir à l'ancien design.
    ===================================================================== */
 :root{
-  --navy:#08152E; --navy-2:#102B50; --navy-3:#163A66; --orange:#FF8A32; --paper:#F1F4F8; --green:#35B879;
-  --bg:#F4F6FA; --surface:#ffffff; --surface-2:#EEF2F7; --line:#E4E9F0; --line-2:#D6DEE8;
-  --ink:#08152E; --ink-2:#44536B; --ink-3:#7A879B;
-  --o1:#FF8A32; --o2:#FF9F55; --o3:#FFC497; --o-soft:#FFF1E6; --o-text:#D9661A;
-  --grad:linear-gradient(135deg,#FFA352 0%,#FF8A32 100%);
-  --btn:#08152E; --btn-ink:#ffffff;
+  --navy:#14233B; --navy-2:#1B2E4B; --navy-3:#2A4066; --orange:#FF782E; --paper:#F1F4F8; --green:#35B879;
+  --bg:#F7F6F3; --surface:#ffffff; --surface-2:#F1EFEB; --line:#E8E5E0; --line-2:#DAD6CF;
+  --ink:#14233B; --ink-2:#4C5A6E; --ink-3:#7E8899;
+  --o1:#FF782E; --o2:#FF9152; --o3:#FFC49B; --o-soft:#FFF1E7; --o-text:#D2601A;
+  --grad:linear-gradient(135deg,#FF8A45 0%,#FF782E 100%);
+  --btn:#14233B; --btn-ink:#ffffff;
   --b1:#2D5BB8; --b-soft:#E8EFFB; --b-text:#2D5BB8;
   --gradB:linear-gradient(135deg,#2F62AE 0%,#163A66 100%);
   --g:#35B879; --g-soft:#E5F6EE; --g-text:#1F8F58;
   --glow:rgba(91,141,239,.10); --glowB:rgba(91,141,239,.10);
-  --shadow:0 1px 2px rgba(8,21,46,.04),0 12px 30px -18px rgba(8,21,46,.22);
-  --navyblock:radial-gradient(70% 90% at 100% 0%,rgba(91,141,239,.32),transparent 60%),radial-gradient(60% 80% at 0% 100%,rgba(255,138,50,.12),transparent 65%),linear-gradient(155deg,#12305A,#08152E);
+  --shadow:0 1px 2px rgba(20,35,59,.04),0 12px 30px -18px rgba(20,35,59,.22);
+  --navyblock:radial-gradient(70% 90% at 100% 0%,rgba(123,131,246,.26),transparent 60%),radial-gradient(60% 80% at 0% 100%,rgba(255,120,46,.16),transparent 65%),linear-gradient(155deg,#1F3456,#14233B);
 }
 :focus-visible{outline-color:var(--b1)}
-/* barre du haut en marine, comme le menu du site */
-.topbar{background:rgba(8,21,46,.94);color:var(--paper);box-shadow:0 1px 0 rgba(241,244,248,.06)}
-.topbar .logo-svg path[fill="#111111"]{fill:var(--paper);stroke:var(--paper)}
-.topbar .pill,.topbar .micbtn{background:rgba(241,244,248,.08);border-color:rgba(241,244,248,.12);color:#D5DDEA;box-shadow:none}
-.topbar .micbtn span{color:#fff}
-.logo-svg path[fill="#7B83F6"]:not([stroke]){fill:var(--orange)}
-.logo-svg path[fill="#111111"]{fill:var(--navy);stroke:var(--navy)}
-.topbar .logo-svg path[fill="#111111"]{fill:var(--paper);stroke:var(--paper)}
+/* barre du haut claire, logo d'origine (fusion avec le Recharge du début) */
+.topbar{background:color-mix(in srgb,var(--bg) 82%,transparent);box-shadow:0 1px 0 var(--line)}
 /* grands blocs (accueil, coach, résultats) : marine profond, comme les bandeaux du site */
-.coach,.coachhero,.kpi{background:var(--navyblock);box-shadow:0 20px 40px -24px rgba(8,21,46,.7)}
+.coach,.coachhero,.kpi{background:var(--navyblock);box-shadow:0 20px 40px -24px rgba(20,35,59,.7)}
 .coach::after{background:rgba(241,244,248,.05)}
 .coach .hl-bar{background:rgba(241,244,248,.14)}.coach .hl-bar span{background:var(--orange)}
 .kpi::before{background-image:radial-gradient(rgba(241,244,248,.12) 1px,transparent 1.3px)}
@@ -608,27 +601,28 @@ nav.tabs .tab.on svg{width:38px;height:38px;padding:8px;margin:-8px 0 -5px;borde
 .lc-stamps i.on{background:var(--orange)}
 .hello,.devtip{background:linear-gradient(150deg,#EAF0FA,#F7F9FC);box-shadow:var(--shadow);border:1px solid var(--line)}
 .hl-line,.devtip p{color:var(--ink-2)}.hl-count{color:var(--ink-3)}.devtip .dt-k{color:var(--b-text)}
-.coach.hello{background:var(--navyblock);border:0;box-shadow:0 20px 40px -24px rgba(8,21,46,.7)}
+.coach.hello{background:var(--navyblock);border:0;box-shadow:0 20px 40px -24px rgba(20,35,59,.7)}
 .coach.hello .hl-line{color:#C6D0DF}.coach.hello .hl-count{color:#fff}
 /* boutons : marine sobre ; l'orange ne fait plus de gros aplats */
-.btn.primary,.btn.orange{background:var(--navy);color:#fff;box-shadow:0 10px 22px -14px rgba(8,21,46,.6)}
+.btn.primary{background:var(--navy);color:#fff;box-shadow:0 10px 22px -14px rgba(20,35,59,.6)}
+.btn.orange{background:var(--orange);color:var(--navy);font-weight:750;box-shadow:0 10px 22px -12px rgba(255,120,46,.7)}
 .btn.soft{background:var(--surface-2);color:var(--navy)}
-.acts .reco .ic{background:var(--navy);color:#fff;box-shadow:0 8px 18px -10px rgba(8,21,46,.6)}
+.acts .reco .ic{background:var(--navy);color:#fff;box-shadow:0 8px 18px -10px rgba(20,35,59,.6)}
 .acts .later .ic{background:var(--navy-3);color:#fff;box-shadow:none}
-.plus{background:var(--navy);color:#fff;box-shadow:0 10px 24px -8px rgba(8,21,46,.55),inset 0 0 0 2px rgba(255,138,50,.9)}
+.plus{background:var(--orange);color:var(--navy);box-shadow:0 10px 24px -8px rgba(255,120,46,.6)}
 .chatgo,.hsteps li>span,.obrow>b,.upplan i{background:var(--navy);color:#fff}
 .cm-av,.coachfab .cf-ring{background:var(--navy-2);color:var(--orange)}
 .coachfab{background:var(--navy)}
-.bravo{background:var(--navy);color:#fff;box-shadow:0 14px 30px -12px rgba(8,21,46,.6)}.bravo .bz{background:rgba(255,138,50,.2)}
+.bravo{background:var(--navy);color:#fff;box-shadow:0 14px 30px -12px rgba(20,35,59,.6)}.bravo .bz{background:rgba(255,138,50,.2)}
 .tchips button.on,.gtypes button.on,.satb button.on,.obtone.on,.upplan.on{border-color:var(--navy);background:#EEF2F8;color:var(--navy)}
 .pslide input[type=range]{background:linear-gradient(90deg,#2F62AE 0%,#08152E var(--p,0%),var(--surface-2) var(--p,0%))}
-.pslide input[type=range]::-webkit-slider-thumb{border-color:var(--navy);box-shadow:0 4px 12px rgba(8,21,46,.35)}
+.pslide input[type=range]::-webkit-slider-thumb{border-color:var(--navy);box-shadow:0 4px 12px rgba(20,35,59,.35)}
 .trange input{accent-color:var(--navy)}
 /* positif en vert */
 .status.ok,.chip.ok,.chip.done{color:var(--g-text)}.chip.ok,.chip.done{background:var(--g-soft)}
 .improw.ok{border-color:rgba(53,184,121,.45)}.itier.reel{background:var(--g-soft);color:var(--g-text)}
 /* navigation du bas : blanche, onglet actif marine */
-nav.tabs .tab.on svg{background:var(--navy);color:#fff;box-shadow:0 8px 18px -8px rgba(8,21,46,.55)}
+nav.tabs .tab.on svg{background:var(--navy);color:#fff;box-shadow:0 8px 18px -8px rgba(20,35,59,.55)}
 .dot{background:var(--orange);color:#fff}
 .toast{background:var(--navy);color:#fff}.toast button{color:var(--o2)}
 .sheet{background:#fff}
@@ -763,6 +757,11 @@ const writeLS = (k, v) => { try { v == null ? localStorage.removeItem(k) : local
 let session = DEMO ? null : readLS(SESSION_KEY);
 /* Les comptes n'existent que si le serveur est branché (sinon : site déposé seul, sans serveur) */
 let API_OK = false, COACH_OK = false, BILLING_OK = false;
+/* Mesure anonyme du parcours : un compteur par étape, sans cookie ni identifiant (jamais en mode démo) */
+const rcTrack = e => { if (DEMO || !location.protocol.startsWith("http")) return; try { navigator.sendBeacon(new URL("../api/event", location.href), new Blob([JSON.stringify({ e })], { type: "application/json" })); } catch (x) {} };
+/* L'analyse gratuite du site (réponses aux 4 questions) : elle personnalise l'accueil */
+const readAnalyse = () => { try { return JSON.parse(localStorage.getItem("recharge.analyse") || "null"); } catch (e) { return null; } };
+const FROM_ANALYSE = !DEMO && new URLSearchParams(location.search).get("from") === "analyse";
 const isPaidS = () => !!(session && session.paid);
 if (!DEMO && location.protocol.startsWith("http")) fetch(new URL("../api/health", location.href)).then(r => r.ok ? r.json() : null).then(j => { if (!j) return; API_OK = !!j.accounts; COACH_OK = !!j.coach; BILLING_OK = !!j.billing; if ((API_OK || COACH_OK || BILLING_OK) && typeof render === "function" && S) render(); }).catch(() => {});
 let sync = readLS(SYNC_KEY) || { rev: 0, dirty: false, lastAt: 0 };
@@ -825,6 +824,8 @@ function askConflict(serverInfo) {
 
 /* Après connexion (lien ou code) : on rapproche les données du téléphone et celles du compte */
 async function afterLogin(r) {
+  if (r.isNew) rcTrack("compte_cree");
+  if (r.analyse && !S.analyse) { S.analyse = r.analyse; save(); }
   session = { token: r.session, email: r.user.email, plan: r.user.plan, paid: !!r.user.paid, billing: !!r.user.billing, canSync: r.user.canSync };
   writeLS(SESSION_KEY, session);
   sync = { rev: 0, dirty: false, lastAt: 0 }; saveSync();
@@ -843,7 +844,7 @@ function openUpgrade() {
     <ul class="perks"><li>♾️ <b>Clients illimités</b> (la version gratuite va jusqu'à 10)</li><li>🧭 <b>Coach IA illimité</b> : captures, réponses, messages</li><li>☁️ <b>Sauvegarde automatique</b> et vos clients sur un nouveau téléphone</li><li>💸 Ce que Recharge vous rapporte, chaque mois</li></ul>
     <div class="upplans">
       <button class="upplan ${upPeriod === "month" ? "on" : ""}" data-act="upPeriod" data-p="month"><b>9,90 €</b><span>par mois</span></button>
-      <button class="upplan ${upPeriod === "year" ? "on" : ""}" data-act="upPeriod" data-p="year"><i>2 mois offerts</i><b>99 €</b><span>par an</span></button></div>
+      <button class="upplan ${upPeriod === "year" ? "on" : ""}" data-act="upPeriod" data-p="year"><i>−25 %</i><b>89 €</b><span>par an</span></button></div>
     <button class="btn orange" style="margin-top:14px" data-act="upGo">Commencer mes 14 jours gratuits</button>
     <p class="hint" style="text-align:center">🔒 Paiement sécurisé par Stripe : Recharge ne voit jamais votre carte. Aucun prélèvement avant la fin de l'essai.</p>
     ${!session && API_OK ? `<button class="linkbtn" data-act="accLogin">J'ai déjà un compte : me connecter</button>` : ""}`);
@@ -2786,13 +2787,13 @@ const toneOf = () => S.tone === "vous" ? "pro" : S.emoji === false ? "simple" : 
 const OB_AGO = [[7, "1 semaine"], [14, "2 semaines"], [21, "3 semaines"], [30, "1 mois"], [60, "2 mois"]];
 let obImporting = false;
 function openOnboarding(step = 0, profileOnly) {
-  if (!ob) { const p = prof(); ob = { i: 0, profileOnly: !!profileOnly, name: myName(), brand: p.brand || "", cats: cats().slice(), tone: p.tone || toneOf(), rows: [{}, {}, {}] }; }
+  if (!ob) { const p = prof(), an = S.analyse || readAnalyse(); ob = { i: 0, profileOnly: !!profileOnly, name: myName(), brand: p.brand || "", cats: cats().length ? cats().slice() : an && an.cat ? [an.cat] : [], tone: p.tone || toneOf(), rows: [{}, {}, {}], an: !profileOnly && !S.profile ? an : null }; }
   const last = ob.profileOnly ? 1 : 2;
   ob.i = Math.max(0, Math.min(last, step));
   const dots = `<div class="obbar"><span style="width:${Math.round((ob.i + 1) / (last + 1) * 100)}%"></span></div>`;
   const chips = (list, key, multi) => `<div class="pchips obchips">${list.map(([k, l]) => `<button type="button" class="pchip ${multi ? (ob[key].includes(k) ? "on" : "") : ob[key] === k ? "on" : ""}" data-act="obPick" data-k="${key}" data-v="${k}" data-m="${multi ? 1 : ""}">${l}</button>`).join("")}</div>`;
   let body = "";
-  if (ob.i === 0) body = `<h3 class="obq">${ob.profileOnly ? "Mon profil" : "Bienvenue sur Recharge 👋"}</h3><p class="lede">${ob.profileOnly ? "Ces infos rendent vos messages plus personnels." : "3 étapes, moins de 2 minutes. Ensuite, Recharge vous dit qui relancer aujourd'hui."}</p>
+  if (ob.i === 0) body = `<h3 class="obq">${ob.profileOnly ? "Mon profil" : "Bienvenue sur Recharge 👋"}</h3><p class="lede">${ob.profileOnly ? "Ces infos rendent vos messages plus personnels." : ob.an && ob.an.renouv ? `Votre analyse est prête : environ <b>${ob.an.renouv} renouvellements</b> possibles chaque mois. Créons votre espace : 3 étapes, moins de 2 minutes.` : "3 étapes, moins de 2 minutes. Ensuite, Recharge vous dit qui relancer aujourd'hui."}</p>
     <label class="field"><span>Votre prénom</span><input class="input" id="obName" value="${esc(ob.name)}" placeholder="ex. : Laura" autocomplete="given-name"></label>
     <label class="field"><span>Votre marque</span><input class="input" id="obBrand" list="obBrands" value="${esc(ob.brand)}" placeholder="Écrivez le nom de votre marque"></label>
     <datalist id="obBrands">${OB_BRANDS.map(b => `<option value="${esc(b)}">`).join("")}</datalist>`;
@@ -3812,6 +3813,7 @@ const actions = {
   copy: async el => { const ok = await copyText(currentMsg(el.dataset.id)); toast(ok ? "Message copié. Collez-le dans votre messagerie." : "Impossible de copier : sélectionnez le texte à la main."); },
   relance: el => {
     const s = sale(el.dataset.id), snap = snapshot();
+    if (!S.events.some(e => e.type === "relance" && !e.example)) rcTrack("premiere_relance");
     s.status = "relance"; s.relancedAt = today(); logEvent("relance", s);
     save(); render(); toast(`Bravo ! Relance de ${firstName(client(s.clientId).name)} notée.${cheer()}`, snap);
   },
@@ -4061,6 +4063,7 @@ const actions = {
     obApply();
     const n = ob.profileOnly ? 0 : obSaveContacts();
     if (!ob.profileOnly && !n && !confirm("Aucun client ajouté. Continuer avec les fiches d'exemple ?")) return;
+    if (!ob.profileOnly) { rcTrack("onboarding_fin"); if (n) rcTrack("premiers_clients"); }
     const po = ob.profileOnly; ob = null; save(); closeSheet(); tab = po ? "settings" : "today"; render(); window.scrollTo(0, 0);
     toast(po ? "Profil enregistré" : n ? `${plural(n, "client ajouté", "clients ajoutés")} : voici vos relances du jour` : "C'est parti !");
   },
@@ -4388,6 +4391,7 @@ if (paidParam) {
   /* Au démarrage : on récupère ce qu'un autre téléphone aurait sauvegardé, ou on envoie ce qui attend */
   api("GET", "me").then(async r => {
     session = { ...session, plan: r.user.plan, paid: !!r.user.paid, billing: !!r.user.billing, canSync: r.user.canSync }; writeLS(SESSION_KEY, session);
+    if (r.analyse && !S.analyse) { S.analyse = r.analyse; save(); }
     const srv = r.backup ? r.backup.rev : 0;
     if (srv > sync.rev) { if (sync.dirty) return askConflict(r.backup); await pullNow(); render(); toast("Données mises à jour depuis votre autre appareil ☁️"); }
     else if (sync.dirty) pushNow();
@@ -4396,6 +4400,10 @@ if (paidParam) {
 addEventListener("online", () => { if (sync.dirty) pushNow(); });
 document.addEventListener("visibilitychange", () => { if (document.hidden && sync.dirty) pushNow(); });
 if (!DEMO && location.hash === "#abonnement") { history.replaceState(null, "", location.pathname); setTimeout(() => { if (BILLING_OK || API_OK) openUpgrade(); else setTimeout(openUpgrade, 1200); }, 400); }
+if (!DEMO) {
+  rcTrack("app_ouverte");
+  if (FROM_ANALYSE) { rcTrack("app_depuis_analyse"); history.replaceState(null, "", location.pathname); const an = readAnalyse(); if (an && !S.analyse) { S.analyse = an; save(); } }
+}
 if (!DEMO && !S.profile && !obSkipFlag && !navigator.webdriver && !teamNotice && !loginParam && !paidParam && !session && location.hash !== "#abonnement") setTimeout(() => openOnboarding(0), 350);
 if (!DEMO && !navigator.webdriver && S.profile && S.lastBilan !== today().slice(0, 7)) {
   const pm = prevMonth(today().slice(0, 7)), b = bilan(pm);

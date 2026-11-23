@@ -28,7 +28,7 @@
 <link rel="icon" href="/favicon.ico?v=3" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=3">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 200%22%3E%3Crect width=%22200%22 height=%22200%22 rx=%2246%22 fill=%22%23FF7A33%22/%3E%3Cg transform=%22translate%280 -5%29%22%3E%3Cpath d=%22M122.4 66.9A44 44 0 1 1 81.4 65.1%22 fill=%22none%22 stroke=%22%23ffffff%22 stroke-width=%2217%22/%3E%3Cpath d=%22M66.5 47.5L101 52.5L80.5 80Z%22 fill=%22%23ffffff%22 stroke=%22%23ffffff%22 stroke-width=%223%22 stroke-linejoin=%22round%22/%3E%3Cpath d=%22M109 76L84 111H99L91 136L118 99H103Z%22 fill=%22%23ffffff%22 stroke=%22%23ffffff%22 stroke-width=%223%22 stroke-linejoin=%22round%22/%3E%3C/g%3E%3C/svg%3E">
-<link rel="stylesheet" href="/assets/site.css?v=5">
+<link rel="stylesheet" href="/assets/site.css?v=6">
 
 </head>
 <body>
@@ -62,18 +62,17 @@
   <div class="blob o"></div><div class="blob p"></div><div class="blob b"></div><div class="dots"></div>
   <div class="wrap grid">
     <div class="copy">
-      <span class="kicker anim" style="animation-delay:.05s"><i>✦</i>Pour les pros de la vente directe, toutes marques</span>
+      <span class="kicker anim" style="animation-delay:.05s"><i>✦</i>Pour les conseillères et conseillers en vente directe</span>
       <h1 class="anim" style="animation-delay:.15s">Vos clients rachètent.<br><span class="grad-text">Au bon moment.</span></h1>
-      <p class="lead anim" style="animation-delay:.25s">Le coach des VDI vous dit qui contacter, quand, pourquoi et comment. Le message WhatsApp est déjà prêt.</p>
-      <div class="ctas anim" style="animation-delay:.35s">
-        <a class="btn orange" href="/app/">Commencer gratuitement<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-        <a class="btn ghost" href="#coach">Découvrir le coach</a>
+      <p class="lead anim" style="animation-delay:.25s">Recharge calcule quand chaque client arrive au bout de son produit, vous dit qui relancer chaque jour et prépare le message WhatsApp. Pas un CRM de plus : l'outil pensé pour la vente directe.</p>
+      <div class="acard anim" id="acard" style="animation-delay:.35s">
+        <b>Combien de clients suivez-vous ?</b>
+        <small>En 2 minutes, Recharge estime les renouvellements qui vous attendent ce mois-ci.</small>
+        <div class="achips" role="group" aria-label="Nombre de clients"><button type="button" data-c="0">1 à 10</button><button type="button" data-c="1" class="on">10 à 25</button><button type="button" data-c="2">25 à 50</button><button type="button" data-c="3">50 à 100</button><button type="button" data-c="4">100 et +</button></div>
+        <a class="btn orange" id="acGo" href="/analyse/?c=1"><span class="acGo-l">Analyser mon activité gratuitement</span><span class="acGo-s">Analyser mon activité</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        <div class="anote"><span>Gratuit</span><span>Sans compte</span><span>Toutes marques</span></div>
       </div>
-      <div class="note anim" style="animation-delay:.45s">
-        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l4.5 4.5L19.5 6.5"/></svg>Sans compte</span>
-        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l4.5 4.5L19.5 6.5"/></svg>Gratuit jusqu'à 10 clients</span>
-        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l4.5 4.5L19.5 6.5"/></svg>Données dans votre téléphone</span>
-      </div>
+      <div class="ctas2 anim" style="animation-delay:.45s"><a href="/app/">Ouvrir l'appli directement</a><a href="#coach">Découvrir le coach</a></div>
     </div>
 
     <div class="stage">
@@ -231,9 +230,9 @@
     <div class="plan hot reveal d2">
       <span class="badge">Le plus complet</span>
       <h3>Recharge</h3>
-      <div class="price"><b>9,90 €</b><span>/ mois</span></div>
-      <div class="muted">Sans engagement.</div>
-      <div class="ladder"><span>Au mois<br>9,90 € / mois</span><span>À l'année<br>99 € · 2 mois offerts</span></div>
+      <div class="price"><b>7,42 €</b><span>/ mois</span></div>
+      <div class="muted">Avec l'abonnement annuel : 89 € par an, soit 29,80 € d'économie.</div>
+      <div class="ladder"><span>Au mois<br>9,90 € / mois</span><span>À l'année · −25 %<br>89 € / an</span></div>
       <ul>
         <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l4.5 4.5L19.5 6.5"/></svg>Clients illimités</li>
         <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l4.5 4.5L19.5 6.5"/></svg>Prospects, recommandations, carte fidélité</li>
@@ -327,6 +326,6 @@
   <span>La relance réassort de la vente directe · © <span id="year"></span></span>
 </div></footer>
 
-<script src="/assets/site.js?v=5" defer></script>
+<script src="/assets/site.js?v=6" defer></script>
 </body>
 </html>

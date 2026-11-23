@@ -717,80 +717,67 @@ mark.todo{display:inline-block;background:#fff3a6;color:#6b5600;border:1px dashe
 }
 
 /* =====================================================================
-   Identité « Marine » (phase 2, site) : haut de page, bandeaux et blocs
-   forts en bleu marine ; contenu sur fond blanc / blanc cassé ; orange
-   réservé aux actions ; vert pour le positif. Recoloration uniquement.
+   Identité « Fusion » : la clarté du Recharge d'origine + la profondeur du bleu nuit.
+   Fond clair et chaleureux, blocs forts en bleu nuit, orange plein (sans dégradé ni halo)
+   pour l'action principale. Le logo reste tel quel. Recoloration et finitions uniquement.
    ===================================================================== */
 :root{
-  --navy:#08152E; --navy-2:#102B50; --navy-3:#163A66; --orange:#FF8A32; --paper:#F1F4F8; --green:#35B879;
-  --bg:#F1F4F8; --surface:#fff; --surface-2:#EAEFF5; --line:#DFE5EE;
-  --ink:#08152E; --ink-2:#44536B; --ink-3:#6B7A92;
-  --o1:#FF8A32; --o-soft:#FFF0E4; --o-text:#D9661A;
-  --b1:#2D5BB8; --b-soft:#E6EEFB; --b-text:#2D5BB8;
-  --grad:linear-gradient(135deg,#FFA352 0%,#FF8A32 60%,#F5741F 100%);
-  --gradB:linear-gradient(135deg,#2F62AE 0%,#163A66 100%);
-  --shadow:0 1px 2px rgba(8,21,46,.05),0 18px 40px -22px rgba(8,21,46,.28);
-  --dark:radial-gradient(60% 70% at 0% 0%,rgba(255,138,50,.2),transparent 70%),radial-gradient(60% 70% at 100% 100%,rgba(91,141,239,.32),transparent 70%),linear-gradient(160deg,#0E2547,#08152E);
+  --navy:#14233B; --navy-2:#1B2E4B; --orange:#FF782E; --orange-d:#EE6A20;
+  --bg:#F7F6F3; --surface:#fff; --surface-2:#F1EFEB; --line:#E6E3DE;
+  --ink:#14233B; --ink-2:#4C5A6E; --ink-3:#7E8899;
+  --o1:#FF782E; --o-soft:#FFF1E7; --o-text:#D2601A;
+  --b1:#3D5A8F; --b-soft:#ECF0F7; --b-text:#3D5A8F;
+  --grad:linear-gradient(135deg,#FF8A45 0%,#FF782E 100%);
+  --gradB:linear-gradient(135deg,#2C4470 0%,#14233B 100%);
+  --shadow:0 1px 2px rgba(20,35,59,.05),0 18px 40px -24px rgba(20,35,59,.28);
+  --dark:radial-gradient(60% 70% at 0% 0%,rgba(255,120,46,.18),transparent 70%),radial-gradient(60% 70% at 100% 100%,rgba(123,131,246,.22),transparent 70%),linear-gradient(160deg,#1B2E4B,#14233B);
 }
-::selection{background:rgba(255,138,50,.3)}
-.btn.orange{color:var(--navy);box-shadow:0 14px 30px -14px rgba(255,138,50,.85)}
+::selection{background:rgba(255,120,46,.25)}
+/* boutons : orange plein pour l'action principale, bleu nuit pour le reste */
+.btn{font-weight:750}
+.btn.orange{background:var(--orange);color:var(--navy);box-shadow:0 10px 22px -12px rgba(255,120,46,.75)}
+.btn.orange:hover{background:var(--orange-d)}
 .btn.dark{background:var(--navy);color:#fff}
-.btn.blue{background:var(--navy-2);color:#fff;box-shadow:0 14px 30px -14px rgba(8,21,46,.6)}
-.kicker i,.chipf .i,.mc-av,.flow .hl,.ladder span:last-child,.kpi2 .soon,.plan .badge{color:var(--navy)}
-.logo-svg path[fill="#111111"]{fill:var(--navy);stroke:var(--navy)}
-.logo-svg path[fill="#7B83F6"]:not([stroke]){fill:var(--orange)}
-.grad-text{background:linear-gradient(100deg,#FFB067 0%,#FF8A32 55%,#FF7A1F 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
-
-/* navigation : toujours sur fond marine */
-header.nav .logo-svg path[fill="#111111"]{fill:var(--paper);stroke:var(--paper)}
-header.nav .links{color:#B4C0D3}header.nav .links a:hover,header.nav .links a.on{color:#fff}
-header.nav.solid{background:rgba(8,21,46,.86);box-shadow:0 1px 0 rgba(241,244,248,.08)}
-header.nav .btn.dark{background:var(--orange);color:var(--navy)}
-.burger i{background:var(--paper)}
-.menu{background:var(--navy)}.menu-main a:hover,.menu-main a:active{color:var(--orange)}
-
-/* haut de page en bleu marine, le téléphone et les pastilles blanches ressortent */
-.hero{background:linear-gradient(180deg,#08152E 0%,#0C1F3F 100%);color:var(--paper);isolation:isolate}
-.hero .blob{z-index:0;opacity:.55}.hero .grid,.hero .wrap{position:relative;z-index:1}
-.blob.o{background:radial-gradient(circle,rgba(255,138,50,.55) 0%,rgba(255,138,50,0) 65%)}
-.blob.p{background:radial-gradient(circle,rgba(91,141,239,.45) 0%,rgba(91,141,239,0) 65%)}
-.blob.b{background:radial-gradient(circle,rgba(91,141,239,.6) 0%,rgba(91,141,239,0) 65%)}
-.hero .dots{background-image:radial-gradient(rgba(241,244,248,.09) 1px,transparent 1.3px)}
-.hero h1{color:#fff}.hero .lead{color:#B4C0D3}.hero .note{color:#8B9AB4}
-.hero .kicker{background:rgba(241,244,248,.07);border-color:rgba(241,244,248,.14);color:#D5DDEA}
-.hero .btn.ghost{background:transparent;border:1px solid rgba(241,244,248,.25);color:#fff}
-.hero .btn.ghost:hover{background:rgba(241,244,248,.06)}
-.phone{box-shadow:0 0 0 2px #24395a inset,0 50px 90px -30px rgba(0,0,0,.7),0 0 0 1px rgba(241,244,248,.06)}
-.chipf{background:rgba(255,255,255,.96)}
-
-/* sections de contenu : blanc et blanc cassé */
-.vframe{background:#fff;box-shadow:0 30px 70px rgba(8,21,46,.12)}
-.vplay span{background:var(--orange);color:var(--navy)}
-
-/* blocs forts : bleu marine profond, orange en accent */
+.btn.ghost{background:#fff;border:1px solid var(--line);color:var(--ink)}
+.btn.blue{background:var(--navy);color:#fff;box-shadow:0 12px 26px -14px rgba(20,35,59,.6)}
+.kicker{background:#fff;border-color:var(--line)}
+.kicker i,.mc-av,.flow .hl,.ladder span:last-child,.kpi2 .soon,.plan .badge{color:var(--navy)}
+.grad-text,.phero h1 em{background:linear-gradient(100deg,#FF9A52 0%,#FF782E 50%,#E8601A 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.lk-coach{color:var(--ink)!important}
+header.nav.solid{background:rgba(247,246,243,.84)}
+/* finition « logiciel » : une grille très fine derrière le haut de page */
+.hero::before,.phero::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background-image:linear-gradient(rgba(20,35,59,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(20,35,59,.045) 1px,transparent 1px);background-size:44px 44px;
+  -webkit-mask-image:radial-gradient(70% 70% at 60% 30%,#000,transparent 75%);mask-image:radial-gradient(70% 70% at 60% 30%,#000,transparent 75%)}
+.phero{position:relative;isolation:isolate}
+.blob.b{background:radial-gradient(circle,#9aa3ff 0%,rgba(154,163,255,0) 65%)}
+/* blocs forts : bleu nuit, orange en accent */
 .band,.kband,.sim .gain,.duo2 .win,.plan.hot,.vtc.dark,.promise,.final{background:var(--dark)}
 .plan.hot{border-color:var(--navy)}
 .bao-stat,.guarantee{background:var(--navy)}
-.fdr{background:#08152E}
-.band p,.bandline,.kband .head p{color:#B4C0D3}
-.promise,.final{color:#fff}
-.promise::before,.final::before{background-image:radial-gradient(rgba(241,244,248,.1) 1px,transparent 1.3px)}
-.final .btn.dark,.plan.hot .btn.dark{background:var(--orange);color:var(--navy)}
-.guarantee .seal{color:var(--orange)}
-.mcta{background:rgba(255,255,255,.94)}
+.fdr{background:#111D31}
+.final .btn.dark,.plan.hot .btn.dark,.band .btn.dark,.kband .btn.dark{background:var(--orange);color:var(--navy)}
+.promise::before,.final::before{background-image:radial-gradient(rgba(255,255,255,.1) 1px,transparent 1.3px)}
+.vplay span{background:var(--orange)}
 .sfab{background:var(--navy)}
-header.nav .lk-coach{color:#fff!important}
-.chipf{color:var(--navy)}
-/* pages secondaires : même haut de page marine que l'accueil */
-.phero{background:radial-gradient(60% 80% at 100% 0%,rgba(91,141,239,.3),transparent 70%),radial-gradient(50% 70% at 0% 100%,rgba(255,138,50,.14),transparent 70%),linear-gradient(180deg,#08152E,#0C1F3F);color:var(--paper);isolation:isolate}
-.phero h1{color:#fff}.phero .lead{color:#B4C0D3}
-.phero h1 em{background:linear-gradient(100deg,#FFB067 0%,#FF8A32 55%,#FF7A1F 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
-.phero .crumb,.phero .crumb a{color:#8B9AB4}.phero .crumb a:hover{color:#fff}
-.phero .kicker{background:rgba(241,244,248,.07);border-color:rgba(241,244,248,.14);color:#D5DDEA}
-.phero .btn.ghost{background:transparent;border:1px solid rgba(241,244,248,.25);color:#fff}
-.phero .note{color:#8B9AB4}
-.phero .blob{opacity:.4}
-/* boutons sobres (même logique que l'appli) : marine sur fond clair, blanc sur fond marine */
-.btn.orange{background:var(--navy);color:#fff;box-shadow:0 12px 26px -14px rgba(8,21,46,.6)}
-.hero .btn.orange,.phero .btn.orange,.final .btn.dark,.plan.hot .btn.dark,.band .btn.orange,.kband .btn.orange,header.nav .btn.dark,.menu .btn.orange,.menu .btn.dark{background:#fff;color:var(--navy);box-shadow:0 12px 28px -14px rgba(0,0,0,.55)}
-.vplay span{background:#fff;color:var(--navy)}
+.mcta{background:rgba(255,255,255,.95)}
+
+/* ---------- Haut de page : l'analyse gratuite ---------- */
+.acard{margin-top:28px;max-width:500px;background:#fff;border:1px solid var(--line);border-radius:24px;padding:18px;box-shadow:0 1px 2px rgba(20,35,59,.04),0 24px 50px -28px rgba(20,35,59,.35)}
+.acard>b{display:block;font-size:.98rem;letter-spacing:-.01em}
+.acard>small{display:block;color:var(--ink-3);font-size:.82rem;font-weight:600;margin-top:2px}
+.achips{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:14px 0}
+.achips button{border:1px solid var(--line);background:var(--bg);border-radius:14px;padding:11px 2px;font:inherit;font-size:.84rem;font-weight:750;color:var(--ink);cursor:pointer;transition:border-color .15s,background .15s}
+.achips button.on{border-color:var(--navy);background:var(--navy);color:#fff}
+.acard .btn{width:100%}
+.acard .anote{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:.78rem;color:var(--ink-3);font-weight:650}
+.acard .anote span::before{content:"✓ ";color:var(--orange);font-weight:800}
+.hero .ctas2{display:flex;gap:16px;align-items:center;margin-top:14px;flex-wrap:wrap}
+.hero .ctas2 a{font-weight:700;font-size:.92rem;color:var(--ink-2);text-decoration:underline;text-underline-offset:3px}
+@media (max-width:420px){.achips{grid-template-columns:repeat(3,1fr)}.achips button:nth-child(n+4){grid-column:span 1}}
+/* le bouton flottant « Coach » attend que l'analyse du haut de page soit passée */
+.sfab{transition:opacity .25s,transform .25s}
+.sfab.wait{opacity:0;pointer-events:none;transform:translateY(16px)}
+.acGo-s{display:none}
+@media (max-width:440px){.acGo-l{display:none}.acGo-s{display:inline}}
+.chipf .i{color:#fff}

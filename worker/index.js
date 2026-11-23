@@ -52,6 +52,9 @@ async function route(request, env, url, ctx) {
     const origin = request.headers.get("Origin");
     if (origin && origin !== url.origin) throw new HttpError(403, "Origine refusée.");
   }
+  if (p === "/api/event" && m === "POST") return trackEvent(request, env);
+  if (p === "/api/lead" && m === "POST") return saveLead(request, env, url);
+  if (p === "/api/stats" && m === "GET") return stats(request, env);
   if (p === "/api/auth/request" && m === "POST") return requestLink(request, env, url);
   if (p === "/api/auth/verify" && m === "POST") return verifyLink(request, env);
   if (p === "/api/auth/logout" && m === "POST") return logout(request, env);
@@ -116,8 +119,8 @@ async function auth(request, env) {
 const isPaid = u => ["recharge", "fondatrice", "equipe"].includes(u.plan);
 
 /* ---------- Connexion par lien ---------- */
-async function requestLink(request, env, url) {
-  const body = await readJson(request);
+async function requestLink(request, env, url, given) {
+  const body = given || await readJson(request);
   const email = cleanEmail(body.email);
   if (!validEmail(email)) throw new HttpError(400, "Cette adresse email ne semble pas valide.");
   const since = now() - 3600 * 1000;
@@ -199,7 +202,10 @@ async function openSession(env, user, isNew) {
   await env.DB.prepare("INSERT INTO sessions (token_hash, user_id, created_at, expires_at) VALUES (?, ?, ?, ?)")
     .bind(await sha256(session), user.id, now(), now() + SESSION_TTL).run();
   const b = await env.DB.prepare("SELECT rev, updated_at FROM backups WHERE user_id = ?").bind(user.id).first();
-  return { session, isNew, user: publicUser(user, env), backup: b ? { rev: b.rev, updatedAt: b.updated_at } : null };
+  return { session, isNew, user: publicUser(user, env), backup: b ? { rev: b.rev, updatedAt: b.updated_at } : null, analyse: await leadAnalyse(env, user.email) };
+}
+async function leadAnalyse(env, email) {
+  try { const l = await env.DB.prepare("SELECT analyse FROM leads WHERE email = ?").bind(email).first(); return l && l.analyse ? JSON.parse(l.analyse) : null; } catch { return null; }
 }
 const publicUser = (u, env) => ({ email: u.email, plan: u.plan, paid: isPaid(u), billing: !!u.stripe_customer, createdAt: u.created_at ?? u.createdAt, canSync: env.REQUIRE_PAID !== "true" || isPaid(u) });
 
@@ -212,7 +218,48 @@ async function logout(request, env) {
 async function me(request, env) {
   const u = await auth(request, env);
   const b = await env.DB.prepare("SELECT rev, size, updated_at FROM backups WHERE user_id = ?").bind(u.id).first();
-  return json({ user: publicUser(u, env), backup: b ? { rev: b.rev, size: b.size, updatedAt: b.updated_at } : null });
+  const analyse = await leadAnalyse(env, u.email);
+  return json({ user: publicUser(u, env), backup: b ? { rev: b.rev, size: b.size, updatedAt: b.updated_at } : null, analyse });
+}
+
+/* ---------- Mesure anonyme du parcours ----------
+   Un compteur par jour et par étape. Aucun cookie, aucune adresse IP, aucun identifiant : on sait combien de
+   personnes passent chaque étape, jamais qui. Les noms d'étapes sont limités à une liste connue. */
+const EVENTS = new Set(["site_visite", "analyse_cta", "analyse_debut", "analyse_q1", "analyse_q2", "analyse_q3", "analyse_q4", "analyse_resultat",
+  "analyse_email", "analyse_essai", "app_ouverte", "app_depuis_analyse", "onboarding_fin", "premiers_clients", "premiere_relance", "compte_cree"]);
+async function trackEvent(request, env) {
+  const body = await readJson(request, 1024);
+  const name = String(body.e || "");
+  if (!EVENTS.has(name)) return new Response(null, { status: 204 });
+  const day = new Date().toISOString().slice(0, 10);
+  try {
+    await env.DB.prepare("INSERT INTO events_daily (day, name, n) VALUES (?, ?, 1) ON CONFLICT(day, name) DO UPDATE SET n = n + 1").bind(day, name).run();
+  } catch (e) { console.error("event", e && e.message); }
+  return new Response(null, { status: 204 });
+}
+/* Tableau de bord du parcours : réservé à la personne qui connaît STATS_KEY (secret Cloudflare). */
+async function stats(request, env) {
+  const key = request.headers.get("X-Stats-Key") || "";
+  if (!env.STATS_KEY || key.length < 8 || key !== env.STATS_KEY) throw new HttpError(404, "Introuvable.");
+  const since = new Date(now() - 30 * 24 * 3600 * 1000).toISOString().slice(0, 10);
+  const r = await env.DB.prepare("SELECT day, name, n FROM events_daily WHERE day >= ? ORDER BY day").bind(since).all();
+  const leads = await env.DB.prepare("SELECT COUNT(*) AS n, SUM(news) AS news FROM leads").first();
+  const users = await env.DB.prepare("SELECT COUNT(*) AS n FROM users").first();
+  return json({ since, events: r.results || [], leads: leads || { n: 0, news: 0 }, users: users ? users.n : 0 });
+}
+
+/* ---------- Analyse gratuite : sauvegarde avec l'email ----------
+   La personne garde ses résultats et reçoit son lien d'accès. On ne stocke que ses réponses aux questions. */
+async function saveLead(request, env, url) {
+  const body = await readJson(request, 8 * 1024);
+  const email = cleanEmail(body.email);
+  if (!validEmail(email)) throw new HttpError(400, "Cette adresse email ne semble pas valide.");
+  const a = body.analyse && typeof body.analyse === "object" ? body.analyse : {};
+  const keep = {};
+  for (const k of ["clients", "cat", "orders", "pains", "renouv", "ecart", "enjeu", "panier", "duree", "at"]) if (a[k] !== undefined) keep[k] = typeof a[k] === "number" ? a[k] : Array.isArray(a[k]) ? a[k].slice(0, 8).map(x => String(x).slice(0, 30)) : String(a[k]).slice(0, 40);
+  await env.DB.prepare("INSERT INTO leads (email, analyse, news, created_at, updated_at) VALUES (?, ?, ?, ?, ?) ON CONFLICT(email) DO UPDATE SET analyse = excluded.analyse, news = MAX(news, excluded.news), updated_at = excluded.updated_at")
+    .bind(email, JSON.stringify(keep), body.news ? 1 : 0, now(), now()).run();
+  return requestLink(request, env, url, { email });
 }
 
 /* ---------- Sauvegarde ---------- */

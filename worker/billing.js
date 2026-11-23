@@ -7,7 +7,7 @@
 
 export const PLANS = {
   month: { amount: 990, interval: "month", label: "Recharge · abonnement mensuel" },
-  year: { amount: 9900, interval: "year", label: "Recharge · abonnement annuel" }
+  year: { amount: 8900, interval: "year", label: "Recharge · abonnement annuel" }
 };
 const TRIAL_DAYS = 14;
 const RECHECK = 12 * 3600 * 1000;
