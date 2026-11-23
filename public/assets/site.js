@@ -147,7 +147,7 @@ function constellation(svg, mid, tot) {
   const rnd = s => { const x = Math.sin(s * 9301 + 49297) * 233280; return x - Math.floor(x); };
   const el = (tag, at) => { const e = document.createElementNS(NS, tag); for (const k in at) e.setAttribute(k, at[k]); return e; };
   svg.innerHTML = `<defs><radialGradient id="gO" cx="35%" cy="30%"><stop offset="0" stop-color="#ffb47a"/><stop offset="1" stop-color="#ff4f1a"/></radialGradient>
-    <radialGradient id="gB" cx="35%" cy="30%"><stop offset="0" stop-color="#a9b9ff"/><stop offset="1" stop-color="#4560f0"/></radialGradient></defs>`;
+    <radialGradient id="gB" cx="35%" cy="30%"><stop offset="0" stop-color="#b8bcff"/><stop offset="1" stop-color="#6066d8"/></radialGradient></defs>`;
   const far = el("g", {}), inner = el("g", { class: "pot-in" }), lines = el("g", {}), dots = el("g", {}), nodes = el("g", {});
   svg.appendChild(far); svg.appendChild(inner); [lines, dots, nodes].forEach(g => inner.appendChild(g));
   const groups = { c: [], p: [] }; let shown = 0, lastBoom = null;

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#F7F6F3">
+<meta name="theme-color" content="#F4EFE8">
 <meta name="color-scheme" content="only light">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -575,24 +575,24 @@ nav.tabs .tab.on svg{width:38px;height:38px;padding:8px;margin:-8px 0 -5px;borde
    Recoloration uniquement ; supprimer ce bloc pour revenir à l'ancien design.
    ===================================================================== */
 :root{
-  --navy:#14233B; --navy-2:#1B2E4B; --navy-3:#2A4066; --orange:#FF782E; --paper:#F1F4F8; --green:#35B879;
-  --bg:#F7F6F3; --surface:#ffffff; --surface-2:#F1EFEB; --line:#E8E5E0; --line-2:#DAD6CF;
-  --ink:#14233B; --ink-2:#4C5A6E; --ink-3:#7E8899;
+  --navy:#1C1A22; --navy-2:#2A2631; --navy-3:#3A3542; --orange:#FF782E; --paper:#F1F4F8; --green:#35B879;
+  --bg:#F4EFE8; --surface:#ffffff; --surface-2:#F1EBE3; --line:#E7DFD5; --line-2:#D9CFC3;
+  --ink:#1C1A22; --ink-2:#57515C; --ink-3:#8A8390;
   --o1:#FF782E; --o2:#FF9152; --o3:#FFC49B; --o-soft:#FFF1E7; --o-text:#D2601A;
   --grad:linear-gradient(135deg,#FF8A45 0%,#FF782E 100%);
-  --btn:#14233B; --btn-ink:#ffffff;
-  --b1:#2D5BB8; --b-soft:#E8EFFB; --b-text:#2D5BB8;
-  --gradB:linear-gradient(135deg,#2F62AE 0%,#163A66 100%);
+  --btn:#1C1A22; --btn-ink:#ffffff;
+  --b1:#6066D8; --b-soft:#EEEEFD; --b-text:#5258C8;
+  --gradB:linear-gradient(135deg,#8E95FF 0%,#6066D8 100%);
   --g:#35B879; --g-soft:#E5F6EE; --g-text:#1F8F58;
-  --glow:rgba(91,141,239,.10); --glowB:rgba(91,141,239,.10);
-  --shadow:0 1px 2px rgba(20,35,59,.04),0 12px 30px -18px rgba(20,35,59,.22);
-  --navyblock:radial-gradient(70% 90% at 100% 0%,rgba(123,131,246,.26),transparent 60%),radial-gradient(60% 80% at 0% 100%,rgba(255,120,46,.16),transparent 65%),linear-gradient(155deg,#1F3456,#14233B);
+  --glow:rgba(255,120,46,.10); --glowB:rgba(123,131,246,.12);
+  --shadow:0 1px 2px rgba(28,26,34,.04),0 12px 30px -18px rgba(28,26,34,.22);
+  --navyblock:radial-gradient(70% 90% at 100% 0%,rgba(123,131,246,.26),transparent 60%),radial-gradient(60% 80% at 0% 100%,rgba(255,120,46,.16),transparent 65%),linear-gradient(155deg,#2D2834,#1C1A22);
 }
 :focus-visible{outline-color:var(--b1)}
 /* barre du haut claire, logo d'origine (fusion avec le Recharge du début) */
 .topbar{background:color-mix(in srgb,var(--bg) 82%,transparent);box-shadow:0 1px 0 var(--line)}
 /* grands blocs (accueil, coach, résultats) : marine profond, comme les bandeaux du site */
-.coach,.coachhero,.kpi{background:var(--navyblock);box-shadow:0 20px 40px -24px rgba(20,35,59,.7)}
+.coach,.coachhero,.kpi{background:var(--navyblock);box-shadow:0 20px 40px -24px rgba(28,26,34,.7)}
 .coach::after{background:rgba(241,244,248,.05)}
 .coach .hl-bar{background:rgba(241,244,248,.14)}.coach .hl-bar span{background:var(--orange)}
 .kpi::before{background-image:radial-gradient(rgba(241,244,248,.12) 1px,transparent 1.3px)}
@@ -601,28 +601,28 @@ nav.tabs .tab.on svg{width:38px;height:38px;padding:8px;margin:-8px 0 -5px;borde
 .lc-stamps i.on{background:var(--orange)}
 .hello,.devtip{background:linear-gradient(150deg,#EAF0FA,#F7F9FC);box-shadow:var(--shadow);border:1px solid var(--line)}
 .hl-line,.devtip p{color:var(--ink-2)}.hl-count{color:var(--ink-3)}.devtip .dt-k{color:var(--b-text)}
-.coach.hello{background:var(--navyblock);border:0;box-shadow:0 20px 40px -24px rgba(20,35,59,.7)}
+.coach.hello{background:var(--navyblock);border:0;box-shadow:0 20px 40px -24px rgba(28,26,34,.7)}
 .coach.hello .hl-line{color:#C6D0DF}.coach.hello .hl-count{color:#fff}
 /* boutons : marine sobre ; l'orange ne fait plus de gros aplats */
-.btn.primary{background:var(--navy);color:#fff;box-shadow:0 10px 22px -14px rgba(20,35,59,.6)}
+.btn.primary{background:var(--navy);color:#fff;box-shadow:0 10px 22px -14px rgba(28,26,34,.6)}
 .btn.orange{background:var(--orange);color:var(--navy);font-weight:750;box-shadow:0 10px 22px -12px rgba(255,120,46,.7)}
 .btn.soft{background:var(--surface-2);color:var(--navy)}
-.acts .reco .ic{background:var(--navy);color:#fff;box-shadow:0 8px 18px -10px rgba(20,35,59,.6)}
+.acts .reco .ic{background:var(--navy);color:#fff;box-shadow:0 8px 18px -10px rgba(28,26,34,.6)}
 .acts .later .ic{background:var(--navy-3);color:#fff;box-shadow:none}
 .plus{background:var(--orange);color:var(--navy);box-shadow:0 10px 24px -8px rgba(255,120,46,.6)}
 .chatgo,.hsteps li>span,.obrow>b,.upplan i{background:var(--navy);color:#fff}
 .cm-av,.coachfab .cf-ring{background:var(--navy-2);color:var(--orange)}
 .coachfab{background:var(--navy)}
-.bravo{background:var(--navy);color:#fff;box-shadow:0 14px 30px -12px rgba(20,35,59,.6)}.bravo .bz{background:rgba(255,138,50,.2)}
+.bravo{background:var(--navy);color:#fff;box-shadow:0 14px 30px -12px rgba(28,26,34,.6)}.bravo .bz{background:rgba(255,138,50,.2)}
 .tchips button.on,.gtypes button.on,.satb button.on,.obtone.on,.upplan.on{border-color:var(--navy);background:#EEF2F8;color:var(--navy)}
-.pslide input[type=range]{background:linear-gradient(90deg,#2F62AE 0%,#08152E var(--p,0%),var(--surface-2) var(--p,0%))}
-.pslide input[type=range]::-webkit-slider-thumb{border-color:var(--navy);box-shadow:0 4px 12px rgba(20,35,59,.35)}
+.pslide input[type=range]{background:linear-gradient(90deg,#FF9A52 0%,#FF782E var(--p,0%),var(--surface-2) var(--p,0%))}
+.pslide input[type=range]::-webkit-slider-thumb{border-color:var(--orange);box-shadow:0 4px 12px rgba(255,120,46,.4)}
 .trange input{accent-color:var(--navy)}
 /* positif en vert */
 .status.ok,.chip.ok,.chip.done{color:var(--g-text)}.chip.ok,.chip.done{background:var(--g-soft)}
 .improw.ok{border-color:rgba(53,184,121,.45)}.itier.reel{background:var(--g-soft);color:var(--g-text)}
 /* navigation du bas : blanche, onglet actif marine */
-nav.tabs .tab.on svg{background:var(--navy);color:#fff;box-shadow:0 8px 18px -8px rgba(20,35,59,.55)}
+nav.tabs .tab.on svg{background:var(--navy);color:#fff;box-shadow:0 8px 18px -8px rgba(28,26,34,.55)}
 .dot{background:var(--orange);color:#fff}
 .toast{background:var(--navy);color:#fff}.toast button{color:var(--o2)}
 .sheet{background:#fff}
@@ -2830,6 +2830,26 @@ function obApply() {
   S.settings.myName = ob.name;
   if (!S.settings.shopName && (ob.name || ob.brand)) S.settings.shopName = [ob.name, ob.brand].filter(Boolean).join(" · ");
 }
+/* Fin du 2e onboarding : le réseau que ces premiers clients ouvrent, et le plan du coach */
+function openNetIntro(n) {
+  const an = S.analyse || readAnalyse(), K = S.settings.netC || 5, first = S.clients.find(c => !c.example);
+  openSheet(`<div class="shead"><h3>Votre réseau commence ici</h3>${closeBtn}</div>
+    <p class="lede" style="margin-top:8px">Avec ${plural(n, "votre premier client", `vos ${n} premiers clients`).replace(/^\d+ /, "")}, vous pouvez déjà toucher environ <b id="niNet">${n * K}</b> personnes : leurs proches, leurs collègues, leurs voisins.</p>
+    <div class="pot-viz" style="max-width:250px;margin-top:6px"><svg id="niSvg" viewBox="-200 -200 400 400" role="img" aria-label="Votre réseau : vos clients et les personnes qu'ils peuvent vous présenter"></svg><div class="pot-mid"><b id="niTot">0</b><span>personnes<br>à toucher</span></div></div>
+    <label class="pslide o" for="niK"><span>Chaque client pourrait me présenter <b id="niKOut">${K}</b></span><input type="range" id="niK" min="1" max="15" value="${K}"></label>
+    ${an && an.clients > n ? `<p class="hint" style="margin-top:6px">Avec vos ~${an.clients} clients, ce serait environ <b id="niAll">${an.clients * K}</b> personnes. Ce sont des estimations, à ajuster selon votre réalité.</p>` : `<p class="hint" style="margin-top:6px">Ce sont des estimations, à ajuster selon votre réalité.</p>`}
+    <div class="ltip"><b>Le plan du coach</b><p>1. ${first ? `Relancez <span style="font-weight:800">${esc(firstName(first.name))}</span> au bon moment : Recharge vous prévient le jour venu, avec le message prêt.` : "Relancez chaque client au bon moment : Recharge vous prévient, avec le message prêt."}<br>2. Après sa prochaine commande, demandez-lui à qui elle pense : le message est prêt dans sa fiche.<br>3. Ajoutez vos autres clients petit à petit : plus Recharge connaît votre activité, plus il vous aide.</p></div>
+    <button class="btn orange" style="margin-top:14px" data-act="niGo">Voir mes relances du jour</button>`);
+  const svg = document.getElementById("niSvg"), k = document.getElementById("niK");
+  const upd = constellation(svg, svg.parentNode.querySelector(".pot-mid"), document.getElementById("niTot"));
+  const run = () => {
+    const kv = +k.value; document.getElementById("niKOut").textContent = kv; k.style.setProperty("--p", ((kv - 1) / 14 * 100) + "%");
+    upd(n, 0, kv, 0, false); document.getElementById("niNet").textContent = n * kv;
+    const all = document.getElementById("niAll"); if (all && an) all.textContent = (an.clients * kv).toLocaleString("fr-FR");
+  };
+  upd(n, 0, 0, 0, false); setTimeout(run, 700);
+  k.addEventListener("input", run); k.addEventListener("change", () => { S.settings.netC = +k.value; save(); });
+}
 /* Efface les fiches Exemple dès que la VDI a ses vrais clients */
 function clearExampleData() {
   const ids = new Set(S.clients.filter(c => c.example).map(c => c.id));
@@ -3232,7 +3252,7 @@ function constellation(svg, mid, tot) {
   const rnd = s => { const x = Math.sin(s * 9301 + 49297) * 233280; return x - Math.floor(x); };
   const el = (tag, at) => { const e = document.createElementNS(NS, tag); for (const k in at) e.setAttribute(k, at[k]); return e; };
   svg.innerHTML = `<defs><radialGradient id="gO" cx="35%" cy="30%"><stop offset="0" stop-color="#ffb47a"/><stop offset="1" stop-color="#ff4f1a"/></radialGradient>
-    <radialGradient id="gB" cx="35%" cy="30%"><stop offset="0" stop-color="#a9b9ff"/><stop offset="1" stop-color="#4560f0"/></radialGradient></defs>`;
+    <radialGradient id="gB" cx="35%" cy="30%"><stop offset="0" stop-color="#b8bcff"/><stop offset="1" stop-color="#6066d8"/></radialGradient></defs>`;
   const far = el("g", {}), inner = el("g", { class: "pot-in" }), lines = el("g", {}), dots = el("g", {}), nodes = el("g", {});
   svg.appendChild(far); svg.appendChild(inner); [lines, dots, nodes].forEach(g => inner.appendChild(g));
   const groups = { c: [], p: [] }; let shown = 0, lastBoom = null;
@@ -4065,8 +4085,10 @@ const actions = {
     if (!ob.profileOnly && !n && !confirm("Aucun client ajouté. Continuer avec les fiches d'exemple ?")) return;
     if (!ob.profileOnly) { rcTrack("onboarding_fin"); if (n) rcTrack("premiers_clients"); }
     const po = ob.profileOnly; ob = null; save(); closeSheet(); tab = po ? "settings" : "today"; render(); window.scrollTo(0, 0);
-    toast(po ? "Profil enregistré" : n ? `${plural(n, "client ajouté", "clients ajoutés")} : voici vos relances du jour` : "C'est parti !");
+    if (!po && n) { setTimeout(() => openNetIntro(n), 380); return; }
+    toast(po ? "Profil enregistré" : "C'est parti !");
   },
+  niGo: () => { closeSheet(); tab = "today"; render(); window.scrollTo(0, 0); toast("Voici vos relances du jour"); },
   obBack: () => { obRead(); openOnboarding(ob.i - 1); },
   obSkip: () => { obRead(); if (ob.name || ob.brand) obApply(); else if (!S.profile) S.profile = { skipped: today() }; save(); ob = null; closeSheet(); render(); toast("Vous pourrez compléter votre profil dans Menu › Mon profil"); },
   obPick: el => { obRead(); const k = el.dataset.k, v = el.dataset.v; if (el.dataset.m) ob[k] = ob[k].includes(v) ? ob[k].filter(x => x !== v) : ob[k].concat([v]); else ob[k] = v; openOnboarding(ob.i); },

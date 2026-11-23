@@ -722,15 +722,15 @@ mark.todo{display:inline-block;background:#fff3a6;color:#6b5600;border:1px dashe
    pour l'action principale. Le logo reste tel quel. Recoloration et finitions uniquement.
    ===================================================================== */
 :root{
-  --navy:#14233B; --navy-2:#1B2E4B; --orange:#FF782E; --orange-d:#EE6A20;
-  --bg:#F7F6F3; --surface:#fff; --surface-2:#F1EFEB; --line:#E6E3DE;
-  --ink:#14233B; --ink-2:#4C5A6E; --ink-3:#7E8899;
+  --navy:#1C1A22; --navy-2:#2A2631; --orange:#FF782E; --orange-d:#EE6A20; --lav:#7B83F6; --lav-soft:#EEEEFD;
+  --bg:#F4EFE8; --surface:#fff; --surface-2:#EFE8DF; --line:#E5DDD3;
+  --ink:#1C1A22; --ink-2:#57515C; --ink-3:#8A8390;
   --o1:#FF782E; --o-soft:#FFF1E7; --o-text:#D2601A;
-  --b1:#3D5A8F; --b-soft:#ECF0F7; --b-text:#3D5A8F;
+  --b1:#6066D8; --b-soft:#EEEEFD; --b-text:#5258C8;
   --grad:linear-gradient(135deg,#FF8A45 0%,#FF782E 100%);
-  --gradB:linear-gradient(135deg,#2C4470 0%,#14233B 100%);
-  --shadow:0 1px 2px rgba(20,35,59,.05),0 18px 40px -24px rgba(20,35,59,.28);
-  --dark:radial-gradient(60% 70% at 0% 0%,rgba(255,120,46,.18),transparent 70%),radial-gradient(60% 70% at 100% 100%,rgba(123,131,246,.22),transparent 70%),linear-gradient(160deg,#1B2E4B,#14233B);
+  --gradB:linear-gradient(135deg,#8E95FF 0%,#6066D8 100%);
+  --shadow:0 1px 2px rgba(28,26,34,.05),0 18px 40px -24px rgba(28,26,34,.28);
+  --dark:radial-gradient(60% 70% at 0% 0%,rgba(255,120,46,.24),transparent 70%),radial-gradient(60% 70% at 100% 100%,rgba(123,131,246,.26),transparent 70%),linear-gradient(160deg,#2A2631,#1C1A22);
 }
 ::selection{background:rgba(255,120,46,.25)}
 /* boutons : orange plein pour l'action principale, bleu nuit pour le reste */
@@ -739,15 +739,15 @@ mark.todo{display:inline-block;background:#fff3a6;color:#6b5600;border:1px dashe
 .btn.orange:hover{background:var(--orange-d)}
 .btn.dark{background:var(--navy);color:#fff}
 .btn.ghost{background:#fff;border:1px solid var(--line);color:var(--ink)}
-.btn.blue{background:var(--navy);color:#fff;box-shadow:0 12px 26px -14px rgba(20,35,59,.6)}
+.btn.blue{background:var(--navy);color:#fff;box-shadow:0 12px 26px -14px rgba(28,26,34,.6)}
 .kicker{background:#fff;border-color:var(--line)}
 .kicker i,.mc-av,.flow .hl,.ladder span:last-child,.kpi2 .soon,.plan .badge{color:var(--navy)}
 .grad-text,.phero h1 em{background:linear-gradient(100deg,#FF9A52 0%,#FF782E 50%,#E8601A 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
 .lk-coach{color:var(--ink)!important}
-header.nav.solid{background:rgba(247,246,243,.84)}
+header.nav.solid{background:rgba(244,239,232,.86)}
 /* finition « logiciel » : une grille très fine derrière le haut de page */
 .hero::before,.phero::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
-  background-image:linear-gradient(rgba(20,35,59,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(20,35,59,.045) 1px,transparent 1px);background-size:44px 44px;
+  background-image:linear-gradient(rgba(28,26,34,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(28,26,34,.045) 1px,transparent 1px);background-size:44px 44px;
   -webkit-mask-image:radial-gradient(70% 70% at 60% 30%,#000,transparent 75%);mask-image:radial-gradient(70% 70% at 60% 30%,#000,transparent 75%)}
 .phero{position:relative;isolation:isolate}
 .blob.b{background:radial-gradient(circle,#9aa3ff 0%,rgba(154,163,255,0) 65%)}
@@ -755,7 +755,7 @@ header.nav.solid{background:rgba(247,246,243,.84)}
 .band,.kband,.sim .gain,.duo2 .win,.plan.hot,.vtc.dark,.promise,.final{background:var(--dark)}
 .plan.hot{border-color:var(--navy)}
 .bao-stat,.guarantee{background:var(--navy)}
-.fdr{background:#111D31}
+.fdr{background:#17151B}
 .final .btn.dark,.plan.hot .btn.dark,.band .btn.dark,.kband .btn.dark{background:var(--orange);color:var(--navy)}
 .promise::before,.final::before{background-image:radial-gradient(rgba(255,255,255,.1) 1px,transparent 1.3px)}
 .vplay span{background:var(--orange)}
@@ -763,7 +763,7 @@ header.nav.solid{background:rgba(247,246,243,.84)}
 .mcta{background:rgba(255,255,255,.95)}
 
 /* ---------- Haut de page : l'analyse gratuite ---------- */
-.acard{margin-top:28px;max-width:500px;background:#fff;border:1px solid var(--line);border-radius:24px;padding:18px;box-shadow:0 1px 2px rgba(20,35,59,.04),0 24px 50px -28px rgba(20,35,59,.35)}
+.acard{margin-top:28px;max-width:500px;background:#fff;border:1px solid var(--line);border-radius:24px;padding:18px;box-shadow:0 1px 2px rgba(28,26,34,.04),0 24px 50px -28px rgba(28,26,34,.35)}
 .acard>b{display:block;font-size:.98rem;letter-spacing:-.01em}
 .acard>small{display:block;color:var(--ink-3);font-size:.82rem;font-weight:600;margin-top:2px}
 .achips{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:14px 0}
@@ -781,3 +781,8 @@ header.nav.solid{background:rgba(247,246,243,.84)}
 .acGo-s{display:none}
 @media (max-width:440px){.acGo-l{display:none}.acGo-s{display:inline}}
 .chipf .i{color:#fff}
+
+/* fusion v2 : noir chaud + orange + lavande (les couleurs du logo), fond sable */
+.blob.o{opacity:.55}.blob.p{opacity:.6}
+.acard{border-color:#EADFD3}
+.achips button{background:#FAF6F1}

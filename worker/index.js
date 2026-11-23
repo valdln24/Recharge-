@@ -226,7 +226,7 @@ async function me(request, env) {
    Un compteur par jour et par étape. Aucun cookie, aucune adresse IP, aucun identifiant : on sait combien de
    personnes passent chaque étape, jamais qui. Les noms d'étapes sont limités à une liste connue. */
 const EVENTS = new Set(["site_visite", "analyse_cta", "analyse_debut", "analyse_q1", "analyse_q2", "analyse_q3", "analyse_q4", "analyse_resultat",
-  "analyse_email", "analyse_essai", "app_ouverte", "app_depuis_analyse", "onboarding_fin", "premiers_clients", "premiere_relance", "compte_cree"]);
+  "analyse_reseau", "analyse_coach", "analyse_email", "analyse_essai", "app_ouverte", "app_depuis_analyse", "onboarding_fin", "premiers_clients", "premiere_relance", "compte_cree"]);
 async function trackEvent(request, env) {
   const body = await readJson(request, 1024);
   const name = String(body.e || "");
