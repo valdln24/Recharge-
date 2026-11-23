@@ -172,3 +172,7 @@ body.home .sfab{display:none!important}
 .ab-vals{list-style:none;padding:0;margin:20px 0 0;display:flex;flex-wrap:wrap;gap:8px}
 .ab-vals li{padding:9px 14px;border-radius:99px;background:#fff;border:1px solid var(--line);font-size:.88rem;font-weight:700}
 @media (max-width:860px){.ab3{grid-template-columns:1fr}.ab-ph{aspect-ratio:4/4.6}}
+/* photo du fondateur : cadrage depuis le haut, la tête n'est jamais coupée */
+.ab-ph img{object-position:50% 0;transform:none}
+.ab-ph{aspect-ratio:3/4}
+@media (max-width:860px){.ab-ph{aspect-ratio:3/4}}

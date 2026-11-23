@@ -643,6 +643,9 @@ nav.tabs .tab.on svg{background:var(--navy);color:#fff;box-shadow:0 8px 18px -8p
 .sx-i{display:flex;justify-content:space-between;gap:10px;align-items:baseline;margin-top:8px;padding-top:8px;border-top:1px solid var(--line);font-size:.9rem}.sx-i small{color:var(--ink-3);font-weight:650;font-size:.76rem;white-space:nowrap}
 .sx-short{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;margin-top:12px;border:1.5px dashed var(--orange);background:var(--o-soft);border-radius:16px;padding:12px 14px;font:inherit;color:var(--ink);text-align:left;cursor:pointer}
 .sx-short span{font-size:.8rem;color:var(--ink-2);font-weight:600}
+.durrow{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px;margin-top:10px}.durrow b{display:block}.durrow small{display:block;color:var(--ink-3);font-weight:650;margin:2px 0 10px}
+.durrow .unit .input{width:90px}
+.prodrow .input.estd{border-color:var(--orange);background:var(--o-soft)}
 </style>
 </head>
 <body>
@@ -2435,11 +2438,11 @@ function viewSettings() {
   for (const p of realProducts()) {
     h += `<div class="prodrow" data-pid="${p.id}">
       <input class="input" data-field="name" value="${esc(p.name)}" aria-label="Nom du produit">
-      <input class="input num" data-field="days" inputmode="numeric" value="${p.days}" aria-label="Durée en jours">
+      <input class="input num${p.est ? " estd" : ""}" data-field="days" inputmode="numeric" value="${p.days}" aria-label="Durée en jours"${p.est ? ' title="Durée estimée par Recharge : à vérifier"' : ""}>
       <input class="input num" data-field="price" inputmode="decimal" value="${String(p.price).replace(".", ",")}" aria-label="Prix">
       <button class="x" data-act="delProduct" data-id="${p.id}" aria-label="Supprimer ${esc(p.name)}">${I.x}</button></div>`;
   }
-  h += `<p class="hint" style="margin:10px 0 0">Jours = durée d'un produit. Prix = prix de vente au client.</p>
+  h += `<p class="hint" style="margin:10px 0 0">Jours = durée d'un produit. Prix = prix de vente au client.${realProducts().some(x => x.est) ? " Les durées en orange sont des estimations de Recharge : vérifiez-les." : ""}</p>
     <button class="btn soft" style="margin-top:12px" data-act="addProductRow">Ajouter un produit</button></div>`;
 
   const keep = S.settings.margin - S.settings.vipPct;
@@ -2527,6 +2530,7 @@ function openNewSale(clientId, fromProspect) {
       <div class="field"><span>Produit</span><div class="pchips" id="chips"></div></div>
       <div id="newProd" class="subform hidden">
         <label class="field"><span>Nom du produit</span><input class="input" id="npName" placeholder="ex. : Dentifrice aloe vera"></label>
+        <p class="hint" id="npEst" style="margin:6px 0 0"></p>
         <div class="two" style="grid-template-columns:1fr 1fr">
           <label class="field"><span>Durée (jours)</span><input class="input" id="npDays" inputmode="numeric" value="30"></label>
           <label class="field"><span>Prix (€)</span><input class="input" id="npPrice" inputmode="decimal" placeholder="0"></label>
@@ -2951,7 +2955,7 @@ function obSaveContacts() {
     if (!c) { c = { id: uid(), name: r.name, phone: r.phone || "", example: false, createdAt: today(), status: "direct", statusLog: [{ s: "direct", date: today() }] }; S.clients.push(c); }
     const pn = r.prod || "Mon produit";
     let pr = S.products.find(x => x.name.toLowerCase() === pn.toLowerCase());
-    if (!pr) { pr = { id: uid(), name: cap(pn), days: 30, price: 0 }; S.products.push(pr); }
+    if (!pr) { pr = newProduct(pn); S.products.push(pr); }
     recordSale(c, pr, 1, addDays(today(), -(r.ago || 30)));
   }
   return rows.length;
@@ -3516,6 +3520,45 @@ function openBilan(m) {
    La reconnaissance se fait par le navigateur (Chrome, Safari). Sinon, le micro du clavier fait l'affaire. */
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 let rec = null;
+/* ---------- Durée d'un nouveau produit : Recharge propose, la partenaire confirme ----------
+   Une estimation selon le type de produit (prudente, affichée comme telle). La partenaire la corrige en un appui,
+   et après 2 achats d'un même client, le rythme réel prend le relais. */
+const DUR_HINTS = [
+  [/\b(gel(s)? (a boire|aloe)|aloe|boisson|jus|nectar)\b/, 30, "boisson / gel à boire"],
+  [/\b(complement|gelule|capsule|comprime|cure|vitamine|magnesium|omega|probiotique|collagene|spiruline|detox)/, 30, "complément, cure"],
+  [/\b(proteine|shake|repas|substitut|barre)/, 30, "nutrition"],
+  [/\b(the|infusion|tisane|cafe)\b/, 30, "thé, infusion"],
+  [/\b(serum|creme|soin|contour|masque|hydratant|anti age|antiage|lotion|baume|huile)\b/, 45, "soin"],
+  [/\b(shampo|apres shampo|apres-shampo|gel douche|savon|dentifrice|deodorant|deo|gommage)/, 45, "hygiène"],
+  [/\b(lessive|vaisselle|nettoyant|multi usage|multiusage|entretien|detachant|adoucissant|sol|vitre|cuisine|wc)\b/, 60, "entretien de la maison"],
+  [/\b(bougie|recharge parfum|diffuseur|fondant)/, 45, "bougie, parfum d'intérieur"],
+  [/\b(parfum|eau de toilette|eau de parfum)\b/, 90, "parfum"],
+  [/\b(mascara|rouge|gloss|fond de teint|maquillage|vernis|eyeliner|crayon)\b/, 90, "maquillage"],
+  [/\b(coffret|kit|pack|box)\b/, 60, "coffret"]
+];
+function estimateDays(name) {
+  const n = norm(name);
+  for (const [re, d, why] of DUR_HINTS) if (re.test(n)) return { days: d, why };
+  return { days: 30, why: "" };
+}
+const newProduct = name => { const e = estimateDays(name); return { id: uid(), name: cap(String(name).trim()), days: e.days, price: 0, est: true }; };
+/* Après une saisie : confirmer la durée des produits que Recharge vient de créer */
+let durPids = [];
+function openDurations(pids) {
+  durPids = pids.filter(id => S.products.some(x => x.id === id)); if (!durPids.length) return;
+  const CH = [[14, "2 sem."], [30, "1 mois"], [45, "6 sem."], [60, "2 mois"], [90, "3 mois"]];
+  openSheet(`<div class="shead"><h3>Combien de temps durent-ils ?</h3>${closeBtn}</div>
+    <p class="lede" style="margin-top:8px">C'est ce qui donne la date de relance. Recharge a fait une estimation : vous le savez mieux que lui, ajustez si besoin. Ensuite, il apprendra le vrai rythme de chaque client.</p>
+    ${durPids.map(id => { const p = S.products.find(x => x.id === id), e = estimateDays(p.name); return `<div class="durrow" data-pid="${p.id}"><b>${esc(p.name)}</b>
+      <small>${e.why ? `Estimation Recharge (${esc(e.why)}) : ${e.days} jours` : "Pas d'estimation précise : 1 mois par défaut"}</small>
+      <div class="tchips">${CH.map(([d, l]) => `<button type="button" class="${p.days === d ? "on" : ""}" data-act="durPick" data-pid="${p.id}" data-d="${d}">${l}</button>`).join("")}</div>
+      <div class="unit" style="margin-top:8px"><input class="input num" data-durin="${p.id}" inputmode="numeric" value="${p.days}" aria-label="Durée en jours"><b>jours</b></div></div>`; }).join("")}
+    <button class="btn primary" style="margin-top:16px" data-act="durSave">Valider</button>`);
+}
+function setProductDays(p, d) {
+  p.days = d; p.est = false;
+  for (const sl of S.sales) if (sl.productId === p.id && (sl.status === "open" || sl.status === "relance") && !sl.learned) { sl.days = d; sl.end = addDays(sl.date, d * sl.qty); }
+}
 /* ---------- Saisie sans effort : une phrase suffit ----------
    « Julie a pris 2 gels aloe vera et une crème visage hier ; Karim, un shampoing »
    Recharge comprend le client, les produits, les quantités et la date, montre ce qu'il a compris pendant qu'on parle
@@ -3614,7 +3657,7 @@ function parseSaisie(text) {
   return { kind: "sale", segs };
 }
 function saisieEnd(seg, it) {
-  const p = it.p || { name: it.name, days: 30 };
+  const p = it.p || { name: it.name, days: estimateDays(it.name).days };
   const rh = seg.c && it.p ? learnedRhythm(seg.c.id, p.name, p.days, seg.date) : null;
   return { end: addDays(seg.date, (rh ? rh.days : p.days) * it.qty), rh };
 }
@@ -3664,14 +3707,14 @@ function saveSaisie() {
   const ta = document.getElementById("voiceText"), text = ta ? ta.value : "", r = parseSaisie(text);
   if (r.kind !== "sale") return runVoice(text);
   const segs = r.segs.filter(sg => sg.name && sg.items.length); if (!segs.length) return toast("Dites le nom du client et le produit.");
-  const snap = snapshot(); let nVentes = 0, nNew = 0;
+  const snap = snapshot(); let nVentes = 0, nNew = 0; const created = [];
   if (!DEMO && S.clients.every(x => x.example)) clearExampleData();
   for (const sg of segs) {
     let c = sg.c && client(sg.c.id) || S.clients.find(x => norm(x.name) === norm(sg.name));
     if (!c) { c = { id: uid(), name: sg.name, phone: sg.pr ? sg.pr.phone || "" : "", example: false, createdAt: today(), status: "direct", statusLog: [{ s: "direct", date: today() }] }; S.clients.push(c); nNew++; }
     for (const it of sg.items) {
       let p = it.p;
-      if (!p) { p = S.products.find(x => norm(x.name) === norm(it.name)); if (!p) { p = { id: uid(), name: cap(it.name), days: 30, price: 0 }; S.products.push(p); } }
+      if (!p) { p = S.products.find(x => norm(x.name) === norm(it.name)); if (!p) { p = newProduct(it.name); S.products.push(p); created.push(p.id); } }
       recordSale(c, p, it.qty, sg.date); nVentes++;
       if (sg.pr && sg.pr.status !== "client") { sg.pr.status = "client"; sg.pr.clientId = c.id; sg.pr.convertedAt = today(); S.events.push({ id: uid(), type: "pclient", prospectId: sg.pr.id, clientId: c.id, product: p.name, amount: (p.price || 0) * it.qty, date: today(), example: false }); }
     }
@@ -3679,6 +3722,7 @@ function saveSaisie() {
   rcTrack("saisie_phrase");
   save(); closeSheet(); tab = "today"; render();
   toast(`${plural(nVentes, "vente enregistrée", "ventes enregistrées")}${nNew ? ` · ${plural(nNew, "nouveau client", "nouveaux clients")}` : ""} ✅`, snap);
+  if (created.length) setTimeout(() => openDurations(created), 500);
 }
 const VOICE_STOP = new Set("une un de du des la le les pour avec a à au aux et chez ma mon sa son vente commande nouvelle nouveau ajoute ajouter note noter prospect cliente client rencontré rencontrée intéressé intéressée par hier aujourd'hui il y jours jour semaines semaine".split(" "));
 function parseVoice(text) {
@@ -3956,7 +4000,7 @@ function applyImport() {
     let c = cid ? client(cid) : S.clients.find(x => norm(x.name) === norm(name));
     if (!c) { if (!name) return; c = { id: uid(), name, phone: "", example: false, createdAt: today(), status: newStatus, statusLog: [{ s: newStatus, date: today() }] }; S.clients.push(c); newC++; }
     let p = pid === "rythme" ? genericProduct() : pid ? S.products.find(x => x.id === pid) : S.products.find(x => norm(x.name) === norm(r.product));
-    if (!p) { p = { id: uid(), name: cap(r.product.trim()), days: 30, price: 0 }; S.products.push(p); }
+    if (!p) { p = newProduct(r.product); S.products.push(p); }
     if (S.sales.some(x => x.clientId === c.id && x.product === p.name && x.date === date)) { skipped++; return; }
     recordSale(c, p, qty, date); added++;
   });
@@ -4047,7 +4091,7 @@ const actions = {
   saveNewProduct: () => {
     const name = document.getElementById("npName").value.trim();
     if (!name) return toast("Indiquez le nom du produit.");
-    const p = { id: uid(), name, days: Math.max(1, Math.round(num(document.getElementById("npDays").value)) || 30), price: num(document.getElementById("npPrice").value) };
+    const p = { id: uid(), name, days: Math.max(1, Math.round(num(document.getElementById("npDays").value)) || 30), price: num(document.getElementById("npPrice").value), est: false };
     S.products.push(p); save(); form.pid = p.id;
     document.getElementById("newProd").classList.add("hidden"); drawChips(); updateEnd();
   },
@@ -4199,6 +4243,8 @@ const actions = {
   voiceStart: () => startListening(),
   voiceGo: () => runVoice(document.getElementById("voiceText").value),
   saisieSave: () => saveSaisie(),
+  durPick: el => { const row = el.closest(".durrow"); row.querySelectorAll(".tchips button").forEach(b => b.classList.toggle("on", b === el)); row.querySelector("[data-durin]").value = el.dataset.d; },
+  durSave: () => { document.querySelectorAll("[data-durin]").forEach(i => { const p = S.products.find(x => x.id === i.dataset.durin); if (p) setProductDays(p, Math.max(1, Math.round(num(i.value)) || p.days)); }); save(); closeSheet(); render(); toast("Durées enregistrées : les relances sont calées dessus ✅"); },
   saisieEx: el => { const ta = document.getElementById("voiceText"); ta.value = el.textContent; saisiePreview(ta.value); },
   saisieForm: () => { const t = (document.getElementById("voiceText") || {}).value || ""; if (t.trim()) runVoice(t); else openNewSale(); },
   prPick: el => el.classList.toggle("on"),
@@ -4392,7 +4438,7 @@ const actions = {
     S.sales = S.sales.filter(x => !(x.clientId === c.id && isGeneric(x) && x.date === date));  // la commande devient précise
     let n = 0;
     document.querySelectorAll(".detOn").forEach(el => { if (!el.checked) return; const it = detItems[+el.dataset.i];
-      let pr = matchProduct(it); if (!pr) { pr = { id: uid(), name: it, days: 30, price: 0 }; S.products.push(pr); } recordSale(c, pr, 1, date); n++; });
+      let pr = matchProduct(it); if (!pr) { pr = newProduct(it); S.products.push(pr); } recordSale(c, pr, 1, date); n++; });
     save(); closeSheet(); tab = "today"; render(); toast(`${plural(n, "produit ajouté", "produits ajoutés")} pour ${firstName(c.name)}`, snap);
   },
   pCopy: async el => { const ok = await copyText(currentPMsg(el.dataset.id)); toast(ok ? "Message copié. Collez-le dans votre messagerie." : "Impossible de copier : sélectionnez le texte à la main."); },
@@ -4526,6 +4572,9 @@ document.addEventListener("input", ev => {
   }
   if (t.classList.contains("msg")) fitAreas(t.parentNode);
   if (t.id === "fDate" || t.id === "fName") updateEnd();
+  if (t.id === "npName") { const e = estimateDays(t.value), d = document.getElementById("npDays"), h = document.getElementById("npEst");
+    if (!d.dataset.touched) d.value = e.days; if (h) h.textContent = t.value.trim() ? (e.why ? `Estimation Recharge (${e.why}) : ${e.days} jours. Ajustez si vous savez mieux.` : "Pas d'estimation précise : 30 jours par défaut, ajustez si besoin.") : ""; }
+  if (t.id === "npDays") t.dataset.touched = "1";
   if (t.id === "pNext") pform.touched = true;
   if (t.id === "fName") {
     const known = S.clients.some(x => x.name.toLowerCase() === t.value.trim().toLowerCase());
@@ -4542,7 +4591,7 @@ document.addEventListener("change", ev => {
     const p = S.products.find(x => x.id === row.dataset.pid); if (!p) return;
     const f = t.dataset.field;
     if (f === "name") p.name = t.value.trim() || p.name;
-    if (f === "days") p.days = Math.max(1, Math.round(num(t.value)) || p.days);
+    if (f === "days") setProductDays(p, Math.max(1, Math.round(num(t.value)) || p.days));
     if (f === "price") p.price = Math.max(0, num(t.value));
     save(); toast("Produit mis à jour"); return;
   }
