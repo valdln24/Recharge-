@@ -495,6 +495,7 @@ details.cfields{margin-top:14px;background:var(--surface);border:1px solid var(-
 .summary{display:flex;justify-content:space-between;align-items:center;gap:12px;background:var(--o-soft);border-radius:20px;padding:13px 16px;margin-top:16px}
 .summary .small{color:var(--o-text)}
 .summary b{display:block;font-size:1.02rem;font-weight:750;letter-spacing:-.02em}
+.summary .endmod{display:flex;width:max-content;align-items:center;gap:6px;margin-top:9px;padding:7px 12px;border-radius:999px;border:0;background:#fff;color:var(--ink);font:inherit;font-size:.82rem;font-weight:700;box-shadow:0 1px 0 rgba(28,26,34,.08);cursor:pointer}
 .summary .price{font-weight:750;font-size:1.2rem;letter-spacing:-.03em}
 .subform{border:1px dashed var(--line-2);border-radius:20px;padding:2px 14px 14px;margin-top:10px}
 
@@ -2550,7 +2551,6 @@ function openNewSale(clientId, fromProspect) {
         <label class="field"><span>Date d'achat</span><input class="input" id="fDate" type="date" value="${today()}" max="${addDays(today(), 1)}"></label>
       </div>
       <div class="summary" id="endBox"></div>
-      <button type="button" class="linkbtn" style="margin:6px 0 0" data-act="fEndOpen">📅 Ajuster la fin au jour près</button>
       <label class="field hidden" id="fEndWrap"><span>Fin de consommation <i>· vous le savez mieux que le calcul</i></span><input class="input" type="date" id="fEnd"></label>
       <button class="btn primary" style="margin-top:14px" type="submit">Enregistrer la vente</button>
     </form>`);
@@ -2574,8 +2574,9 @@ function updateEnd() {
   const end = own || addDays(date, (rh ? rh.days : p.days) * form.qty);
   if (fe && !own) { fe.value = end; fe.min = date; }
   const d = diff(end, today());
-  box.innerHTML = `<div><span class="small">Fin estimée${rh ? ` · rythme de ${esc(firstName(cl.name))}` : ""}</span><b>${cap(fmtLong(end))}</b>
-    <span style="font-size:.82rem;color:var(--ink-2)">${d >= 0 ? "dans " + plural(d, "jour", "jours") : "déjà passée"}${rh ? ` · rachète environ tous les ${rh.real} j` : ""}</span></div>` +
+  box.innerHTML = `<div><span class="small">${own ? "Fin choisie par vous" : "Fin estimée"}${!own && rh ? ` · rythme de ${esc(firstName(cl.name))}` : ""}</span><b>${cap(fmtLong(end))}</b>
+    <span style="font-size:.82rem;color:var(--ink-2)">${d >= 0 ? "dans " + plural(d, "jour", "jours") : "déjà passée"}${rh ? ` · rachète environ tous les ${rh.real} j` : ""}</span>
+    ${document.getElementById("fEndWrap").classList.contains("hidden") ? `<button type="button" class="endmod" data-act="fEndOpen">📅 Changer la date de fin</button>` : ""}</div>` +
     (p.price ? `<span class="price num">${euro(p.price * form.qty)}</span>` : "");
 }
 function submitSale() {
@@ -4316,7 +4317,7 @@ const actions = {
   endUseAvg: el => { const sl = sale(endAdj.id); document.getElementById("endIn").value = addDays(sl.date, +el.dataset.d * Math.max(1, sl.qty)); endInfo(); },
   durApply: el => { const p = S.products.find(x => x.id === el.dataset.pid); if (!p) return; const snap = snapshot(); setProductDays(p, +el.dataset.d); save(); render(); toast(`${p.name} : ${el.dataset.d} jours. Les relances en cours sont recalées ✅`, snap); },
   durDismiss: el => { S.settings.durTipOff = { ...(S.settings.durTipOff || {}), [el.dataset.pid]: +el.dataset.d }; save(); render(); toast("Durée gardée : Recharge ne vous le redemandera que si la moyenne change"); },
-  fEndOpen: el => { document.getElementById("fEndWrap").classList.remove("hidden"); el.remove(); document.getElementById("fEnd").focus(); },
+  fEndOpen: el => { document.getElementById("fEndWrap").classList.remove("hidden"); el.remove(); const f = document.getElementById("fEnd"); f.focus(); try { f.showPicker && f.showPicker(); } catch (e) {} },
   endShift: el => { const i = document.getElementById("endIn"); const sl = sale(endAdj.id); let v = addDays(i.value || sl.end, +el.dataset.d); if (v < sl.date) v = sl.date; i.value = v; endInfo(); },
   endSave: () => {
     const sl = sale(endAdj.id); if (!sl) return closeSheet(); const snap = snapshot();
