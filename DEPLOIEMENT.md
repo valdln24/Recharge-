@@ -41,7 +41,7 @@ Les autres réglages sont dans `wrangler.jsonc` (rien de secret) :
 | Nom | Valeur | Rôle |
 |---|---|---|
 | `APP_ORIGIN` | `https://getrecharge.fr` | adresse publique du site : liens de parrainage, d'équipe et du Playbook. Le lien de connexion et le retour de paiement renvoient vers l'adresse où la vendeuse se trouve déjà |
-| `EMAIL_FROM` | `Recharge <support@getrecharge.fr>` | expéditeur des emails (domaine validé dans Resend) |
+| `EMAIL_FROM` | `Recharge <bonjour@getrecharge.fr>` | expéditeur des emails (domaine validé dans Resend) |
 | `REQUIRE_PAID` | `true` | la sauvegarde en ligne est réservée aux abonnées |
 | `DEV_SHOW_LINK` | `false` | **toujours `false` en ligne** (sert seulement aux tests sur ordinateur) |
 
@@ -87,5 +87,5 @@ npm run dev                                        # http://127.0.0.1:8765
 ## Adresse getrecharge.fr (déménagement depuis recharge.delaineval.workers.dev)
 - **Domaines branchés sur le Worker `recharge`** (Cloudflare › Workers & Pages › recharge › Settings › Domains & Routes) : `getrecharge.fr` (adresse publique), `www.getrecharge.fr` et `api.getrecharge.fr` (alias). Le site, l'appli et l'API sont servis ensemble, à la même adresse : il n'y a pas de CORS, c'est voulu.
 - **Ne pas désactiver `recharge.delaineval.workers.dev`** ni le rediriger : les vendeuses y ont encore leurs clients, gardés dans leur navigateur. Sur cette ancienne adresse, l'appli affiche un bandeau « Recharge a une nouvelle adresse » et un bouton « Emporter mes clients » qui copie leurs données vers getrecharge.fr, sans rien effacer ni passer par le serveur.
-- **Emails** : une fois `getrecharge.fr` validé dans Resend (enregistrements DNS), `EMAIL_FROM` = `Recharge <support@getrecharge.fr>`. Pour recevoir les réponses, activer Cloudflare › getrecharge.fr › Email › Email Routing et faire suivre support@ vers votre boîte personnelle.
+- **Emails** : une fois `getrecharge.fr` validé dans Resend (enregistrements DNS), `EMAIL_FROM` = `Recharge <bonjour@getrecharge.fr>`. Pour recevoir les réponses, activer Cloudflare › getrecharge.fr › Email › Email Routing et faire suivre bonjour@ vers votre boîte personnelle.
 - **Stripe** : aucun webhook. Si une adresse de site est renseignée dans le tableau de bord Stripe (portail client, informations publiques), la remplacer par https://getrecharge.fr.

@@ -31,7 +31,7 @@
     // Adresse publique du site (sert à construire le lien de connexion envoyé par email)
     "APP_ORIGIN": "https://getrecharge.fr",
     // Expéditeur des emails (domaine getrecharge.fr validé dans Resend)
-    "EMAIL_FROM": "Recharge <support@getrecharge.fr>",
+    "EMAIL_FROM": "Recharge <bonjour@getrecharge.fr>",
     // La sauvegarde en ligne est réservée aux abonnées (phase 3)
     "REQUIRE_PAID": "true",
     // Uniquement pour tester sans email : "true" renvoie le lien de connexion dans la réponse. Toujours "false" en ligne.
