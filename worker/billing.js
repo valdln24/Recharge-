@@ -10,9 +10,13 @@
 export const TIERS = {
   starter: { name: "Starter", month: 990, year: 8900, founderMonth: 590, founderYear: 5900 },
   pro: { name: "Pro", month: 1990, year: 17900, founderMonth: 1190, founderYear: 11900 },
-  equipe: { name: "Équipe", month: 3990, year: 35900, founderMonth: 2490, founderYear: 23900, seats: 6 }
+  // Équipe : prix PAR PERSONNE. Une tête de réseau crée l'équipe et paie sa part ; chaque filleul rejoint avec le code
+  // de l'équipe et paie la sienne. Prévue à partir de 5 personnes (règle affichée, personne n'est bloqué en dessous).
+  equipe: { name: "Équipe", month: 990, year: 8900, founderMonth: 790, founderYear: 7100, perPerson: true, minSeats: 5 }
 };
-export const EXTRA_SEAT = { month: 790, year: 7100 };   // par personne au-delà des 6 places de l'offre Équipe
+/* Ancienne offre Équipe (cachée, jamais vendue : le paiement n'était pas encore branché) :
+   39,90 €/mois pour 6 personnes payées par une seule, puis 7,90 € par personne. */
+export const EXTRA_SEAT = { month: 790, year: 7100 };
 export const FOUNDER_SLOTS = 50;
 export const MAX_SEATS = 60;
 export const TIER_KEYS = Object.keys(TIERS);
@@ -51,11 +55,11 @@ export async function checkout(env, origin, offer, user, ref = {}) {
   const t = TIERS[offer.tier], period = offer.period === "year" ? "year" : "month";
   if (!t) throw new BillingError(400, "Offre inconnue.");
   const amount = offer.founder ? t[period === "year" ? "founderYear" : "founderMonth"] : t[period];
-  const seats = offer.tier === "equipe" ? Math.max(t.seats, Math.min(MAX_SEATS, Math.round(+offer.seats || t.seats))) : 1;
-  const label = `Recharge ${t.name}${offer.tier === "equipe" ? ` · ${t.seats} personnes` : ""}${offer.founder ? " · prix fondateur" : ""}`;
+  const team = offer.tier === "equipe" ? (offer.teamName ? ` · ma part (équipe « ${offer.teamName} »)` : " · ma part") : "";
+  const label = `Recharge ${t.name}${team}${offer.founder ? " · prix fondateur" : ""}`;
   const items = { 0: { quantity: 1, price_data: { currency: "eur", unit_amount: amount, recurring: { interval: period }, product_data: { name: label } } } };
-  if (seats > t.seats) items[1] = { quantity: seats - t.seats, price_data: { currency: "eur", unit_amount: EXTRA_SEAT[period], recurring: { interval: period }, product_data: { name: "Recharge Équipe · personne en plus" } } };
-  const meta = { tier: offer.tier, founder: offer.founder ? 1 : 0, seats, team_name: offer.teamName || "" };
+  // team_code : l'équipe à rejoindre (filleul) ; team_name seul : l'équipe à créer (tête de réseau)
+  const meta = { tier: offer.tier, founder: offer.founder ? 1 : 0, team_name: offer.teamName || "", team_code: offer.teamCode || "" };
   // Parrainage : +30 jours d'essai pour une invitée, +30 jours par mois gagné en tant que marraine
   const bonus = (ref.invited ? 30 : 0) + 30 * (ref.refMonths || 0);
   const s = await stripe(env, "POST", "checkout/sessions", {
@@ -84,7 +88,7 @@ export async function confirm(env, id) {
   if (!email) throw new BillingError(400, "Email introuvable sur ce paiement.");
   const md = sub.metadata || {}, tier = TIERS[md.tier] ? md.tier : "pro";
   return { email, customer: typeof s.customer === "string" ? s.customer : s.customer && s.customer.id, sub: sub.id, userId: s.client_reference_id || null, refMonths: Math.max(0, +(md.ref_months || 0)),
-    tier, founder: md.founder === "1" || md.founder === 1, seats: Math.max(1, +md.seats || 1), teamName: String(md.team_name || "").slice(0, 60) };
+    tier, founder: md.founder === "1" || md.founder === 1, teamName: String(md.team_name || "").slice(0, 60), teamCode: String(md.team_code || "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 12) };
 }
 
 /* 3. L'espace client Stripe : carte, factures, résiliation */

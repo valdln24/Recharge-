@@ -971,15 +971,15 @@ let loginEmail = "", upPeriod = "year", upTier = "pro", upTeam = { mode: "new", 
 const OFFERS = {
   starter: { n: "Starter", m: 990, y: 8900, fm: 590, fy: 5900, pitch: "Pour bien démarrer", perks: ["Jusqu'à 50 clients", "Relances au bon moment, rythme réel de chaque client", "3 imports photo par mois"] },
   pro: { n: "Pro", m: 1990, y: 17900, fm: 1190, fy: 11900, pitch: "Pour développer son activité", perks: ["Clients illimités", "Imports photo illimités", "Coach IA illimité", "Prospection, promos et recommandations"] },
-  equipe: { n: "Équipe", m: 3990, y: 35900, fm: 2490, fy: 23900, seats: 6, pitch: "Pour animer son équipe", perks: ["6 personnes incluses, puis 7,90 € par personne", "Tout Pro pour chaque membre", "Le suivi des résultats de l'équipe"] }
+  equipe: { n: "Équipe", m: 990, y: 8900, fm: 790, fy: 7100, pp: true, pitch: "Pour toute une équipe, dès 5 personnes", perks: ["Prix par personne : chacun paie sa part", "Tout Pro pour chaque membre", "Dès 5 personnes : la tête de réseau partage un code", "La tête de réseau voit qui a rejoint"] }
 };
+const TEAM_MIN = 5;
 const EXTRA = { m: 790, y: 7100 };
 const eur = c => (c / 100).toLocaleString("fr-FR", { minimumFractionDigits: c % 100 ? 2 : 0, maximumFractionDigits: 2 }) + " €";
 const TIER_NAME = { starter: "Starter", pro: "Pro", equipe: "Équipe", recharge: "Recharge", fondatrice: "Recharge" };
 function offerPrice(k, founder) {
-  const o = OFFERS[k], y = upPeriod === "year", seats = k === "equipe" ? Math.max(6, upTeam.seats) : 1;
-  const base = founder ? (y ? o.fy : o.fm) : (y ? o.y : o.m), normal = y ? o.y : o.m, extra = k === "equipe" ? (seats - 6) * (y ? EXTRA.y : EXTRA.m) : 0;
-  const total = base + extra, totalNormal = normal + extra;
+  const o = OFFERS[k], y = upPeriod === "year";
+  const total = founder ? (y ? o.fy : o.fm) : (y ? o.y : o.m), totalNormal = y ? o.y : o.m;
   return { total, totalNormal, perMonth: y ? Math.round(total / 12) : total, perMonthNormal: y ? Math.round(totalNormal / 12) : totalNormal };
 }
 async function openUpgrade(tier) {
@@ -991,14 +991,14 @@ async function openUpgrade(tier) {
   const card = k => { const o = OFFERS[k], pr = offerPrice(k, founder), on = upTier === k;
     return `<button type="button" class="ofr ${on ? "on" : ""} t-${k}" data-act="upTier" data-t="${k}" aria-pressed="${on}">
       <span class="ofh"><b>${o.n}</b>${k === "pro" ? `<i>Le plus choisi</i>` : ""}<span class="ofdot"></span></span>
-      <span class="ofp"><b class="num">${eur(pr.perMonth)}</b><span>/ mois</span>${founder ? `<s class="num">${eur(pr.perMonthNormal)}</s>` : ""}</span>
+      <span class="ofp"><b class="num">${eur(pr.perMonth)}</b><span>/ mois${o.pp ? " / pers." : ""}</span>${founder ? `<s class="num">${eur(pr.perMonthNormal)}</s>` : ""}</span>
       <small>${upPeriod === "year" ? `Facturé ${eur(pr.total)} par an${founder ? ` au lieu de ${eur(pr.totalNormal)}` : ""}` : `Sans engagement${founder ? ` · au lieu de ${eur(pr.totalNormal)}` : ""}`}</small>
       ${on ? `<ul class="ofl">${o.perks.map(x => `<li>${x}</li>`).join("")}</ul>` : `<small class="ofpitch">${o.pitch}</small>`}</button>`; };
   const team = upTier !== "equipe" ? "" : `<div class="ofteam">
       <div class="seg" style="margin:0"><button type="button" class="${upTeam.mode === "new" ? "on" : ""}" data-act="upTeamMode" data-m="new">Je crée mon équipe</button><button type="button" class="${upTeam.mode === "join" ? "on" : ""}" data-act="upTeamMode" data-m="join">J'ai déjà une équipe</button></div>
       ${upTeam.mode === "new" ? `<label class="field"><span>Le nom de votre équipe</span><input class="input" id="upTeamName" value="${esc(upTeam.name)}" placeholder="ex. : Les Étoiles de Laura" maxlength="60"></label>
-        <div class="field"><span>Combien de personnes, vous comprise ?</span>${seatScroller(upTeam.seats)}</div>`
-      : `<p class="hint" style="margin:12px 0 0">La personne qui gère votre équipe vous a donné un code ou un lien : votre accès est compris dans son abonnement.</p>
+        <p class="hint" style="margin:10px 0 0">Vous payez votre part. Vous recevez ensuite un code à partager : chaque filleul rejoint l'équipe avec ce code et paie la sienne. L'offre est prévue à partir de ${TEAM_MIN} personnes, vous comprise.</p>`
+      : `<p class="hint" style="margin:12px 0 0">Votre tête de réseau vous a donné un code ou un lien. Vous payez votre part, et Recharge vous rattache à son équipe.</p>
         <label class="field"><span>Code de l'équipe</span><input class="input" id="upTeamCode" value="${esc(upTeam.code)}" placeholder="ex. : K7M2QX9A" autocapitalize="characters" maxlength="12"></label>`}</div>`;
   const join = upTier === "equipe" && upTeam.mode === "join";
   const html = `<div class="shead"><h3>Choisir mon offre</h3>${closeBtn}</div>
@@ -1009,13 +1009,14 @@ async function openUpgrade(tier) {
     <div class="ofrs">${["starter", "pro", "equipe"].map(card).join("")}</div>
     ${team}
     ${(() => { const an = S.analyse; return an && an.totalAn >= 178 && !join ? `<p class="devnet" style="margin-top:12px">Votre analyse : jusqu'à <b>~${an.totalAn.toLocaleString("fr-FR")} € par an</b> à aller chercher.</p>` : ""; })()}
-    <button class="btn orange" style="margin-top:14px" data-act="${join ? "upJoin" : "upGo"}">${join ? "Rejoindre mon équipe" : "Commencer mes 14 jours gratuits"}</button>
-    ${join ? "" : `<p class="hint" style="text-align:center">Paiement sécurisé par Stripe : Recharge ne voit jamais votre carte. Aucun prélèvement avant la fin de l'essai.${BILLING_OK ? "" : " Le paiement en ligne s'ouvre très bientôt."}</p>`}
+    <button class="btn orange" style="margin-top:14px" data-act="upGo">${join ? "Rejoindre l'équipe · 14 jours gratuits" : "Commencer mes 14 jours gratuits"}</button>
+    ${`<p class="hint" style="text-align:center">Paiement sécurisé par Stripe : Recharge ne voit jamais votre carte. Aucun prélèvement avant la fin de l'essai.${BILLING_OK ? "" : " Le paiement en ligne s'ouvre très bientôt."}</p>`}
     ${!session && API_OK ? `<button class="linkbtn" data-act="accLogin">J'ai déjà un compte : me connecter</button>` : ""}`;
   const cur = sheetEl.querySelector(".sheet.offsheet");
   if (cur) { const y = cur.scrollTop; cur.innerHTML = `<div class="grab"></div>` + html; cur.scrollTop = y; requestAnimationFrame(() => initScrollers(cur)); }
   else { openSheet(html); sheetEl.querySelector(".sheet").classList.add("offsheet"); }
 }
+/* Ancien choix du nombre de places (offre Équipe payée par une seule personne) : caché, plus utilisé */
 const seatScroller = v => `<div class="dscr" data-k="p"><div class="dscr-t">${dsTrack(v, "p")}</div><input type="hidden" id="upSeats" value="${v}"><p class="dscr-l">${seatLabel(v)}</p></div>`;
 const seatLabel = n => n <= 6 ? `${n} personnes · compris dans l'offre` : `${n} personnes · 6 comprises + ${n - 6} × 7,90 €`;
 function readUpTeam() { const n = document.getElementById("upTeamName"), c = document.getElementById("upTeamCode"); if (n) upTeam.name = n.value.trim(); if (c) upTeam.code = c.value.trim().toUpperCase(); }
@@ -1030,8 +1031,11 @@ async function joinTeam(code) {
   try { code = code || localStorage.getItem(TEAM_KEY) || ""; } catch (e) {}
   code = String(code || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
   if (!code) return;
-  if (!session) { try { localStorage.setItem(TEAM_KEY, code); } catch (e) {} upTeam = { ...upTeam, mode: "join", code }; loginEmail = ""; return openAccountForm("equipe"); }
-  try { const r = await api("POST", "team/join", { code }); try { localStorage.removeItem(TEAM_KEY); } catch (e) {}
+  try { localStorage.removeItem(TEAM_KEY); } catch (e) {}
+  const pay = () => { upTier = "equipe"; upTeam = { ...upTeam, mode: "join", code }; openUpgrade(); };
+  if (!session) return pay();   // le paiement crée le compte avec l'email donné à Stripe
+  try { const r = await api("POST", "team/join", { code });
+    if (r.pay) return pay();
     const m = await api("GET", "me"); session = { ...session, plan: m.user.plan, paid: !!m.user.paid, team: !!m.user.team }; writeLS(SESSION_KEY, session);
     closeSheet(); render(); toast(`Bienvenue dans l'équipe « ${r.name} » ✅`); }
   catch (e) { toast(e.message); }
@@ -1042,21 +1046,22 @@ async function openTeam() {
   const t = r.team; if (!t) return openSheet(`<div class="shead"><h3>Mon équipe</h3>${closeBtn}</div><p class="lede" style="margin-top:8px">Vous ne faites partie d'aucune équipe.</p><button class="btn primary" style="margin-top:12px" data-act="upTeamOpen">Créer ou rejoindre une équipe</button>`);
   const RC = 2 * Math.PI * 15;
   if (!t.owner) return openSheet(`<div class="shead"><h3>${esc(t.name)}</h3>${closeBtn}</div>
-    <p class="lede" style="margin-top:8px">${t.active ? "Votre accès Recharge est compris dans l'abonnement de votre équipe." : "L'abonnement de votre équipe n'est plus actif : rapprochez-vous de la personne qui la gère."}</p>
+    <p class="lede" style="margin-top:8px">${t.active ? "Vous faites partie de cette équipe et vous payez votre part : tout Recharge Pro est inclus." : "Vous êtes rattaché à cette équipe, mais votre part n'est pas active. Payez votre part pour retrouver tout Recharge."}</p>
+    ${t.active ? "" : `<button class="btn orange" style="margin-top:12px" data-act="teamPay" data-c="${esc(t.code)}">Payer ma part</button>`}
     <button class="linkbtn danger-link" data-act="teamLeave">Quitter l'équipe</button>`);
-  const msgTxt = `Je t'invite dans notre équipe « ${t.name} » sur Recharge : ton accès est compris. Crée ton compte avec ce lien : ${t.link}`;
+  const msgTxt = `Je t'invite dans notre équipe « ${t.name} » sur Recharge. Chacun paie sa part, moins de 10 € par mois, avec 14 jours gratuits pour essayer. Rejoins-nous avec ce lien : ${t.link} (ou le code ${t.code})`;
   openSheet(`<div class="shead"><h3>${esc(t.name)}</h3>${closeBtn}</div>
-    <div class="ofound" style="margin-top:10px"><svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="15" class="trk"/><circle cx="18" cy="18" r="15" class="arc" stroke-dasharray="${(RC * t.used / t.seats).toFixed(1)} ${RC.toFixed(1)}" transform="rotate(-90 18 18)"/></svg>
-      <span><b><span class="num">${t.used}</span> / ${t.seats} places utilisées</b>Code de l'équipe : <span class="num" style="font-weight:800;letter-spacing:.08em">${esc(t.code)}</span></span></div>
+    <div class="ofound" style="margin-top:10px"><svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="15" class="trk"/><circle cx="18" cy="18" r="15" class="arc" stroke-dasharray="${(RC * Math.min(1, t.used / t.min)).toFixed(1)} ${RC.toFixed(1)}" transform="rotate(-90 18 18)"/></svg>
+      <span><b><span class="num">${t.used}</span> membre${t.used > 1 ? "s" : ""} actif${t.used > 1 ? "s" : ""}${t.missing ? ` · encore ${t.missing} pour atteindre ${t.min}` : " ✅"}</b>Code de l'équipe : <span class="num" style="font-weight:800;letter-spacing:.08em">${esc(t.code)}</span></span></div>
     <a class="btn primary send" style="margin-top:12px" href="https://wa.me/?text=${encodeURIComponent(msgTxt)}" target="_blank" rel="noopener">${I.wa}<span class="sl">Inviter sur WhatsApp</span></a>
     <button class="btn soft" style="margin-top:8px" data-act="parrainCopy" data-l="${esc(t.link)}">${I.copy} Copier le lien d'invitation</button>
-    <div class="card list" style="margin-top:14px">${t.members.map(x => `<div class="row"><span style="min-width:0"><b style="font-weight:650">${esc(x.email)}</b>${x.owner ? `<br><small>vous gérez l'équipe</small>` : ""}</span>${x.owner ? "" : `<button class="x" data-act="teamRemove" data-e="${esc(x.email)}" aria-label="Retirer ${esc(x.email)}">${I.x}</button>`}</div>`).join("")}</div>
-    <p class="hint">Plus de ${t.seats} personnes ? Chaque place en plus coûte 7,90 € par mois. [À COMPLÉTER : comment demander des places en plus (email de contact), en attendant l'ajout automatique]</p>`);
+    <div class="card list" style="margin-top:14px">${t.members.map(x => `<div class="row"><span style="min-width:0"><b style="font-weight:650">${esc(x.email)}</b>${x.owner ? `<br><small>vous gérez l'équipe</small>` : `<br><small>${x.active ? "part active" : "part pas encore payée"}</small>`}</span>${x.owner ? "" : `<button class="x" data-act="teamRemove" data-e="${esc(x.email)}" aria-label="Retirer ${esc(x.email)}">${I.x}</button>`}</div>`).join("")}</div>
+    <p class="hint">Pas de limite de taille : chaque filleul qui rejoint paie sa propre part. Retirer un membre arrête aussi sa part.</p>`);
 }
 function openAccountForm(mode) {
   try { if (mode === "parrain" || mode === "equipe") localStorage.setItem("recharge.ensuite", mode); else localStorage.removeItem("recharge.ensuite"); } catch (e) {}
   openSheet(`<div class="shead"><h3>${mode === "login" ? "Me connecter" : mode === "parrain" ? "Mon lien d'invitation" : mode === "equipe" ? "Rejoindre mon équipe" : "Passer à la version complète"}</h3>${closeBtn}</div>
-    ${mode === "equipe" ? `<p class="lede" style="margin-top:8px">Créez votre compte avec votre email, sans mot de passe : vous rejoignez ensuite votre équipe, votre accès est compris.</p>` : mode === "parrain" ? `<p class="lede" style="margin-top:8px">Votre email suffit, sans mot de passe. Vous recevez un lien de connexion, puis votre lien d'invitation s'affiche ici.</p>` : mode === "login" ? `<p class="lede" style="margin-top:8px">Indiquez l'email de votre compte : vous recevez un lien et un code pour retrouver vos clients.</p>` : `<p class="lede" style="margin-top:8px">Votre email suffit : pas de mot de passe. Vous recevez un lien et un code pour vous connecter.</p>
+    ${mode === "equipe" ? `<p class="lede" style="margin-top:8px">Créez votre compte avec votre email, sans mot de passe : vous rejoignez ensuite votre équipe en payant votre part.</p>` : mode === "parrain" ? `<p class="lede" style="margin-top:8px">Votre email suffit, sans mot de passe. Vous recevez un lien de connexion, puis votre lien d'invitation s'affiche ici.</p>` : mode === "login" ? `<p class="lede" style="margin-top:8px">Indiquez l'email de votre compte : vous recevez un lien et un code pour retrouver vos clients.</p>` : `<p class="lede" style="margin-top:8px">Votre email suffit : pas de mot de passe. Vous recevez un lien et un code pour vous connecter.</p>
     <ul class="perks"><li>☁️ <b>Sauvegarde automatique</b> de vos clients, prospects et relances</li><li>📱 Vous les retrouvez sur un <b>nouveau téléphone</b></li><li>♾️ <b>Clients illimités</b> (la version gratuite va jusqu'à 10)</li><li>🔒 Vos données restent les vôtres, jamais revendues</li></ul>
     <p class="hint" style="margin-top:6px">${hasRealData(S) ? "Vos données de ce téléphone seront envoyées sur votre compte, sans rien perdre." : ""}</p>`}
     <form id="accForm" autocomplete="on"><label class="field"><span>Votre email</span><input class="input" id="accEmail" type="email" inputmode="email" autocomplete="email" required placeholder="vous@exemple.fr" value="${esc(loginEmail || "")}"></label>
@@ -4742,15 +4747,18 @@ const actions = {
   upJoin: () => { readUpTeam(); if (!upTeam.code) { toast("Tapez le code de votre équipe."); return document.getElementById("upTeamCode").focus(); } joinTeam(upTeam.code); },
   upGo: async el => {
     readUpTeam();
-    if (upTier === "equipe" && upTeam.name.length < 2) { toast("Donnez un nom à votre équipe."); return document.getElementById("upTeamName").focus(); }
+    const joining = upTier === "equipe" && upTeam.mode === "join";
+    if (joining && !upTeam.code) { toast("Tapez le code de votre équipe."); return document.getElementById("upTeamCode").focus(); }
+    if (upTier === "equipe" && upTeam.mode !== "join" && upTeam.name.length < 2) { toast("Donnez un nom à votre équipe."); return document.getElementById("upTeamName").focus(); }
     if (!BILLING_OK) return toast("Le paiement en ligne s'ouvre très bientôt. Votre choix est noté : revenez ici dans quelques jours.");
     el.disabled = true; el.textContent = "Ouverture du paiement sécurisé…";
-    try { const r = await api("POST", "billing/checkout", { tier: upTier, period: upPeriod, seats: upTeam.seats, teamName: upTeam.name }); location.href = r.url; }
+    try { const r = await api("POST", "billing/checkout", { tier: upTier, period: upPeriod, teamName: joining ? "" : upTeam.name, teamCode: joining ? upTeam.code : "" }); location.href = r.url; }
     catch (e) { toast(e.message); el.disabled = false; el.textContent = "Commencer mes 14 jours gratuits"; }
   },
   teamOpen: () => openTeam(),
-  teamLeave: async () => { if (!confirm("Quitter l'équipe ? Votre accès compris dans son abonnement s'arrête.")) return; try { await api("POST", "team/leave"); session = { ...session, team: false, plan: "free", paid: false }; writeLS(SESSION_KEY, session); closeSheet(); render(); toast("Vous avez quitté l'équipe."); } catch (e) { toast(e.message); } },
-  teamRemove: async el => { if (!confirm(`Retirer ${el.dataset.e} de l'équipe ?`)) return; try { await api("POST", "team/remove", { email: el.dataset.e }); openTeam(); toast("Membre retiré : sa place est libérée."); } catch (e) { toast(e.message); } },
+  teamPay: el => { closeSheet(); upTier = "equipe"; upTeam = { ...upTeam, mode: "join", code: el.dataset.c }; openUpgrade(); },
+  teamLeave: async () => { if (!confirm("Quitter l'équipe ? Votre part s'arrête aussi : vous ne payez plus rien et vous repassez en version gratuite.")) return; try { await api("POST", "team/leave"); session = { ...session, team: false, plan: "free", paid: false }; writeLS(SESSION_KEY, session); closeSheet(); render(); toast("Vous avez quitté l'équipe."); } catch (e) { toast(e.message); } },
+  teamRemove: async el => { if (!confirm(`Retirer ${el.dataset.e} de l'équipe ? Sa part s'arrête aussi.`)) return; try { await api("POST", "team/remove", { email: el.dataset.e }); openTeam(); toast("Membre retiré : sa part est arrêtée."); } catch (e) { toast(e.message); } },
   accPortal: async () => { try { const r = await api("POST", "billing/portal"); location.href = r.url; } catch (e) { toast(e.message); } },
   accLogin: () => openAccountForm("login"),
   accResend: () => sendLink(),

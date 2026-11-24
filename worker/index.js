@@ -140,13 +140,8 @@ async function auth(request, env) {
       env.DB.prepare("UPDATE users SET last_seen_at = ? WHERE id = ?").bind(now(), row.id)
     ]);
   }
-  let plan = await refreshPlan(env, env.DB, row);
-  // Membre d'une équipe (sans abonnement à son nom) : actif tant que l'abonnement de l'équipe l'est
-  if (!row.stripe_sub && row.team_id) {
-    const o = await env.DB.prepare("SELECT u.plan FROM teams t JOIN users u ON u.id = t.owner_id WHERE t.id = ?").bind(row.team_id).first();
-    const p2 = o && o.plan === "equipe" ? "equipe" : "free";
-    if (p2 !== plan) { await env.DB.prepare("UPDATE users SET plan = ? WHERE id = ?").bind(p2, row.id).run(); plan = p2; }
-  }
+  // Équipe : chaque membre a son propre abonnement (sa part). Être dans une équipe ne donne plus accès à lui seul.
+  const plan = await refreshPlan(env, env.DB, row);
   return { id: row.id, email: row.email, plan, createdAt: row.created_at, tokenHash: row.token_hash, stripe_customer: row.stripe_customer, stripe_sub: row.stripe_sub, tier: row.tier, founder: !!row.founder, team_id: row.team_id };
 }
 const isPaid = u => ["recharge", "fondatrice", "equipe", "starter", "pro"].includes(u.plan);
@@ -388,11 +383,19 @@ async function billingCheckout(request, env, url) {
     try { const r = await env.DB.prepare("SELECT referred_by, ref_pending FROM users WHERE id = ?").bind(u.id).first(); invited = !!(r && r.referred_by); refMonths = Math.min(12, (r && r.ref_pending) || 0); } catch { /* colonnes absentes : pas de parrainage */ }
   }
   const tier = TIERS[body.tier] ? body.tier : "pro";
-  const teamName = String(body.teamName || "").replace(/[\u0000-\u001f<>]/g, "").trim().slice(0, 60);
-  if (tier === "equipe" && teamName.length < 2) throw new HttpError(400, "Donnez un nom à votre équipe.");
-  if (u && u.team_id && tier !== "equipe") throw new HttpError(400, "Vous faites partie d'une équipe : votre accès est déjà compris.");
+  let teamName = String(body.teamName || "").replace(/[\u0000-\u001f<>]/g, "").trim().slice(0, 60);
+  const teamCode = String(body.teamCode || "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 12);
+  if (tier === "equipe" && teamCode) {
+    // Un filleul paie sa part pour rejoindre une équipe existante
+    const t = await env.DB.prepare("SELECT id, name, owner_id FROM teams WHERE code = ?").bind(teamCode).first();
+    if (!t) throw new HttpError(404, "Ce code d'équipe n'existe pas. Vérifiez-le avec votre tête de réseau.");
+    if (u && u.team_id && u.team_id !== t.id) throw new HttpError(409, "Vous faites déjà partie d'une autre équipe.");
+    if (u && t.owner_id === u.id) throw new HttpError(400, "C'est votre propre équipe : partagez ce code avec vos filleuls.");
+    teamName = t.name;
+  } else if (tier === "equipe" && teamName.length < 2) throw new HttpError(400, "Donnez un nom à votre équipe.");
+  if (u && u.team_id && tier !== "equipe") throw new HttpError(400, "Vous faites partie d'une équipe : choisissez l'offre Équipe pour payer votre part.");
   const founder = (await founderLeft(env)) > 0;
-  const offer = { tier, period: body.period === "year" ? "year" : "month", seats: body.seats, teamName, founder };
+  const offer = { tier, period: body.period === "year" ? "year" : "month", teamName, teamCode: tier === "equipe" ? teamCode : "", founder };
   return json({ url: await checkout(env, sameOrigin(env, url), offer, u, { invited, refMonths }) });
 }
 /* Prix fondateur : les 50 premiers comptes abonnés (un abonnement arrêté libère la place) */
@@ -404,16 +407,17 @@ async function offers(env) {
   return json({ founderLeft: await founderLeft(env), founderTotal: FOUNDER_SLOTS, tiers: TIERS, extraSeat: EXTRA_SEAT, billing: !!env.STRIPE_SECRET_KEY });
 }
 /* ---------- Équipe ----------
-   La personne qui paie l'offre Équipe crée l'équipe (son nom) et reçoit un code à partager.
-   Chaque membre crée son compte et rejoint l'équipe avec ce code : son accès est compris dans l'abonnement de l'équipe. */
+   La tête de réseau crée l'équipe (son nom) en payant sa part, et reçoit un code à partager.
+   Chaque filleul paie sa propre part en entrant ce code : Recharge le rattache à l'équipe.
+   L'offre est prévue à partir de 5 personnes : en dessous, la tête de réseau voit combien il en manque (personne n'est bloqué). */
 const TEAM_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
 const teamCode = () => { const b = crypto.getRandomValues(new Uint8Array(8)); return Array.from(b, x => TEAM_ALPHABET[x % TEAM_ALPHABET.length]).join(""); };
-async function createTeam(env, ownerId, name, seats) {
+async function createTeam(env, ownerId, name) {
   const ex = await env.DB.prepare("SELECT id FROM teams WHERE owner_id = ?").bind(ownerId).first();
-  if (ex) { await env.DB.prepare("UPDATE teams SET seats = ?, name = COALESCE(NULLIF(?, ''), name) WHERE id = ?").bind(seats, name, ex.id).run(); return ex.id; }
+  if (ex) { await env.DB.prepare("UPDATE teams SET seats = ?, name = COALESCE(NULLIF(?, ''), name) WHERE id = ?").bind(MAX_SEATS, name, ex.id).run(); return ex.id; }
   const id = crypto.randomUUID();
   await env.DB.batch([
-    env.DB.prepare("INSERT INTO teams (id, name, owner_id, seats, code, created_at) VALUES (?, ?, ?, ?, ?, ?)").bind(id, name || "Mon équipe", ownerId, seats, teamCode(), now()),
+    env.DB.prepare("INSERT INTO teams (id, name, owner_id, seats, code, created_at) VALUES (?, ?, ?, ?, ?, ?)").bind(id, name || "Mon équipe", ownerId, MAX_SEATS, teamCode(), now()),
     env.DB.prepare("UPDATE users SET team_id = ? WHERE id = ?").bind(id, ownerId)
   ]);
   return id;
@@ -421,43 +425,50 @@ async function createTeam(env, ownerId, name, seats) {
 async function teamInfo(request, env, url) {
   const u = await auth(request, env);
   if (!u.team_id) return json({ team: null });
-  const t = await env.DB.prepare("SELECT id, name, owner_id, seats, code FROM teams WHERE id = ?").bind(u.team_id).first();
+  const t = await env.DB.prepare("SELECT id, name, owner_id, code FROM teams WHERE id = ?").bind(u.team_id).first();
   if (!t) return json({ team: null });
-  const owner = t.owner_id === u.id;
-  const members = await env.DB.prepare("SELECT id, email FROM users WHERE team_id = ? ORDER BY created_at").bind(t.id).all();
-  const list = (members.results || []).map(x => ({ email: x.email, me: x.id === u.id, owner: x.id === t.owner_id }));
-  return json({ team: { name: t.name, seats: t.seats, used: list.length, owner, active: u.plan === "equipe",
-    code: owner ? t.code : undefined, link: owner ? `${env.APP_ORIGIN || url.origin}/app/?rejoindre=${t.code}` : undefined, members: owner ? list : undefined } });
+  const owner = t.owner_id === u.id, min = TIERS.equipe.minSeats;
+  const members = await env.DB.prepare("SELECT id, email, plan FROM users WHERE team_id = ? ORDER BY created_at").bind(t.id).all();
+  const list = (members.results || []).map(x => ({ email: x.email, me: x.id === u.id, owner: x.id === t.owner_id, active: x.plan === "equipe" }));
+  const paying = list.filter(x => x.active).length;
+  return json({ team: { name: t.name, min, used: paying, missing: Math.max(0, min - paying), owner, active: u.plan === "equipe",
+    code: t.code, link: `${env.APP_ORIGIN || url.origin}/app/?rejoindre=${t.code}`, members: owner ? list : undefined } });
 }
+/* Rejoindre avec un code : il faut payer sa part. Seul un compte qui a déjà une part Équipe active (sans équipe) est rattaché directement. */
 async function teamJoin(request, env) {
   const u = await auth(request, env), body = await readJson(request);
   const code = String(body.code || "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 12);
-  const t = code ? await env.DB.prepare("SELECT id, name, owner_id, seats FROM teams WHERE code = ?").bind(code).first() : null;
-  if (!t) throw new HttpError(404, "Ce code d'équipe n'existe pas. Vérifiez-le avec la personne qui gère l'équipe.");
+  const t = code ? await env.DB.prepare("SELECT id, name FROM teams WHERE code = ?").bind(code).first() : null;
+  if (!t) throw new HttpError(404, "Ce code d'équipe n'existe pas. Vérifiez-le avec votre tête de réseau.");
   if (u.team_id === t.id) return json({ ok: true, name: t.name });
   if (u.team_id) throw new HttpError(409, "Vous faites déjà partie d'une autre équipe.");
+  if (u.stripe_sub && u.plan === "equipe") {
+    await env.DB.prepare("UPDATE users SET team_id = ? WHERE id = ?").bind(t.id, u.id).run();
+    return json({ ok: true, name: t.name });
+  }
   if (u.stripe_sub && isPaid(u)) throw new HttpError(409, "Vous avez déjà un abonnement à votre nom : résiliez-le d'abord (Menu › Mon compte), puis rejoignez l'équipe.");
-  const n = await env.DB.prepare("SELECT COUNT(*) AS n FROM users WHERE team_id = ?").bind(t.id).first();
-  if (n && n.n >= t.seats) throw new HttpError(409, `L'équipe « ${t.name} » est complète (${t.seats} places). Demandez à la personne qui la gère d'ajouter une place.`);
-  const o = await env.DB.prepare("SELECT plan FROM users WHERE id = ?").bind(t.owner_id).first();
-  await env.DB.prepare("UPDATE users SET team_id = ?, plan = ? WHERE id = ?").bind(t.id, o && o.plan === "equipe" ? "equipe" : "free", u.id).run();
-  return json({ ok: true, name: t.name });
+  return json({ ok: false, pay: true, name: t.name });
 }
+/* Quitter ou être retiré : la part de ce membre s'arrête aussi, pour qu'il ne paie plus rien */
 async function teamLeave(request, env) {
   const u = await auth(request, env);
   if (!u.team_id) return json({ ok: true });
   const t = await env.DB.prepare("SELECT owner_id FROM teams WHERE id = ?").bind(u.team_id).first();
-  if (t && t.owner_id === u.id) throw new HttpError(400, "Vous gérez cette équipe : pour l'arrêter, résiliez l'abonnement.");
-  await env.DB.prepare("UPDATE users SET team_id = NULL, plan = 'free' WHERE id = ?").bind(u.id).run();
+  if (t && t.owner_id === u.id) throw new HttpError(400, "Vous gérez cette équipe : pour l'arrêter, résiliez votre abonnement.");
+  if (u.plan === "equipe") await cancelSub(env, u);
+  await env.DB.prepare("UPDATE users SET team_id = NULL, plan = 'free', stripe_sub = NULL WHERE id = ?").bind(u.id).run();
   return json({ ok: true });
 }
 async function teamRemove(request, env) {
   const u = await auth(request, env), body = await readJson(request);
   const t = u.team_id ? await env.DB.prepare("SELECT id, owner_id FROM teams WHERE id = ?").bind(u.team_id).first() : null;
-  if (!t || t.owner_id !== u.id) throw new HttpError(403, "Seule la personne qui gère l'équipe peut retirer un membre.");
+  if (!t || t.owner_id !== u.id) throw new HttpError(403, "Seule la tête de réseau peut retirer un membre.");
   const email = String(body.email || "").trim().toLowerCase();
   if (email === u.email) throw new HttpError(400, "Vous ne pouvez pas vous retirer vous-même.");
-  await env.DB.prepare("UPDATE users SET team_id = NULL, plan = 'free' WHERE team_id = ? AND email = ? AND id != ?").bind(t.id, email, u.id).run();
+  const m = await env.DB.prepare("SELECT id, plan, stripe_sub FROM users WHERE team_id = ? AND email = ? AND id != ?").bind(t.id, email, u.id).first();
+  if (!m) return json({ ok: true });
+  if (m.plan === "equipe") await cancelSub(env, m);
+  await env.DB.prepare("UPDATE users SET team_id = NULL, plan = 'free', stripe_sub = NULL WHERE id = ?").bind(m.id).run();
   return json({ ok: true });
 }
 async function billingConfirm(request, env) {
@@ -480,7 +491,10 @@ async function billingConfirm(request, env) {
     env.DB.prepare("INSERT INTO checkout_used (id, used_at) VALUES (?, ?)").bind(id, now())
   ]);
   let teamId = null;
-  if (c.tier === "equipe") teamId = await createTeam(env, user.id, c.teamName, Math.max(TIERS.equipe.seats, Math.min(MAX_SEATS, c.seats)));
+  if (c.tier === "equipe" && c.teamCode) {
+    const t = await env.DB.prepare("SELECT id FROM teams WHERE code = ?").bind(c.teamCode).first();
+    if (t) { teamId = t.id; await env.DB.prepare("UPDATE users SET team_id = ? WHERE id = ?").bind(t.id, user.id).run(); }
+  } else if (c.tier === "equipe") teamId = await createTeam(env, user.id, c.teamName);
   user = { ...user, plan: c.tier, stripe_customer: c.customer, founder: c.founder, team_id: teamId };
   return json(await openSession(env, user, isNew));
 }

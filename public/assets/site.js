@@ -46,22 +46,20 @@ function countUp(el) {
   requestAnimationFrame(step);
 }
 
-/* Offre Équipe : chaque filleul paie sa part, dégressive selon la taille de l'équipe (jusqu'à 4,50 €/mois).
-   La dirigeante paie son propre abonnement. Paliers modifiables ici. */
-const TEAM_BASE = 39.9, TEAM_INCL = 6, TEAM_EXTRA = 7.9;   // offre Équipe : 6 personnes incluses, puis 7,90 € par personne
-const teamTotal = n => Math.round((TEAM_BASE + Math.max(0, n - TEAM_INCL) * TEAM_EXTRA) * 100) / 100;
+/* Offre Équipe : dès 5 personnes, chacun paie sa part (même prix pour tous, tête de réseau comprise). */
+const TEAM_PER = 9.9;
+const teamTotal = n => Math.round(n * TEAM_PER * 100) / 100;
 const teamSize = $("teamSize");
 const eur = n => n.toLocaleString("fr-FR", { style: "currency", currency: "EUR", minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 });
 if (teamSize) {
   const updateTeam = animate => {
     const n = Number(teamSize.value), total = teamTotal(n);
-    const priceEl = $("teamPrice");
-    priceEl.textContent = eur(total);
+    const priceEl = $("teamPer");
     $("teamSizeOut").textContent = n;
     const per = $("teamPer");
-    if (per) per.innerHTML = `Équipe de ${n} : <b>${eur(total)}</b>/mois au total, soit ${eur(Math.round(total / n * 100) / 100)} par personne`;
+    if (per) per.innerHTML = `Équipe de ${n} : <b>${eur(total)}</b>/mois au total, soit ${eur(TEAM_PER)} par personne`;
     teamSize.style.setProperty("--p", ((n - teamSize.min) / (teamSize.max - teamSize.min) * 100) + "%");
-    if (animate) { priceEl.classList.remove("bump"); void priceEl.offsetWidth; priceEl.classList.add("bump"); }
+    if (animate && priceEl) { priceEl.classList.remove("bump"); void priceEl.offsetWidth; priceEl.classList.add("bump"); }
   };
   teamSize.addEventListener("input", () => updateTeam(true));
   updateTeam(false);

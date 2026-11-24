@@ -53,7 +53,7 @@
     addEventListener("scroll", mcu, { passive: true }); mcu();
   }
   /* 6. Tarifs : l'annuel par défaut, prix fondateur tant qu'il reste des places (compteur réel du serveur) */
-  var P = { starter: [990, 8900, 590, 5900], pro: [1990, 17900, 1190, 11900], equipe: [3990, 35900, 2490, 23900] }, year = true, founder = true;
+  var P = { starter: [990, 8900, 590, 5900], pro: [1990, 17900, 1190, 11900], equipe: [990, 8900, 790, 7100] }, year = true, founder = true;
   var eur = function (c) { return (c / 100).toLocaleString("fr-FR", { minimumFractionDigits: c % 100 ? 2 : 0, maximumFractionDigits: 2 }) + " €"; };
   function prices() {
     document.querySelectorAll(".p3 .pc").forEach(function (c) {
