@@ -29,7 +29,7 @@
   "rules": [{ "type": "Text", "globs": ["**/*.sql"], "fallthrough": true }],
   "vars": {
     // Adresse publique du site (sert à construire le lien de connexion envoyé par email)
-    "APP_ORIGIN": "https://recharge.delaineval.workers.dev",
+    "APP_ORIGIN": "https://getrecharge.fr",
     // [À COMPLÉTER : adresse d'envoi validée dans Resend, ex. « Recharge <connexion@votre-domaine.fr> »]
     "EMAIL_FROM": "Recharge <onboarding@resend.dev>",
     // La sauvegarde en ligne est réservée aux abonnées (phase 3)

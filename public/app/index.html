@@ -9,15 +9,15 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Recharge">
 <meta name="description" content="Recharge : vos relances clients au bon moment.">
-<link rel="canonical" href="https://recharge.delaineval.workers.dev/app/">
+<link rel="canonical" href="https://getrecharge.fr/app/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Recharge">
 <meta property="og:locale" content="fr_FR">
-<meta property="og:url" content="https://recharge.delaineval.workers.dev/app/">
+<meta property="og:url" content="https://getrecharge.fr/app/">
 <meta property="og:title" content="Recharge : l'appli de relance réassort">
 <meta property="og:description" content="Ouvrez Recharge : vos clients à relancer aujourd'hui, avec le message WhatsApp déjà prêt. Sans compte, données dans votre téléphone.">
-<meta property="og:image" content="https://recharge.delaineval.workers.dev/og-image.jpg?v=3">
-<meta property="og:image:secure_url" content="https://recharge.delaineval.workers.dev/og-image.jpg?v=3">
+<meta property="og:image" content="https://getrecharge.fr/og-image.jpg?v=3">
+<meta property="og:image:secure_url" content="https://getrecharge.fr/og-image.jpg?v=3">
 <meta property="og:image:type" content="image/jpeg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -25,7 +25,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Recharge : l'appli de relance réassort">
 <meta name="twitter:description" content="Ouvrez Recharge : vos clients à relancer aujourd'hui, avec le message WhatsApp déjà prêt. Sans compte, données dans votre téléphone.">
-<meta name="twitter:image" content="https://recharge.delaineval.workers.dev/og-image.jpg?v=3">
+<meta name="twitter:image" content="https://getrecharge.fr/og-image.jpg?v=3">
 <link rel="apple-touch-icon" href="../apple-touch-icon.png?v=3">
 <link rel="icon" href="/favicon.ico?v=3" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32.png?v=3">
@@ -178,6 +178,7 @@ main{max-width:560px;margin:0 auto;padding:6px 16px 24px}
 .gf b{font-size:.98rem}.gf small{font-size:.82rem;color:var(--ink-2);font-weight:600}
 .gf.hot{background:var(--ink);color:#fff}.gf.hot small{color:#c9cdcb}.gf.hot span{background:rgba(255,255,255,.14)}
 .bknag{display:flex;align-items:center;gap:8px;margin-top:12px;background:var(--surface);border:1px dashed var(--line-2);border-radius:16px;padding:8px 8px 8px 14px;font-size:.84rem;font-weight:650;color:var(--ink-2)}
+.movenag{margin-top:12px}.movenag span{flex:1}.movenag .btn{white-space:nowrap}
 .bknag span{flex:1}.bknag button{border:0;background:var(--ink);color:#fff;border-radius:99px;padding:7px 12px;font:inherit;font-size:.8rem;font-weight:750;cursor:pointer}
 .bknag button.x{background:none;color:var(--ink-3);padding:6px;display:grid;place-items:center}.bknag svg{width:14px;height:14px}
 .hsteps{list-style:none;padding:0;margin:8px 0 0;display:grid;gap:8px}.hsteps li{display:flex;gap:12px;align-items:flex-start;background:var(--surface);border-radius:16px;padding:10px 12px}
@@ -1109,6 +1110,7 @@ function accountSection() {
     <button class="linkbtn danger-link" data-act="accDelete">Supprimer mon compte et toutes mes données</button></div>`;
 }
 function save() {
+  if (moveHold) return; // arrivée d'un transfert en cours : on n'écrase rien
   try { localStorage.setItem(KEY, JSON.stringify(S)); storageOk = true; }
   catch (e) { storageOk = false; }
   syncLater();
@@ -1149,9 +1151,54 @@ function backupReminder() {
   if (days < 7) return "";
   return `<div class="bknag"><span>💾 ${last ? `Dernière sauvegarde il y a ${days} jours` : "Vos clients ne sont pas encore sauvegardés"}</span><button data-act="export">Sauvegarder</button><button class="x" data-act="bkLater" aria-label="Plus tard">${I.x}</button></div>`;
 }
+/* ---------- Déménagement vers getrecharge.fr ----------
+   Les données sont gardées dans le navigateur, adresse par adresse. Sur l'ancienne adresse, un bandeau propose
+   d'emporter ses clients : ils voyagent dans la partie « # » du lien, qui n'est jamais envoyée au serveur.
+   Rien n'est effacé sur l'ancienne adresse. La connexion au compte n'est pas transmise : on se reconnecte par email. */
+const MOVE_TO = "https://getrecharge.fr";
+const OLD_HOST = !DEMO && /\.workers\.dev$/.test(location.hostname);
+const MOVE_IN = !DEMO && location.hash.startsWith("#transfert=") ? location.hash.slice(11) : null;
+const b64u = u8 => { let x = ""; for (let i = 0; i < u8.length; i += 0x8000) x += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000)); return btoa(x).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
+const canZip = (() => { try { new CompressionStream("deflate-raw"); new DecompressionStream("deflate-raw"); return true; } catch (e) { return false; } })();
+async function packMove(o) {
+  const bytes = new TextEncoder().encode(JSON.stringify(o));
+  if (!canZip) return "j." + b64u(bytes);
+  const z = new Uint8Array(await new Response(new Blob([bytes]).stream().pipeThrough(new CompressionStream("deflate-raw"))).arrayBuffer());
+  return "z." + b64u(z);
+}
+async function unpackMove(str) {
+  const bin = Uint8Array.from(atob(str.slice(2).replace(/-/g, "+").replace(/_/g, "/")), c => c.charCodeAt(0));
+  if (str.startsWith("z.")) return JSON.parse(await new Response(new Blob([bin]).stream().pipeThrough(new DecompressionStream("deflate-raw"))).text());
+  if (str.startsWith("j.")) return JSON.parse(new TextDecoder().decode(bin));
+  throw new Error("format");
+}
+let moveHold = !!MOVE_IN;
+if (MOVE_IN) {
+  history.replaceState(null, "", location.pathname);
+  setTimeout(async () => {
+    try {
+      const m = await unpackMove(MOVE_IN), data = m && m.data;
+      if (!data || !Array.isArray(data.products) || !Array.isArray(data.clients) || !Array.isArray(data.sales) || !Array.isArray(data.events)) throw new Error("format");
+      const real = S.clients.some(c => !c.example);
+      const n = plural(data.clients.filter(c => !c.example).length, "client", "clients");
+      if (!confirm(real ? `Recevoir vos données de l'ancienne adresse (${n}) ? Celles déjà présentes ici seront remplacées (vous pourrez annuler juste après).` : `Recevoir vos données de l'ancienne adresse (${n}) ?`)) { moveHold = false; return toast("Transfert annulé : rien n'a changé ici."); }
+      if (real) try { localStorage.setItem("recharge.v1.avant-transfert", JSON.stringify(S)); } catch (e) {}
+      migrate(data);
+      const snap = snapshot(); S = data; moveHold = false; save(); tab = "today"; render();
+      toast(m.account ? "Vos clients sont arrivés ✅ Reconnectez-vous avec votre email pour retrouver votre abonnement." : "Vos clients sont arrivés ✅ Ajoutez cette adresse à votre écran d'accueil.", snap);
+    } catch (e) { moveHold = false; toast("Le transfert n'a pas pu être lu. Utilisez « Exporter mes données » sur l'ancienne adresse."); }
+  }, 300);
+}
 S = load();
 let needCities = false;
 if (!S) { S = seed(); if (DEMO) addDemoHistory(S); needCities = true; save(); }
+function moveBanner() {
+  let moved = null; try { moved = localStorage.getItem("recharge.moved"); } catch (e) {}
+  const real = S.clients.some(c => !c.example);
+  const txt = moved ? `Vos clients ont été copiés sur <b>getrecharge.fr</b>. Continuez là-bas : c'est la nouvelle adresse de Recharge.`
+    : `Recharge a une nouvelle adresse : <b>getrecharge.fr</b>.${real ? " Emportez vos clients en un geste, rien n'est effacé ici." : ""}`;
+  return `<div class="notice movenag"><span>${txt}</span><button class="btn sm primary" data-act="moveGo">${moved ? "Ouvrir" : real ? "Emporter mes clients" : "Y aller"}</button></div>`;
+}
 /* Option dirigeant : chaque filleul envoie ses résultats du mois, le dirigeant les reçoit dans « Mon équipe » */
 const b64e = o => btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 const b64d = v => JSON.parse(decodeURIComponent(escape(atob(v.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((v.length + 3) % 4)))));
@@ -1912,6 +1959,7 @@ function render() {
   if (tab === "dev") mountDev();
   if (tab === "map") mountMap();
   fitAreas(); initScrollers(app);
+  if (OLD_HOST && (tab === "today" || tab === "settings")) app.insertAdjacentHTML("afterbegin", moveBanner());
   if (!storageOk) app.insertAdjacentHTML("afterbegin", `<div class="notice warn">Ce navigateur bloque l'enregistrement (navigation privée ?). Vos données risquent d'être perdues.</div>`);
 }
 function fitAreas(root = document) {
@@ -4458,6 +4506,16 @@ const currentMsg = id => { const ta = document.getElementById("msg-" + id); retu
 
 /* ---------- Actions ---------- */
 const actions = {
+  moveGo: async () => {
+    try {
+      if (session && sync.dirty) { try { await pushNow(); } catch (e) {} }
+      const real = S.clients.some(c => !c.example);
+      const url = MOVE_TO + "/app/" + (real ? "#transfert=" + await packMove({ v: 1, at: Date.now(), account: !!session, data: S }) : "");
+      if (url.length > 1800000) return toast("Trop de données pour un transfert direct : utilisez « Exporter mes données », puis « Restaurer » sur getrecharge.fr.");
+      if (real) try { localStorage.setItem("recharge.moved", today()); } catch (e) {}
+      location.href = url;
+    } catch (e) { toast("Le transfert n'a pas pu se préparer. Utilisez « Exporter mes données »."); }
+  },
   newSale: () => openNewSale(),
   newSaleFor: el => { closeSheet(); openNewSale(el.dataset.id); },
   close: () => closeSheet(),
@@ -5134,7 +5192,7 @@ if (!DEMO) {
   rcTrack("app_ouverte");
   if (FROM_ANALYSE) { rcTrack("app_depuis_analyse"); history.replaceState(null, "", location.pathname); const an = readAnalyse(); if (an && !S.analyse) { S.analyse = an; save(); } }
 }
-if (!DEMO && !S.profile && !obSkipFlag && !navigator.webdriver && !teamNotice && !loginParam && !paidParam && !session && location.hash !== "#abonnement") setTimeout(() => openOnboarding(0), 350);
+if (!DEMO && !MOVE_IN && !S.profile && !obSkipFlag && !navigator.webdriver && !teamNotice && !loginParam && !paidParam && !session && location.hash !== "#abonnement") setTimeout(() => openOnboarding(0), 350);
 if (!DEMO && !navigator.webdriver && S.profile && S.lastBilan !== today().slice(0, 7)) {
   const pm = prevMonth(today().slice(0, 7)), b = bilan(pm);
   S.lastBilan = today().slice(0, 7); save();

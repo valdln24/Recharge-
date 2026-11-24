@@ -17,6 +17,11 @@ const SESSION_TTL = 180 * 24 * 3600 * 1000;     // une session vaut 180 jours (p
 const MAX_BACKUP = 4 * 1024 * 1024;             // 4 Mo de données (non compressées) au maximum
 const MAX_LINKS_PER_HOUR = 5;                   // limite d'envois de liens par adresse email
 
+// Adresse où renvoyer la vendeuse (lien de connexion, retour de paiement) : celle sur laquelle elle travaille déjà,
+// car ses données sont gardées dans le navigateur, à cette adresse précise. Exception : api. et www. renvoient
+// vers l'adresse publique (APP_ORIGIN). Les liens à partager (parrainage, équipe, Playbook) utilisent toujours APP_ORIGIN.
+const sameOrigin = (env, url) => /^(api|www)\./.test(url.hostname) ? (env.APP_ORIGIN || url.origin) : url.origin;
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
@@ -160,7 +165,7 @@ async function requestLink(request, env, url, given) {
     .bind(await sha256(token), email, await sha256(email + ":" + code), now(), now() + LOGIN_TTL).run();
   // Ménage : liens expirés depuis plus d'un jour
   await env.DB.prepare("DELETE FROM login_tokens WHERE expires_at < ?").bind(now() - 24 * 3600 * 1000).run();
-  const origin = env.APP_ORIGIN || url.origin;
+  const origin = sameOrigin(env, url);
   const link = `${origin}/app/?login=${encodeURIComponent(token)}`;
   if (env.DEV_SHOW_LINK === "true") return json({ ok: true, devLink: link, devCode: code });
   await sendLoginEmail(env, email, link, code);
@@ -388,7 +393,7 @@ async function billingCheckout(request, env, url) {
   if (u && u.team_id && tier !== "equipe") throw new HttpError(400, "Vous faites partie d'une équipe : votre accès est déjà compris.");
   const founder = (await founderLeft(env)) > 0;
   const offer = { tier, period: body.period === "year" ? "year" : "month", seats: body.seats, teamName, founder };
-  return json({ url: await checkout(env, env.APP_ORIGIN || url.origin, offer, u, { invited, refMonths }) });
+  return json({ url: await checkout(env, sameOrigin(env, url), offer, u, { invited, refMonths }) });
 }
 /* Prix fondateur : les 50 premiers comptes abonnés (un abonnement arrêté libère la place) */
 async function founderLeft(env) {
@@ -481,5 +486,5 @@ async function billingConfirm(request, env) {
 }
 async function billingPortal(request, env, url) {
   const u = await auth(request, env);
-  return json({ url: await portal(env, env.APP_ORIGIN || url.origin, u) });
+  return json({ url: await portal(env, sameOrigin(env, url), u) });
 }
