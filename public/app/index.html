@@ -471,7 +471,7 @@ details.cfields{margin-top:14px;background:var(--surface);border:1px solid var(-
 
 /* ---------- Réglages ---------- */
 .pad{padding:16px}
-.prodhead,.prodrow{display:grid;grid-template-columns:1fr 58px 72px 38px;gap:6px;align-items:center}
+.prodhead,.prodrow{display:grid;grid-template-columns:1fr 80px 38px;gap:6px;align-items:center}
 .prodhead{font-size:.72rem;font-weight:700;color:var(--ink-3);margin-bottom:6px}
 .prodrow+.prodrow{margin-top:6px}
 .prodrow .input{min-height:42px;margin:0;padding:0 10px;font-size:.9rem;border-radius:12px}
@@ -658,6 +658,11 @@ nav.tabs .tab.on svg{background:var(--navy);color:#fff;box-shadow:0 8px 18px -8p
 .dscr-t button.on{color:var(--ink);opacity:1;font-size:1.5rem;font-weight:800}
 .dscr-l{text-align:center;font-size:.85rem;font-weight:600;color:var(--ink-2);margin:6px 0 0}
 .prodrow .dbtn{display:flex;align-items:center;justify-content:center;font-weight:700;cursor:pointer;white-space:nowrap;padding:0 4px}
+.prodblk{padding:10px 0 12px;border-bottom:1px solid var(--line,#ece5dc)}.prodblk:last-of-type{border-bottom:0}
+.prodblk .prodrow+.prodrow{margin:0}
+.proddays{margin-top:8px}.proddays>span{font-size:.78rem;font-weight:700;color:var(--ink-2)}.proddays i{font-style:normal;font-weight:600;color:var(--o-text)}
+.proddays .dscr{margin-top:2px}.proddays .dscr-l{margin-top:2px;font-size:.8rem}
+.prodblk.estd .dscr::before{border-style:dashed}
 </style>
 </head>
 <body>
@@ -2449,14 +2454,15 @@ function viewSettings() {
   h += section("Mes produits", realProducts().length) + `<div class="card pad">
     <div class="field" style="margin-top:0"><span>Commande sans produit précis : relancer après</span>${dayScroller('id="setCycle"', S.settings.cycle)}</div>
     <p class="hint" style="margin:6px 0 14px">Utile quand votre back-office ne montre que la date de commande.</p>
-    <div class="prodhead"><span>Produit</span><span>Jours</span><span>Prix €</span><span></span></div>`;
+    <div class="prodhead"><span>Produit</span><span>Prix €</span><span></span></div>`;
   for (const p of realProducts()) {
-    h += `<div class="prodrow" data-pid="${p.id}">
+    h += `<div class="prodblk${p.est ? " estd" : ""}"><div class="prodrow" data-pid="${p.id}">
       <input class="input" data-field="name" value="${esc(p.name)}" aria-label="Nom du produit">
-      <button type="button" class="input num dbtn${p.est ? " estd" : ""}" data-act="pickDays" data-pid="${p.id}" aria-label="Durée : ${p.days} jours, modifier">${p.days} j</button>
       <input class="input num" data-field="price" inputmode="decimal" value="${String(p.price).replace(".", ",")}" aria-label="Prix">
-      <button class="x" data-act="delProduct" data-id="${p.id}" aria-label="Supprimer ${esc(p.name)}">${I.x}</button></div>`;
+      <button class="x" data-act="delProduct" data-id="${p.id}" aria-label="Supprimer ${esc(p.name)}">${I.x}</button></div>
+      <div class="proddays"><span>Durée${p.est ? ` <i>· estimation Recharge, à vérifier</i>` : ""}</span>${dayScroller(`data-pdays="${p.id}" aria-label="Durée de ${esc(p.name)} en jours"`, p.days)}</div>`;
     { const a = productAverage(p); if (a) h += `<div class="prodtip">💡 Vos clients : en moyenne <b>${a.days} j</b> (${plural(a.n, "rachat", "rachats")})${durGapOk(a, p) ? ` <button class="endlink" data-act="durApply" data-pid="${p.id}" data-d="${a.days}">passer à ${a.days} j</button>` : " ✓"}</div>`; }
+    h += `</div>`;
   }
   h += `<p class="hint" style="margin:10px 0 0">Jours = durée d'un produit. Prix = prix de vente au client.${realProducts().some(x => x.est) ? " Les durées en orange sont des estimations de Recharge : vérifiez-les." : ""}</p>
     <button class="btn soft" style="margin-top:12px" data-act="addProductRow">Ajouter un produit</button></div>`;
@@ -4700,6 +4706,7 @@ document.addEventListener("input", ev => {
   if (t.id === "npName") { const e = estimateDays(t.value), d = document.getElementById("npDays"), h = document.getElementById("npEst");
     if (!d.dataset.touched) dsSet(d, e.days); if (h) h.textContent = t.value.trim() ? (e.why ? `Estimation Recharge (${e.why}) : ${e.days} jours. Ajustez si vous savez mieux.` : "Pas d'estimation précise : 30 jours par défaut, ajustez si besoin.") : ""; }
   if (t.id === "npDays") t.dataset.touched = "1";
+  if (t.dataset.pdays) { clearTimeout(t._sv); t._sv = setTimeout(() => { const p = S.products.find(x => x.id === t.dataset.pdays), v = +t.value; if (!p || p.days === v) return; const snap = snapshot(); setProductDays(p, v); save(); const b = t.closest(".prodblk"); if (b) { b.classList.remove("estd"); const i = b.querySelector(".proddays i"); if (i) i.remove(); } toast(`${p.name} : ${v} jours`, snap); }, 700); }
   if (t.id === "setCycle") { clearTimeout(t._sv); t._sv = setTimeout(() => t.dispatchEvent(new Event("change", { bubbles: true })), 700); }
   if (t.id === "endIn") endInfo();
   if (t.id === "fEnd") { t.dataset.touched = "1"; updateEnd(); }
