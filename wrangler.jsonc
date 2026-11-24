@@ -30,8 +30,8 @@
   "vars": {
     // Adresse publique du site (sert à construire le lien de connexion envoyé par email)
     "APP_ORIGIN": "https://getrecharge.fr",
-    // [À COMPLÉTER : adresse d'envoi validée dans Resend, ex. « Recharge <connexion@votre-domaine.fr> »]
-    "EMAIL_FROM": "Recharge <onboarding@resend.dev>",
+    // Expéditeur des emails (domaine getrecharge.fr validé dans Resend)
+    "EMAIL_FROM": "Recharge <support@getrecharge.fr>",
     // La sauvegarde en ligne est réservée aux abonnées (phase 3)
     "REQUIRE_PAID": "true",
     // Uniquement pour tester sans email : "true" renvoie le lien de connexion dans la réponse. Toujours "false" en ligne.
