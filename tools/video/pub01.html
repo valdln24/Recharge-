@@ -13,6 +13,8 @@ body{font-family:Manrope,system-ui,sans-serif;color:#fff;-webkit-font-smoothing:
 .bg{position:absolute;inset:0}
 #bgNavy{background:radial-gradient(120% 80% at 50% 38%,#12244A 0%,var(--navy) 62%)}
 #bgSand{background:var(--sand);opacity:0}
+#glow{background:radial-gradient(46% 30% at 50% 50%,rgba(38,117,232,.55) 0%,rgba(38,117,232,.18) 45%,rgba(38,117,232,0) 75%);opacity:0}
+#rings{opacity:0;background:repeating-radial-gradient(circle at 50% 50%,rgba(38,117,232,0) 0 58px,rgba(38,117,232,.22) 59px 60px,rgba(38,117,232,0) 61px 118px)}
 #bgBlack{background:#000;opacity:0}
 #grain{position:absolute;inset:-50%;opacity:.05;pointer-events:none;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
@@ -87,6 +89,7 @@ body{font-family:Manrope,system-ui,sans-serif;color:#fff;-webkit-font-smoothing:
 </style></head><body>
 <div id="stage">
   <div class="bg" id="bgNavy"></div>
+  <div class="bg" id="glow"></div><div class="bg" id="rings"></div>
   <div class="bg" id="bgSand"></div>
   <div id="cam">
     <!-- objets du quotidien d'une vendeuse -->
@@ -179,15 +182,19 @@ const OBJ = {
   n5: { from: [270, 1060, 0], to: [270, 850, 2], pile: [270, 610, 4] },
   n1: { from: [270, -80, 0], to: [270, 70, 0], pile: [270, 330, 2] }
 };
-const ARRIVE = { n1: .15, o_carnet: 1.0, n2: 1.35, o_cmd: 1.7, n3: 2.05, o_sheet: 2.4, n4: 2.75, o_postit: 3.05, n5: 3.35, o_cal: 3.65 };
+const ARRIVE = { n1: .15, o_carnet: .9, n2: 1.25, o_cmd: 1.6, n3: 1.95, o_sheet: 2.3, n4: 2.65, o_postit: 2.95, n5: 3.25, o_cal: 3.55 };
 
 function render(t) {
   /* fonds */
-  $("bgSand").style.opacity = eIO(prog(t, 17.55, 18.2));
-  $("bgBlack").style.opacity = t >= 16.95 && t < 17.6 ? 1 : (t >= 17.6 ? 1 - prog(t, 17.6, 17.9) : 0) * (t >= 17.6 ? 1 : 0);
-  if (t >= 17.6) $("bgBlack").style.opacity = 1 - eOut(prog(t, 17.6, 18.1));
+  $("bgSand").style.opacity = eIO(prog(t, 17.8, 18.3));
+  $("bgBlack").style.opacity = t < 17.3 ? 0 : 1 - eOut(prog(t, 17.85, 18.3));
+  const pulse = [1.08, 1.92, 2.98, 4.45].reduce((m, a) => Math.max(m, t >= a ? Math.exp(-(t - a) * 2.2) : 0), 0);
+  $("glow").style.opacity = (t < 10.4 ? .55 + .45 * pulse : 0.35 * (1 - prog(t, 10.4, 11)) + (t > 10.9 && t < 17.3 ? .45 * eOut(prog(t, 10.9, 11.6)) * (1 - prog(t, 12.4, 13.2)) : 0));
+  $("glow").style.transform = `scale(${1 + .18 * pulse})`;
+  $("rings").style.opacity = t < 10.2 ? (.55 * (1 - prog(t, 9.6, 10.2))) * clamp(prog(t, 0, .6)) : 0;
+  $("rings").style.transform = `scale(${1 + (t % 1.2) / 1.2 * .14})`;
   $("grain").style.transform = `translate(${(Math.floor(t * 12) * 37) % 80 - 40}px,${(Math.floor(t * 12) * 53) % 80 - 40}px)`;
-  $("grain").style.opacity = t < 17.6 ? .06 : .035;
+  $("grain").style.opacity = t < 17.8 ? .06 : .035;
 
   /* caméra : recul lent puis tremblement sous la pression */
   const shake = prog(t, 6.5, 9.6) * (1 - prog(t, 9.7, 10.2));
@@ -210,7 +217,7 @@ function render(t) {
     const ang = Math.atan2(p.pile[1] - 480, p.pile[0] - 270 + .01);
     x += Math.cos(ang) * 700 * ok; y += Math.sin(ang) * 700 * ok;
     const depth = id.startsWith("n") ? 0 : 1.2;   // les papiers un peu en arrière-plan
-    const dim = eIO(prog(t, 7.15, 7.6));   // la pile recule derrière les étiquettes
+    const dim = eIO(prog(t, 5.95, 6.4));   // la pile recule derrière les étiquettes
     put(id, { x, y: y - 40 * dim, r, s: lerp(.7, 1, eOut(prog(t, a, a + .4))) * (1 - .06 * pk) * (1 - .12 * dim), o: clamp(prog(t, a, a + .12)) * (1 - ok) * (1 - .72 * dim), b: depth * (1 - pk) + ok * 10 + dim * 7 });
   }
   // pendant « Et le suivi ? », les notifications passent devant le texte
@@ -218,12 +225,12 @@ function render(t) {
   ["o_carnet", "o_sheet", "o_cmd", "o_postit", "o_cal"].forEach(id => $(id).style.zIndex = t > 4.6 ? 19 : 1);
 
   /* mots géants */
-  slam("w1", t, 1.25, 1.0); slam("w2", t, 2.25, 1.05); slam("w3", t, 3.3, 1.15);
+  slam("w1", t, 1.08, .9); slam("w2", t, 1.92, 1.0); slam("w3", t, 2.98, 1.3);
   ["w1", "w2", "w3"].forEach(id => $(id).style.zIndex = 30);
   // « Et le suivi ? » : se pose, puis se fait recouvrir
-  if (t >= 4.55 && t < 7.4) { const i = prog(t, 4.55, 4.9), o = prog(t, 7.0, 7.4); put("q", { s: lerp(1.3, 1, eOut(i)) + .04 * prog(t, 4.9, 7.2), o: eOut(i) * (1 - o), b: lerp(16, 0, eOut(i)) + 12 * o }); $("q").style.zIndex = 10; } else hide("q");
+  if (t >= 4.45 && t < 6.35) { const i = prog(t, 4.45, 4.8), o = prog(t, 6.0, 6.35); put("q", { s: lerp(1.3, 1, eOut(i)) + .04 * prog(t, 4.8, 6.2), o: eOut(i) * (1 - o), b: lerp(16, 0, eOut(i)) + 12 * o }); $("q").style.zIndex = 10; } else hide("q");
   // étiquettes
-  const L = [["l1", 7.35, 380], ["l2", 7.95, 470], ["l3", 8.75, 560]];
+  const L = [["l1", 6.3, 380], ["l2", 7.15, 470], ["l3", 8.75, 560]];
   for (const [id, a, y] of L) {
     if (t < a || t > 10.2) { hide(id); continue; }
     const i = eOut(prog(t, a, a + .3)), o = prog(t, 9.8, 10.2);
@@ -231,15 +238,15 @@ function render(t) {
     $(id).style.textShadow = "0 4px 30px rgba(8,21,46,.9)";
     put(id, { y: y + lerp(24, 0, i), o: i * (1 - o), b: (1 - i) * 10 + o * 8 });
   }
-  const ul = $("ulp"); const L0 = 200; ul.style.strokeDasharray = L0; ul.style.strokeDashoffset = L0 * (1 - eOut(prog(t, 9.05, 9.5)));
+  const ul = $("ulp"); const L0 = 200; ul.style.strokeDasharray = L0; ul.style.strokeDashoffset = L0 * (1 - eOut(prog(t, 9.1, 9.55)));
 
   /* scène 3 : la fiche de Marie */
-  if (t >= 10.35 && t < 16.95) {
+  if (t >= 10.35 && t < 17.3) {
     const i = eBack(prog(t, 10.35, 10.85));
-    const lift = lerp(0, -70, eIO(prog(t, 13.0, 13.5)));
+    const lift = lerp(0, -70, eIO(prog(t, 12.2, 12.7)));
     $("fiche").style.zIndex = 5; put("fiche", { y: lerp(600, 470, i) + lift, s: lerp(.85, 1, i), o: clamp(prog(t, 10.35, 10.6)), b: 0 });
     // compteur J+ : vite puis ralenti, s'arrête à 40
-    const ck = prog(t, 10.9, 13.4), day = Math.round(40 * (1 - Math.pow(1 - ck, 2.2)));
+    const ck = prog(t, 10.9, 12.5), day = Math.round(40 * (1 - Math.pow(1 - ck, 2.2)));
     $("cnt").textContent = Math.max(1, day);
     $("gring").style.strokeDashoffset = 251.3 * clamp(day / 30);
     $("gring").style.opacity = day >= 30 ? .25 : 1;
@@ -247,43 +254,44 @@ function render(t) {
     $("st").textContent = day >= 30 ? "fini depuis " + (day - 30) + " jours" : day >= 25 ? "bientôt fini" : "acheté le 2 octobre";
   } else hide("fiche");
   // notification étouffée : passe derrière la fiche, floue, et disparaît
-  if (t >= 13.7 && t < 15.0) { const k = prog(t, 13.7, 15.0); put("nMuted", { x: lerp(620, -80, eIO(k)), y: 520, s: .86, o: Math.sin(k * Math.PI) * .75, b: 5 }); $("nMuted").style.zIndex = 1; } else hide("nMuted");
+  if (t >= 14.6 && t < 15.8) { const k = prog(t, 14.6, 15.8); put("nMuted", { x: lerp(620, -80, eIO(k)), y: 520, s: .86, o: Math.sin(k * Math.PI) * .75, b: 5 }); $("nMuted").style.zIndex = 1; } else hide("nMuted");
   const sub = (id, a, b, y) => { if (t < a || t > b) return hide(id); const i = eOut(prog(t, a, a + .35)), o = prog(t, b - .3, b); put(id, { y: y + lerp(18, 0, i), o: i * (1 - o), b: (1 - i) * 8 + o * 8 }); };
-  sub("s1", 13.4, 16.0, 640); sub("s2", 14.6, 16.0, 690);
-  if (t >= 15.95 && t < 16.95) { const i = eOut(prog(t, 15.95, 16.2)); put("elle", { y: 680, s: lerp(1.25, 1, i), o: i, b: (1 - i) * 14 }); } else hide("elle");
+  sub("s1", 12.35, 15.9, 640); sub("s2", 13.8, 15.9, 690);
+  if (t >= 15.95 && t < 17.3) { const i = eOut(prog(t, 15.95, 16.2)); put("elle", { y: 680, s: lerp(1.25, 1, i), o: i, b: (1 - i) * 14 }); } else hide("elle");
 
   /* scène 4 : la liste calme sur fond sable */
-  if (t >= 17.9 && t < 22.3) {
+  if (t >= 18.1 && t < 22.0) {
     const words = "Et si votre téléphone s'en souvenait pour vous ?".split(" ");
+    const VW = [18.3, 18.46, 18.58, 18.85, 19.3, 19.45, 19.77, 19.93, 20.0];
     if ($("ask").childElementCount !== words.length) $("ask").innerHTML = words.map(w => `<span>${w}</span> `).join("");
-    [...$("ask").children].forEach((s, n) => { const k = eOut(prog(t, 18.0 + n * .11, 18.45 + n * .11)); s.style.opacity = k; s.style.filter = k < .98 ? `blur(${(1 - k) * 10}px)` : "none"; s.style.transform = `translateY(${(1 - k) * 14}px)`; });
-    put("ask", { y: 260, o: 1 - prog(t, 21.9, 22.3) });
+    [...$("ask").children].forEach((s, n) => { const k = eOut(prog(t, VW[n], VW[n] + .4)); s.style.opacity = k; s.style.filter = k < .98 ? `blur(${(1 - k) * 10}px)` : "none"; s.style.transform = `translateY(${(1 - k) * 14}px)`; });
+    put("ask", { y: 260, o: 1 - prog(t, 21.6, 22.0) });
   } else hide("ask");
   const R = ["r1", "r2", "r3", "r4"];
   R.forEach((id, n) => {
-    if (t < 18.6 || t > 23.0) return hide(id);
-    const a = 18.6 + n * .22, k = eOut(prog(t, a, a + .7));
+    if (t < 18.9 || t > 22.4) return hide(id);
+    const a = 18.9 + n * .22, k = eOut(prog(t, a, a + .7));
     // arrivent de positions désordonnées, se rangent
     const sx = [120, 430, 160, 400][n], sy = [700, 820, 900, 640][n], sr = [-9, 7, -5, 10][n];
     const ty = 470 + n * 84;
-    const ck = eIn(prog(t, 22.2, 22.8));  // se resserrent vers le logo
+    const ck = eIn(prog(t, 21.6, 22.2));  // se resserrent vers le logo
     put(id, { x: lerp(sx, 270, k), y: lerp(lerp(sy, ty, k), 480, ck), r: lerp(sr, 0, k), s: lerp(.92, 1, k) * (1 - .5 * ck), o: clamp(prog(t, a, a + .25)) * (1 - ck), b: (1 - k) * 4 });
   });
 
   /* scène 5 : le logo */
   const lg = $("logo");
-  if (t >= 22.4 && lg.firstElementChild) {
+  if (t >= 21.9 && lg.firstElementChild) {
     const paths = lg.querySelectorAll("path");
     const ring = paths[0], tri = paths[1], bolt = paths[2], word = paths[3], dot = paths[4];
-    const RL = 236; ring.style.strokeDasharray = RL; ring.style.strokeDashoffset = RL * (1 - eIO(prog(t, 22.5, 23.4)));
-    const tk = eBack(prog(t, 23.25, 23.6)); tri.style.opacity = clamp(prog(t, 23.25, 23.35)); tri.style.transformBox = "fill-box"; tri.style.transformOrigin = "center"; tri.style.transform = `scale(${tk})`;
-    const bk = eBack(prog(t, 23.45, 23.8)); bolt.style.opacity = clamp(prog(t, 23.45, 23.55)); bolt.style.transformBox = "fill-box"; bolt.style.transformOrigin = "center"; bolt.style.transform = `translateY(${(1 - bk) * -30}px) scale(${lerp(.4, 1, bk)})`;
-    const wk = eOut(prog(t, 23.7, 24.3)); word.style.opacity = wk; word.style.transform = `translateX(${(1 - wk) * -24}px)`; word.style.fill = "#1C1A22";
-    const dk = eBack(prog(t, 24.15, 24.45)); dot.style.opacity = clamp(prog(t, 24.15, 24.25)); dot.style.transformBox = "fill-box"; dot.style.transformOrigin = "center"; dot.style.transform = `scale(${dk})`;
-    put("logo", { y: lerp(470, 420, eIO(prog(t, 24.4, 25.0))), s: lerp(1.04, 1, eOut(prog(t, 22.4, 25))) });
+    const RL = 236; ring.style.strokeDasharray = RL; ring.style.strokeDashoffset = RL * (1 - eIO(prog(t, 22.0, 22.9)));
+    const tk = eBack(prog(t, 22.75, 23.1)); tri.style.opacity = clamp(prog(t, 22.75, 22.85)); tri.style.transformBox = "fill-box"; tri.style.transformOrigin = "center"; tri.style.transform = `scale(${tk})`;
+    const bk = eBack(prog(t, 22.95, 23.3)); bolt.style.opacity = clamp(prog(t, 22.95, 23.05)); bolt.style.transformBox = "fill-box"; bolt.style.transformOrigin = "center"; bolt.style.transform = `translateY(${(1 - bk) * -30}px) scale(${lerp(.4, 1, bk)})`;
+    const wk = eOut(prog(t, 23.35, 23.95)); word.style.opacity = wk; word.style.transform = `translateX(${(1 - wk) * -24}px)`; word.style.fill = "#1C1A22";
+    const dk = eBack(prog(t, 23.85, 24.15)); dot.style.opacity = clamp(prog(t, 23.85, 23.95)); dot.style.transformBox = "fill-box"; dot.style.transformOrigin = "center"; dot.style.transform = `scale(${dk})`;
+    put("logo", { y: lerp(470, 420, eIO(prog(t, 24.1, 24.7))), s: lerp(1.04, 1, eOut(prog(t, 21.9, 24.7))) });
   } else hide("logo");
-  if (t >= 24.6) { const k = eOut(prog(t, 24.6, 25.1)); put("tag", { y: 560 + (1 - k) * 16, o: k, b: (1 - k) * 8 }); } else hide("tag");
-  if (t >= 25.6) { const k = eOut(prog(t, 25.6, 26.0)); put("url", { y: 650, o: k * .9 }); } else hide("url");
+  if (t >= 24.35) { const k = eOut(prog(t, 24.35, 24.85)); put("tag", { y: 560 + (1 - k) * 16, o: k, b: (1 - k) * 8 }); } else hide("tag");
+  if (t >= 25.4) { const k = eOut(prog(t, 25.4, 25.8)); put("url", { y: 650, o: k * .9 }); } else hide("url");
 }
 window.render = render;
 </script></body></html>
