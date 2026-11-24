@@ -408,10 +408,15 @@ window.rcTrack = function (e) {
   // Automatiquement : vers 45 % de la page, une fois par visite, pas si fermé il y a moins de 14 jours, plus jamais une fois reçu
   const st = read();
   if (st.done || (st.closedAt && Date.now() - st.closedAt < SNOOZE) || sessionSeen()) return;
+  // Une page peut choisir son moment : la section marquée data-playbook-moment (sur l'accueil : « 3 gestes »),
+  // dès que la personne a vu la fin de la section. Sinon : vers 45 % de la page.
+  const moment = document.querySelector("[data-playbook-moment]");
   const onScroll = () => {
-    const max = document.documentElement.scrollHeight - innerHeight;
-    if (max < 400) return;                                  // page trop courte : pas d'ouverture automatique
-    if (scrollY / max >= .45 && !document.querySelector(".sheet-bg,.sfab.open")) { removeEventListener("scroll", onScroll); open("scroll"); }
+    if (document.querySelector(".sheet-bg,.sfab.open")) return;
+    let go;
+    if (moment) { const r = moment.getBoundingClientRect(); go = r.top < innerHeight * .5 && r.bottom <= innerHeight + 40; }
+    else { const max = document.documentElement.scrollHeight - innerHeight; if (max < 400) return; go = scrollY / max >= .45; }
+    if (go) { removeEventListener("scroll", onScroll); open("scroll"); }
   };
   addEventListener("scroll", onScroll, { passive: true });
 })();
