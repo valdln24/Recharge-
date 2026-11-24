@@ -1700,7 +1700,7 @@ function coachMeta(it) {
     facts.push(isGeneric(sl) ? `Dernière commande ${ago(sl.date)}` : `Achat ${deProd(sl.product)} ${ago(sl.date)}`);
     if (!isGeneric(sl)) facts.push(left < 0 ? `fini depuis ${-left} j (estimation)` : left === 0 ? "fini aujourd'hui (estimation)" : `fin estimée dans ${left} j`);
     if (sl.learned && sl.realDays) facts.push(`rythme appris : rachète environ tous les ${sl.realDays} jours`);
-    else missing.push(`Produit non précisé : relance au bout de ${S.settings.cycle || 30} jours`);
+    else if (isGeneric(sl)) missing.push(`Produit non précisé : relance au bout de ${S.settings.cycle || 30} jours`);
     const n = ordersOf(who); if (n > 1) facts.push(`${n} commandes`);
   } else if (it.type === "sat") {
     dom = "suivi"; action = "Noter son retour : le coach adaptera la suite";
@@ -1826,7 +1826,8 @@ function progress(s) {
    - « prospect » : première commande d'un prospect devenu client
    - « reco » : première commande d'une personne recommandée
    Rien n'est estimé : une vente sans prix compte 0 € et l'écran le signale. */
-const PRICE_SOLO = 9.9; // prix de l'abonnement affiché sur le site (€/mois)
+// prix mensuel de l'offre de la vendeuse (Starter par défaut pendant l'essai), pris dans OFFERS pour rester juste
+const myPrice = () => { const k = session && session.paid && OFFERS[session.plan] ? session.plan : "starter"; return (session && session.founder ? OFFERS[k].fm : OFFERS[k].m) / 100; };
 const WIN = 30;
 function saleReason(sl) {
   const c = client(sl.clientId); if (!c) return null;
@@ -2546,9 +2547,9 @@ function viewResults() {
   const st = stats(period);
   let h = `<h1 class="title">Mes résultats</h1><p class="lede">Ce que Recharge vous fait gagner.</p>`;
   h += `<div class="seg"><button class="${period === "month" ? "on" : ""}" data-act="period" data-p="month">Ce mois-ci</button><button class="${period === "all" ? "on" : ""}" data-act="period" data-p="all">Depuis le début</button></div>`;
-  const W = worth(period === "month" ? today().slice(0, 8) + "01" : "0000"), times = W.total / PRICE_SOLO;
+  const W = worth(period === "month" ? today().slice(0, 8) + "01" : "0000"), PRICE = myPrice(), times = W.total / PRICE;
   h += `<section class="kpi"><div class="lbl">Ce que Recharge vous a rapporté${period === "month" ? " ce mois-ci" : ""}</div><div class="val num" id="kpiCA">${euro(W.total)}</div>
-    ${period === "month" && W.total > 0 ? `<div class="worthx">${times >= 1 ? `C'est <b>${times >= 10 ? Math.round(times) : times.toFixed(1).replace(".", ",")} fois</b> le prix de Recharge (${PRICE_SOLO.toFixed(2).replace(".", ",")} € par mois)` : `Déjà ${Math.round(times * 100)} % du prix de Recharge ce mois-ci`}</div>` : ""}
+    ${period === "month" && W.total > 0 ? `<div class="worthx">${times >= 1 ? `C'est <b>${times >= 10 ? Math.round(times) : times.toFixed(1).replace(".", ",")} fois</b> le prix de Recharge (${euro(PRICE)} par mois)` : `Déjà ${Math.round(times * 100)} % du prix de Recharge ce mois-ci`}</div>` : ""}
     <div class="split"><div><span>Relances</span><b class="num" id="kpiCaReco">${euro(W.relance)}</b></div><div><span>Prospects</span><b class="num" id="kpiCaPros">${euro(W.prospect)}</b></div><div><span>Recommandés</span><b class="num" id="kpiCaBao">${euro(W.reco)}</b></div></div></section>`;
   h += W.noPrice ? `<div class="miss" style="margin-top:10px">⚠️ ${plural(W.noPrice, "vente comptée sans prix", "ventes comptées sans prix")} : ajoutez vos prix dans Menu › Mes produits pour voir le vrai montant.</div>` : "";
   h += section("Ce que le coach a fait avec vous") + `<div class="card"><ul class="hist">
@@ -3151,23 +3152,24 @@ function openNetIntro(n) {
   const an = S.analyse || readAnalyse(), K = S.settings.netC || 5, first = S.clients.find(c => !c.example);
   openSheet(`<div class="shead"><h3>Votre réseau commence ici</h3>${closeBtn}</div>
     <p class="lede" style="margin-top:8px">Avec ${plural(n, "votre premier client", `vos ${n} premiers clients`).replace(/^\d+ /, "")}, vous pouvez déjà toucher environ <b id="niNet">${n * K}</b> personnes : leurs proches, leurs collègues, leurs voisins.</p>
-    <div class="pot-viz" style="max-width:250px;margin-top:6px"><svg id="niSvg" viewBox="-200 -200 400 400" role="img" aria-label="Votre réseau : vos clients et les personnes qu'ils peuvent vous présenter"></svg><div class="pot-mid"><b id="niTot">0</b><span>personnes<br>à toucher</span></div></div>
+    <div class="pot-viz" style="max-width:250px;margin-top:6px"><svg id="niSvg" viewBox="-200 -200 400 400" role="img" aria-label="Votre réseau : vos clients et les personnes qu'ils peuvent vous présenter"></svg><div class="pot-mid"><b id="niTot">0</b><span><i id="niLbl" style="font-style:normal">personnes</i><br>à toucher</span></div></div>
     <label class="pslide o" for="niK"><span>Chaque client pourrait me présenter <b id="niKOut">${K}</b></span><input type="range" id="niK" min="1" max="15" value="${K}"></label>
-    <p class="devnet" style="margin-top:10px">Si 1 personne sur 10 devient cliente : <b id="niEur">≈ 0 €</b> de ventes en plus par an.</p>
-    ${an && an.clients > n ? `<p class="hint" style="margin-top:6px">Avec vos ~${an.clients} clients, ce serait environ <b id="niAll">${an.clients * K}</b> personnes, soit <b id="niAllEur">≈ 0 €</b> de ventes par an. Ce sont des estimations, à ajuster selon votre réalité.</p>` : `<p class="hint" style="margin-top:6px">Ce sont des estimations, à ajuster selon votre réalité.</p>`}
+    <p class="devnet" style="margin-top:10px">Si 1 personne sur 10 devient cliente : <b id="niEur">…</b> de ventes en plus par an.</p>
+    ${an && an.clients > n ? `<p class="hint" style="margin-top:6px">Avec vos ~${an.clients} clients, ce serait environ <b id="niAll">${an.clients * K}</b> personnes, soit <b id="niAllEur">…</b> de ventes par an. Ce sont des estimations, à ajuster selon votre réalité.</p>` : `<p class="hint" style="margin-top:6px">Ce sont des estimations, à ajuster selon votre réalité.</p>`}
     <div class="ltip"><b>Le plan du coach</b><p>1. ${first ? `Relancez <span style="font-weight:800">${esc(firstName(first.name))}</span> au bon moment : Recharge vous prévient le jour venu, avec le message prêt.` : "Relancez chaque client au bon moment : Recharge vous prévient, avec le message prêt."}<br>2. Après sa prochaine commande, demandez-lui à qui elle pense : le message est prêt dans sa fiche.<br>3. Ajoutez vos autres clients petit à petit : plus Recharge connaît votre activité, plus il vous aide.</p></div>
     <button class="btn orange" style="margin-top:14px" data-act="niGo">Voir mes relances du jour</button>`);
   const svg = document.getElementById("niSvg"), k = document.getElementById("niK");
   const upd = constellation(svg, svg.parentNode.querySelector(".pot-mid"), document.getElementById("niTot"));
   const run = () => {
     const kv = +k.value; document.getElementById("niKOut").textContent = kv; k.style.setProperty("--p", ((kv - 1) / 14 * 100) + "%");
-    upd(n, 0, kv, 0, false); document.getElementById("niNet").textContent = n * kv;
+    lbl(upd(n, 0, kv, 0, false)); document.getElementById("niNet").textContent = n * kv;
     const vc = an && an.valClient ? an.valClient : an && an.panier ? an.panier * 365 / (an.duree || 45) * .6 : 35 * 365 / 45 * .6;
     document.getElementById("niEur").textContent = "≈ " + (Math.round(n * kv / 10 * vc / 10) * 10).toLocaleString("fr-FR") + " €";
     const ae = document.getElementById("niAllEur"); if (ae && an) ae.textContent = "≈ " + (Math.round(an.clients * kv / 10 * vc / 10) * 10).toLocaleString("fr-FR") + " €";
     const all = document.getElementById("niAll"); if (all && an) all.textContent = (an.clients * kv).toLocaleString("fr-FR");
   };
-  upd(n, 0, 0, 0, false); setTimeout(run, 700);
+  const lbl = r => { const l = document.getElementById("niLbl"); if (l && r) l.textContent = r.total > 1 ? "personnes" : "personne"; };
+  lbl(upd(n, 0, 0, 0, false)); setTimeout(run, 700);
   k.addEventListener("input", run); k.addEventListener("change", () => { S.settings.netC = +k.value; save(); });
 }
 /* Efface les fiches Exemple dès que la VDI a ses vrais clients */
