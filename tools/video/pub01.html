@@ -294,4 +294,9 @@ function render(t) {
   if (t >= 25.4) { const k = eOut(prog(t, 25.4, 25.8)); put("url", { y: 650, o: k * .9 }); } else hide("url");
 }
 window.render = render;
+/* Rythme : la vidéo finale (24,5 s) parcourt la chorégraphie d'origine (28 s) plus vite, en retirant les temps morts.
+   Paires [temps final, temps d'origine], interpolées en ligne droite : le mouvement reste continu. */
+const WARP = [[0, 0], [.5, 1.08], [1.35, 1.92], [2.4, 2.98], [3.4, 4.45], [5.25, 6.3], [5.75, 7.15], [7.58, 8.75], [8.4, 9.6], [9.3, 10.9], [10.8, 12.35],
+  [12.25, 13.8], [13.85, 15.95], [15.3, 17.3], [15.7, 17.85], [16.0, 18.3], [17.63, 19.93], [18.4, 21.6], [18.8, 21.95], [20.3, 23.6], [21.0, 24.35], [22.0, 25.4], [24.5, 27.9]];
+window.warp = t => { for (let i = 1; i < WARP.length; i++) { const [a, A] = WARP[i - 1], [b, B] = WARP[i]; if (t <= b) return A + (B - A) * (t - a) / (b - a); } return WARP[WARP.length - 1][1]; };
 </script></body></html>
