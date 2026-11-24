@@ -19,7 +19,7 @@ Les comptes, les sauvegardes et les abonnements sont rangés dans un stockage Cl
 1. Créez un compte gratuit sur resend.com.
 2. **API Keys** › **Create API Key** (droit « Sending access ») › copiez la clé (elle commence par `re_`).
 3. Pour envoyer à n'importe quelle adresse, il faut un **nom de domaine** à vous (ex. `recharge-vdi.fr`), ajouté dans **Domains** sur Resend. Sans domaine, Resend n'envoie qu'à **votre propre adresse** : parfait pour tester.
-   [À COMPLÉTER : nom de domaine pour l'envoi des emails]
+   Domaine d'envoi : getrecharge.fr
 
 ## Étape 3 · Brancher GitHub (5 min, une seule fois)
 
