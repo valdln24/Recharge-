@@ -7,18 +7,20 @@
 <style>
 :root{--navy:#08152E;--ink:#1C1A22;--ink2:#57515C;--sand:#F4EFE8;--line:#E7DFD5;--orange:#FF782E;--lav:#7B83F6;--late:#E5484D}
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{width:540px;height:960px;overflow:hidden;background:var(--navy)}
-body{font-family:Manrope,system-ui,sans-serif;color:#fff;-webkit-font-smoothing:antialiased}
+html,body{width:540px;height:960px;overflow:hidden;background:var(--sand)}
+body{font-family:Manrope,system-ui,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased}
 #stage{position:absolute;inset:0;overflow:hidden}
 .bg{position:absolute;inset:0}
-#bgNavy{background:radial-gradient(120% 80% at 50% 38%,#12244A 0%,var(--navy) 62%)}
-#glow{background:radial-gradient(46% 30% at 50% 46%,rgba(38,117,232,.55) 0%,rgba(38,117,232,.16) 45%,rgba(38,117,232,0) 75%);opacity:0}
+/* identité du site : haut de page en dégradé orange, contenu sur sable */
+#bgNavy{background:linear-gradient(180deg,#FF7A30 0%,#FF8A45 42%,#FFB27E 78%,#FFCDAA 100%)}
+#bgSand2{background:radial-gradient(70% 40% at 50% 58%,rgba(255,138,69,.22) 0%,rgba(255,138,69,0) 70%),var(--sand);opacity:0}
+#glow{background:radial-gradient(46% 30% at 50% 42%,rgba(255,255,255,.75) 0%,rgba(255,255,255,.2) 45%,rgba(255,255,255,0) 75%);opacity:0}
 #bgSand{background:var(--sand);opacity:0}
 #grain{position:absolute;inset:-50%;opacity:.05;pointer-events:none;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
 .abs{position:absolute;left:0;top:0;will-change:transform,opacity,filter}
 /* objets de la vidéo 01 */
-.notif{width:300px;padding:12px 14px;border-radius:18px;background:rgba(255,255,255,.94);color:var(--ink);display:flex;gap:11px;align-items:flex-start;box-shadow:0 18px 40px rgba(0,0,0,.35)}
+.notif{width:300px;padding:12px 14px;border-radius:18px;background:#fff;color:var(--ink);display:flex;gap:11px;align-items:flex-start;box-shadow:0 18px 40px rgba(170,70,10,.25)}
 .notif .ic{flex:none;width:34px;height:34px;border-radius:9px;background:#25A35A;display:grid;place-items:center}
 .notif .ic svg{width:19px;height:19px}
 .notif b{display:block;font-size:13.5px;font-weight:800}
@@ -29,25 +31,27 @@ body{font-family:Manrope,system-ui,sans-serif;color:#fff;-webkit-font-smoothing:
 .cal .m{background:#E5484D;color:#fff;font-size:12px;font-weight:800;padding:6px;letter-spacing:.08em;text-transform:uppercase}
 .cal .d{font-size:50px;font-weight:800;line-height:1;padding:8px 0 10px;letter-spacing:-.04em}
 /* téléphone : vraies captures de l'appli */
-#phone{width:410px;height:864px;border-radius:62px;background:#0B0B10;padding:10px;transform-origin:0 0;box-shadow:0 40px 90px rgba(0,0,0,.55),inset 0 0 0 1.5px rgba(255,255,255,.14)}
+#phone{width:410px;height:864px;border-radius:62px;background:#1C1A22;padding:10px;transform-origin:0 0;box-shadow:0 40px 90px rgba(28,26,34,.32),0 10px 24px rgba(28,26,34,.18),inset 0 0 0 1.5px rgba(255,255,255,.12)}
 #scr{position:relative;width:390px;height:844px;border-radius:52px;overflow:hidden;background:var(--sand)}
 #scr img{position:absolute;left:0;top:0;width:390px;display:block}
 #scr .nav{top:auto;bottom:0;height:100px}
 #dim{position:absolute;inset:0;background:#1C1A22;opacity:0}
-#hl{position:absolute;left:0;top:0;border-radius:22px;border:3px solid var(--orange);box-shadow:0 0 0 3000px rgba(8,21,46,.38),0 0 26px rgba(255,120,46,.55);opacity:0}
+#hl{position:absolute;left:0;top:0;border-radius:22px;border:3px solid var(--orange);box-shadow:0 0 0 3000px rgba(28,26,34,.30),0 0 26px rgba(255,120,46,.55);opacity:0}
 #tap{position:absolute;width:70px;height:70px;margin:-35px 0 0 -35px;border-radius:50%;background:rgba(255,120,46,.35);border:2px solid rgba(255,120,46,.8);opacity:0}
 #waRing{position:absolute;width:56px;height:56px;margin:-28px 0 0 -28px;border-radius:50%;border:3px solid #25A35A;opacity:0}
-.mini{width:205px;height:432px;border-radius:32px;background:#0B0B10;padding:6px;box-shadow:0 26px 60px rgba(0,0,0,.45)}
+.mini{width:205px;height:432px;border-radius:32px;background:#1C1A22;padding:6px;box-shadow:0 26px 60px rgba(28,26,34,.3)}
 .mini div{width:193px;height:420px;border-radius:27px;overflow:hidden;background:var(--sand)}
 .mini img{width:193px;display:block}
 /* textes */
 .cap{width:540px;padding:0 30px;text-align:center;font-size:34px;font-weight:800;letter-spacing:-.035em;line-height:1.08}
 .cap em{font-style:normal;color:var(--orange)}
 .cap span{display:inline-block}
-#capbg{position:absolute;left:0;top:0;width:540px;height:230px;background:linear-gradient(var(--navy) 35%,rgba(8,21,46,0));opacity:0}
+#capbg{position:absolute;left:0;top:0;width:540px;height:230px;background:linear-gradient(var(--sand) 38%,rgba(244,239,232,0));opacity:0}
 #t1{font-size:31px}
+#t1 em{color:#fff}
+#c5 em{color:#fff}
 /* frise : le renouvellement de Marie (données de la fiche d'exemple) */
-#tl{width:460px;border-radius:26px;background:#fff;color:var(--ink);padding:22px 24px 26px;box-shadow:0 30px 70px rgba(0,0,0,.45)}
+#tl{width:460px;border-radius:26px;background:#fff;color:var(--ink);padding:22px 24px 26px;box-shadow:0 30px 70px rgba(28,26,34,.18),0 0 0 1px var(--line)}
 #tl .who{display:flex;align-items:center;gap:12px}
 #tl .av{width:44px;height:44px;border-radius:50%;background:#FDE9DD;color:#D2601A;display:grid;place-items:center;font-weight:800;font-size:16px}
 #tl .nm{font-size:19px;font-weight:800;letter-spacing:-.02em}
@@ -66,7 +70,7 @@ body{font-family:Manrope,system-ui,sans-serif;color:#fff;-webkit-font-smoothing:
 #url{width:540px;text-align:center;font-size:17px;font-weight:700;letter-spacing:.02em}
 </style></head><body>
 <div id="stage">
-  <div class="bg" id="bgNavy"></div><div class="bg" id="glow"></div><div class="bg" id="bgSand"></div>
+  <div class="bg" id="bgNavy"></div><div class="bg" id="bgSand2"></div><div class="bg" id="glow"></div><div class="bg" id="bgSand" style="display:none"></div>
   <!-- scène 1 : le désordre de la vidéo 01 se rassemble -->
   <div class="abs notif" id="n1"><div class="ic">ICON</div><div><b>Julie</b><span>Tu me remets la crème ?</span></div></div>
   <div class="abs notif" id="n2"><div class="ic">ICON</div><div><b>Inès</b><span>Tu as encore du gel ?</span></div></div>
@@ -103,7 +107,7 @@ body{font-family:Manrope,system-ui,sans-serif;color:#fff;-webkit-font-smoothing:
   <div class="abs cap" id="c4"><span id="c4a">Anticipez.</span> <span id="c4b">Organisez.</span> <span id="c4c"><em>Suivez.</em></span></div>
   <div class="abs cap" id="c5" style="color:var(--ink);font-size:44px">Votre activité.<br><em>Mieux organisée.</em></div>
   <div class="abs cap" id="c6" style="color:var(--ink);font-size:24px">Découvrez Recharge</div>
-  <div class="abs" id="url" style="color:var(--ink2)">getrecharge.fr</div>
+  <div class="abs" id="url" style="color:var(--ink)">getrecharge.fr</div>
   <div id="grain"></div>
 </div>
 <script>
@@ -147,10 +151,11 @@ const hl = (x, y, w, h, o) => { const e = $("hl"); e.style.left = x + "px"; e.st
 function render(t) {
   T = t;
   /* fonds */
-  const sand = eIO(prog(t, 26.6, 27.3));
-  $("bgSand").style.opacity = sand;
-  $("glow").style.opacity = t < 2.5 ? .35 : t < 6 ? .35 + .65 * Math.exp(-Math.max(0, t - 2.75) * 1.4) * (t > 2.6 ? 1 : 0) + .2 : .3 * (1 - sand);
-  $("grain").style.opacity = .05 * (1 - sand) + .03 * sand;
+  // orange (ouverture) → sable (l'appli) → orange (signature), comme le site
+  const sand = eIO(prog(t, 5.3, 6.0)) * (1 - eIO(prog(t, 26.6, 27.3)));
+  $("bgSand2").style.opacity = sand;
+  $("glow").style.opacity = t < 2.6 ? .25 : t < 6 ? .25 + .75 * Math.exp(-Math.max(0, t - 2.7) * 1.6) : t > 26.8 ? .35 * eIO(prog(t, 26.8, 27.6)) : 0;
+  $("grain").style.opacity = .035;
 
   /* scène 1 : notifications, carnet, calendrier, qui se rassemblent puis l'éclair */
   const S1 = [["n1", -260, 160, 270, 190, -3, .1], ["n2", 800, 330, 290, 330, 3, .45], ["o1", -200, 640, 170, 610, -7, .8], ["n3", 270, 1080, 260, 470, -2, 1.1], ["o2", 760, 740, 400, 690, 8, 1.35]];
@@ -169,7 +174,7 @@ function render(t) {
       const RL = 236; ring.style.strokeDasharray = RL; ring.style.strokeDashoffset = RL * (1 - eIO(prog(t, a0, a0 + .7)));
       const tk = eBack(prog(t, a0 + .55, a0 + .85)); tri.style.opacity = clamp(prog(t, a0 + .55, a0 + .62)); tri.style.transformBox = "fill-box"; tri.style.transformOrigin = "center"; tri.style.transform = `scale(${tk})`;
       const bk = eBack(prog(t, a0 + .7, a0 + 1.0)); bolt.style.opacity = clamp(prog(t, a0 + .7, a0 + .78)); bolt.style.transformBox = "fill-box"; bolt.style.transformOrigin = "center"; bolt.style.transform = `translateY(${(1 - bk) * -30}px) scale(${lerp(.4, 1, bk)})`;
-      const wk = eOut(prog(t, a0 + .95, a0 + 1.45)); wd.style.opacity = wk; wd.style.transform = `translateX(${(1 - wk) * -24}px)`; wd.style.fill = a0 > 20 ? "#1C1A22" : "#fff";
+      const wk = eOut(prog(t, a0 + .95, a0 + 1.45)); wd.style.opacity = wk; wd.style.transform = `translateX(${(1 - wk) * -24}px)`; wd.style.fill = "#1C1A22";
       const dk = eBack(prog(t, a0 + 1.4, a0 + 1.65)); dot.style.opacity = clamp(prog(t, a0 + 1.4, a0 + 1.48)); dot.style.transformBox = "fill-box"; dot.style.transformOrigin = "center"; dot.style.transform = `scale(${dk})`;
       if (a0 < 20) { const out = eIn(prog(t, 5.2, 5.9)); put("logo", { y: lerp(400, 360, eIO(prog(t, 4.2, 5.0))) + out * 140, s: lerp(1.05, 1, eOut(prog(t, 2.7, 4.6))) * lerp(1, .25, out), o: 1 - out, b: out * 6 }); }
       else put("logo", { y: lerp(420, 340, eIO(prog(t, 28.6, 29.3))), s: lerp(1.05, 1, eOut(prog(t, 27, 29))) });
@@ -233,7 +238,7 @@ function render(t) {
   } else hide("tl");
 
   /* légendes (fond dégradé en haut quand le téléphone est zoomé) */
-  $("capbg").style.opacity = t > 6.2 && t < 26 ? .95 : 0;
+  $("capbg").style.opacity = t > 6.2 && t < 26 ? .96 * sand : 0;
   capIn("c2", 6.2, 11.4, 110);
   capIn("c3", 12.1, 18.3, 110); word("c3a", 12.1, t); word("c3b", 13.3, t); word("c3c", 14.5, t);
   capIn("c4", 18.5, 25.6, 110); word("c4a", 18.5, t); word("c4b", 19.3, t); word("c4c", 20.1, t);
