@@ -753,6 +753,119 @@ nav.tabs .tab.on svg{background:var(--navy);color:#fff;box-shadow:0 8px 18px -8p
 .ofl li::before{content:"";flex:0 0 auto;width:8px;height:8px;border-radius:50%;margin-top:6px;background:var(--orange)}
 .ofteam{margin-top:12px;padding:14px;border-radius:20px;background:var(--surface-2)}
 .ofteam .seg button{font-size:.86rem}
+
+/* =====================================================================
+   SYSTÈME « LE CARNET BIEN TENU » (voir DESIGN.md)
+   Couche finale : jetons --rc-* + composants de base. Elle s'applique
+   par-dessus les styles précédents, qui restent en place.
+   ===================================================================== */
+:root{
+  --rc-ink:#1C1A22; --rc-ink-2:#57515C; --rc-ink-3:#6B6471; --rc-ink-inv:#C9C2D0;
+  --rc-sand:#F4EFE8; --rc-sand-2:#F1EBE3; --rc-paper:#FFFFFF; --rc-line:#E7DFD5; --rc-line-2:#D9CFC3;
+  --rc-orange:#FF782E; --rc-orange-text:#A8501A; --rc-orange-veil:#FFF1E7;
+  --rc-lav:#7B83F6; --rc-lav-text:#4F55C9; --rc-lav-veil:#EEEEFD;
+  --rc-ok:#17744A; --rc-ok-veil:#E5F6EE; --rc-late:#B82E44; --rc-late-veil:#FDE8EA;
+  --rc-r-xs:6px; --rc-r-sm:10px; --rc-r-md:14px; --rc-r-lg:20px;
+  --rc-float:0 1px 2px rgba(28,26,34,.06),0 12px 32px -12px rgba(28,26,34,.22);
+  --rc-ease:cubic-bezier(.2,.8,.2,1); --rc-t1:120ms; --rc-t2:180ms; --rc-t3:260ms;
+  /* anciennes variables ramenées sur le système */
+  --bg:var(--rc-sand); --surface:var(--rc-paper); --surface-2:var(--rc-sand-2); --line:var(--rc-line); --line-2:var(--rc-line-2);
+  --ink:var(--rc-ink); --ink-2:var(--rc-ink-2); --ink-3:var(--rc-ink-3); --navy:var(--rc-ink);
+  --o1:var(--rc-orange); --o-soft:var(--rc-orange-veil); --o-text:var(--rc-orange-text); --orange:var(--rc-orange);
+  --b1:var(--rc-lav); --b-soft:var(--rc-lav-veil); --b-text:var(--rc-lav-text);
+  --g:var(--rc-ok); --g-soft:var(--rc-ok-veil); --g-text:var(--rc-ok);
+  --late:var(--rc-late); --late-soft:var(--rc-late-veil);
+  --grad:var(--rc-orange); --gradB:var(--rc-lav); --navyblock:var(--rc-ink);
+  --glow:transparent; --glowB:transparent; --shadow:none; --btn:var(--rc-ink); --btn-ink:#fff;
+}
+html,body{background:var(--rc-sand)}
+body{line-height:1.5}
+::selection{background:var(--rc-lav-veil);color:var(--rc-ink)}
+input,textarea{caret-color:var(--rc-ink)}
+:focus-visible{outline:2px solid var(--rc-lav);outline-offset:2px}
+*{scrollbar-color:var(--rc-line-2) transparent}
+
+/* Titres */
+.title{font-size:2rem;font-weight:800;letter-spacing:-.03em;line-height:1.1}
+.lede{color:var(--rc-ink-2)}
+.section{margin:32px 2px 12px}.section h2{font-size:1.0625rem;font-weight:650;letter-spacing:-.01em}
+.shead h3{font-size:1.375rem;font-weight:800;letter-spacing:-.02em;line-height:1.2}
+.small,.hint,.hist small,.meta2,.meta3{color:var(--rc-ink-3)}
+
+/* Plat au repos : aucun dégradé, halo, texture ni ombre dans la page */
+.coach,.coachhero,.kpi,.hero,.lcard,.coach.hello{background:var(--rc-ink)!important;box-shadow:none!important;border-radius:var(--rc-lg,20px)}
+.coach,.coachhero,.kpi,.coach.hello{border-radius:20px}
+.coach::after,.kpi::before{display:none}
+.kpi .val{background:none;-webkit-background-clip:border-box;background-clip:border-box;color:#fff}
+.cring .arc{filter:none}.hl-bar span{box-shadow:none!important}
+.hello,.devtip{background:var(--rc-paper);box-shadow:none;border:1px solid var(--rc-line)}
+.card,.plist,.dtile,.fc,.gf,.mod,.askt,.cmenu button,.flink,.obopt,.ofr,.ofr.on,.durrow,.sx,.cvrow,.improws{box-shadow:none!important}
+.card{border-radius:20px}.plist{border-radius:20px}.rcard{border-radius:20px}
+.dtile,.fc,.gf,.mod,.flink,.cmenu button,.obopt,.ofr,.durrow,.sx,.askt{border-radius:16px;border:1px solid var(--rc-line)}
+.ofr.on{border-color:var(--rc-ink)}
+
+/* Boutons */
+.btn{min-height:50px;border-radius:var(--rc-r-md);font-weight:650;font-size:.97rem;letter-spacing:0;box-shadow:none!important;
+  transition:background-color var(--rc-t2) var(--rc-ease),transform var(--rc-t1) var(--rc-ease),opacity var(--rc-t2)}
+.btn.primary{background:var(--rc-ink);color:#fff}
+.btn.primary:hover{background:#2A2631}
+.btn.orange{background:var(--rc-orange);color:var(--rc-ink);font-weight:650}
+.btn.orange:hover{background:#F56F25}
+.btn.soft{background:var(--rc-sand-2);color:var(--rc-ink)}
+.btn.outline{background:var(--rc-paper);border:1px solid var(--rc-line-2);color:var(--rc-ink)}
+.btn.danger{background:var(--rc-late-veil);color:var(--rc-late)}
+.btn.sm{min-height:40px;border-radius:12px;font-size:.875rem}
+.btn:disabled,.btn[disabled]{opacity:.4;cursor:not-allowed}
+.linkbtn{color:var(--rc-ink-2);text-underline-offset:3px}
+.x{background:var(--rc-sand-2);color:var(--rc-ink-2)}
+.plus{background:var(--rc-orange)!important;color:var(--rc-ink)!important;box-shadow:none!important;border-color:var(--rc-paper)}
+
+/* Champs */
+.field>span{font-size:.78rem;font-weight:650;color:var(--rc-ink-2)}
+.input{min-height:50px;border-radius:12px;border:1px solid var(--rc-line-2);background:var(--rc-paper);font-weight:500;
+  transition:border-color var(--rc-t2) var(--rc-ease),box-shadow var(--rc-t2) var(--rc-ease)}
+.input:focus{border-color:var(--rc-ink)!important;box-shadow:0 0 0 3px var(--rc-lav-veil)!important}
+input[type=checkbox],input[type=radio],input[type=range]{accent-color:var(--rc-ink)}
+
+/* Pastilles et sélecteurs : un seul langage (papier bordé, actif bleu nuit) */
+.chip,.dchip{font-size:.78rem;font-weight:650;border-radius:999px}
+.dchip{background:var(--rc-sand-2);color:var(--rc-ink-2)}
+.dchip.d-suivi,.dchip.d-reco{background:var(--rc-lav-veil);color:var(--rc-lav-text)}
+.seg{background:var(--rc-sand-2)}.seg button{font-weight:650}.seg button.on{background:var(--rc-ink);color:#fff}
+.pchip{font-weight:650}.pchip.on{background:var(--rc-ink);border-color:var(--rc-ink);color:#fff}
+.pchip.add{color:var(--rc-ink-2)}
+.tchips button{border:1px solid var(--rc-line-2);font-weight:650}
+.tchips button.on{border-color:var(--rc-ink);background:var(--rc-ink);color:#fff}
+.iseg button.on{box-shadow:none;border:1px solid var(--rc-line-2)}
+.iseg button small,.dtile small,.mod b,.cbtn span{font-size:.75rem}
+.itier{font-size:.75rem}
+
+/* Textes d'état : l'orange n'annonce plus l'urgence */
+.rsn{color:var(--rc-ink);font-weight:650}
+.status{font-weight:650}
+.miss{background:var(--rc-sand-2);color:var(--rc-ink-2);border-radius:12px}
+.why{background:var(--rc-sand-2);border-radius:14px}
+
+/* Fenêtres */
+.sheet{background:var(--rc-paper);border-radius:20px 20px 0 0;box-shadow:var(--rc-float)}
+.sheet-bg{background:rgba(28,26,34,.42)}
+
+/* Notifications */
+.toast{background:var(--rc-ink)!important;color:#fff!important;border-radius:var(--rc-r-md)!important;box-shadow:var(--rc-float)!important}
+.toast button{color:#C9CCFF}
+.bravo{background:var(--rc-ink)!important;color:#fff!important;border-radius:var(--rc-r-md)!important;box-shadow:var(--rc-float)!important}
+.bravo .bz{background:rgba(255,255,255,.12)}
+
+/* Barre d'onglets */
+nav.tabs .tab{font-size:.75rem;font-weight:650;color:var(--rc-ink-3)}
+nav.tabs .tab.on{color:var(--rc-ink)}
+nav.tabs .tab.on svg{width:22px;height:22px;padding:0;margin:0;border-radius:0;background:none!important;color:var(--rc-ink);box-shadow:none!important;stroke-width:2.3}
+
+nav.tabs .in{background:var(--rc-paper);-webkit-backdrop-filter:none;backdrop-filter:none;border:1px solid var(--rc-line);border-radius:20px;box-shadow:var(--rc-float)}
+.topbar{background:color-mix(in srgb,var(--rc-sand) 92%,transparent);box-shadow:0 1px 0 var(--rc-line)}
+
+/* Animations : une seule courbe, discrète */
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:1ms!important;transition-duration:1ms!important}}
 </style>
 </head>
 <body>
