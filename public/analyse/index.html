@@ -149,7 +149,7 @@ body{background:var(--bg)}
   var CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l4.5 4.5L19.5 6.5"/></svg>';
   var ARROW = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
   var el = document.getElementById("an");
-  var st = { i: 0, clients: null, cat: null, dorm: null, pains: [] };
+  var st = { i: 0, clients: null, cat: null, dorm: null, team: null, pains: [] };
   var track = function (e) { try { var b = JSON.stringify({ e: e }); if (navigator.sendBeacon) navigator.sendBeacon("/api/event", new Blob([b], { type: "application/json" })); else fetch("/api/event", { method: "POST", headers: { "Content-Type": "application/json" }, body: b, keepalive: true }); } catch (x) {} };
   var esc = function (s) { return String(s).replace(/[&<>"']/g, function (m) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]; }); };
   var fmt = function (n) { return Math.round(n).toLocaleString("fr-FR"); };
@@ -165,6 +165,7 @@ body{background:var(--bg)}
       { k: "clients", t: "Combien de clients suivez-vous ?", s: "Les personnes qui vous achètent régulièrement, même de temps en temps.", o: CLIENTS.map(function (x, n) { return [n, x[0], ""]; }) },
       { k: "cat", t: "Que vendez-vous surtout ?", s: "Recharge connaît la durée habituelle de chaque type de produit.", o: CATS.map(function (x, n) { return [n, x[1], x[2]]; }) },
       { k: "dorm", t: "Combien de clients n’ont rien commandé depuis plus de 3 mois ?", s: "Une estimation suffit. Tout le monde en a : ce sont des ventes à récupérer.", o: DORM.map(function (x, n) { return [n, x[0], ""]; }) },
+      { k: "team", t: "Avez-vous des filleuls ?", s: "Les personnes que vous avez recrutées et que vous accompagnez.", o: [[0, "Non, je vends seule", ""], [1, "Oui, moins de 5", ""], [2, "Oui, 5 ou plus", "Recharge a une offre pour toute l’équipe"]] },
       { k: "pains", multi: true, t: "Qu'est-ce qui vous freine aujourd'hui ?", s: "Plusieurs réponses possibles.", o: PAINS.map(function (x) { return [x[0], x[1], x[2]]; }) }
     ];
   }
@@ -195,7 +196,7 @@ body{background:var(--bg)}
     var prio = n <= 25 ? "croissance" : dorm >= n * .2 ? "reveil" : "rachats";
     return { clients: n, cat: c[0], catLabel: c[1], dorm: dorm, pains: st.pains.slice(), renouv: renouv, panier: c[4], duree: c[3], semaine: semaine,
       valClient: valClient, revenus: revenus, reveilAn: reveilAn, nouveaux: nouveaux, resAn: resAn, totalAn: totalAn, prio: prio,
-      fois: Math.floor(totalAn / 89), cmdRemb: Math.max(1, Math.ceil(89 / c[4])), at: new Date().toISOString().slice(0, 10) };
+      team: st.team, fois: Math.floor(totalAn / 89), cmdRemb: Math.max(1, Math.ceil(89 / c[4])), at: new Date().toISOString().slice(0, 10) };
   }
   function result() {
     var a = compute();
@@ -312,13 +313,13 @@ body{background:var(--bg)}
     if (o) {
       var q = steps()[st.i], v = o.dataset.v;
       if (q.multi) { var k = st.pains.indexOf(v); if (k >= 0) st.pains.splice(k, 1); else st.pains.push(v); question(); return; }
-      st[q.k] = +v; track("analyse_q" + (st.i + 1));
+      st[q.k] = +v; track(q.k === "team" ? "analyse_equipe" : "analyse_q" + (st.i + 1));
       o.classList.add("on"); setTimeout(function () { st.i++; question(); }, 180); return;
     }
     if (!a) return;
     if (a.dataset.a === "back") { st.i = Math.max(0, st.i - 1); question(); }
     if (a.dataset.a === "next") { track("analyse_q4"); result(); }
-    if (a.dataset.a === "again") { st = { i: 0, clients: null, cat: null, dorm: null, pains: [] }; question(); }
+    if (a.dataset.a === "again") { st = { i: 0, clients: null, cat: null, dorm: null, team: null, pains: [] }; question(); }
   });
   question();
 })();

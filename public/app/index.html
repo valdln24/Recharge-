@@ -309,6 +309,16 @@ button.cbtn{font:inherit;cursor:pointer}
 .pslide input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;border-radius:50%;background:#fff;border:3px solid var(--o1);box-shadow:0 4px 12px rgba(255,94,31,.45)}
 .pslide.b input[type=range]::-webkit-slider-thumb{border-color:var(--b1,#4f6cf7)}
 .pslide input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;background:#fff;border:3px solid var(--o1)}
+/* Entre l'analyse et le paywall : ce que Recharge vous rend */
+.pwv .k{font-size:.78rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--o-text)}
+.pwv h3{font-size:1.65rem;line-height:1.12;letter-spacing:-.03em;margin:6px 0 8px}.pwv h3 em{font-style:normal;color:var(--o-text)}
+.pwrows{display:grid;gap:8px;margin:14px 0 0}.pwrow{display:flex;gap:12px;align-items:center;padding:12px 14px;border-radius:16px;background:var(--surface);border:1.5px solid var(--line)}
+.pwrow .n{flex:none;min-width:52px;font-size:1.35rem;font-weight:800;letter-spacing:-.03em;text-align:center}.pwrow span{font-size:.9rem;line-height:1.3}.pwrow small{display:block;color:var(--ink-3);font-size:.8rem}
+.pwvs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.pwvs div{padding:12px;border-radius:16px;font-size:.82rem;line-height:1.3}
+.pwvs .no{background:#FBEAEA;color:#8A2433}.pwvs .yes{background:var(--ink);color:#fff}.pwvs b{display:block;font-size:1.15rem;letter-spacing:-.02em;margin:2px 0}
+.pwtl{list-style:none;margin:14px 0 0;padding:0 0 0 4px}.pwtl li{position:relative;padding:0 0 12px 22px;font-size:.86rem;line-height:1.3}.pwtl li b{display:block}
+.pwtl li:before{content:"";position:absolute;left:0;top:3px;width:11px;height:11px;border-radius:50%;background:var(--orange)}.pwtl li:not(:last-child):after{content:"";position:absolute;left:5px;top:16px;bottom:0;width:1.5px;background:var(--line)}
+.pwpay{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:10px}.pwpay span{padding:5px 10px;border-radius:999px;border:1.5px solid var(--line);font-size:.76rem;font-weight:700;color:var(--ink-2)}
 .devnet{margin:6px 0 0;padding:12px 14px;border-radius:16px;background:var(--o-soft);font-weight:650;font-size:.92rem}.devnet b{color:var(--o-text);font-size:1.15rem}
 .opp{margin-top:10px}.opph{display:block;margin-bottom:4px}
 .perks{list-style:none;padding:0;margin:14px 0 0;display:grid;gap:8px}.perks li{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 12px;font-size:.92rem}
@@ -966,6 +976,7 @@ async function afterLogin(r) {
   if (hasRealData(S)) { await pushNow(true); render(); toast("C'est fait ! Vos données sont sauvegardées sur votre compte ✅"); }
   else toast("Compte créé ✅ Vos données seront sauvegardées automatiquement.");
 }
+let pwFlow = false;   // parcours analyse → valeur → paywall → onboarding 2
 let loginEmail = "", upPeriod = "year", upTier = "pro", upTeam = { mode: "new", name: "", seats: 6, code: "" }, offersInfo = null;
 /* Les offres : les prix affichés ici sont indicatifs, le serveur fixe le vrai prix au paiement */
 const OFFERS = {
@@ -982,6 +993,30 @@ function offerPrice(k, founder) {
   const total = founder ? (y ? o.fy : o.fm) : (y ? o.y : o.m), totalNormal = y ? o.y : o.m;
   return { total, totalNormal, perMonth: y ? Math.round(total / 12) : total, perMonthNormal: y ? Math.round(totalNormal / 12) : totalNormal };
 }
+/* Entre l'analyse (onboarding 1) et l'onboarding 2 : ce que Recharge vous rend, à partir des réponses de la vendeuse */
+const PW_KEY = "recharge.pw";
+function openValue() {
+  const an = S.analyse || readAnalyse(); if (!an || !an.totalAn) return openOnboarding(0);
+  pwFlow = true; try { localStorage.setItem(PW_KEY, today()); } catch (e) {}
+  rcTrack("valeur_vue");
+  const mois = Math.max(10, Math.round(an.totalAn / 12 / 10) * 10), pro = founderNow() ? OFFERS.pro.fy : OFFERS.pro.y;
+  const remb = Math.max(1, Math.ceil(pro / 100 / (an.panier || 30)));
+  openSheet(`<div class="pwv"><div class="shead"><span class="k">Votre analyse</span><button class="obskip" data-act="pwLater">Plus tard</button></div>
+    <h3>Chaque mois sans relance, <em>~${mois.toLocaleString("fr-FR")} €</em> partent ailleurs.</h3>
+    <p class="lede">Vos clients ne vous oublient pas. Quand leur produit est fini et que personne ne les relance, ils rachètent là où c'est le plus rapide. Souvent chez quelqu'un d'autre.</p>
+    <div class="pwrows">
+      <div class="pwrow"><b class="n num">~${an.semaine}</b><span>clients arrivent au bout de leur produit cette semaine<small>Recharge vous dit qui, et quand, avec le message prêt.</small></span></div>
+      <div class="pwrow"><b class="n num">~${an.dorm}</b><span>clients endormis à réveiller<small>Un message personnel pour chacun, en un appui.</small></span></div>
+      <div class="pwrow"><b class="n num">${remb}</b><span>commande${remb > 1 ? "s" : ""} récupérée${remb > 1 ? "s" : ""} dans l'année<small>et Recharge Pro est remboursé (panier d'environ ${an.panier || 30} €).</small></span></div>
+    </div>
+    <div class="pwvs"><div class="no">Ne rien changer<b class="num">0 €</b>et ~${an.totalAn.toLocaleString("fr-FR")} € par an laissés à d'autres</div><div class="yes">Avec Recharge Pro<b class="num">${eur(Math.round(pro / 12))} / mois</b>pour aller les chercher</div></div>
+    <p class="hint">Estimation à partir de vos réponses, pas une promesse.</p>
+    <button class="btn orange" style="margin-top:10px" data-act="pwGo">Récupérer mes ventes</button>
+    <button class="linkbtn" data-act="pwLater">Continuer en version gratuite</button></div>`);
+  sheetEl.querySelector(".sheet-bg").removeAttribute("data-act");
+}
+const founderNow = () => { const l = offersInfo && Number.isFinite(offersInfo.founderLeft) ? offersInfo.founderLeft : null; return l === null || l > 0; };
+function pwAfter() { if (!pwFlow) return; pwFlow = false; if (!S.profile) setTimeout(() => openOnboarding(0), 250); }
 async function openUpgrade(tier) {
   if (tier) upTier = tier;
   if (!BILLING_OK && !API_OK) return toast("Le paiement en ligne arrive très bientôt.");
@@ -1002,15 +1037,18 @@ async function openUpgrade(tier) {
         <label class="field"><span>Code de l'équipe</span><input class="input" id="upTeamCode" value="${esc(upTeam.code)}" placeholder="ex. : K7M2QX9A" autocapitalize="characters" maxlength="12"></label>`}</div>`;
   const join = upTier === "equipe" && upTeam.mode === "join";
   const html = `<div class="shead"><h3>Choisir mon offre</h3>${closeBtn}</div>
+    ${(() => { const an = S.analyse || readAnalyse(); return an && an.totalAn && !join ? `<p class="devnet" style="margin-top:8px">${myName() ? esc(myName()) + ", votre" : "Votre"} estimation : jusqu'à <b>~${an.totalAn.toLocaleString("fr-FR")} € par an</b> à aller chercher.${an.team && upTier === "equipe" ? ` Avec vos filleuls : ${eur(founder ? OFFERS.equipe.fm : OFFERS.equipe.m)} par mois chacun.` : ""}</p>` : ""; })()}
     <p class="lede" style="margin-top:8px"><b>14 jours gratuits</b>, puis sans engagement : vous résiliez en un clic.</p>
     ${founder ? `<div class="ofound"><svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="15" class="trk"/><circle cx="18" cy="18" r="15" class="arc" stroke-dasharray="${left === null ? 0 : (RC * left / total).toFixed(1)} ${RC.toFixed(1)}" transform="rotate(-90 18 18)"/></svg>
       <span><b>Prix fondateur</b>${left === null ? `Réservé aux ${total} premiers abonnés, gardé tant que vous restez abonnée.` : `Encore <span class="num">${left}</span> place${left > 1 ? "s" : ""} sur ${total} · gardé tant que vous restez abonnée.`}</span></div>` : ""}
     <div class="seg oftog"><button type="button" class="${upPeriod === "year" ? "on" : ""}" data-act="upPeriod" data-p="year">À l'année <em>−25 %</em></button><button type="button" class="${upPeriod === "month" ? "on" : ""}" data-act="upPeriod" data-p="month">Au mois</button></div>
     <div class="ofrs">${["starter", "pro", "equipe"].map(card).join("")}</div>
     ${team}
-    ${(() => { const an = S.analyse; return an && an.totalAn >= 178 && !join ? `<p class="devnet" style="margin-top:12px">Votre analyse : jusqu'à <b>~${an.totalAn.toLocaleString("fr-FR")} € par an</b> à aller chercher.</p>` : ""; })()}
     <button class="btn orange" style="margin-top:14px" data-act="upGo">${join ? "Rejoindre l'équipe · 14 jours gratuits" : "Commencer mes 14 jours gratuits"}</button>
-    ${`<p class="hint" style="text-align:center">Paiement sécurisé par Stripe : Recharge ne voit jamais votre carte. Aucun prélèvement avant la fin de l'essai.${BILLING_OK ? "" : " Le paiement en ligne s'ouvre très bientôt."}</p>`}
+    <div class="pwpay" aria-label="Moyens de paiement"><span>Apple Pay</span><span>Google Pay</span><span>Carte bancaire</span></div>
+    <p class="hint" style="text-align:center">Paiement sécurisé par Stripe : Recharge ne voit jamais votre carte. Aucun prélèvement avant la fin de l'essai.${BILLING_OK ? "" : " Le paiement en ligne s'ouvre très bientôt."}</p>
+    <ul class="pwtl"><li><b>Aujourd'hui</b>Tout Recharge est débloqué, avec vos clients.</li><li><b>Quelques jours avant la fin</b>Un email vous rappelle que l'essai se termine.</li><li><b>Jour 14</b>Premier paiement. Vous pouvez résilier avant, en un clic.</li></ul>
+    ${pwFlow ? `<button class="linkbtn" data-act="pwLater">Continuer en version gratuite</button>` : ""}
     ${!session && API_OK ? `<button class="linkbtn" data-act="accLogin">J'ai déjà un compte : me connecter</button>` : ""}`;
   const cur = sheetEl.querySelector(".sheet.offsheet");
   if (cur) { const y = cur.scrollTop; cur.innerHTML = `<div class="grab"></div>` + html; cur.scrollTop = y; requestAnimationFrame(() => initScrollers(cur)); }
@@ -4523,8 +4561,10 @@ const actions = {
   },
   newSale: () => openNewSale(),
   newSaleFor: el => { closeSheet(); openNewSale(el.dataset.id); },
-  close: () => closeSheet(),
-  closeBg: (el, ev) => { if (ev.target === el) closeSheet(); },
+  close: () => { closeSheet(); pwAfter(); },
+  closeBg: (el, ev) => { if (ev.target === el) { closeSheet(); pwAfter(); } },
+  pwGo: () => { const an = S.analyse || readAnalyse(); upTier = an && an.team === 2 ? "equipe" : "pro"; upPeriod = "year"; rcTrack("paywall_vu"); openUpgrade(); },
+  pwLater: () => { rcTrack("paywall_plus_tard"); closeSheet(); pwAfter(); },
   fiche: el => openFiche(el.dataset.id),
   pick: el => { form.pid = el.dataset.id; drawChips(); updateEnd(); },
   qty: el => { form.qty = Math.max(1, Math.min(99, form.qty + Number(el.dataset.d))); updateEnd(); },
@@ -4751,7 +4791,7 @@ const actions = {
     if (joining && !upTeam.code) { toast("Tapez le code de votre équipe."); return document.getElementById("upTeamCode").focus(); }
     if (upTier === "equipe" && upTeam.mode !== "join" && upTeam.name.length < 2) { toast("Donnez un nom à votre équipe."); return document.getElementById("upTeamName").focus(); }
     if (!BILLING_OK) return toast("Le paiement en ligne s'ouvre très bientôt. Votre choix est noté : revenez ici dans quelques jours.");
-    el.disabled = true; el.textContent = "Ouverture du paiement sécurisé…";
+    el.disabled = true; el.textContent = "Ouverture du paiement sécurisé…"; if (pwFlow) rcTrack("paywall_paiement");
     try { const r = await api("POST", "billing/checkout", { tier: upTier, period: upPeriod, teamName: joining ? "" : upTeam.name, teamCode: joining ? upTeam.code : "" }); location.href = r.url; }
     catch (e) { toast(e.message); el.disabled = false; el.textContent = "Commencer mes 14 jours gratuits"; }
   },
@@ -5178,7 +5218,7 @@ const joinParam = DEMO ? null : new URLSearchParams(location.search).get("rejoin
 if (joinParam) { history.replaceState(null, "", location.pathname); try { localStorage.setItem(TEAM_KEY, joinParam.toUpperCase().replace(/[^A-Z0-9]/g, "")); } catch (e) {} setTimeout(() => joinTeam(), 700); }
 if (paidParam) {
   history.replaceState(null, "", location.pathname);
-  api("POST", "billing/confirm", { id: paidParam }).then(async r => { await afterLogin(r); toast(`Bienvenue dans Recharge ${TIER_NAME[r.user.plan] || ""} ! Vos 14 jours gratuits commencent.`); if (r.user.plan === "equipe") setTimeout(() => openTeam(), 1600); }).catch(e => toast(e.message));
+  api("POST", "billing/confirm", { id: paidParam }).then(async r => { await afterLogin(r); toast(`Bienvenue dans Recharge ${TIER_NAME[r.user.plan] || ""} ! Vos 14 jours gratuits commencent.`); if (!S.profile) setTimeout(() => openOnboarding(0), 1400); else if (r.user.plan === "equipe") setTimeout(() => openTeam(), 1600); }).catch(e => toast(e.message));
 } else if (loginParam) {
   history.replaceState(null, "", location.pathname);
   api("POST", "auth/verify", { token: loginParam, ref: readRef() }).then(afterLogin).catch(e => toast(e.message));
@@ -5200,7 +5240,13 @@ if (!DEMO) {
   rcTrack("app_ouverte");
   if (FROM_ANALYSE) { rcTrack("app_depuis_analyse"); history.replaceState(null, "", location.pathname); const an = readAnalyse(); if (an && !S.analyse) { S.analyse = an; save(); } }
 }
-if (!DEMO && !MOVE_IN && !S.profile && !obSkipFlag && !navigator.webdriver && !teamNotice && !loginParam && !paidParam && !session && location.hash !== "#abonnement") setTimeout(() => openOnboarding(0), 350);
+if (!DEMO && !MOVE_IN && !S.profile && !obSkipFlag && !navigator.webdriver && !teamNotice && !loginParam && !paidParam && !session && location.hash !== "#abonnement") setTimeout(() => {
+  // Arrivée depuis l'analyse : d'abord ce que Recharge rend, puis le paywall ; l'onboarding 2 suit (payé ou « plus tard »)
+  let seen = null; try { seen = localStorage.getItem(PW_KEY); } catch (e) {}
+  const an = S.analyse || readAnalyse();
+  if (an && an.totalAn && !seen) { if (!offersInfo) api("GET", "offers").then(o => { offersInfo = o; }).catch(() => {}); openValue(); }
+  else openOnboarding(0);
+}, 350);
 if (!DEMO && !navigator.webdriver && S.profile && S.lastBilan !== today().slice(0, 7)) {
   const pm = prevMonth(today().slice(0, 7)), b = bilan(pm);
   S.lastBilan = today().slice(0, 7); save();
