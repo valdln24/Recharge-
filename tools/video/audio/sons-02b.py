@@ -19,23 +19,23 @@ def tone(fr, d, dec):
     tt = np.arange(int(d * SR)) / SR; return np.sin(2 * np.pi * fr * tt) * np.exp(-tt / dec) * np.minimum(tt / .003, 1)
 def whoosh(d=.45):
     n = int(d * SR); v = rng.standard_normal(n); e = np.sin(np.linspace(0, np.pi, n)) ** 2
-    return bp(v, 500, 4000) * e
+    return bp(v, 300, 1800) * e
 def click():
     n = int(.03 * SR); v = rng.standard_normal(n) * np.exp(-np.arange(n) / (.004 * SR)); return lp(v, 4000)
 def pop(fr): return tone(fr, .12, .035) + .4 * tone(fr * 2, .12, .02)
 def chime(): return tone(880, 1.2, .35) + .6 * tone(1318.5, 1.2, .3) + .35 * tone(1760, 1.2, .25)
-for a in (0, .15, .3): add(whoosh(.35), a, .25)
-add(whoosh(.5), 2.6, .3); add(chime(), 3.5, .16)
-add(whoosh(.5), 4.7, .28)
+for a in (0, .15, .3): add(whoosh(.35), a, 0.083)
+add(whoosh(.5), 2.6, 0.100); add(chime(), 3.5, .16)
+add(whoosh(.5), 4.7, 0.093)
 for k in range(4): add(pop(980 + 90 * k), 5.9 + .12 * k, .14)
-add(whoosh(.4), 7.7, .22)
+add(whoosh(.4), 7.7, 0.073)
 for k in range(5): add(click(), 8.2 + .11 * k + rng.uniform(-.01, .01), .3)
-add(whoosh(.45), 9.85, .28)
+add(whoosh(.45), 9.85, 0.093)
 for k in range(6): add(click(), 10.3 + .12 * k, .1)
 add(pop(1250), 11.9, .14)
-add(whoosh(.5), 14.2, .28)
+add(whoosh(.5), 14.2, 0.093)
 for k, a in enumerate((15.45, 15.85, 16.25)): add(pop(1320 + 120 * k), a + .28, .16)
-add(whoosh(.45), 17.5, .26); add(pop(900), 17.95, .15)
+add(whoosh(.45), 17.5, 0.087); add(pop(900), 17.95, .15)
 for k in range(2): add(tone(660, .25, .08), 18.1 + .6 * k, .06)
-add(whoosh(.6), 19.3, .3); add(chime(), 20.0, .2)
+add(whoosh(.6), 19.3, 0.100); add(chime(), 20.0, .2)
 w.write(f"{S}/sfx_02b2.wav", SR, np.stack([x, x], 1).astype(np.float32))
