@@ -5,6 +5,7 @@
 // Aucun secret dans ce fichier : RESEND_API_KEY et ANTHROPIC_API_KEY sont des secrets Cloudflare (Variables et secrets).
 
 import { coach, CoachError, Quota } from "./coach.js";
+import { importDocs, ImportError } from "./importer.js";
 import { Store, storeDb } from "./store.js";
 import { checkout, confirm, portal, refreshPlan, cancelSub, BillingError } from "./billing.js";
 export { Quota, Store };
@@ -26,7 +27,7 @@ export default {
       res.headers.set("X-Content-Type-Options", "nosniff");
       return res;
     } catch (e) {
-      if (e instanceof HttpError || e instanceof CoachError || e instanceof BillingError) return json({ error: e.message }, e.status);
+      if (e instanceof HttpError || e instanceof CoachError || e instanceof ImportError || e instanceof BillingError) return json({ error: e.message }, e.status);
       console.error("API", url.pathname, e && e.stack || e);   // visible dans Cloudflare › Observabilité
       return json({ error: "Une erreur est survenue. Réessayez dans un instant." }, 500);
     }
@@ -45,6 +46,13 @@ async function route(request, env, url, ctx) {
     let plan = "free";
     if (env.DB && (request.headers.get("Authorization") || "").startsWith("Bearer ")) { try { plan = (await auth(request, env)).plan || "free"; } catch { /* non connecté : version gratuite */ } }
     return json(await coach(request, env, plan));
+  }
+  if (p === "/api/import" && m === "POST") {
+    const origin = request.headers.get("Origin");
+    if (origin && origin !== url.origin) throw new HttpError(403, "Origine refusée.");
+    let plan = "free";
+    if (env.DB && (request.headers.get("Authorization") || "").startsWith("Bearer ")) { try { plan = (await auth(request, env)).plan || "free"; } catch { /* non connecté : essai */ } }
+    return json(await importDocs(request, env, plan));
   }
   if (!env.DB) throw new HttpError(503, "La base de données n'est pas encore branchée.");
   // Même origine uniquement pour les écritures (protection contre les requêtes d'autres sites)

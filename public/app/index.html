@@ -712,6 +712,30 @@ nav.tabs .tab.on svg{background:var(--navy);color:#fff;box-shadow:0 8px 18px -8p
 .avatar.pv.k-news,.avatar.pv.k-promo,.avatar.pv.k-gift,.avatar.pv.k-hint{border-color:var(--orange)}
 .avatar.pv.k-wake{border-style:dashed;border-color:var(--line-2);color:var(--ink-3)!important}
 .plist .rcard.lite:not(.exp) .rsn,.plist .rcard.lite:not(.exp) .rwhy{padding-right:74px}
+
+/* Accueil : « Où sont vos clients ? » */
+.obsrc{display:grid;gap:10px;margin-top:16px}
+.obopt{display:grid;grid-template-columns:44px 1fr;gap:14px;align-items:center;text-align:left;width:100%;border:1px solid var(--line);background:var(--surface);border-radius:22px;padding:16px;font:inherit;color:var(--ink);cursor:pointer;transition:transform .15s,opacity .2s}
+.obopt:active{transform:scale(.98)}.obopt .mk{width:44px;height:44px}
+.obopt b{display:block;font-size:1.02rem;letter-spacing:-.01em}.obopt small{display:block;font-size:.84rem;color:var(--ink-2);font-weight:600;margin-top:2px;line-height:1.35}
+.obopt.hot{background:var(--ink);color:#fff;border-color:var(--ink);--mk-b:rgba(255,255,255,.2);--mk-c:#fff}.obopt.hot small{color:#C9CBD6}
+.obopt.ghost{grid-template-columns:1fr;background:none;border-style:dashed}
+.obopt.dim{opacity:.4;pointer-events:none}
+.obread{display:flex;gap:12px;align-items:center;margin-top:14px;padding:14px 16px;border-radius:18px;background:var(--o-soft);font-size:.92rem;font-weight:600;color:var(--ink)}
+.obspin{flex:0 0 auto;width:26px;height:26px;border-radius:50%;border:3.5px solid rgba(255,120,46,.22);border-top-color:var(--orange);animation:obspin .9s linear infinite}
+@keyframes obspin{to{transform:rotate(360deg)}}
+.improw.doubt{border-color:var(--orange)!important;background:var(--o-soft)}
+.impopt .mk{width:38px;height:38px;margin-bottom:6px}
+.improws{gap:0!important;background:var(--surface);border:1px solid var(--line);border-radius:22px;overflow:hidden}
+.improws .improw{border:0!important;border-radius:0;padding:0;background:none}
+.improws .improw+.improw{border-top:1px solid var(--line)!important}
+.improws .improw.doubt{background:var(--o-soft)}
+.imsum{display:grid;grid-template-columns:22px 1fr auto;gap:12px;align-items:center;padding:12px 14px}
+.imsum input{width:20px;height:20px;accent-color:var(--orange);margin:0}
+.imtxt{border:0;background:none;font:inherit;text-align:left;padding:0;color:var(--ink);cursor:pointer;min-width:0}
+.imtxt b{display:block;font-size:.98rem}.imtxt span{display:block;font-size:.84rem;color:var(--ink-2);font-weight:600;margin-top:1px}
+.improw:not(.edit) .imedit{display:none}.improw .imedit{padding:0 14px 14px 48px}
+.improw.edit .imsum{padding-bottom:4px}
 </style>
 </head>
 <body>
@@ -2964,19 +2988,28 @@ function openOnboarding(step = 0, profileOnly) {
     <div class="field"><span>Que vendez-vous ? <i>· plusieurs choix possibles</i></span></div>${chips(OB_CATS.filter(([k]) => k !== "mode" || ob.cats.includes("mode")), "cats", true)}
     <div class="field"><span>Le ton de vos messages</span></div>
     <div class="obtones" style="margin-top:8px">${OB_TONES.map(([k, l, d]) => `<button type="button" class="obtone ${ob.tone === k ? "on" : ""}" data-act="obPick" data-k="tone" data-v="${k}"><b>${l}</b><small>${d}</small></button>`).join("")}</div>`;
-  if (ob.i === 2) body = `<h3 class="obq">Vos 3 premiers clients</h3><p class="lede">Juste le nom, le produit et quand ils l'ont acheté. Recharge calcule le bon moment pour les relancer.</p>
+  if (ob.i === 2 && !ob.mode) body = `<h3 class="obq">Où sont vos clients aujourd'hui ?</h3><p class="lede">Recharge les récupère pour vous : pas besoin de tout retaper.</p>
+    <div class="obsrc">
+      <label class="obopt hot">${mk("frame")}<span><b>Dans un carnet</b><small>Prenez vos pages en photo : Recharge lit tout, même écrit à la main</small></span><input type="file" accept="image/*" multiple id="obPhotos" hidden></label>
+      <label class="obopt">${mk("list")}<span><b>Dans Excel ou chez ma marque</b><small>Une capture d'écran du back-office, ou votre fichier Excel</small></span><input type="file" accept="image/*,.csv,.txt,.tsv,.xlsx,.xls" multiple id="obFiles" hidden></label>
+      <button type="button" class="obopt" data-act="obMode" data-m="type">${mk("plus")}<span><b>Je les tape</b><small>Vos 3 premiers clients en une minute</small></span></button>
+      <button type="button" class="obopt ghost" data-act="obMode" data-m="none"><span><b>Je n'ai pas encore de clients</b><small>Recharge vous aide à trouver les premiers</small></span></button>
+    </div>
+    <div id="obReadSt" class="obread hidden" role="status"></div>
+    <p class="hint" style="margin-top:12px">Vos photos ne sont pas conservées : Recharge en sort la liste, vous vérifiez, puis vous validez.</p>`;
+  if (ob.i === 2 && ob.mode === "type") body = `<h3 class="obq">Vos 3 premiers clients</h3><p class="lede">Juste le nom, le produit et quand ils l'ont acheté. Recharge calcule le bon moment pour les relancer.</p>
     ${ob.rows.map((r, n) => `<div class="obrow"><b>${n + 1}</b><div>
       <input class="input" id="obN${n}" value="${esc(r.name || "")}" placeholder="Prénom Nom">
       <div class="obrow2"><input class="input" id="obP${n}" list="obProds" value="${esc(r.prod || "")}" placeholder="Produit">
         <select class="input" id="obA${n}">${OB_AGO.map(([d, l]) => `<option value="${d}" ${(r.ago || 30) == d ? "selected" : ""}>il y a ${l}</option>`).join("")}</select></div>
       <input class="input" id="obT${n}" type="tel" inputmode="tel" value="${esc(r.phone || "")}" placeholder="Téléphone (facultatif)"></div></div>`).join("")}
     <datalist id="obProds">${realProducts().map(x => `<option value="${esc(x.name)}">`).join("")}</datalist>
-    <div class="obor"><span>ou</span></div>
-    <button class="btn outline" data-act="obImport">📸 Importer une capture de mes commandes</button>`;
+    <button type="button" class="linkbtn" style="margin-top:12px" data-act="obMode" data-m="">Plutôt une photo de mon carnet ou une capture</button>`;
   const cur = sheetEl.querySelector(".sheet.obsheet");
   const nextLabel = ob.i === last ? (ob.profileOnly ? "Enregistrer" : "Voir mes relances du jour") : "Suivant";
+  const hideNext = ob.i === 2 && !ob.mode && !ob.profileOnly;
   const html = `<div class="shead">${dots}${ob.profileOnly ? closeBtn : `<button class="obskip" data-act="obSkip">Passer</button>`}</div>${body}
-    <div class="obnav">${ob.i > 0 ? `<button class="btn soft" data-act="obBack">Retour</button>` : ""}<button class="btn ${ob.i === last ? "orange" : "primary"}" data-act="obNext">${nextLabel}</button></div>`;
+    <div class="obnav">${ob.i > 0 ? `<button class="btn soft" data-act="obBack">Retour</button>` : ""}${hideNext ? "" : `<button class="btn ${ob.i === last ? "orange" : "primary"}" data-act="obNext">${nextLabel}</button>`}</div>`;
   if (cur) { cur.innerHTML = `<div class="grab"></div>` + html; cur.scrollTop = 0; }
   else { openSheet(html); sheetEl.querySelector(".sheet").classList.add("obsheet"); sheetEl.querySelector(".sheet-bg").removeAttribute("data-act"); }
   const inp = ob.i === 0 ? document.getElementById(ob.name ? "obBrand" : "obName") : null;
@@ -3313,9 +3346,9 @@ function viewCoach() {
   h += section("Mon développement") + devCoach();
   return h;
 }
-function shrinkImage(file) {
+function shrinkImage(file, max = 1400) {
   return new Promise((ok, ko) => { const img = new Image(), url = URL.createObjectURL(file);
-    img.onload = () => { const k = Math.min(1, 1400 / Math.max(img.width, img.height)), c = document.createElement("canvas");
+    img.onload = () => { const k = Math.min(1, max / Math.max(img.width, img.height)), c = document.createElement("canvas");
       c.width = Math.round(img.width * k); c.height = Math.round(img.height * k); c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
       URL.revokeObjectURL(url); ok(c.toDataURL("image/jpeg", .82)); };
     img.onerror = () => ko(new Error("image")); img.src = url; });
@@ -4147,63 +4180,105 @@ async function readSheet(file) {
   return rows.map(r => r.map(cell).join("\t")).join("\n");
 }
 let importRows = [];
+/* Lecture intelligente : les photos partent au serveur Recharge, l'IA en sort clients et ventes, rien n'est conservé */
+async function aiRead(files, status) {
+  const imgs = files.filter(f => /^image\//.test(f.type)).slice(0, 6);
+  status(`Préparation ${imgs.length > 1 ? `des ${imgs.length} photos` : "de la photo"}…`);
+  const data = []; for (const f of imgs) data.push(await shrinkImage(f, 1800));
+  status(`Recharge lit ${imgs.length > 1 ? `vos ${imgs.length} pages` : "votre page"}… <b>environ ${10 + imgs.length * 8} secondes</b>`, true);
+  const hd = { "Content-Type": "application/json", "X-Recharge-Device": deviceId() }; if (session && session.token) hd.Authorization = "Bearer " + session.token;
+  let r; try { r = await fetch(new URL("../api/import", location.href), { method: "POST", headers: hd, body: JSON.stringify({ images: data, today: today(), brand: prof().brand || "", products: realProducts().map(p => p.name) }) }); }
+  catch { const e = new Error("Pas de connexion internet pour le moment."); e.fallback = true; throw e; }
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) { const e = new Error(j.error || "La lecture a échoué."); e.status = r.status; e.fallback = r.status === 503; throw e; }
+  return j;
+}
+/* Photos ou fichiers choisis : l'IA si elle est active, sinon la lecture dans le téléphone */
+async function readImports(files, status) {
+  const sheets = files.filter(f => !/^image\//.test(f.type)), imgs = files.filter(f => /^image\//.test(f.type));
+  let rows = [], note = "";
+  for (const f of sheets) { status("Lecture du fichier…"); rows = rows.concat(parseTable(await readSheet(f))); }
+  if (imgs.length) {
+    let done = false;
+    if (COACH_OK) { try { const j = await aiRead(imgs, status); rows = rows.concat(j.rows || []); note = j.note || ""; done = true; } catch (e) { if (!e.fallback) throw e; } }
+    if (!done) for (const f of imgs) {
+      const text = await readImage(f, k => status(`Lecture de la capture… <b>${Math.round(k * 100)} %</b>`));
+      const bo = parseBackoffice(text); rows = rows.concat(bo && bo.rows ? bo.rows : parseLines(text));
+    }
+  }
+  return { rows, note };
+}
 function openImport() {
   openSheet(`<div class="shead"><h3>Importer des commandes</h3>${closeBtn}</div>
     <p class="lede" style="margin-top:8px">Une capture de votre back-office suffit. Pas besoin de tout ressaisir.</p>
     <div class="imp">
-      <label class="impopt"><input type="file" accept="image/*" id="impImg" hidden><span>📸</span><b>Une capture d'écran</b><small>la liste des commandes (prénom, nom, date), ou le détail d'une commande</small></label>
-      <button class="impopt" data-act="impPaste"><span>📋</span><b>Copier-coller un tableau</b><small>depuis votre espace marque ou un tableur</small></button>
-      <label class="impopt"><input type="file" accept=".csv,.txt,.tsv,.xlsx,.xls" id="impFile" hidden><span>📄</span><b>Un fichier CSV ou Excel</b><small>si votre marque permet un export</small></label>
+      <label class="impopt"><input type="file" accept="image/*" multiple id="impImg" hidden>${mk("frame")}<b>Des photos ou des captures</b><small>votre carnet, même écrit à la main, ou la liste des commandes de votre marque</small></label>
+      <button class="impopt" data-act="impPaste">${mk("list")}<b>Copier-coller un tableau</b><small>depuis votre espace marque ou un tableur</small></button>
+      <label class="impopt"><input type="file" accept=".csv,.txt,.tsv,.xlsx,.xls" id="impFile" hidden>${mk("hash")}<b>Un fichier CSV ou Excel</b><small>si votre marque permet un export</small></label>
     </div>
     <div id="impPasteBox" class="hidden"><textarea class="input" id="impText" rows="6" style="padding:12px;min-height:140px" placeholder="Collez ici les lignes de commandes (nom, date, produit…)"></textarea>
       <button class="btn primary" style="margin-top:10px" data-act="impRead">Lire le tableau</button></div>
     <div id="impStatus" class="hint" style="margin:12px 0 0"></div>
-    <p class="hint" style="margin-top:16px">🔒 La lecture se fait dans votre téléphone. Recharge ne vous demandera jamais vos identifiants de connexion à votre marque.</p>`);
+    <p class="hint" style="margin-top:16px">${COACH_OK ? "Vos photos ne sont pas conservées : Recharge en sort la liste, vous vérifiez, puis vous validez." : "La lecture se fait dans votre téléphone."} Recharge ne vous demandera jamais vos identifiants de connexion à votre marque.</p>`);
 }
 function showImportStatus(t) { const el = document.getElementById("impStatus"); if (el) el.innerHTML = t; }
-function openImportReview(rows) {
-  importRows = rows.map(r => ({ ...r, c: matchContact(r.name), p: matchProduct(r.product) }));
+function openImportReview(rows, note) {
+  importRows = rows.map(r => ({ ...r, c: matchContact(r.name), p: r.product ? matchProduct(r.product) : null }));
   if (!importRows.length) return showImportStatus("Aucune commande reconnue. Essayez une capture plus nette, ou le copier-coller.");
   const contactOpts = sel => `<option value="">Nouveau contact</option>` + S.clients.slice().sort((a, b) => a.name.localeCompare(b.name, "fr")).map(c => `<option value="${c.id}" ${sel && sel.id === c.id ? "selected" : ""}>${esc(c.name)}</option>`).join("");
-  const prodOpts = (sel, txt) => (!txt ? `<option value="rythme" selected>Sans produit précis · relance après ${S.settings.cycle} j</option>` : sel ? "" : `<option value="">Nouveau produit : ${esc(txt)}</option>`) + realProducts().map(p => `<option value="${p.id}" ${sel && sel.id === p.id ? "selected" : ""}>${esc(p.name)}</option>`).join("");
+  const prodOpts = (sel, txt, dt) => (!txt ? `<option value="none" ${dt ? "" : "selected"}>Juste le contact, sans achat</option><option value="rythme" ${dt ? "selected" : ""}>Sans produit précis · relance après ${S.settings.cycle} j</option>` : sel ? "" : `<option value="">Nouveau produit : ${esc(txt)}</option>`) + realProducts().map(p => `<option value="${p.id}" ${sel && sel.id === p.id ? "selected" : ""}>${esc(p.name)}</option>`).join("");
   const found = importRows.filter(r => r.c).length;
-  openSheet(`<div class="shead"><h3>${plural(importRows.length, "commande trouvée", "commandes trouvées")}</h3>${closeBtn}</div>
-    <p class="lede" style="margin-top:8px">${found ? `${plural(found, "contact reconnu", "contacts reconnus")}. ` : ""}Vérifiez, corrigez si besoin, puis validez.</p>
-    <label class="field"><span>Fidélité des nouveaux contacts</span><select class="input" id="impStatusNew">${Object.entries(CSTATUS).map(([k, l]) => `<option value="${k}" ${k === "direct" ? "selected" : ""}>${l}</option>`).join("")}</select></label>
-    <div class="improws">${importRows.map((r, i) => `<div class="improw ${r.c ? "ok" : ""}" data-i="${i}">
-      <label class="chk"><input type="checkbox" class="impOn" checked> <b>${esc(r.name || "Sans nom")}</b> ${r.c ? `<span class="ttag">reconnu</span>` : `<span class="ttag new">nouveau</span>`}</label>
+  const nBuy = importRows.filter(r => r.product || r.date).length, nPeople = new Set(importRows.map(r => norm(r.name))).size;
+  openSheet(`<div class="shead"><h3>${nBuy ? `${plural(nBuy, "achat trouvé", "achats trouvés")}` : `${plural(nPeople, "contact trouvé", "contacts trouvés")}`}</h3>${closeBtn}</div>
+    <p class="lede" style="margin-top:8px">${nBuy ? `Chez ${plural(nPeople, "personne", "personnes")}. ` : ""}${found ? `${plural(found, "contact déjà connu", "contacts déjà connus")}. ` : ""}Touchez une ligne pour la corriger.${importRows.some(r => r.doubt) ? " Celles en orange étaient difficiles à lire." : ""}</p>
+    ${note ? `<p class="hint" style="margin-top:4px">${esc(note)}</p>` : ""}
+    <div class="improws">${importRows.map((r, i) => `<div class="improw ${r.c ? "ok" : ""}${r.doubt ? " doubt" : ""}" data-i="${i}">
+      <div class="imsum"><input type="checkbox" class="impOn" checked aria-label="Importer cette ligne"><button type="button" class="imtxt" data-act="impEdit"><b>${esc(r.name || "Sans nom")}</b><span>${impSummary(r)}</span></button>${r.c ? `<span class="ttag">connu</span>` : ""}</div>
+      <div class="imedit">
       <div class="g2"><label class="field"><span>Contact</span><select class="input impC">${contactOpts(r.c)}</select></label>
         <label class="field"><span>Nom</span><input class="input impN" value="${esc(r.name)}"></label></div>
-      <div class="g3"><label class="field"><span>Produit</span><select class="input impP">${prodOpts(r.p, r.product)}</select></label>
+      ${!r.c ? `<label class="field"><span>Téléphone <i>· facultatif</i></span><input class="input impT" type="tel" inputmode="tel" value="${esc(r.phone || "")}" placeholder="06 12 34 56 78"></label>` : ""}
+      <div class="g3"><label class="field"><span>Produit</span><select class="input impP">${prodOpts(r.p, r.product, r.date)}</select></label>
         <label class="field"><span>Qté</span><input class="input impQ" inputmode="numeric" value="${r.qty}"></label>
-        <label class="field"><span>Date</span><input class="input impD" type="date" value="${r.date || today()}"></label></div></div>`).join("")}</div>
-    <button class="btn primary" style="margin-top:16px" data-act="impApply">Importer ${plural(importRows.length, "commande", "commandes")}</button>
-    <p class="hint">Les nouveaux produits sont créés avec une durée de 30 jours, modifiable dans Réglages › Mes produits.</p>`);
+        <label class="field"><span>Date</span><input class="input impD" type="date" value="${r.date || today()}"></label></div></div></div>`).join("")}</div>
+    <label class="field"><span>Les nouveaux contacts sont</span><select class="input" id="impStatusNew">${Object.entries(CSTATUS).map(([k, l]) => `<option value="${k}" ${k === "direct" ? "selected" : ""}>${l}</option>`).join("")}</select></label>
+    <button class="btn primary" style="margin-top:16px" data-act="impApply">Tout importer</button>
+    <p class="hint">Ensuite, vous réglerez la durée des nouveaux produits avec la molette.</p>`);
 }
+const impSummary = r => { const pn = r.p ? r.p.name : r.product;
+  return pn || r.date ? `${esc(pn || "Sans produit précis")}${r.qty > 1 ? ` × ${r.qty}` : ""} · ${r.date ? fmt(r.date) : "date à préciser"}` : "Juste le contact"; };
 function applyImport() {
   const snap = snapshot(), newStatus = document.getElementById("impStatusNew").value;
   if (obImporting) { clearExampleData(); obImporting = false; }
-  let added = 0, skipped = 0, newC = 0;
+  let added = 0, skipped = 0, newC = 0; const created = [];
   document.querySelectorAll(".improw").forEach(row => {
     if (!row.querySelector(".impOn").checked) return;
     const r = importRows[+row.dataset.i];
     const name = row.querySelector(".impN").value.trim(), cid = row.querySelector(".impC").value, pid = row.querySelector(".impP").value;
     const date = row.querySelector(".impD").value || today(), qty = Math.max(1, Math.min(99, parseInt(row.querySelector(".impQ").value, 10) || 1));
     let c = cid ? client(cid) : S.clients.find(x => norm(x.name) === norm(name));
-    if (!c) { if (!name) return; c = { id: uid(), name, phone: "", example: false, createdAt: today(), status: newStatus, statusLog: [{ s: newStatus, date: today() }] }; S.clients.push(c); newC++; }
+    const ph = (row.querySelector(".impT") || {}).value?.trim() || r.phone || "";
+    if (!c) { if (!name) return; c = { id: uid(), name, phone: ph, example: false, createdAt: today(), status: newStatus, statusLog: [{ s: newStatus, date: today() }] }; S.clients.push(c); newC++; }
+    else if (ph && !c.phone) c.phone = ph;
+    if (pid === "none") return;
     let p = pid === "rythme" ? genericProduct() : pid ? S.products.find(x => x.id === pid) : S.products.find(x => norm(x.name) === norm(r.product));
-    if (!p) { p = newProduct(r.product); S.products.push(p); }
+    if (!p) { p = newProduct(r.product); if (r.price) p.price = r.price; S.products.push(p); created.push(p.id); }
     if (S.sales.some(x => x.clientId === c.id && x.product === p.name && x.date === date)) { skipped++; return; }
     recordSale(c, p, qty, date); added++;
   });
   save(); closeSheet(); tab = "today"; render();
   toast(`${plural(added, "commande importée", "commandes importées")}${newC ? ` · ${plural(newC, "nouveau contact", "nouveaux contacts")}` : ""}${skipped ? ` · ${skipped} déjà connue${skipped > 1 ? "s" : ""}` : ""}`, snap);
+  if (created.length) setTimeout(() => openDurations(created), 450);
 }
 document.addEventListener("change", async ev => {
   const t = ev.target;
   if (t.id !== "impImg" && t.id !== "impFile") return;
   const f = t.files[0]; if (!f) return;
   try {
+    if (t.id === "impImg" && COACH_OK) {
+      const { rows, note } = await readImports([...t.files], showImportStatus);
+      return openImportReview(rows, note);
+    }
     if (t.id === "impImg") {
       showImportStatus("Lecture de la capture… <b>0 %</b> (la première fois, quelques secondes de préparation)");
       const text = await readImage(f, k => showImportStatus(`Lecture de la capture… <b>${Math.round(k * 100)} %</b>`));
@@ -4216,7 +4291,20 @@ document.addEventListener("change", async ev => {
       showImportStatus("Lecture du fichier…");
       openImportReview(parseTable(await readSheet(f)));
     }
-  } catch (e) { showImportStatus("Impossible de lire ce fichier. Vérifiez votre connexion la première fois, ou utilisez le copier-coller."); }
+  } catch (e) { showImportStatus(e && e.status ? esc(e.message) : "Impossible de lire ce fichier. Vérifiez votre connexion la première fois, ou utilisez le copier-coller."); }
+});
+/* Accueil : photos du carnet ou fichiers choisis à l'étape « Où sont vos clients ? » */
+document.addEventListener("change", async ev => {
+  const t = ev.target; if (t.id !== "obPhotos" && t.id !== "obFiles") return;
+  const files = [...t.files]; if (!files.length || !ob) return;
+  const st = document.getElementById("obReadSt"), show = (h, spin) => { st.classList.remove("hidden"); st.innerHTML = `${spin ? `<span class="obspin"></span>` : ""}<span>${h}</span>`; };
+  sheetEl.querySelectorAll(".obopt").forEach(b => b.classList.add("dim"));
+  try {
+    obRead(); obApply(); save();
+    const { rows, note } = await readImports(files, show);
+    if (!rows.length) { sheetEl.querySelectorAll(".obopt").forEach(b => b.classList.remove("dim")); return show(`Rien de lisible sur ${files.length > 1 ? "ces photos" : "cette photo"}. ${note ? esc(note) + " " : ""}Essayez une photo plus nette, bien à plat et à la lumière, ou tapez vos clients.`); }
+    obImporting = true; ob = null; rcTrack("premiers_clients"); openImportReview(rows, note);
+  } catch (e) { sheetEl.querySelectorAll(".obopt").forEach(b => b.classList.remove("dim")); show(esc(e.message || "La lecture a échoué. Réessayez.")); }
 });
 
 /* ---------- Annuler & messages ---------- */
@@ -4571,7 +4659,7 @@ const actions = {
     if (ob.i < last) { if (ob.i === 1) obApply(); openOnboarding(ob.i + 1); return; }
     obApply();
     const n = ob.profileOnly ? 0 : obSaveContacts();
-    if (!ob.profileOnly && !n && !confirm("Aucun client ajouté. Continuer avec les fiches d'exemple ?")) return;
+    if (!ob.profileOnly && !n && ob.mode !== "none" && !confirm("Aucun client ajouté. Continuer avec les fiches d'exemple ?")) return;
     if (!ob.profileOnly) { rcTrack("onboarding_fin"); if (n) rcTrack("premiers_clients"); }
     const po = ob.profileOnly; ob = null; save(); closeSheet(); tab = po ? "settings" : "today"; render(); window.scrollTo(0, 0);
     if (!po && n) { setTimeout(() => openNetIntro(n), 380); return; }
@@ -4582,7 +4670,13 @@ const actions = {
   parrainShare: el => { rcTrack("parrainage_partage"); const t = document.getElementById("msg-parrain"); if (t) el.href = "https://wa.me/?text=" + encodeURIComponent(t.value); return true; },
   parrainCopy: async el => { rcTrack("parrainage_partage"); const ok = await copyText(el.dataset.l); toast(ok ? "Lien copié : collez-le dans votre message." : "Impossible de copier : sélectionnez le lien à la main."); },
   niGo: () => { closeSheet(); tab = "today"; render(); window.scrollTo(0, 0); toast("Voici vos relances du jour"); },
-  obBack: () => { obRead(); openOnboarding(ob.i - 1); },
+  obBack: () => { obRead(); if (ob.i === 2 && ob.mode) { ob.mode = ""; return openOnboarding(2); } openOnboarding(ob.i - 1); },
+  impEdit: el => { const row = el.closest(".improw"), r = importRows[+row.dataset.i];
+    if (row.classList.toggle("edit")) return;
+    const sel = row.querySelector(".impP"), pid = sel.value, pp = S.products.find(x => x.id === pid);
+    const v = { ...r, p: pp && pid !== "rythme" ? pp : null, product: pid === "none" ? "" : pp ? pp.name : pid === "rythme" ? "" : r.product, qty: +row.querySelector(".impQ").value || 1, date: pid === "none" ? "" : row.querySelector(".impD").value };
+    el.querySelector("b").textContent = row.querySelector(".impN").value || "Sans nom"; el.querySelector("span").innerHTML = pid === "rythme" ? `Sans produit précis · ${v.date ? fmt(v.date) : ""}` : impSummary(v); },
+  obMode: el => { obRead(); ob.mode = el.dataset.m; if (ob.mode === "none") { ob.rows = [{}, {}, {}]; return actions.obNext(); } openOnboarding(2); },
   obSkip: () => { obRead(); if (ob.name || ob.brand) obApply(); else if (!S.profile) S.profile = { skipped: today() }; save(); ob = null; closeSheet(); render(); toast("Vous pourrez compléter votre profil dans Menu › Mon profil"); },
   obPick: el => { obRead(); const k = el.dataset.k, v = el.dataset.v; if (el.dataset.m) ob[k] = ob[k].includes(v) ? ob[k].filter(x => x !== v) : ob[k].concat([v]); else ob[k] = v; openOnboarding(ob.i); },
   obImport: () => { obRead(); obApply(); save(); obImporting = true; ob = null; closeSheet(); openImport(); },
