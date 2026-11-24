@@ -663,6 +663,55 @@ nav.tabs .tab.on svg{background:var(--navy);color:#fff;box-shadow:0 8px 18px -8p
 .proddays{margin-top:8px}.proddays>span{font-size:.78rem;font-weight:700;color:var(--ink-2)}.proddays i{font-style:normal;font-weight:600;color:var(--o-text)}
 .proddays .dscr{margin-top:2px}.proddays .dscr-l{margin-top:2px;font-size:.8rem}
 .prodblk.estd .dscr::before{border-style:dashed}
+
+/* ===== Phase 1 design : signes Recharge, liste continue, anneau de charge ===== */
+:root{--mk-a:var(--orange,#FF782E);--mk-b:#DCDDFB;--mk-c:var(--ink,#1C1A22)}
+.vox{width:20px;height:20px;display:block}.sx-mic .vox{width:28px;height:28px;margin:auto}
+.mk{display:inline-grid;place-items:center;width:40px;height:40px;flex:0 0 auto}.mk svg{width:100%;height:100%;display:block}
+.fc .mk{margin-bottom:6px}.fc span.mk{font-size:0}
+.gf .mk{grid-row:1/3;width:40px;height:40px;background:none;border-radius:0}
+.gf.hot{--mk-b:rgba(255,255,255,.22);--mk-c:#fff}
+.heat{width:15px;height:15px;vertical-align:-3px;margin-right:5px;flex:0 0 auto}
+.heat.lv-w{color:var(--orange)}.heat.lv-t{color:#F39A6A}.heat.lv-f,.heat.lv-r{color:#7B83F6}
+.itier{display:inline-flex;align-items:center;background:none!important;padding:0!important;color:var(--ink-2)!important;letter-spacing:.08em}
+.dblk{flex:0 0 auto;width:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px 0 7px;border-radius:14px;background:var(--ink);color:#fff;line-height:1}
+.dblk b{font-size:1.25rem;font-weight:800;letter-spacing:-.04em}.dblk small{font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#FFB284;margin-top:3px}
+/* en-tête : anneau de charge */
+.coach .cbig{align-items:center;gap:16px}
+.cring{position:relative;width:96px;height:96px;flex:0 0 auto}.cring svg{width:100%;height:100%}
+.cring .trk{fill:none;stroke:rgba(255,255,255,.1);stroke-width:7}
+.cring .arc{fill:none;stroke:url(#gO);stroke:var(--orange);stroke-width:7;stroke-linecap:round;filter:drop-shadow(0 0 6px rgba(255,120,46,.55));transition:stroke-dasharray .6s}
+.cring b{position:absolute;inset:0;display:grid;place-items:center;font-size:2.6rem!important;line-height:1!important;padding:0!important}
+.coach .hl-count{display:flex;gap:18px;margin-top:16px;font-weight:600;color:#9EA3B5!important;opacity:1}.coach .hl-count b{color:#fff;font-weight:800}
+.coach .cpill{font-variant-numeric:tabular-nums}
+/* liste continue */
+.plist{margin-top:12px;background:var(--surface);border-radius:28px;box-shadow:var(--shadow);border:1px solid var(--line);overflow:hidden}
+.plist>.card{margin:0;border:0;border-radius:0;box-shadow:none;background:none;position:relative}
+.plist>.card+.card::before{content:"";position:absolute;top:0;left:78px;right:0;height:1px;background:var(--line)}
+.plist.idea>.card+.card::before{left:18px}
+.plist .rcard.lite:not(.exp) .rhead{display:grid;grid-template-columns:48px 1fr;gap:14px;align-items:start;padding-right:62px}
+.plist .rcard.lite:not(.exp) .rhead .ring,.plist .rcard.lite:not(.exp) .rhead .avatar{display:grid!important}
+.plist .rcard.lite:not(.exp) .rhead>.ring,.plist .rcard.lite:not(.exp) .rhead>.avatar{grid-column:1;grid-row:1}
+.plist .rcard.lite:not(.exp) .rhead>.who{grid-column:2;grid-row:1;min-width:0;align-self:center}
+.plist .rcard.lite:not(.exp) .rhead .name{font-size:1.08rem;line-height:1.2}
+.plist .rcard.lite:not(.exp) .rhead .tag{vertical-align:2px;margin-left:6px}
+.plist .rcard.lite:not(.exp) .rsn,.plist .rcard.lite:not(.exp) .rwhy{margin-left:62px;padding-right:62px}
+.plist .rcard.lite:not(.exp) .rhead{grid-template-rows:auto}
+.plist .ring,.plist .ring svg{width:48px!important;height:48px!important}
+.plist .ring .v b{font-size:.95rem}.plist .ring .v small{font-size:.55rem}
+.plist .avatar.blue{width:48px!important;height:48px!important;background:none!important;border:2.5px dashed #A9AEF8;color:#5B63D6!important;font-size:.85rem!important}
+.plist .cmore{top:12px;right:12px;width:32px;height:32px;background:none;color:var(--ink-3);font-size:1.15rem}
+.plist .rcard.lite:not(.exp) .send{position:absolute;right:14px;bottom:16px;margin:0!important;width:48px;height:48px;min-height:0;padding:0;border-radius:50%;justify-content:center;box-shadow:0 8px 18px -8px rgba(28,26,34,.6)}
+.plist .rcard.lite:not(.exp) .send .sl{display:none}
+.plist .rcard.lite:not(.exp) .send svg{width:22px;height:22px;margin:0}
+.plist .rcard.lite:not(.exp) .more{display:block}
+.plist .icard{padding:18px}
+.pnote2{font-style:italic}
+.avatar.pv{background:var(--surface)!important;color:var(--ink)!important;font-size:.85rem!important;font-weight:800;border:3px solid #A9AEF8;box-sizing:border-box}
+.avatar.pv.k-reco{border-color:transparent;background:linear-gradient(var(--surface),var(--surface)) padding-box,conic-gradient(var(--orange) 0 50%,#7B83F6 50% 100%) border-box!important}
+.avatar.pv.k-news,.avatar.pv.k-promo,.avatar.pv.k-gift,.avatar.pv.k-hint{border-color:var(--orange)}
+.avatar.pv.k-wake{border-style:dashed;border-color:var(--line-2);color:var(--ink-3)!important}
+.plist .rcard.lite:not(.exp) .rsn,.plist .rcard.lite:not(.exp) .rwhy{padding-right:74px}
 </style>
 </head>
 <body>
@@ -672,7 +721,7 @@ nav.tabs .tab.on svg{background:var(--navy);color:#fff;box-shadow:0 8px 18px -8p
 </defs></svg>
 <header class="topbar" id="topbar"><div class="in">
   <div class="brand"><svg class="logo-svg" viewBox="10 40 620 125" style="height:26px;width:auto" role="img" aria-label="Recharge"><g class="rmark"><defs><linearGradient id="rgappindexhtml1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F59A4A"/><stop offset=".5" stop-color="#DB6578"/><stop offset="1" stop-color="#7C7CF2"/></linearGradient></defs><path d="M122.4 66.9A44 44 0 1 1 81.4 65.1" fill="none" stroke="url(#rgappindexhtml1)" stroke-width="17"/><path d="M66.5 47.5L101 52.5L80.5 80Z" fill="#7B83F6" stroke="#7B83F6" stroke-width="3" stroke-linejoin="round"/><path d="M109 76L84 111H99L91 136L118 99H103Z" fill="#111111" stroke="#111111" stroke-width="3" stroke-linejoin="round"/></g><path d="M214.5 135.0H230.625V109.640625C230.625 102.609375 234.609375 98.578125 240.375 98.578125C242.71875 98.578125 245.578125 98.671875 246.75 98.71875V85.40625C245.4375 85.359375 244.078125 85.3125 242.34375 85.3125C235.734375 85.3125 232.03125 87.9375 230.25 94.21875H230.109375V85.5H214.5ZM272.83875 136.125C285.354375 136.125 295.33875 129.140625 297.166875 119.15625H282.6825C281.510625 122.4375 278.135625 124.5 273.40125 124.5C267.02625 124.5 263.27625 120.515625 263.08875 114.234375H297.541875V109.875C297.541875 94.875 287.27625 84.375 272.416875 84.375C257.745 84.375 247.33875 95.15625 247.33875 110.25C247.33875 125.34375 257.65125 136.125 272.83875 136.125ZM263.1825 104.578125C263.885625 99.375 267.40125 96.28125 272.83875 96.28125C278.229375 96.28125 281.791875 99.375 282.495 104.578125ZM324.943125 136.125C338.95875 136.125 348.89625 127.5 349.224375 115.40625H333.615C333.005625 120.234375 330.0525 123.328125 325.27125 123.328125C319.27125 123.328125 315.70875 118.359375 315.70875 110.25C315.70875 102.140625 319.224375 97.171875 325.27125 97.171875C330.0525 97.171875 333.14625 100.21875 333.661875 104.953125H349.224375C348.52125 92.8125 338.724375 84.375 324.943125 84.375C309.615 84.375 299.349375 94.875 299.349375 110.25C299.349375 125.671875 309.615 136.125 324.943125 136.125ZM369.219375 108.09375C369.219375 101.34375 372.500625 98.203125 377.61 98.203125C382.719375 98.203125 385.6725 101.390625 385.6725 107.25V135.0H401.7975V103.875C401.7975 91.6875 395.51625 84.421875 384.781875 84.421875C377.51625 84.421875 372.5475 87.703125 369.219375 93.140625V65.15625H353.094375V135.0H369.219375ZM423.058125 135.84375C430.0425 135.84375 434.495625 133.40625 437.44875 128.0625H437.63625V135.0H453.38625V101.671875C453.38625 90.75 445.464375 84.421875 431.07375 84.421875C416.73 84.421875 408.620625 90.796875 407.9175 101.53125H422.9175C423.245625 98.15625 426.01125 96.0 430.51125 96.0C434.776875 96.0 437.401875 98.015625 437.401875 100.96875V101.203125C437.401875 104.15625 434.1675 104.859375 425.308125 105.609375C414.76125 106.453125 406.089375 110.0625 406.089375 121.171875C406.089375 131.015625 413.1675 135.84375 423.058125 135.84375ZM427.98 125.296875C424.0425 125.296875 421.370625 123.46875 421.370625 120.421875C421.370625 117.1875 424.464375 115.40625 428.776875 114.75C432.76125 114.09375 435.808125 113.484375 437.5425 112.6875V117.1875C437.5425 122.0625 433.370625 125.296875 427.98 125.296875ZM459.50625 135.0H475.63125V109.640625C475.63125 102.609375 479.615625 98.578125 485.38125 98.578125C487.725 98.578125 490.584375 98.671875 491.75625 98.71875V85.40625C490.44375 85.359375 489.084375 85.3125 487.35 85.3125C480.740625 85.3125 477.0375 87.9375 475.25625 94.21875H475.115625V85.5H459.50625ZM518.829375 155.25C534.298125 155.25 544.048125 148.40625 544.048125 132.28125V85.5H528.016875V92.4375H527.97C524.87625 87.234375 520.048125 84.421875 513.62625 84.421875C501.06375 84.421875 492.345 95.015625 492.345 109.734375C492.345 124.265625 500.7825 134.671875 513.766875 134.671875C520.235625 134.671875 525.345 132.09375 527.97 126.234375H528.016875V133.875C528.016875 140.4375 524.829375 143.8125 518.829375 143.8125C514.18875 143.8125 511.048125 141.9375 510.204375 138.84375H494.7825C496.2825 148.359375 503.595 155.25 518.829375 155.25ZM518.266875 122.015625C512.360625 122.015625 508.704375 117.328125 508.704375 109.453125C508.704375 101.625 512.360625 96.9375 518.266875 96.9375C524.360625 96.9375 528.5325 101.859375 528.5325 109.453125C528.5325 117.09375 524.360625 122.015625 518.266875 122.015625ZM573.605625 136.125C586.12125 136.125 596.105625 129.140625 597.93375 119.15625H583.449375C582.2775 122.4375 578.9025 124.5 574.168125 124.5C567.793125 124.5 564.043125 120.515625 563.855625 114.234375H598.30875V109.875C598.30875 94.875 588.043125 84.375 573.18375 84.375C558.511875 84.375 548.105625 95.15625 548.105625 110.25C548.105625 125.34375 558.418125 136.125 573.605625 136.125ZM563.949375 104.578125C564.6525 99.375 568.168125 96.28125 573.605625 96.28125C578.99625 96.28125 582.55875 99.375 583.261875 104.578125Z" fill="#111111"/><path d="M614.793125 135.890625C619.668125 135.890625 623.605625 131.953125 623.605625 127.03125C623.605625 122.15625 619.668125 118.21875 614.793125 118.21875C609.918125 118.21875 605.980625 122.15625 605.980625 127.03125C605.980625 131.953125 609.918125 135.890625 614.793125 135.890625Z" fill="#7B83F6"/></svg></div>
-  <div style="display:flex;gap:8px;align-items:center"><button class="micbtn" data-act="voice" aria-label="Saisir une vente en une phrase">🎤<span>Dicter</span></button><div class="pill" id="topMeta"></div></div>
+  <div style="display:flex;gap:8px;align-items:center"><button class="micbtn" data-act="voice" aria-label="Saisir une vente en une phrase"><svg class="vox" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="9" width="3" height="6" rx="1.5" fill="#7B83F6"/><rect x="8" y="5" width="3" height="14" rx="1.5" fill="var(--orange)"/><rect x="13" y="7.5" width="3" height="9" rx="1.5" fill="var(--orange)"/><rect x="18" y="10" width="3" height="4" rx="1.5" fill="#7B83F6"/></svg><span>Dicter</span></button><div class="pill" id="topMeta"></div></div>
 </div></header>
 
 <main id="app"></main>
@@ -1756,6 +1805,25 @@ function exampleNotice() {
   return S.clients.some(c => c.example) || S.prospects.some(x => x.example)
     ? `<div class="notice"><span>Les fiches <span class="tag" style="margin:0">Exemple</span> servent à découvrir l'appli.</span><button class="btn sm primary" data-act="clearExamples">Les effacer</button></div>` : "";
 }
+/* Signes Recharge : formes pleines en deux tons (orange + lavande), dérivées de l'anneau de charge du logo */
+const MK = {
+  list: `<rect x="6" y="4" width="20" height="24" rx="6" fill="var(--mk-b)"/><circle cx="11.5" cy="11" r="2" fill="var(--mk-a)"/><rect x="15.5" y="10" width="6.5" height="2" rx="1" fill="var(--mk-c)"/><circle cx="11.5" cy="16.5" r="2" fill="var(--mk-a)"/><rect x="15.5" y="15.5" width="6.5" height="2" rx="1" fill="var(--mk-c)"/><circle cx="11.5" cy="22" r="2" fill="var(--mk-a)" opacity=".4"/><rect x="15.5" y="21" width="4.5" height="2" rx="1" fill="var(--mk-c)" opacity=".4"/>`,
+  hash: `<rect x="5" y="10.5" width="22" height="3.6" rx="1.8" fill="var(--mk-b)"/><rect x="4" y="18" width="22" height="3.6" rx="1.8" fill="var(--mk-b)"/><rect x="11" y="4" width="3.6" height="24" rx="1.8" transform="rotate(14 12.8 16)" fill="var(--mk-a)"/><rect x="18.4" y="4" width="3.6" height="24" rx="1.8" transform="rotate(14 20.2 16)" fill="var(--mk-c)"/>`,
+  pin: `<path d="M16 29.5s-9.5-8.4-9.5-15.6a9.5 9.5 0 0 1 19 0c0 7.2-9.5 15.6-9.5 15.6z" fill="var(--mk-b)"/><circle cx="16" cy="14" r="4.4" fill="var(--mk-a)"/><circle cx="16" cy="14" r="1.6" fill="var(--mk-c)"/>`,
+  venn: `<circle cx="12" cy="16" r="8.5" fill="var(--mk-b)"/><circle cx="20" cy="16" r="8.5" fill="var(--mk-a)" opacity=".92"/><path d="M16 8.6a8.5 8.5 0 0 1 0 14.8 8.5 8.5 0 0 1 0-14.8z" fill="var(--mk-c)"/>`,
+  plus: `<circle cx="16" cy="16" r="11" fill="none" stroke="var(--mk-b)" stroke-width="3.4"/><path d="M16 5a11 11 0 0 1 11 11" fill="none" stroke="var(--mk-a)" stroke-width="3.4" stroke-linecap="round"/><path d="M16 11.5v9M11.5 16h9" stroke="var(--mk-c)" stroke-width="2.6" stroke-linecap="round"/>`,
+  frame: `<rect x="4" y="7.5" width="24" height="18" rx="5.5" fill="var(--mk-b)"/><circle cx="16" cy="16.5" r="5.2" fill="none" stroke="var(--mk-a)" stroke-width="2.8"/><rect x="20.5" y="10.5" width="3.6" height="2.4" rx="1.2" fill="var(--mk-c)"/>`,
+  wave: `<path d="M8 11.5a12 12 0 0 1 12.5 12.5" fill="none" stroke="var(--mk-a)" stroke-width="3.4" stroke-linecap="round"/><path d="M8 4.5a19 19 0 0 1 19.5 19.5" fill="none" stroke="var(--mk-b)" stroke-width="3.4" stroke-linecap="round"/><circle cx="9.5" cy="22.5" r="3.6" fill="var(--mk-c)"/>`,
+  charge: `<circle cx="16" cy="16" r="11.5" fill="none" stroke="var(--mk-b)" stroke-width="3.4"/><path d="M16 4.5A11.5 11.5 0 1 1 4.5 16" fill="none" stroke="var(--mk-a)" stroke-width="3.4" stroke-linecap="round"/><path d="M17.2 10.5l-4.4 6.2h3.6l-1.6 5 4.6-6.4h-3.6z" fill="var(--mk-c)"/>`,
+};
+const mk = (k, cls = "") => `<span class="mk ${cls}" aria-hidden="true"><svg viewBox="0 0 32 32">${MK[k] || ""}</svg></span>`;
+/* Température d'un marché : un anneau de charge plus ou moins plein (chaud = plein) */
+const heat = k => { const f = { w: 1, t: .62, f: .3, r: .3 }[k] || .3, c = 2 * Math.PI * 9; return `<svg class="heat lv-${k}" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="var(--line-2)" stroke-width="3.2"/><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-dasharray="${(c * f).toFixed(1)} ${c.toFixed(1)}" transform="rotate(-90 12 12)"/></svg>`; };
+/* Date du conseil : un petit bloc typographique au lieu d'un emoji calendrier */
+const dayBlock = () => { const d = parse(today()); return `<span class="dblk"><b class="num">${d.getDate()}</b><small>${d.toLocaleDateString("fr-FR", { month: "short" }).replace(".", "")}</small></span>`; };
+/* Pastille d'une personne : ses initiales dans un anneau dont la couleur dit le type d'action (suivi, recommandation, promo…) */
+const pAv = (name, k) => `<span class="avatar pv k-${k}" style="width:52px;height:52px">${esc(initials(name || "?"))}</span>`;
+const VOXSVG = `<svg class="vox" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="9" width="3" height="6" rx="1.5" fill="#7B83F6"/><rect x="8" y="5" width="3" height="14" rx="1.5" fill="var(--orange)"/><rect x="13" y="7.5" width="3" height="9" rx="1.5" fill="var(--orange)"/><rect x="18" y="10" width="3" height="4" rx="1.5" fill="#7B83F6"/></svg>`;
 const exTag = c => c && c.example ? `<span class="tag">Exemple</span>` : "";
 const section = (title, count) => `<div class="section"><h2>${title}</h2>${count != null ? `<span class="pill num">${count}</span>` : ""}</div>`;
 
@@ -1766,7 +1834,7 @@ function tipCard() {
 }
 function tipCardInner() {
   const [e, t, d, act, lab] = tipOfDay();
-  return `<div class="tip"><span>${e}</span><p><b><small class="tipdate">${longDate()} · le conseil du jour</small>${t}</b>${d}<span class="tipbtns">${tipBtn(act, lab)}<button class="btn soft sm tipgo" data-act="goto" data-t="dev" data-c="">Plus d'idées →</button></span></p><button class="x" data-act="tipHide" aria-label="Masquer le conseil">${I.x}</button></div>`;
+  return `<div class="tip">${dayBlock()}<p><b><small class="tipdate">${longDate()} · le conseil du jour</small>${t}</b>${d}<span class="tipbtns">${tipBtn(act, lab)}<button class="btn soft sm tipgo" data-act="goto" data-t="dev" data-c="">Plus d'idées →</button></span></p><button class="x" data-act="tipHide" aria-label="Masquer le conseil">${I.x}</button></div>`;
 }
 const MAX_TODAY = 10;
 const SIMPLE_HOME = true;   // accueil épuré : compteurs et montant gagné cachés (toujours dans Résultats et le coach)
@@ -1814,10 +1882,10 @@ function dayPlan(full) {
 }
 function cheerOnce(left, done) { if (!left && done && S.day && !S.day.cheered) { S.day.cheered = true; save(); setTimeout(() => toast("🎉 Plan du jour terminé ! Bravo, vos clients vont adorer."), 400); } }
 function planCheer(pct, left) {
-  if (!left && pct > 0) return "Plan terminé, bravo ! 🎉 Vous avez pris soin de vos clients aujourd'hui.";
-  if (pct >= 75) return "Presque fini, encore un petit effort 💪";
-  if (pct >= 50) return "Plus de la moitié, continuez comme ça 🌟";
-  if (pct > 0) return "Beau départ ! ☕";
+  if (!left && pct > 0) return "Plan terminé, bravo ! Vous avez pris soin de vos clients aujourd'hui.";
+  if (pct >= 75) return "Presque fini, encore un petit effort.";
+  if (pct >= 50) return "Plus de la moitié, continuez comme ça.";
+  if (pct > 0) return "Beau départ !";
   return "C'est parti ! Commencez par la première action.";
 }
 /* ---------- Trouver de nouveaux clients : 4 outils simples ----------
@@ -1837,10 +1905,10 @@ function cityTags(city) {
 const NAME_HINTS = ["👪 Famille", "💛 Amis", "💼 Collègues et anciens collègues", "🏡 Voisins", "🎒 Parents de l'école", "⚽ Sport, associations", "💇 Coiffeuse, esthéticienne, commerçants", "📱 Contacts du téléphone et réseaux"];
 function findBlock() {
   return section("Trouver de nouveaux clients") + `<div class="fgrid">
-    <button class="fc" data-act="findOpen" data-w="names"><span>📝</span><b>Ma liste de noms</b><small>Les gens que vous connaissez déjà</small></button>
-    <button class="fc" data-act="findOpen" data-w="tags"><span>#️⃣</span><b>Hashtags de ma ville</b><small>Qui publie près de chez vous</small></button>
-    <button class="fc" data-act="findOpen" data-w="places"><span>🗺️</span><b>Lieux pour un événement</b><small>Atelier, stand, marché</small></button>
-    <button class="fc" data-act="findOpen" data-w="accounts"><span>👥</span><b>Comptes à suivre</b><small>Des communautés locales</small></button></div>`;
+    <button class="fc" data-act="findOpen" data-w="names">${mk("list")}<b>Ma liste de noms</b><small>Les gens que vous connaissez déjà</small></button>
+    <button class="fc" data-act="findOpen" data-w="tags">${mk("hash")}<b>Hashtags de ma ville</b><small>Qui publie près de chez vous</small></button>
+    <button class="fc" data-act="findOpen" data-w="places">${mk("pin")}<b>Lieux pour un événement</b><small>Atelier, stand, marché</small></button>
+    <button class="fc" data-act="findOpen" data-w="accounts">${mk("venn")}<b>Comptes à suivre</b><small>Des communautés locales</small></button></div>`;
 }
 function openFind(w) {
   const city = myCity(), cityField = `<label class="field"><span>Votre ville</span><input class="input" id="findCity" value="${esc(city)}" placeholder="ex. : Lyon"></label>`;
@@ -2021,20 +2089,20 @@ function myConv(m) {
 const ideaLevel = () => (S.ideas && S.ideas.level) || "w";
 function ideaLevelBar(mins) {
   const lv = ideaLevel(), m = MSG_MIN();
-  return `<div class="ilevel"><div class="ilh"><b>💡 Trouver de nouveaux clients</b><small>1 message ≈ ${m} min${mins ? ` · environ ${Math.max(1, Math.floor(mins / m))} messages dans votre temps` : ""}</small></div>
-    <div class="iseg">${Object.entries(MARKETS).map(([k, [e, l, , c]]) => `<button class="${lv === k ? "on" : ""} lv-${k}" data-act="ideaLevel" data-l="${k}"><span>${e} ${l.replace("Marché ", "")}</span><small>${myConv(k) ? "vous : " + myConv(k).short : c.replace("≈ 1 vente pour ", "1 vente / ").replace(" personnes et +", " pers. +").replace(" personnes", " pers.")}</small></button>`).join("")}</div></div>`;
+  return `<div class="ilevel"><div class="ilh"><b>Trouver de nouveaux clients</b><small>1 message ≈ ${m} min${mins ? ` · environ ${Math.max(1, Math.floor(mins / m))} messages dans votre temps` : ""}</small></div>
+    <div class="iseg">${Object.entries(MARKETS).map(([k, [e, l, , c]]) => `<button class="${lv === k ? "on" : ""} lv-${k}" data-act="ideaLevel" data-l="${k}"><span>${heat(k)} ${l.replace("Marché ", "")}</span><small>${myConv(k) ? "vous : " + myConv(k).short : c.replace("≈ 1 vente pour ", "1 vente / ").replace(" personnes et +", " pers. +").replace(" personnes", " pers.")}</small></button>`).join("")}</div></div>`;
 }
 function ideaCard(it) {
   const x = it.idea, [lb, cls] = TIER_LB[x.tier];
-  const go = x.act === "names" ? `<button class="btn primary" data-act="findOpen" data-w="names">📝 Ma liste de noms</button>`
-    : x.act === "prospects" ? `<button class="btn primary" data-act="goto" data-t="clients" data-c="prospects">👋 Mes prospects</button>`
+  const go = x.act === "names" ? `<button class="btn primary" data-act="findOpen" data-w="names">Ma liste de noms</button>`
+    : x.act === "prospects" ? `<button class="btn primary" data-act="goto" data-t="clients" data-c="prospects">Mes prospects</button>`
     : x.url ? `<a class="btn primary" href="${esc(x.url)}" target="_blank" rel="noopener">Ouvrir ${x.tier === "r" ? "la carte" : "la recherche"} ↗</a>` : "";
   return `<article class="card icard" data-k="${esc(it.k)}">
-    <div class="ihead"><span class="itier ${cls}">${lb}</span><span class="idur">⏱ ${x.d} min</span></div>
-    <b class="ititle">${x.e} ${esc(x.title)}</b><p class="ihow">${esc(x.how)}</p>
+    <div class="ihead"><span class="itier ${cls}">${heat(x.tier)}${lb}</span><span class="idur">${x.d} min</span></div>
+    <b class="ititle">${esc(x.title)}</b><p class="ihow">${esc(x.how)}</p>
     ${x.act === "prospects" ? `<p class="hint">≈ ${MSG_MIN()} min par message</p>` : ""}
     ${!myCity() && x.tier !== "w" && x.tier !== "t" ? `<p class="hint">Indiquez votre ville dans le Menu pour des recherches autour de chez vous.</p>` : ""}
-    <div class="iacts">${go}<button class="btn soft" data-act="ideaDone" data-id="${esc(x.id)}">✓ Fait</button></div>
+    <div class="iacts">${go}<button class="btn soft" data-act="ideaDone" data-id="${esc(x.id)}">${I.check} Fait</button></div>
     <div class="alt links2"><button data-act="ideaSkip" data-id="${esc(x.id)}">Une autre idée</button> · <button data-act="ideaNo" data-id="${esc(x.id)}">Pas pour moi</button></div></article>`;
 }
 
@@ -2042,21 +2110,21 @@ function ideaCard(it) {
 function goFurther(extra) {
   const realC = S.clients.filter(c => !c.example), anyData = S.clients.length || S.prospects.length;
   if (!anyData) return section("Pour bien démarrer") + `<div class="gofar">
-    <button class="gf" data-act="newSale"><span>🛍️</span><b>Ajouter mes clients</b><small>Une vente, et Recharge s'occupe des relances</small></button>
-    <button class="gf" data-act="openImport"><span>📸</span><b>Importer depuis mon back-office</b><small>Une capture d'écran suffit</small></button>
-    <button class="gf" data-act="newProspect"><span>👋</span><b>Lancer ma prospection</b><small>Noter une personne rencontrée</small></button></div>`;
+    <button class="gf" data-act="newSale">${mk("plus")}<b>Ajouter mes clients</b><small>Une vente, et Recharge s'occupe des relances</small></button>
+    <button class="gf" data-act="openImport">${mk("frame")}<b>Importer depuis mon back-office</b><small>Une capture d'écran suffit</small></button>
+    <button class="gf" data-act="newProspect">${mk("venn")}<b>Lancer ma prospection</b><small>Noter une personne rencontrée</small></button></div>`;
   const t = today();
   const pr = S.prospects.filter(x => (x.status === "open" || x.status === "lost") && !x.noContact && lastTouch(x.id) !== t)
     .sort((a, b) => (lastTouch(a.id) || a.createdAt || "").localeCompare(lastTouch(b.id) || b.createdAt || ""))[0];
   const rc = askSuggestions()[0] || S.clients.filter(c => !c.noContact && !unhappy(c) && ordersOf(c) > 0 && !lastAsk(c.id)).sort((a, b) => ordersOf(b) - ordersOf(a))[0];
   const [te, tt] = tipOfDay();
   let h = section("Aller plus loin") + `<div class="gofar">`;
-  if (extra.length) h += `<button class="gf hot" data-act="planMore"><span>⏱️</span><b>Encore ${plural(extra.length, "action possible", "actions possibles")}</b><small>Ajouter 15 minutes à mon plan</small></button>`;
-  h += pr ? `<button class="gf" data-act="genOpen" data-t="${pr.contacts ? "follow" : "contact"}" data-id="${pr.id}"><span>👋</span><b>Contacter ${esc(firstName(pr.name))}</b><small>${pr.contacts ? "Relancer en douceur ce prospect" : "Premier message à ce prospect"}</small></button>`
-    : `<button class="gf" data-act="newProspect"><span>👋</span><b>Trouver un nouveau prospect</b><small>Noter une personne de votre entourage</small></button>`;
-  if (rc) h += `<button class="gf" data-act="genOpen" data-t="reco" data-id="${rc.id}"><span>🤝</span><b>Demander une recommandation à ${esc(firstName(rc.name))}</b><small>${ordersOf(rc) > 1 ? plural(ordersOf(rc), "commande", "commandes") + " : une relation de confiance" : "Quelqu'un qui vous connaît déjà"}</small></button>`;
-  h += `<button class="gf" data-act="newPromo"><span>📣</span><b>Préparer une promo</b><small>Le conseil du jour : ${te} ${esc(tt)}</small></button>`;
-  if (!realC.length) h += `<button class="gf" data-act="newSale"><span>🛍️</span><b>Ajouter mes vrais clients</b><small>Pour un plan fait pour vous</small></button>`;
+  if (extra.length) h += `<button class="gf hot" data-act="planMore">${mk("charge")}<b>Encore ${plural(extra.length, "action possible", "actions possibles")}</b><small>Ajouter 15 minutes à mon plan</small></button>`;
+  h += pr ? `<button class="gf" data-act="genOpen" data-t="${pr.contacts ? "follow" : "contact"}" data-id="${pr.id}">${mk("wave")}<b>Contacter ${esc(firstName(pr.name))}</b><small>${pr.contacts ? "Relancer en douceur ce prospect" : "Premier message à ce prospect"}</small></button>`
+    : `<button class="gf" data-act="newProspect">${mk("venn")}<b>Trouver un nouveau prospect</b><small>Noter une personne de votre entourage</small></button>`;
+  if (rc) h += `<button class="gf" data-act="genOpen" data-t="reco" data-id="${rc.id}">${mk("venn")}<b>Demander une recommandation à ${esc(firstName(rc.name))}</b><small>${ordersOf(rc) > 1 ? plural(ordersOf(rc), "commande", "commandes") + " : une relation de confiance" : "Quelqu'un qui vous connaît déjà"}</small></button>`;
+  h += `<button class="gf" data-act="newPromo">${mk("wave")}<b>Préparer une promo</b><small>Le conseil du jour : ${esc(tt)}</small></button>`;
+  if (!realC.length) h += `<button class="gf" data-act="newSale">${mk("plus")}<b>Ajouter mes vrais clients</b><small>Pour un plan fait pour vous</small></button>`;
   return h + `</div>`;
 }
   // jamais plus de 10 contacts par jour : les autres attendent demain
@@ -2070,15 +2138,16 @@ function viewToday() {
   const st = stats("month");
   const hr = new Date().getHours(), hi = hr >= 18 ? "Bonsoir" : "Bonjour", who = myName();
   const left = plan.todo.length, pct = plan.planned ? Math.min(100, Math.round(plan.used / Math.max(plan.planned, 1) * 100)) : 0;
-  const line = left ? `Votre plan pour ${fmtMin(S.day.min)} : ${plural(left, "action", "actions")}, environ ${plan.planned - plan.used} min ☕`
-    : plan.done.length ? "Plan terminé pour aujourd'hui. Bravo ! 🎉" : full.length ? "Rien d'urgent dans votre plan. Allez plus loin ci-dessous 🌿" : "Rien d'urgent aujourd'hui : c'est le moment de développer 🌿";
+  const line = left ? `Votre plan pour ${fmtMin(S.day.min)} : ${plural(left, "action", "actions")}, environ ${plan.planned - plan.used} min`
+    : plan.done.length ? "Plan terminé pour aujourd'hui. Bravo !" : full.length ? "Rien d'urgent dans votre plan. Allez plus loin ci-dessous." : "Rien d'urgent aujourd'hui : c'est le moment de développer.";
+  const donePct = total ? plan.done.length / total : 0, RC = 2 * Math.PI * 42;
   const dn = d => full.filter(x => x.type !== "idea" && coachMeta(x).dom === d).length;
-  let h = `<section class="coach hello"><div class="ctop"><span class="chi">${hi}${who ? " " + esc(who) : ""} ${hr >= 18 ? "🌙" : "☀️"}</span><button class="cpill" data-act="planAsk">⏱ ${fmtMin(S.day.min)} · changer</button></div>
-    <div class="cbig"><b>${left || (plan.done.length ? "✓" : "☀︎")}</b><span>${left > 1 ? "actions dans<br>votre plan du jour" : left ? "action dans<br>votre plan du jour" : plan.done.length ? "plan du jour<br>terminé" : "rien d'urgent<br>aujourd'hui"}</span></div>
+  let h = `<section class="coach hello"><div class="ctop"><span class="chi">${hi}${who ? " " + esc(who) : ""}</span><button class="cpill" data-act="planAsk">${fmtMin(S.day.min)} · changer</button></div>
+    <div class="cbig"><div class="cring"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="42" class="trk"/><circle cx="50" cy="50" r="42" class="arc" stroke-dasharray="${(RC * Math.max(donePct, .001)).toFixed(1)} ${RC.toFixed(1)}" transform="rotate(-90 50 50)"/></svg><b class="num">${left || (plan.done.length ? "✓" : "0")}</b></div><span>${left > 1 ? "actions dans<br>votre plan du jour" : left ? "action dans<br>votre plan du jour" : plan.done.length ? "plan du jour<br>terminé" : "rien d'urgent<br>aujourd'hui"}</span></div>
     <p class="cline hl-line">${line}</p>
-    ${(() => { const w = worth(today().slice(0, 8) + "01"); return w.total > 0 && !SIMPLE_HOME ? `<button class="cworth" data-act="goto" data-t="results" data-c="">💸 Ce mois-ci, le coach vous a rapporté <b>${euro(w.total)}</b> ›</button>` : ""; })()}
-    ${total ? `<div class="hl-bar"><span style="width:${pct}%"></span></div><div class="hl-count">⏱ ${plan.used} / ${plan.planned} min · ✅ ${plan.done.length} / ${total} action${total > 1 ? "s" : ""}</div><p class="pcheer">${planCheer(pct, left)}</p>` : ""}</section>`;
-  if (!S.day.asked) h += `<div class="askt"><b>⏱ Combien de temps aujourd'hui ?</b>${timeChips(S.day.min, "planTime")}</div>`;
+    ${(() => { const w = worth(today().slice(0, 8) + "01"); return w.total > 0 && !SIMPLE_HOME ? `<button class="cworth" data-act="goto" data-t="results" data-c="">Ce mois-ci, le coach vous a rapporté <b>${euro(w.total)}</b> ›</button>` : ""; })()}
+    ${total ? `<div class="hl-count"><span><b class="num">${plan.done.length}</b> / ${total} fait${plan.done.length > 1 ? "s" : ""}</span><span><b class="num">${plan.used}</b> / ${plan.planned} min</span></div><p class="pcheer">${planCheer(pct, left)}</p>` : ""}</section>`;
+  if (!S.day.asked) h += `<div class="askt"><b>Combien de temps aujourd'hui ?</b>${timeChips(S.day.min, "planTime")}</div>`;
   h += durTipCard();
   if (!SIMPLE_HOME) h += `<div class="dtiles">${Object.entries(DOMAINS).map(([d, [ic, lb]]) => { const n = dn(d); return `<button class="dtile ${n ? "" : "zero"} ${coachF === d ? "on" : ""}" data-act="coachF" data-d="${d}"><span class="di">${ic}</span><b>${n}</b><small>${lb}</small></button>`; }).join("")}</div>`;
   // conseil du jour, rappel de sauvegarde et fiches d'exemple : sous le plan (voir plus bas)
@@ -2089,7 +2158,13 @@ function viewToday() {
   if (coachF) h += `<p class="hint" style="margin-top:14px">Filtre : <b>${DOMAINS[coachF][1]}</b> · <button class="linkbtn" style="display:inline;margin:0" data-act="coachF" data-d="${coachF}">tout afficher</button></p>`;
   if (list.length) h += section(coachF ? DOMAINS[coachF][1] : "Mon plan du jour", list.length);
   let lvShown = false; const ideaMin = list.filter(x => x.type === "idea").reduce((n, x) => n + x.idea.d, 0);
-  for (const it of list) { if (it.type === "idea" && !lvShown) { h += ideaLevelBar(ideaMin); lvShown = true; } h += it.type === "idea" ? ideaCard(it) : todayCard(it); }
+  let grp = null; const flush = () => { if (grp) { h += `</div>`; grp = null; } };
+  for (const it of list) {
+    if (it.type === "idea" && !lvShown) { flush(); h += ideaLevelBar(ideaMin); lvShown = true; }
+    const g = it.type === "idea" ? "idea" : "todo"; if (grp !== g) { flush(); h += `<div class="plist ${g}">`; grp = g; }
+    h += it.type === "idea" ? ideaCard(it) : todayCard(it);
+  }
+  flush();
   if (!lvShown && S.settings.ideas !== false && !coachF && left === 0) h += ideaLevelBar(0) + `<p class="hint">Plus d'idée dans ce marché pour aujourd'hui : ajoutez du temps, ou revenez demain.</p>`;
   if (!coachF && !left) h += goFurther(plan.extra);
   if (SIMPLE_HOME) { h += tipCard(); h += backupReminder(); }
@@ -2127,8 +2202,8 @@ function cardShell({ k, head, extra = "", msgId, msg, vary, id, waAct, copyAct, 
       <div class="bubble"><div class="top"><span class="small">Votre message</span><span class="tbtns">${waNumber(phone) ? `<button class="vary" data-act="${copyAct}" data-id="${id}">${I.copy} Copier</button>` : ""}<button class="vary" data-act="${vary}" data-id="${id}">${I.redo} Autre</button></span></div>
         <textarea class="msg" id="${msgId}" rows="4" aria-label="Message">${esc(msg)}</textarea></div>
       ${waNumber(phone)
-        ? `<a class="btn primary send" href="#" target="_blank" rel="noopener" data-act="${waAct}" data-id="${id}">${I.wa} Envoyer sur WhatsApp</a>`
-        : `<button class="btn primary send" data-act="${copyAct}" data-id="${id}">${I.copy} Copier le message</button>`}
+        ? `<a class="btn primary send" href="#" target="_blank" rel="noopener" data-act="${waAct}" data-id="${id}" aria-label="Envoyer sur WhatsApp">${I.wa}<span class="sl">Envoyer sur WhatsApp</span></a>`
+        : `<button class="btn primary send" data-act="${copyAct}" data-id="${id}" aria-label="Copier le message">${I.copy}<span class="sl">Copier le message</span></button>`}
       ${second}
       ${coachFoot(m, k)}
       ${links ? `<div class="alt links2">${links}</div>` : ""}
@@ -2159,7 +2234,7 @@ function todayCard(it) {
           <div class="status ${tm.cls}">${why}</div><div class="meta2">${typeTag(CSTATUS[c.status] || "Client")} · ${esc(sl.product)} × ${sl.qty}</div></div>`,
       extra: `<div class="line ${tm.cls} mini"><span style="width:${pct}%"></span></div>`,
       second: `<button class="btn orange second" data-act="reco" data-id="${sl.id}">${I.bag} A déjà commandé</button>`,
-      links: `<button data-act="relance" data-id="${sl.id}">Déjà relancé</button> · <button data-act="endAdj" data-id="${sl.id}">📅 Ajuster la fin</button>` });
+      links: `<button data-act="relance" data-id="${sl.id}">Déjà relancé</button> · <button data-act="endAdj" data-id="${sl.id}">Ajuster la fin</button>` });
   }
   if (it.type === "prospect") {
     const pr = it.x, ref = refNameOf(pr);
@@ -2170,14 +2245,14 @@ function todayCard(it) {
         <div class="who"><button class="name" data-act="pfiche" data-id="${pr.id}">${esc(pr.name)}</button>${exTag(pr)}
           <div class="status ok">${why.replace(/il y a 0 j/, "aujourd'hui")}</div>
           <div class="meta2">${typeTag("Prospect")}${pr.interest ? " · " + esc(pr.interest) : ""}</div></div>`,
-      extra: pr.note ? `<div class="more"><div class="alt" style="text-align:left;margin-top:10px">📝 ${esc(pr.note)}</div></div>` : "",
+      extra: pr.note ? `<div class="more"><div class="alt pnote2" style="text-align:left;margin-top:10px">${esc(pr.note)}</div></div>` : "",
       second: `<button class="btn soft second" data-act="pDone" data-id="${pr.id}">${I.check} Déjà fait</button>`,
       links: `<button data-act="pConvert" data-id="${pr.id}">A acheté</button> · <button data-act="pLost" data-id="${pr.id}">Pas intéressé</button>` });
   }
   if (it.type === "sat") {
     const sl = it.s, c = client(sl.clientId), m = coachMeta(it);
     return `<article class="card rcard open" data-k="${it.k}">
-      <div class="rhead"><span class="avatar" style="width:52px;height:52px;font-size:1.3rem">🗨️</span>
+      <div class="rhead">${pAv(c && c.name, "sat")}
         <div class="who"><button class="name" data-act="fiche" data-id="${c.id}">${esc(c.name)}</button>${exTag(c)}
           <div class="status ok">Comment ça se passe pour ${esc(firstName(c.name))} ?</div><div class="meta2">${esc(sl.product)}</div></div></div>
       ${coachBlock(m)}
@@ -2188,7 +2263,7 @@ function todayCard(it) {
   if (it.type === "care") {
     const c = it.x, l = lastSat(c);
     return cardShell({ k: it.k, id: c.id, phone: c.phone, msgId: "camsg-" + c.id, msg: msg("care", c.name, c.camsg || 0), vary: "nextCaMsg", waAct: "caWa", copyAct: "caCopy",
-      head: `<span class="avatar" style="width:52px;height:52px;font-size:1.3rem">🤍</span>
+      head: `${pAv(c && c.name, "care")}
         <div class="who"><button class="name" data-act="fiche" data-id="${c.id}">${esc(c.name)}</button>${exTag(c)}
           <div class="status late">À accompagner</div><div class="meta2">${SAT[l.v][0]} ${SAT[l.v][1]}${l.product ? " · " + esc(l.product) : ""}</div></div>`,
       second: `<button class="btn soft second" data-act="caDone" data-id="${c.id}">${I.check} C'est fait, je l'ai recontacté</button>`, links: "" });
@@ -2196,7 +2271,7 @@ function todayCard(it) {
   if (it.type === "suivi") {
     const sl = it.s, c = client(sl.clientId) || { name: "?" };
     return cardShell({ k: it.k, id: sl.id, phone: c.phone, msgId: "sumsg-" + sl.id, msg: msg("suivi", c.name, sl.msg || 0, { de: deProd(sl.product) }), vary: "nextSuMsg", waAct: "suWa", copyAct: "suCopy",
-      head: `<span class="avatar" style="width:52px;height:52px;font-size:1.3rem">💬</span>
+      head: `${pAv(c && c.name, "suivi")}
         <div class="who"><button class="name" data-act="fiche" data-id="${c.id}">${esc(c.name)}</button>${exTag(c)}
           <div class="status ok">Suivi après l'achat</div><div class="meta2">${esc(sl.product)} · acheté il y a ${diff(today(), sl.date)} jours</div></div>`,
       second: `<button class="btn soft second" data-act="suDone" data-id="${sl.id}">${I.check} Déjà fait</button>`,
@@ -2205,7 +2280,7 @@ function todayCard(it) {
   if (it.type === "reco") {
     const x = it.x, isC = it.pk === "c", since = isC ? clientSince(x) : x.createdAt || today();
     return cardShell({ k: it.k, id: x.id, phone: x.phone, msgId: "rcmsg-" + x.id, msg: msg(isC ? "recoC" : "recoP", x.name, x.rcmsg || 0, { mois: duration(since) }), vary: "nextRcMsg", waAct: "rcWa", copyAct: "rcCopy",
-      head: `<span class="avatar" style="width:52px;height:52px;font-size:1.3rem">🤝</span>
+      head: `${pAv(x && x.name, "reco")}
         <div class="who"><button class="name" data-act="${isC ? "fiche" : "pfiche"}" data-id="${x.id}">${esc(x.name)}</button>${exTag(x)}
           <div class="status ok">Moment de demander une recommandation</div><div class="meta2">${isC ? "Client" : "Prospect"} depuis ${duration(since)} · environ ${isC ? S.settings.netC : S.settings.netP} personnes dans son entourage</div></div>`,
       second: `<button class="btn soft second" data-act="rcDone" data-id="${x.id}">${I.check} Déjà demandé</button>`,
@@ -2214,7 +2289,7 @@ function todayCard(it) {
   if (it.type === "news") {
     const o = it.o, x = o.x;
     return cardShell({ k: it.k, id: x.id, phone: x.phone, msgId: "nwmsg-" + x.id, msg: newsMsg(x), vary: "nextNwMsg", waAct: "nwWa", copyAct: "nwCopy",
-      head: `<span class="avatar" style="width:52px;height:52px;font-size:1.3rem">📣</span>
+      head: `${pAv(x && x.name, "news")}
         <div class="who"><button class="name" data-act="${o.pk === "c" ? "fiche" : "pfiche"}" data-id="${x.id}">${esc(x.name)}</button>${exTag(x)}
           <div class="status ok">Message ${S.settings.newsFreq === "month" ? "du mois" : "de la quinzaine"} : nouveautés</div><div class="meta2">${o.pk === "c" ? "Client" : "Prospect"}</div></div>`,
       second: `<button class="btn soft second" data-act="nwDone" data-id="${x.id}">${I.check} Déjà fait</button>`,
@@ -2223,7 +2298,7 @@ function todayCard(it) {
   if (it.type === "wake") {
     const c = it.x;
     return cardShell({ k: it.k, id: c.id, phone: c.phone, msgId: "wkmsg-" + c.id, msg: msg("quarter", c.name, c.wkmsg || 0, { sujet: univers() }), vary: "nextWkMsg", waAct: "wkWa", copyAct: "wkCopy",
-      head: `<span class="avatar" style="width:52px;height:52px;font-size:1.3rem">😴</span>
+      head: `${pAv(c && c.name, "wake")}
         <div class="who"><button class="name" data-act="fiche" data-id="${c.id}">${esc(c.name)}</button>${exTag(c)}
           <div class="status soon">Client à réveiller</div><div class="meta2">Pas de commande depuis ${diff(today(), lastOrder(c))} jours</div></div>`,
       second: `<button class="btn soft second" data-act="wkDone" data-id="${c.id}">${I.check} Déjà fait</button>`, links: "" });
@@ -2231,7 +2306,7 @@ function todayCard(it) {
   if (it.type === "promo") {
     const o = it.o, x = o.x, pr = activePromo();
     return cardShell({ k: it.k, id: x.id, phone: x.phone, msgId: "prmsg-" + x.id, msg: promoMsg(o), vary: "nextPrMsg", waAct: "promoWa", copyAct: "promoCopy2",
-      head: `<span class="avatar" style="width:52px;height:52px;font-size:1.3rem">🎁</span>
+      head: `${pAv(x && x.name, "promo")}
         <div class="who"><button class="name" data-act="${o.pk === "c" ? "fiche" : "pfiche"}" data-id="${x.id}">${esc(x.name)}</button>${exTag(x)}
           <div class="status ok">Promo : ${esc(pr.text)}</div><div class="meta2">${o.why ? (o.pk === "c" ? "Utilise ce produit" : "Intéressé par ce produit") + " · " : typeTag(o.pk === "c" ? "Carte fidélité" : "Prospect") + " · "}jusqu'au ${fmt(pr.until)}</div></div>`,
       second: `<button class="btn soft second" data-act="promoDone" data-id="${x.id}">${I.check} Déjà fait</button>`,
@@ -2240,7 +2315,7 @@ function todayCard(it) {
   if (it.type === "gift") {
     const c = it.c;
     return cardShell({ k: it.k, id: c.id, phone: c.phone, msgId: "gmsg-" + c.id, msg: xMsg("gift", c.name, 0, { gift: S.settings.gift }), vary: "nextHMsg", waAct: "gWa", copyAct: "gCopy",
-      head: `<span class="avatar" style="width:52px;height:52px;font-size:1.3rem">🎁</span>
+      head: `${pAv(c && c.name, "gift")}
         <div class="who"><button class="name" data-act="fiche" data-id="${c.id}">${esc(c.name)}</button>${exTag(c)}
           <div class="status ok">Carte fidélité complète 🎉</div><div class="meta2">${esc(S.settings.gift)} disponible quand elle veut</div></div>`,
       second: `<button class="btn soft second" data-act="giftNotify" data-id="${c.id}">${I.check} Déjà prévenue</button>`,
@@ -2248,7 +2323,7 @@ function todayCard(it) {
   }
   const { c, orders } = it.h;
   return cardShell({ k: it.k, id: c.id, phone: c.phone, msgId: "hmsg-" + c.id, msg: xMsg("hint", c.name, c.hmsg || 0, { avantages: avantages() }), vary: "nextHMsg", waAct: "hWa", copyAct: "hCopy",
-    head: `<span class="avatar" style="width:52px;height:52px;font-size:1.3rem">⭐</span>
+    head: `${pAv(c && c.name, "hint")}
       <div class="who"><button class="name" data-act="fiche" data-id="${c.id}">${esc(c.name)}</button>${exTag(c)}
         <div class="status ok">Carte fidélité à offrir</div><div class="meta2">${plural(orders, "commande", "commandes")} · client fidèle</div></div>`,
     extra: `<div class="alt hintline">Gratuite pour votre client : ${esc(avantages())}.</div>`,
@@ -2586,7 +2661,7 @@ function updateEnd() {
   const d = diff(end, today());
   box.innerHTML = `<div><span class="small">${own ? "Fin choisie par vous" : "Fin estimée"}${!own && rh ? ` · rythme de ${esc(firstName(cl.name))}` : ""}</span><b>${cap(fmtLong(end))}</b>
     <span style="font-size:.82rem;color:var(--ink-2)">${d >= 0 ? "dans " + plural(d, "jour", "jours") : "déjà passée"}${rh ? ` · rachète environ tous les ${rh.real} j` : ""}</span>
-    ${document.getElementById("fEndWrap").classList.contains("hidden") ? `<button type="button" class="endmod" data-act="fEndOpen">📅 Changer la date de fin</button>` : ""}</div>` +
+    ${document.getElementById("fEndWrap").classList.contains("hidden") ? `<button type="button" class="endmod" data-act="fEndOpen">Changer la date de fin</button>` : ""}</div>` +
     (p.price ? `<span class="price num">${euro(p.price * form.qty)}</span>` : "");
 }
 function submitSale() {
@@ -3800,7 +3875,7 @@ function openVoice() {
     <p class="lede" style="margin-top:8px">Dites ou écrivez la vente comme vous la raconteriez. Recharge s'occupe du reste.</p>
     <div class="sx-ex">${["Julie a pris 2 gels aloe vera hier", "Karim : une crème visage et un shampoing", "Marie un gel ; puis Inès deux crèmes"].map(t => `<button type="button" data-act="saisieEx">${esc(t)}</button>`).join("")}</div>
     <div class="sx-in"><textarea class="input" id="voiceText" rows="3" placeholder="ex. : Julie a pris 2 gels aloe vera hier" aria-label="La vente, en une phrase"></textarea>
-      ${SR ? `<button class="sx-mic" data-act="voiceStart" id="voiceGo" aria-label="Dicter">🎤</button>` : ""}</div>
+      ${SR ? `<button class="sx-mic" data-act="voiceStart" id="voiceGo" aria-label="Dicter"><svg class="vox" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="9" width="3" height="6" rx="1.5" fill="#7B83F6"/><rect x="8" y="5" width="3" height="14" rx="1.5" fill="var(--orange)"/><rect x="13" y="7.5" width="3" height="9" rx="1.5" fill="var(--orange)"/><rect x="18" y="10" width="3" height="4" rx="1.5" fill="#7B83F6"/></svg></button>` : ""}</div>
     ${SR ? "" : `<p class="hint" style="margin:6px 0 0">Astuce : le micro 🎙️ de votre clavier marche très bien.</p>`}
     <div class="sx-prev" id="saisiePrev"><p class="hint" style="margin:0">Ce que Recharge comprend s'affiche ici, pendant que vous parlez.</p></div>
     <button class="btn orange" id="saisieSave" style="margin-top:12px" data-act="saisieSave" disabled>Enregistrer</button>
@@ -3814,10 +3889,10 @@ function startListening() {
   try { rec && rec.abort(); } catch (e) {}
   rec = new SR(); rec.lang = "fr-FR"; rec.interimResults = true; rec.continuous = false; rec.maxAlternatives = 1;
   const btn = document.getElementById("voiceGo"), inp = document.getElementById("voiceText"), before = inp.value ? inp.value.trim() + " ; " : "";
-  btn.classList.add("listening"); btn.textContent = "👂";
+  btn.classList.add("listening");
   rec.onresult = e => { const txt = [...e.results].map(r => r[0].transcript).join(" "); inp.value = before + txt; saisiePreview(inp.value); };
   rec.onerror = e => { toast(e.error === "not-allowed" ? "Autorisez le micro pour Recharge dans les réglages du téléphone." : "Je n'ai pas bien entendu. Réessayez, ou écrivez."); };
-  rec.onend = () => { if (btn) { btn.textContent = "🎤"; btn.classList.remove("listening"); } };
+  rec.onend = () => { if (btn) { btn.innerHTML = VOXSVG; btn.classList.remove("listening"); } };
   rec.start();
 }
 function saveSaisie() {
