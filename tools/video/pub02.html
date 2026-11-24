@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8">
+<!-- Recharge · Pub 02 « Découvrez Recharge » · 540×960 CSS px rendus en 1080×1920 (deviceScaleFactor 2), 30 i/s, 32 s.
+     Les écrans du téléphone sont de vraies captures de l'appli (mode démo, fiches d'exemple), dans v02/.
+     Animation pilotée image par image : render(t) place chaque élément pour l'instant t (secondes). -->
+<link rel="stylesheet" href="font.css">
+<style>
+:root{--navy:#08152E;--ink:#1C1A22;--ink2:#57515C;--sand:#F4EFE8;--line:#E7DFD5;--orange:#FF782E;--lav:#7B83F6;--late:#E5484D}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:540px;height:960px;overflow:hidden;background:var(--navy)}
+body{font-family:Manrope,system-ui,sans-serif;color:#fff;-webkit-font-smoothing:antialiased}
+#stage{position:absolute;inset:0;overflow:hidden}
+.bg{position:absolute;inset:0}
+#bgNavy{background:radial-gradient(120% 80% at 50% 38%,#12244A 0%,var(--navy) 62%)}
+#glow{background:radial-gradient(46% 30% at 50% 46%,rgba(38,117,232,.55) 0%,rgba(38,117,232,.16) 45%,rgba(38,117,232,0) 75%);opacity:0}
+#bgSand{background:var(--sand);opacity:0}
+#grain{position:absolute;inset:-50%;opacity:.05;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.abs{position:absolute;left:0;top:0;will-change:transform,opacity,filter}
+/* objets de la vidéo 01 */
+.notif{width:300px;padding:12px 14px;border-radius:18px;background:rgba(255,255,255,.94);color:var(--ink);display:flex;gap:11px;align-items:flex-start;box-shadow:0 18px 40px rgba(0,0,0,.35)}
+.notif .ic{flex:none;width:34px;height:34px;border-radius:9px;background:#25A35A;display:grid;place-items:center}
+.notif .ic svg{width:19px;height:19px}
+.notif b{display:block;font-size:13.5px;font-weight:800}
+.notif span{display:block;font-size:13px;font-weight:500;color:var(--ink2);line-height:1.3;margin-top:1px}
+.carnet{width:200px;height:230px;border-radius:6px;background:#FBF7EE;color:#2B3350;padding:22px 14px 0 34px;background-image:repeating-linear-gradient(#FBF7EE 0 25px,#C9D6EA 25px 26px);box-shadow:0 22px 50px rgba(0,0,0,.4)}
+.carnet p{font-size:14px;line-height:26px;font-weight:600;font-style:italic;white-space:nowrap}
+.cal{width:150px;border-radius:16px;background:#fff;color:var(--ink);overflow:hidden;box-shadow:0 18px 40px rgba(0,0,0,.35);text-align:center}
+.cal .m{background:#E5484D;color:#fff;font-size:12px;font-weight:800;padding:6px;letter-spacing:.08em;text-transform:uppercase}
+.cal .d{font-size:50px;font-weight:800;line-height:1;padding:8px 0 10px;letter-spacing:-.04em}
+/* téléphone : vraies captures de l'appli */
+#phone{width:410px;height:864px;border-radius:62px;background:#0B0B10;padding:10px;transform-origin:0 0;box-shadow:0 40px 90px rgba(0,0,0,.55),inset 0 0 0 1.5px rgba(255,255,255,.14)}
+#scr{position:relative;width:390px;height:844px;border-radius:52px;overflow:hidden;background:var(--sand)}
+#scr img{position:absolute;left:0;top:0;width:390px;display:block}
+#scr .nav{top:auto;bottom:0;height:100px}
+#dim{position:absolute;inset:0;background:#1C1A22;opacity:0}
+#hl{position:absolute;left:0;top:0;border-radius:22px;border:3px solid var(--orange);box-shadow:0 0 0 3000px rgba(8,21,46,.38),0 0 26px rgba(255,120,46,.55);opacity:0}
+#tap{position:absolute;width:70px;height:70px;margin:-35px 0 0 -35px;border-radius:50%;background:rgba(255,120,46,.35);border:2px solid rgba(255,120,46,.8);opacity:0}
+#waRing{position:absolute;width:56px;height:56px;margin:-28px 0 0 -28px;border-radius:50%;border:3px solid #25A35A;opacity:0}
+.mini{width:205px;height:432px;border-radius:32px;background:#0B0B10;padding:6px;box-shadow:0 26px 60px rgba(0,0,0,.45)}
+.mini div{width:193px;height:420px;border-radius:27px;overflow:hidden;background:var(--sand)}
+.mini img{width:193px;display:block}
+/* textes */
+.cap{width:540px;padding:0 30px;text-align:center;font-size:34px;font-weight:800;letter-spacing:-.035em;line-height:1.08}
+.cap em{font-style:normal;color:var(--orange)}
+.cap span{display:inline-block}
+#capbg{position:absolute;left:0;top:0;width:540px;height:230px;background:linear-gradient(var(--navy) 35%,rgba(8,21,46,0));opacity:0}
+#t1{font-size:31px}
+/* frise : le renouvellement de Marie (données de la fiche d'exemple) */
+#tl{width:460px;border-radius:26px;background:#fff;color:var(--ink);padding:22px 24px 26px;box-shadow:0 30px 70px rgba(0,0,0,.45)}
+#tl .who{display:flex;align-items:center;gap:12px}
+#tl .av{width:44px;height:44px;border-radius:50%;background:#FDE9DD;color:#D2601A;display:grid;place-items:center;font-weight:800;font-size:16px}
+#tl .nm{font-size:19px;font-weight:800;letter-spacing:-.02em}
+#tl .pd{font-size:14px;color:var(--ink2);font-weight:600}
+#tl .track{position:relative;height:8px;border-radius:8px;background:#EEE8E0;margin:34px 8px 0}
+#tl .fill{position:absolute;left:0;top:0;bottom:0;border-radius:8px;background:linear-gradient(90deg,#F59A4A,#FF782E);width:0}
+#tl .node{position:absolute;top:50%;width:18px;height:18px;margin:-9px 0 0 -9px;border-radius:50%;background:#fff;border:4px solid #D9CFC3}
+#tl .node.on{border-color:var(--orange)}
+#tl .node.late{border-color:var(--late)}
+#tl .lb{position:absolute;top:22px;transform:translateX(-50%);text-align:center;font-size:12.5px;font-weight:700;color:var(--ink2);white-space:nowrap;line-height:1.25}
+#tl .lb b{display:block;color:var(--ink);font-size:14px}
+#tl .badge{display:inline-block;margin-top:58px;padding:7px 14px;border-radius:999px;background:#FDE8E9;color:#B82E44;font-weight:800;font-size:15px}
+#tl .badge2{display:inline-block;margin:58px 0 0 6px;padding:7px 14px;border-radius:999px;background:#E6F6EE;color:#1E7A4B;font-weight:800;font-size:15px}
+/* logo */
+#logo{width:430px}
+#url{width:540px;text-align:center;font-size:17px;font-weight:700;letter-spacing:.02em}
+</style></head><body>
+<div id="stage">
+  <div class="bg" id="bgNavy"></div><div class="bg" id="glow"></div><div class="bg" id="bgSand"></div>
+  <!-- scène 1 : le désordre de la vidéo 01 se rassemble -->
+  <div class="abs notif" id="n1"><div class="ic">ICON</div><div><b>Julie</b><span>Tu me remets la crème ?</span></div></div>
+  <div class="abs notif" id="n2"><div class="ic">ICON</div><div><b>Inès</b><span>Tu as encore du gel ?</span></div></div>
+  <div class="abs notif" id="n3"><div class="ic">ICON</div><div><b>Nathalie</b><span>Tu peux me livrer samedi ?</span></div></div>
+  <div class="abs carnet" id="o1"><p>Marie – gel aloe ×1</p><p>Sandrine – shampoing</p><p>Karim – complément ?</p><p>Inès – rappeler lundi</p><p>…</p></div>
+  <div class="abs cal" id="o2"><div class="m">Jeudi</div><div class="d">14</div></div>
+  <!-- mini téléphones du final -->
+  <div class="abs mini" id="m1"><div><img src="v02/clients_full.png" alt=""></div></div>
+  <div class="abs mini" id="m3"><div><img src="v02/fiche_full.png" alt="" style="margin-top:22px"></div></div>
+  <!-- le téléphone -->
+  <div class="abs" id="phone"><div id="scr">
+    <img id="lToday" src="v02/today_full.png" alt="">
+    <img id="lClients" src="v02/clients_full.png" alt="">
+    <img class="nav" id="navT" src="v02/nav_today.png" alt="">
+    <img class="nav" id="navC" src="v02/nav_clients.png" alt="">
+    <div id="dim"></div>
+    <img id="lFiche" src="v02/fiche_full.png" alt="" style="border-radius:28px 28px 0 0">
+    <div id="hl"></div><div id="tap"></div><div id="waRing"></div>
+  </div></div>
+  <div class="abs" id="m2" style="display:none"></div>
+  <!-- frise -->
+  <div class="abs" id="tl"><div class="who"><div class="av">MD</div><div><div class="nm">Marie Dupont</div><div class="pd">Gel aloe vera · environ 30 jours</div></div></div>
+    <div class="track"><div class="fill" id="tlFill"></div>
+      <div class="node" id="nd0" style="left:0%"></div><div class="lb" style="left:0%"><b>23 oct.</b>acheté</div>
+      <div class="node" id="nd1" style="left:62%"></div><div class="lb" style="left:62%"><b>22 nov.</b>fin prévue</div>
+      <div class="node" id="nd2" style="left:100%"></div><div class="lb" style="left:100%"><b>24 nov.</b>aujourd'hui</div></div>
+    <span class="badge" id="tlB1">Retard 2 j</span><span class="badge2" id="tlB2">À relancer aujourd'hui</span></div>
+  <!-- textes -->
+  <div id="capbg"></div>
+  <div class="abs" id="logo">LOGO</div>
+  <div class="abs cap" id="t1">Il est temps de changer votre façon de <em>suivre vos clients.</em></div>
+  <div class="abs cap" id="c2">Une vision <em>claire</em><br>de votre activité.</div>
+  <div class="abs cap" id="c3"><span id="c3a">Chaque client.</span> <span id="c3b">Ses produits.</span><br><span id="c3c"><em>Son suivi.</em></span></div>
+  <div class="abs cap" id="c4"><span id="c4a">Anticipez.</span> <span id="c4b">Organisez.</span> <span id="c4c"><em>Suivez.</em></span></div>
+  <div class="abs cap" id="c5" style="color:var(--ink);font-size:44px">Votre activité.<br><em>Mieux organisée.</em></div>
+  <div class="abs cap" id="c6" style="color:var(--ink);font-size:24px">Découvrez Recharge</div>
+  <div class="abs" id="url" style="color:var(--ink2)">getrecharge.fr</div>
+  <div id="grain"></div>
+</div>
+<script>
+const $ = id => document.getElementById(id);
+const ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-12.4 7.4L3 21l2.1-5.4A8.4 8.4 0 1 1 21 11.5z"/></svg>';
+document.querySelectorAll(".ic").forEach(e => e.innerHTML = ICON);
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const lerp = (a, b, k) => a + (b - a) * k;
+const prog = (t, a, b) => clamp((t - a) / (b - a));
+const eOut = k => 1 - Math.pow(1 - k, 3), eIn = k => k * k * k;
+const eIO = k => k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+const eBack = k => { const c = 1.5; return 1 + (c + 1) * Math.pow(k - 1, 3) + c * Math.pow(k - 1, 2); };
+function put(id, { x = 270, y = 480, s = 1, r = 0, o = 1, b = 0 } = {}) {
+  const e = $(id); const w = e.offsetWidth, h = e.offsetHeight;
+  e.style.transform = `translate(${x - w / 2}px,${y - h / 2}px) rotate(${r}deg) scale(${s})`;
+  e.style.opacity = o; e.style.filter = b > .05 ? `blur(${b}px)` : "none";
+}
+const hide = id => { $(id).style.opacity = 0; };
+const capIn = (id, a, b, y, extra = {}) => { const t = T; if (t < a || t > b) return hide(id); const i = eOut(prog(t, a, a + .45)), o = eIn(prog(t, b - .35, b)); put(id, { y: y + (1 - i) * 18 - o * 10, o: i * (1 - o), b: (1 - i) * 10 + o * 8, ...extra }); };
+const word = (id, a, t) => { const k = eOut(prog(t, a, a + .4)); const e = $(id); e.style.opacity = k; e.style.transform = `translateY(${(1 - k) * 14}px)`; e.style.filter = k < .98 ? `blur(${(1 - k) * 8}px)` : "none"; };
+let T = 0;
+
+/* Caméra sur le téléphone : un point de l'écran (px, py) placé en (X, Y) à l'échelle S. Images clés lissées. */
+const D0 = { px: 195, py: 422, S: .74, X: 270, Y: 548 };
+const CAM = [
+  [6.0, D0], [6.6, D0], [7.4, { px: 195, py: 250, S: 1.08, X: 270, Y: 520 }], [8.4, { px: 195, py: 250, S: 1.08, X: 270, Y: 520 }],
+  [9.3, { px: 195, py: 190, S: 1.05, X: 270, Y: 470 }], [10.8, { px: 195, py: 190, S: 1.05, X: 270, Y: 470 }], [11.6, D0],
+  [13.7, D0], [14.4, { px: 195, py: 190, S: 1.14, X: 270, Y: 470 }], [15.3, { px: 195, py: 190, S: 1.14, X: 270, Y: 470 }],
+  [16.1, { px: 195, py: 255, S: 1.12, X: 270, Y: 490 }], [17.6, { px: 195, py: 255, S: 1.12, X: 270, Y: 490 }], [18.4, D0],
+  [18.7, D0], [19.4, { px: 300, py: 300, S: 1.22, X: 300, Y: 560 }], [20.4, { px: 300, py: 300, S: 1.22, X: 300, Y: 560 }],
+  [21.0, { px: 195, py: 422, S: .56, X: 270, Y: 700 }], [22.5, { px: 195, py: 422, S: .56, X: 270, Y: 700 }],
+  [23.4, { px: 195, py: 185, S: 1.2, X: 270, Y: 500 }], [24.9, { px: 195, py: 185, S: 1.2, X: 270, Y: 500 }], [25.7, { px: 195, py: 422, S: .6, X: 270, Y: 520 }]
+];
+function cam(t) {
+  if (t <= CAM[0][0]) return CAM[0][1];
+  for (let i = 1; i < CAM.length; i++) { const [a, A] = CAM[i - 1], [b, B] = CAM[i]; if (t <= b) { const k = eIO(prog(t, a, b)); const o = {}; for (const key in A) o[key] = lerp(A[key], B[key], k); return o; } }
+  return CAM[CAM.length - 1][1];
+}
+const hl = (x, y, w, h, o) => { const e = $("hl"); e.style.left = x + "px"; e.style.top = y + "px"; e.style.width = w + "px"; e.style.height = h + "px"; e.style.opacity = o; };
+
+function render(t) {
+  T = t;
+  /* fonds */
+  const sand = eIO(prog(t, 26.6, 27.3));
+  $("bgSand").style.opacity = sand;
+  $("glow").style.opacity = t < 2.5 ? .35 : t < 6 ? .35 + .65 * Math.exp(-Math.max(0, t - 2.75) * 1.4) * (t > 2.6 ? 1 : 0) + .2 : .3 * (1 - sand);
+  $("grain").style.opacity = .05 * (1 - sand) + .03 * sand;
+
+  /* scène 1 : notifications, carnet, calendrier, qui se rassemblent puis l'éclair */
+  const S1 = [["n1", -260, 160, 270, 190, -3, .1], ["n2", 800, 330, 290, 330, 3, .45], ["o1", -200, 640, 170, 610, -7, .8], ["n3", 270, 1080, 260, 470, -2, 1.1], ["o2", 760, 740, 400, 690, 8, 1.35]];
+  for (const [id, fx, fy, tx, ty, r, a] of S1) {
+    if (t < a || t > 3.0) { hide(id); continue; }
+    const i = eBack(prog(t, a, a + .55)), g = eIn(prog(t, 1.85, 2.75));
+    const dx = Math.sin(t * 1.3 + a * 5) * 5, dy = Math.cos(t * 1.1 + a * 3) * 4;
+    put(id, { x: lerp(lerp(fx, tx, i) + dx, 270, g), y: lerp(lerp(fy, ty, i) + dy, 430, g), r: r * (1 - g), s: lerp(1, .15, g), o: clamp(prog(t, a, a + .2)) * (1 - prog(t, 2.55, 2.8)), b: g * 6 });
+  }
+  /* le logo (sur bleu nuit : mot en blanc ; sur sable : mot en encre) */
+  const lg = $("logo");
+  if (lg.firstElementChild) {
+    const paths = lg.querySelectorAll("path"), [ring, tri, bolt, wd, dot] = paths;
+    let a0 = null; if (t >= 2.7 && t < 6.0) a0 = 2.7; if (t >= 27.0) a0 = 27.0;
+    if (a0 !== null) {
+      const RL = 236; ring.style.strokeDasharray = RL; ring.style.strokeDashoffset = RL * (1 - eIO(prog(t, a0, a0 + .7)));
+      const tk = eBack(prog(t, a0 + .55, a0 + .85)); tri.style.opacity = clamp(prog(t, a0 + .55, a0 + .62)); tri.style.transformBox = "fill-box"; tri.style.transformOrigin = "center"; tri.style.transform = `scale(${tk})`;
+      const bk = eBack(prog(t, a0 + .7, a0 + 1.0)); bolt.style.opacity = clamp(prog(t, a0 + .7, a0 + .78)); bolt.style.transformBox = "fill-box"; bolt.style.transformOrigin = "center"; bolt.style.transform = `translateY(${(1 - bk) * -30}px) scale(${lerp(.4, 1, bk)})`;
+      const wk = eOut(prog(t, a0 + .95, a0 + 1.45)); wd.style.opacity = wk; wd.style.transform = `translateX(${(1 - wk) * -24}px)`; wd.style.fill = a0 > 20 ? "#1C1A22" : "#fff";
+      const dk = eBack(prog(t, a0 + 1.4, a0 + 1.65)); dot.style.opacity = clamp(prog(t, a0 + 1.4, a0 + 1.48)); dot.style.transformBox = "fill-box"; dot.style.transformOrigin = "center"; dot.style.transform = `scale(${dk})`;
+      if (a0 < 20) { const out = eIn(prog(t, 5.2, 5.9)); put("logo", { y: lerp(400, 360, eIO(prog(t, 4.2, 5.0))) + out * 140, s: lerp(1.05, 1, eOut(prog(t, 2.7, 4.6))) * lerp(1, .25, out), o: 1 - out, b: out * 6 }); }
+      else put("logo", { y: lerp(420, 340, eIO(prog(t, 28.6, 29.3))), s: lerp(1.05, 1, eOut(prog(t, 27, 29))) });
+    } else hide("logo");
+  }
+  capIn("t1", 3.7, 5.3, 560);
+
+  /* le téléphone */
+  if (t >= 5.3 && t < 27.4) {
+    const c = cam(t), grow = eBack(prog(t, 5.3, 6.1));
+    const S = t < 6.1 ? lerp(.12, D0.S, grow) : c.S, X = c.X, Y = t < 6.1 ? lerp(380, D0.Y, eOut(prog(t, 5.3, 6.1))) : c.Y;
+    const out = eIn(prog(t, 26.4, 27.2));
+    const sF = S * lerp(1, .5, out), px = c.px, py = c.py;
+    const e = $("phone"); e.style.transform = `translate(${X - (10 + px) * sF}px,${Y + out * 40 - (10 + py) * sF}px) scale(${sF})`;
+    e.style.opacity = clamp(prog(t, 5.3, 5.6)) * (1 - out);
+  } else hide("phone");
+
+  /* écran : Aujourd'hui → Clients → fiche → Clients → Aujourd'hui */
+  const showClients = t >= 11.6 && t < 22.7, xf = t < 16 ? eIO(prog(t, 11.6, 12.0)) : 1 - eIO(prog(t, 22.6, 23.0));
+  $("lClients").style.opacity = t >= 11.6 ? xf : 0; $("navC").style.opacity = t >= 11.6 ? xf : 0;
+  $("lToday").style.opacity = 1; $("navT").style.opacity = 1;
+  const tScroll = t < 16 ? 470 * eIO(prog(t, 8.4, 9.3)) : 470;
+  $("lToday").style.transform = `translateY(${-tScroll}px)`;
+  const cScroll = 560 * eIO(prog(t, 12.0, 12.9)) - 90 * eIO(prog(t, 18.3, 18.9));
+  $("lClients").style.transform = `translateY(${-cScroll}px)`;
+  // la fiche de Marie monte, défile jusqu'à l'historique, puis redescend
+  const up = eOut(prog(t, 13.2, 13.7)) * (1 - eIn(prog(t, 18.0, 18.5)));
+  const fScroll = 600 * eIO(prog(t, 15.3, 16.1));
+  $("lFiche").style.transform = `translateY(${44 + (1 - up) * 820 - fScroll}px)`;
+  $("lFiche").style.opacity = up > .001 ? 1 : 0;
+  $("dim").style.opacity = .42 * up;
+  // appui sur la ligne de Marie
+  if (t >= 12.95 && t < 13.5) { const k = prog(t, 12.95, 13.5); const e = $("tap"); e.style.left = "195px"; e.style.top = "430px"; e.style.opacity = Math.sin(k * Math.PI) * .9; e.style.transform = `scale(${lerp(.4, 1.6, eOut(k))})`; } else hide("tap");
+  // mises en évidence (zones réelles des captures)
+  const H = [
+    [7.3, 8.3, 16, 106, 358, 286],                      // carte « 11 actions dans votre plan du jour »
+    [9.4, 10.9, 16, 580 - 470, 358, 146],               // Marie Dupont · gel aloe vera terminé depuis 2 j
+    [14.3, 15.25, 18, 44 + 169, 354, 71],                // 1 commande · 35 € · 32 j
+    [16.1, 17.6, 18, 44 + 785 - 600, 354, 94],           // historique : acheté le 23 oct. · fin 22 nov.
+    [23.4, 24.9, 16, 580 - 470, 358, 146]                // retour sur Marie dans le plan du jour
+  ];
+  let on = false;
+  for (const [a, b, x, y, w, h] of H) if (t >= a && t < b) { const k = eOut(prog(t, a, a + .3)) * (1 - prog(t, b - .25, b)); hl(x, y, w, h, k); on = true; }
+  // les pastilles de fin, l'une après l'autre (colonne de droite de la liste)
+  const chips = [523, 611, 700, 788, 877, 965];
+  if (!on && t >= 19.2 && t < 20.6) { const n = Math.min(5, Math.floor((t - 19.2) / .22)), k = prog(t, 19.2 + n * .22, 19.2 + n * .22 + .2); hl(280, chips[n] - 470 - 4, 82, 35, n === 5 ? 1 : .5 + .5 * Math.sin(k * Math.PI)); $("hl").style.borderRadius = "14px"; on = true; } else $("hl").style.borderRadius = "22px";
+  if (!on) hl(0, 0, 0, 0, 0);
+  // le bouton WhatsApp de Marie s'anime
+  if (t >= 24.0 && t < 25.0) { const k = prog(t, 24.0, 25.0) * 2 % 1; const e = $("waRing"); e.style.left = "319px"; e.style.top = (669 - 470) + "px"; e.style.opacity = 1 - k; e.style.transform = `scale(${lerp(1, 1.9, eOut(k))})`; } else hide("waRing");
+
+  /* frise du renouvellement */
+  if (t >= 20.5 && t < 22.8) {
+    const i = eBack(prog(t, 20.5, 20.95)), o = eIn(prog(t, 22.4, 22.8));
+    put("tl", { y: lerp(330, 300, i) - o * 30, s: lerp(.9, 1, i), o: clamp(prog(t, 20.5, 20.7)) * (1 - o), b: o * 8 });
+    const f = eIO(prog(t, 20.9, 21.9)); $("tlFill").style.width = (f * 100) + "%";
+    $("tlFill").style.background = f > .62 ? "linear-gradient(90deg,#F59A4A 0%,#FF782E 60%,#E5484D 100%)" : "linear-gradient(90deg,#F59A4A,#FF782E)";
+    $("nd0").className = "node on"; $("nd1").className = "node" + (f >= .62 ? " on" : ""); $("nd2").className = "node" + (f >= .99 ? " late" : "");
+    const b1 = eBack(prog(t, 21.95, 22.25)), b2 = eBack(prog(t, 22.1, 22.4));
+    $("tlB1").style.opacity = clamp(prog(t, 21.95, 22.05)); $("tlB1").style.transform = `scale(${b1})`;
+    $("tlB2").style.opacity = clamp(prog(t, 22.1, 22.2)); $("tlB2").style.transform = `scale(${b2})`;
+  } else hide("tl");
+
+  /* légendes (fond dégradé en haut quand le téléphone est zoomé) */
+  $("capbg").style.opacity = t > 6.2 && t < 26 ? .95 : 0;
+  capIn("c2", 6.2, 11.4, 110);
+  capIn("c3", 12.1, 18.3, 110); word("c3a", 12.1, t); word("c3b", 13.3, t); word("c3c", 14.5, t);
+  capIn("c4", 18.5, 25.6, 110); word("c4a", 18.5, t); word("c4b", 19.3, t); word("c4c", 20.1, t);
+
+  /* final : trois écrans en éventail, puis le logo sur sable */
+  const fan = eOut(prog(t, 25.5, 26.2)), gath = eIn(prog(t, 26.4, 27.1));
+  if (t >= 25.5 && t < 27.2) {
+    put("m1", { x: lerp(270, 120, fan * (1 - gath)) , y: 520 + 20 * fan * (1 - gath), r: -9 * fan * (1 - gath), s: lerp(.6, 1, fan) * (1 - .5 * gath), o: fan * (1 - gath) });
+    put("m3", { x: lerp(270, 420, fan * (1 - gath)), y: 520 + 20 * fan * (1 - gath), r: 9 * fan * (1 - gath), s: lerp(.6, 1, fan) * (1 - .5 * gath), o: fan * (1 - gath) });
+  } else { hide("m1"); hide("m3"); }
+  capIn("c5", 28.0, 32.5, 545);
+  capIn("c6", 29.3, 32.5, 655);
+  if (t >= 29.9) { const k = eOut(prog(t, 29.9, 30.3)); put("url", { y: 700, o: k * .9 }); } else hide("url");
+}
+window.render = render; window.warp = t => t;
+fetch("logo.svg").then(r => r.text()).then(s => { $("logo").innerHTML = s.replace(/style="[^"]*"/, 'style="width:100%;height:auto;overflow:visible"'); Promise.all([...document.images].map(i => i.complete ? 1 : new Promise(r => i.onload = i.onerror = r))).then(() => { window.__ready = true; }); });
+</script>
+</body></html>
