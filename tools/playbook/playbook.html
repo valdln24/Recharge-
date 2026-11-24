@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Le Playbook de la vente directe · Recharge</title>
+<!-- Source du Playbook PDF. Pour regénérer le PDF : node tools/playbook/build.js
+     La police (Manrope) et le logo sont repris du site au moment de la génération (marqueurs FONT et LOGO entre doubles accolades). -->
+<style>
+{{FONT}}
+:root{--ink:#1C1A22;--ink2:#4A4652;--ink3:#8A8592;--or:#FF782E;--or2:#C9541A;--osoft:#FFF1E8;--lav:#7B83F6;--lsoft:#EEEEFD;--sand:#F4EFE8;--line:#E7DFD5}
+@page{size:A4;margin:0}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:"Manrope",Arial,sans-serif;color:var(--ink);font-size:9.7pt;line-height:1.48;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.page{width:210mm;height:297mm;position:relative;overflow:hidden;page-break-after:always;padding:17mm 19mm 19mm;background:#fff}
+.page:last-child{page-break-after:auto}
+h1,h2,h3{margin:0;letter-spacing:-.02em;line-height:1.15}
+h2{font-size:21pt;font-weight:800;margin:3mm 0 3.5mm}
+h3{font-size:11.5pt;font-weight:800;margin:4.5mm 0 1.6mm}
+p{margin:0 0 2.4mm}
+ul,ol{margin:0 0 3mm;padding-left:5mm}li{margin:0 0 1.1mm}
+b,strong{font-weight:750}
+.k{font-size:8.6pt;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--or2)}
+.lead{font-size:11pt;color:var(--ink2);line-height:1.45;margin-bottom:4mm}
+.num{font-variant-numeric:tabular-nums}
+/* pied de page */
+.foot{position:absolute;left:20mm;right:20mm;bottom:10mm;display:flex;justify-content:space-between;font-size:7.8pt;color:var(--ink3);border-top:.6pt solid var(--line);padding-top:3mm}
+.foot b{color:var(--ink);font-weight:800}
+/* encadrés */
+.box{border-radius:4.5mm;padding:4mm 5mm;margin:3mm 0}
+.box.or{background:var(--osoft)}.box.lav{background:var(--lsoft)}.box.sand{background:var(--sand)}
+.box.ink{background:var(--ink);color:#fff}.box.ink p{color:#D8D5DE}
+.box .t{display:block;font-size:8.4pt;font-weight:800;letter-spacing:.14em;text-transform:uppercase;margin-bottom:2mm;color:var(--or2)}
+.box.ink .t{color:#FFB284}
+.box p:last-child,.box ul:last-child{margin-bottom:0}
+.msg{background:#fff;border:.8pt solid var(--line);border-radius:4mm 4mm 4mm 1mm;padding:2.8mm 4mm;margin:2mm 0;font-size:9.2pt;color:var(--ink)}
+.msg small{display:block;font-size:7.8pt;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);margin-bottom:1mm}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:5mm}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4mm}
+.card{border:.8pt solid var(--line);border-radius:4mm;padding:3.4mm 4.2mm}
+.card b.h{display:block;font-size:11pt;margin-bottom:1.5mm}
+.card p{font-size:9pt;color:var(--ink2);margin:0}
+table{width:100%;border-collapse:collapse;font-size:9pt;margin:2mm 0}
+th{text-align:left;font-size:7.8pt;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);font-weight:800;padding:2mm 2.5mm;border-bottom:1pt solid var(--ink)}
+td{padding:1.8mm 2.5mm;border-bottom:.6pt solid var(--line);vertical-align:top}
+td b{font-weight:800}
+.err{display:grid;grid-template-columns:10mm 1fr;gap:4mm;padding:2.6mm 0;border-bottom:.6pt solid var(--line)}
+.err:last-child{border-bottom:0}
+.err .n{font-size:20pt;font-weight:800;color:var(--or);line-height:1}
+.err>div>b{display:block;font-size:11pt;margin-bottom:1mm}
+.err p{margin:0;color:var(--ink2);font-size:9.3pt}
+.err p+p{margin-top:1.2mm}
+.err .fix{color:var(--ink)}.err .fix::before{content:"→ ";color:var(--or);font-weight:800}
+.ring{width:15mm;height:15mm}
+.chap{display:flex;align-items:center;gap:4mm}
+.chap .no{width:12mm;height:12mm;border-radius:50%;border:2pt solid var(--or);display:grid;place-items:center;font-weight:800;font-size:11pt;color:var(--or2)}
+.check li{list-style:none;position:relative;padding-left:7mm}
+.check{padding-left:0}
+.check li::before{content:"";position:absolute;left:0;top:1.2mm;width:3.6mm;height:3.6mm;border:1.3pt solid var(--or);border-radius:1mm}
+.dots li{list-style:none;position:relative;padding-left:5mm}.dots{padding-left:0}
+.dots li::before{content:"";position:absolute;left:0;top:2mm;width:2mm;height:2mm;border-radius:50%;background:var(--or)}
+.kpi{border-radius:4mm;background:var(--sand);padding:3.2mm 4.2mm}
+.kpi b.h{display:block;font-size:10.6pt}.kpi .f{display:block;font-size:8.6pt;color:var(--or2);font-weight:750;margin:1mm 0}
+.kpi p{font-size:9.2pt;color:var(--ink2);margin:0}
+.time{display:grid;grid-template-columns:24mm 1fr;gap:0 5mm;margin:3mm 0}
+.time .d{font-weight:800;font-size:9.6pt;color:var(--or2);padding:2.2mm 0;border-top:.6pt solid var(--line)}
+.time .c{padding:2.2mm 0;border-top:.6pt solid var(--line);font-size:9.3pt}
+.time .c b{display:block}
+/* couverture */
+.cover{background:var(--ink);color:#fff;padding:24mm 22mm}
+.cover .lg svg{height:11mm;width:auto}.cover .lg svg>path{fill:#fff}
+.cover .big{position:absolute;right:-62mm;top:-34mm;width:165mm;height:165mm;opacity:.95}
+.cover .k{color:#FFB284}
+.cover h1{font-size:46pt;font-weight:800;line-height:1.02;letter-spacing:-.04em;margin:6mm 0 7mm;max-width:160mm}
+.cover .mid{position:absolute;left:22mm;right:22mm;top:128mm}
+.cover h1 span{color:var(--or)}
+.cover .sub{font-size:13pt;line-height:1.5;color:#C9C6D0;max-width:128mm}
+.cover .bot{position:absolute;left:22mm;right:22mm;bottom:20mm;display:flex;justify-content:space-between;font-size:8.6pt;color:#8F8A99;border-top:.6pt solid rgba(255,255,255,.15);padding-top:4mm}
+/* dos */
+.back{background:var(--ink);color:#fff}
+.back .lg svg{height:10mm;width:auto}.back .lg svg>path{fill:#fff}
+.foot .lg svg{height:4.2mm!important}
+/* sommaire */
+.toc{list-style:none;padding:0;margin:6mm 0 0;counter-reset:t}
+.toc li{display:grid;grid-template-columns:12mm 1fr auto;gap:3mm;align-items:baseline;padding:3.2mm 0;border-bottom:.6pt solid var(--line);font-size:11pt;font-weight:650;margin:0}
+.toc li i{font-style:normal;color:var(--or);font-weight:800}
+.toc li span:last-child{color:var(--ink3);font-weight:700;font-size:9.6pt}
+.recharge-feat{display:grid;grid-template-columns:1fr 1fr;gap:3.5mm;margin:4mm 0}
+.recharge-feat div{border-radius:4mm;background:rgba(255,255,255,.06);padding:3.2mm 4mm}
+.recharge-feat b{display:block;color:#fff;font-size:10.4pt;margin-bottom:1mm}
+.recharge-feat p{color:#C9C6D0;font-size:9.2pt;margin:0}
+.cta{display:inline-block;background:var(--or);color:var(--ink);font-weight:800;font-size:11.5pt;border-radius:99px;padding:3.6mm 7mm;text-decoration:none;margin-top:3mm}
+</style>
+</head>
+<body>
+
+<!-- ============ COUVERTURE ============ -->
+<section class="page cover">
+  <div class="lg">{{LOGO}}</div>
+  <svg class="big" viewBox="0 0 200 200" aria-hidden="true">
+    <defs><linearGradient id="cg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F59A4A"/><stop offset=".5" stop-color="#DB6578"/><stop offset="1" stop-color="#7C7CF2"/></linearGradient></defs>
+    <circle cx="100" cy="100" r="78" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="18"/>
+    <path d="M155.2 44.8A78 78 0 1 1 100 22" fill="none" stroke="url(#cg)" stroke-width="18" stroke-linecap="round"/>
+    <circle cx="100" cy="100" r="52" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="2"/>
+  </svg>
+  <div class="mid"><span class="k">Guide pratique · Édition 2026</span>
+  <h1>Le Playbook de la <span>vente directe</span></h1>
+  <p class="sub">Les méthodes pour mieux gérer ses clients, développer sa fidélisation et construire une activité commerciale plus structurée.</p></div>
+  <div class="bot"><span>Pour les VDI, conseillères et conseillers, distributeurs indépendants et responsables de réseaux</span><span>recharge</span></div>
+</section>
+
+<!-- ============ SOMMAIRE ============ -->
+<section class="page">
+  <span class="k">Sommaire</span>
+  <h2>Ce que vous allez trouver</h2>
+  <p class="lead">Ce guide ne vous apprend pas à « vendre plus fort ». Il vous aide à mieux vous organiser pour que vos clients actuels reviennent, au bon moment, sans que vous ayez à y penser en permanence.</p>
+  <ol class="toc">
+    <li><i>01</i><span>Les nouveaux enjeux de la vente directe</span><span>p. 3</span></li>
+    <li><i>02</i><span>Les 5 erreurs qui font perdre des clients</span><span>p. 4</span></li>
+    <li><i>03</i><span>Structurer son portefeuille client</span><span>p. 5</span></li>
+    <li><i>04</i><span>Construire une méthode de suivi efficace</span><span>p. 6</span></li>
+    <li><i>05</i><span>Quand et comment relancer ses clients</span><span>p. 7</span></li>
+    <li><i>06</i><span>Développer les commandes récurrentes</span><span>p. 8</span></li>
+    <li><i>07</i><span>Fidéliser sans être constamment dans la prospection</span><span>p. 9</span></li>
+    <li><i>08</i><span>Les indicateurs importants à suivre</span><span>p. 10</span></li>
+    <li><i>09</i><span>Les outils numériques pour professionnaliser son activité</span><span>p. 11</span></li>
+    <li><i>+</i><span>Votre plan d'action sur 30 jours</span><span>p. 12</span></li>
+    <li><i>10</i><span>Conclusion, et présentation de Recharge</span><span>p. 13</span></li>
+  </ol>
+  <div class="box sand" style="margin-top:8mm"><span class="t">Comment utiliser ce guide</span>
+    <p>Lisez-le une première fois en entier (environ 30 minutes), puis gardez-le sous la main. Chaque chapitre se termine par une action concrète à faire dans la semaine. Les chiffres donnés sont des <b>repères pour réfléchir</b>, pas des promesses : chaque marque, chaque produit et chaque clientèle est différent.</p></div>
+  <div class="foot"><span><b>recharge</b> · Le Playbook de la vente directe</span><span>2</span></div>
+</section>
+
+<!-- ============ 1. INTRODUCTION ============ -->
+<section class="page">
+  <div class="chap"><span class="no">01</span><span class="k">Introduction</span></div>
+  <h2>Les nouveaux enjeux de la vente directe</h2>
+  <p class="lead">La vente directe a toujours reposé sur la relation. Ce qui a changé, c'est la quantité de relations à entretenir, et la vitesse à laquelle un client peut passer à autre chose.</p>
+  <h3>Trois changements de fond</h3>
+  <div class="grid3">
+    <div class="card"><b class="h">Des clients plus sollicités</b><p>Vos clients reçoivent des offres toute la journée, sur leur téléphone. Celui qui pense à eux au bon moment, avec un message personnel, garde un vrai avantage.</p></div>
+    <div class="card"><b class="h">Une activité qui se mène à distance</b><p>Une grande partie des échanges se fait désormais par messages. C'est plus rapide, mais une conversation oubliée ne se rattrape pas toute seule.</p></div>
+    <div class="card"><b class="h">Des réseaux plus exigeants</b><p>Marques et responsables de réseaux attendent de la régularité : des commandes qui reviennent, pas seulement des pics au moment des lancements.</p></div>
+  </div>
+  <h3>Le vrai sujet : le client que l'on a déjà</h3>
+  <p>Trouver un nouveau client demande du temps : il faut le rencontrer, gagner sa confiance, lui faire découvrir les produits. Un client qui a déjà acheté et qui est satisfait n'a besoin, la plupart du temps, que d'un rappel au bon moment.</p>
+  <p>Pourtant, dans beaucoup d'activités, le suivi repose sur la mémoire, un carnet ou des conversations dispersées dans le téléphone. Résultat : des clients satisfaits ne recommandent pas, simplement parce que personne ne les a relancés quand leur produit se terminait.</p>
+  <div class="box or"><span class="t">L'idée de ce guide</span>
+    <p>Passer d'une activité qui dépend de votre mémoire et de votre énergie du jour à une activité <b>structurée</b> : vous savez qui contacter, quand, et pourquoi. La relation reste humaine ; c'est l'organisation qui devient méthodique.</p></div>
+  <h3>Ce que « structurer » veut dire, concrètement</h3>
+  <ul class="dots">
+    <li>Chaque client a une fiche à jour : ce qu'il a acheté, quand, et ce qu'il aime.</li>
+    <li>Chaque produit a une durée d'utilisation connue, donc une date de fin prévisible.</li>
+    <li>Chaque jour, vous avez une courte liste de personnes à contacter, avec une raison précise.</li>
+    <li>Chaque mois, vous regardez quelques chiffres simples pour savoir si votre clientèle grandit ou s'effrite.</li>
+  </ul>
+  <div class="box sand"><span class="t">Action de la semaine</span><p>Comptez combien de clients ont acheté au moins une fois chez vous ces 12 derniers mois. Notez ce chiffre : il vous servira de point de départ au chapitre 8.</p></div>
+  <div class="foot"><span><b>recharge</b> · Le Playbook de la vente directe</span><span>3</span></div>
+</section>
+
+<!-- ============ 2. LES 5 ERREURS ============ -->
+<section class="page">
+  <div class="chap"><span class="no">02</span><span class="k">Diagnostic</span></div>
+  <h2>Les 5 erreurs qui font perdre des clients</h2>
+  <p class="lead">On perd rarement un client à cause d'un mauvais produit. On le perd surtout par manque de suivi. Voici les cinq situations les plus fréquentes, et comment les éviter.</p>
+  <div class="err"><span class="n">1</span><div><b>Relancer trop tard</b><p>Le client a fini son produit il y a trois semaines. Il en a racheté ailleurs, ou il s'en passe. Votre message arrive après la décision.</p><p class="fix">Relancez <b>avant</b> la fin du produit, quand le besoin est encore présent (voir chapitre 5).</p></div></div>
+  <div class="err"><span class="n">2</span><div><b>Ne jamais relancer « pour ne pas déranger »</b><p>Beaucoup de vendeuses attendent que le client revienne de lui-même. Or la plupart des clients satisfaits ne pensent simplement pas à recommander.</p><p class="fix">Un message utile, au bon moment, n'est pas du harcèlement : c'est un service. Ce qui dérange, c'est le message générique envoyé à tout le monde.</p></div></div>
+  <div class="err"><span class="n">3</span><div><b>Envoyer le même message à tout le monde</b><p>« Coucou, n'oubliez pas la promo du mois ! » envoyé à 80 contacts. Le taux de réponse est faible, et certains clients finissent par ne plus ouvrir vos messages.</p><p class="fix">Un message court, personnel, qui cite le produit et le prénom, et qui a une raison d'être envoyé aujourd'hui.</p></div></div>
+  <div class="err"><span class="n">4</span><div><b>Oublier l'après-vente</b><p>La vente est faite, on passe à la suivante. Le client ne sait pas s'il utilise bien le produit, n'a pas de nouvelles, et ne se sent pas suivi.</p><p class="fix">Un message une semaine après l'achat : « Comment ça se passe avec… ? ». C'est le moment où se construit la fidélité.</p></div></div>
+  <div class="err"><span class="n">5</span><div><b>Tout garder dans sa tête (ou dans un carnet introuvable)</b><p>Tant que vous avez 15 clients, la mémoire suffit à peu près. Au-delà de 30 ou 40, des clients passent entre les mailles, sans que vous vous en rendiez compte.</p><p class="fix">Un seul endroit pour toutes les fiches clients, consultable en quelques secondes depuis votre téléphone.</p></div></div>
+  <div class="box sand" style="margin-top:5mm"><span class="t">Action de la semaine</span><p>Reprenez vos 10 dernières ventes. Pour chacune, posez-vous la question : ai-je pris des nouvelles une semaine après ? Saurais-je dire quand ce client aura fini son produit ?</p></div>
+  <div class="foot"><span><b>recharge</b> · Le Playbook de la vente directe</span><span>4</span></div>
+</section>
+
+<!-- ============ 3. PORTEFEUILLE ============ -->
+<section class="page">
+  <div class="chap"><span class="no">03</span><span class="k">Organisation</span></div>
+  <h2>Structurer son portefeuille client</h2>
+  <p class="lead">Votre portefeuille client, c'est l'ensemble des personnes qui ont déjà acheté chez vous. Le structurer, c'est savoir en un coup d'œil où en est chacune d'entre elles.</p>
+  <h3>La fiche client minimale</h3>
+  <p>Inutile de tout noter. Ces informations suffisent pour bien suivre quelqu'un :</p>
+  <table>
+    <tr><th style="width:34%">Information</th><th>Pourquoi c'est utile</th></tr>
+    <tr><td><b>Prénom, nom, téléphone</b></td><td>Pour le contacter directement, avec son prénom.</td></tr>
+    <tr><td><b>Produits achetés et date</b></td><td>Pour savoir quand chaque produit se termine.</td></tr>
+    <tr><td><b>Quantité</b></td><td>Deux flacons durent deux fois plus longtemps qu'un seul.</td></tr>
+    <tr><td><b>Une note personnelle</b></td><td>« Peau sensible », « préfère être contactée le soir » : ce qui rend le message humain.</td></tr>
+    <tr><td><b>Qui l'a recommandé</b></td><td>Pour remercier la personne, et comprendre d'où viennent vos clients.</td></tr>
+  </table>
+  <h3>Quatre groupes pour y voir clair</h3>
+  <div class="grid2">
+    <div class="card"><b class="h">Clients actifs</b><p>Ont acheté récemment et leur produit est en cours d'utilisation. Rien à faire, sauf le message de suivi une semaine après l'achat.</p></div>
+    <div class="card"><b class="h">À relancer</b><p>Leur produit se termine dans les prochains jours. C'est votre priorité de la semaine.</p></div>
+    <div class="card"><b class="h">Dormants</b><p>Plus de commande depuis 3 mois ou plus. Ils ne sont pas perdus : un message attentionné suffit souvent à renouer.</p></div>
+    <div class="card"><b class="h">Perdus</b><p>Ont dit non, ou ne répondent plus après plusieurs messages espacés. On respecte leur choix et on arrête les relances.</p></div>
+  </div>
+  <h3>Distinguer aussi la fidélité</h3>
+  <p>Un client qui a commandé une fois n'appelle pas le même message qu'un client qui commande chaque mois depuis un an. Repérez vos <b>clients réguliers</b> (au moins 3 commandes) : ce sont eux qui méritent le plus d'attention, et ce sont souvent eux qui recommandent.</p>
+  <div class="box sand"><span class="t">Action de la semaine</span><p>Classez vos clients dans les quatre groupes ci-dessus. Le groupe « À relancer » vous donne votre liste de la semaine ; le groupe « Dormants » votre liste du mois.</p></div>
+  <div class="foot"><span><b>recharge</b> · Le Playbook de la vente directe</span><span>5</span></div>
+</section>
+
+<!-- ============ 4. METHODE DE SUIVI ============ -->
+<section class="page">
+  <div class="chap"><span class="no">04</span><span class="k">Méthode</span></div>
+  <h2>Construire une méthode de suivi efficace</h2>
+  <p class="lead">Un bon suivi ne demande pas beaucoup de temps. Il demande de la régularité. Le plus efficace est un rituel court, toujours au même moment.</p>
+  <h3>Le rituel quotidien : 15 à 20 minutes</h3>
+  <ol>
+    <li><b>Ouvrir la liste du jour</b> : les clients dont le produit se termine bientôt, les suivis une semaine après un achat, les prospects à recontacter.</li>
+    <li><b>Envoyer les messages</b>, un par un, en personnalisant au moins le prénom et le produit.</li>
+    <li><b>Noter ce qui s'est passé</b> : relancé, commande passée, pas intéressé, à rappeler plus tard.</li>
+  </ol>
+  <p>Mieux vaut 15 minutes chaque jour qu'une heure et demie le dimanche soir : les relances partent au bon moment, et la charge reste légère.</p>
+  <h3>Le point hebdomadaire : 30 minutes</h3>
+  <ul class="dots">
+    <li>Saisir les ventes de la semaine qui n'ont pas encore été notées.</li>
+    <li>Vérifier les clients qui n'ont pas répondu : un deuxième message, quelques jours plus tard, plus court.</li>
+    <li>Préparer les événements de la semaine suivante (atelier, livraison, lancement).</li>
+  </ul>
+  <h3>Le bilan mensuel : 45 minutes</h3>
+  <ul class="dots">
+    <li>Regarder vos indicateurs (chapitre 8) et les comparer au mois précédent.</li>
+    <li>Contacter quelques clients dormants avec un message attentionné, sans offre.</li>
+    <li>Choisir <b>une seule chose</b> à améliorer le mois suivant.</li>
+  </ul>
+  <h3>Les trois moments clés d'un client</h3>
+  <div class="time">
+    <span class="d">J+7</span><span class="c"><b>Le suivi après l'achat</b>« Comment ça se passe avec votre crème ? » On vérifie que tout va bien, on donne un conseil d'utilisation. Pas de vente.</span>
+    <span class="d">Fin − 5 j</span><span class="c"><b>La relance réassort</b>Le produit se termine bientôt : on propose de préparer la suite, avant que le client ne se retrouve sans rien.</span>
+    <span class="d">+ 3 mois</span><span class="c"><b>La prise de nouvelles</b>Pour un client qui n'a pas recommandé : un message sincère, sans offre, pour garder le lien.</span>
+  </div>
+  <div class="box sand"><span class="t">Action de la semaine</span><p>Choisissez votre créneau quotidien (par exemple 8 h 45, avec un café) et bloquez-le dans votre agenda pendant 4 semaines.</p></div>
+  <div class="foot"><span><b>recharge</b> · Le Playbook de la vente directe</span><span>6</span></div>
+</section>
+
+<!-- ============ 5. RELANCER ============ -->
+<section class="page">
+  <div class="chap"><span class="no">05</span><span class="k">Relance</span></div>
+  <h2>Quand et comment relancer ses clients</h2>
+  <p class="lead">Une bonne relance repose sur deux choses : le bon moment, calculé à partir du produit, et un message qui ressemble à une conversation, pas à une publicité.</p>
+  <h3>Calculer la date de fin d'un produit</h3>
+  <div class="box lav"><p style="font-size:11.5pt;margin:0"><b>Date de fin = date d'achat + (durée d'utilisation × quantité)</b></p></div>
+  <p>Exemple : un gel acheté le 1<sup>er</sup> mars, qui dure environ 30 jours, en 2 exemplaires : fin prévue vers le 30 avril. La relance se prépare donc autour du 25 avril.</p>
+  <p>La durée d'utilisation varie selon les personnes. Notez-la d'abord à partir de la notice ou de votre expérience, puis ajustez-la avec le vrai rythme de chaque client : si une cliente recommande toujours au bout de 40 jours, c'est son rythme qui compte.</p>
+  <h3>Le bon moment : quelques jours avant la fin</h3>
+  <p>Relancer environ <b>5 jours avant la fin</b> laisse le temps de commander et de recevoir le produit, sans rupture. Trop tôt, le client n'en ressent pas le besoin ; trop tard, il a déjà trouvé une autre solution.</p>
+  <h3>La structure d'un bon message</h3>
+  <ol>
+    <li><b>Le prénom</b>, et un ton naturel.</li>
+    <li><b>Le produit concerné</b>, pour montrer que le message est personnel.</li>
+    <li><b>Une raison d'écrire aujourd'hui</b> : le produit arrive à sa fin.</li>
+    <li><b>Une proposition simple</b>, à laquelle on peut répondre en un mot.</li>
+  </ol>
+  <div class="grid2">
+    <div><div class="msg"><small>Relance réassort</small>Bonjour Julie ! Votre gel aloe vera doit bientôt arriver à sa fin. Je vous en prépare un autre pour la semaine prochaine ?</div>
+      <div class="msg"><small>Deuxième message, 4 jours plus tard</small>Je me permets de revenir vers vous pour le gel : je passe ma commande jeudi, je vous l'ajoute ?</div></div>
+    <div><div class="msg"><small>Suivi une semaine après l'achat</small>Bonjour Karim, comment se passent les premiers jours avec la crème visage ? Le soir, une petite quantité suffit, sur peau propre.</div>
+      <div class="msg"><small>Client dormant</small>Bonjour Sophie, ça fait un moment ! Je pensais à vous en préparant mes commandes. J'espère que tout va bien de votre côté.</div></div>
+  </div>
+  <div class="box or"><span class="t">Ce qu'il vaut mieux éviter</span>
+    <ul style="margin:0"><li>Plus de deux relances sans réponse pour un même produit.</li><li>Les messages envoyés à toute votre liste en même temps.</li><li>Les promesses de résultats (santé, minceur, beauté) : elles engagent votre responsabilité.</li></ul></div>
+  <div class="foot"><span><b>recharge</b> · Le Playbook de la vente directe</span><span>7</span></div>
+</section>
+
+<!-- ============ 6. RECURRENT ============ -->
+<section class="page">
+  <div class="chap"><span class="no">06</span><span class="k">Récurrence</span></div>
+  <h2>Développer les commandes récurrentes</h2>
+  <p class="lead">Une commande récurrente, c'est un client qui rachète régulièrement le même produit. C'est la base la plus stable d'une activité de vente directe.</p>
+  <h3>Pourquoi c'est votre priorité</h3>
+  <p>Prenons un exemple simple, à adapter à vos propres chiffres : un client qui achète un produit à 35 € tous les deux mois représente environ 210 € de ventes sur un an. Cinquante clients dans ce cas, c'est un socle d'activité que vous n'avez pas besoin de reconstruire chaque mois.</p>
+  <p>À l'inverse, un client qui n'achète qu'une fois laisse une vente sans lendemain. La différence entre les deux tient souvent à une seule chose : la relance au bon moment.</p>
+  <h3>Quatre leviers concrets</h3>
+  <div class="grid2">
+    <div class="card"><b class="h">1. Les produits du quotidien</b><p>Repérez les produits qui se consomment régulièrement (soins quotidiens, compléments, entretien). Ce sont eux qui créent la récurrence ; mettez-les en avant dans vos conseils.</p></div>
+    <div class="card"><b class="h">2. La routine plutôt que le produit</b><p>Présentez une routine (matin et soir, par exemple) plutôt qu'un produit isolé. Une routine adoptée devient une habitude d'achat.</p></div>
+    <div class="card"><b class="h">3. Le réassort préparé à l'avance</b><p>Proposez de préparer la commande suivante avant la fin du produit. Pour le client, c'est un service : il n'a rien à anticiper.</p></div>
+    <div class="card"><b class="h">4. Les programmes de votre marque</b><p>Si votre marque propose une commande programmée ou un avantage de fidélité, présentez-le aux clients réguliers, avec ses vraies conditions.</p></div>
+  </div>
+  <h3>Repérer vos clients « récurrents en puissance »</h3>
+  <p>Ce sont les clients qui ont déjà commandé deux fois le même produit. Ils ont trouvé quelque chose qui leur convient. Pour eux :</p>
+  <ul class="check">
+    <li>notez leur rythme réel (l'écart entre leurs deux commandes) ;</li>
+    <li>relancez-les quelques jours avant la fin prévue ;</li>
+    <li>au bout de la troisième commande, proposez-leur de les prévenir automatiquement à chaque fois.</li>
+  </ul>
+  <div class="box sand"><span class="t">Action de la semaine</span><p>Listez vos 10 produits les plus vendus et notez la durée d'utilisation de chacun. C'est la base de toutes vos futures relances.</p></div>
+  <div class="foot"><span><b>recharge</b> · Le Playbook de la vente directe</span><span>8</span></div>
+</section>
+
+<!-- ============ 7. FIDELISER ============ -->
+<section class="page">
+  <div class="chap"><span class="no">07</span><span class="k">Fidélisation</span></div>
+  <h2>Fidéliser sans être constamment dans la prospection</h2>
+  <p class="lead">Beaucoup de professionnels de la vente directe s'épuisent à chercher sans cesse de nouveaux clients. Une clientèle fidèle permet de prospecter moins, et mieux.</p>
+  <h3>La fidélité se construit dans les petits moments</h3>
+  <ul class="dots">
+    <li><b>Le suivi après l'achat.</b> Un client qui se sent accompagné revient plus facilement.</li>
+    <li><b>Les conseils sans vente.</b> Une astuce d'utilisation, une précaution de saison : vous restez présente sans rien demander.</li>
+    <li><b>La reconnaissance.</b> Remercier un client fidèle, se souvenir de ce qu'il aime, lui réserver une attention à sa 5<sup>e</sup> commande.</li>
+    <li><b>La régularité.</b> Être joignable, répondre vite, livrer quand c'est prévu.</li>
+  </ul>
+  <h3>La recommandation : la prospection qui vient à vous</h3>
+  <p>Un client satisfait connaît des personnes qui lui ressemblent. Il ne pense simplement pas à parler de vous. Demandez-le, au bon moment :</p>
+  <ul class="check">
+    <li>après un retour positif (« J'adore ce produit ! ») ;</li>
+    <li>après la deuxième ou la troisième commande ;</li>
+    <li>avec une demande précise : « Vous connaissez une ou deux personnes à qui ce produit pourrait plaire ? »</li>
+  </ul>
+  <div class="msg" style="max-width:130mm"><small>Demande de recommandation</small>Merci pour votre confiance, Nadia ! Si vous pensez à une amie à qui ce soin pourrait plaire, je serais ravie de lui faire découvrir. Et bien sûr, je vous réserve une petite attention.</div>
+  <h3>Ne pas trop solliciter</h3>
+  <p>La fidélité se perd aussi par excès. Quelques repères simples :</p>
+  <table>
+    <tr><th style="width:42%">Type de message</th><th>Fréquence raisonnable</th></tr>
+    <tr><td>Relance réassort</td><td>Une fois par produit, deux au maximum</td></tr>
+    <tr><td>Conseil, prise de nouvelles</td><td>Une fois par mois au plus</td></tr>
+    <tr><td>Offre, promotion</td><td>Seulement si elle concerne vraiment le client</td></tr>
+    <tr><td>Client qui ne répond plus</td><td>Une prise de nouvelles tous les 3 mois, puis on arrête</td></tr>
+  </table>
+  <div class="box sand"><span class="t">Action de la semaine</span><p>Identifiez vos 5 clients les plus fidèles et envoyez à chacun un message de remerciement personnel, sans offre.</p></div>
+  <div class="foot"><span><b>recharge</b> · Le Playbook de la vente directe</span><span>9</span></div>
+</section>
+
+<!-- ============ 8. INDICATEURS ============ -->
+<section class="page">
+  <div class="chap"><span class="no">08</span><span class="k">Pilotage</span></div>
+  <h2>Les indicateurs importants à suivre</h2>
+  <p class="lead">Pas besoin d'un tableau de bord compliqué. Six chiffres, regardés une fois par mois, suffisent pour savoir si votre activité se renforce.</p>
+  <div class="grid2" style="gap:4mm">
+    <div class="kpi"><b class="h">Clients actifs</b><span class="f">Clients ayant acheté sur les 3 derniers mois</span><p>Le cœur de votre activité. S'il baisse, vos relances ou votre suivi ont décroché.</p></div>
+    <div class="kpi"><b class="h">Taux de réachat</b><span class="f">Clients ayant acheté 2 fois ou plus ÷ total des clients</span><p>Mesure la fidélité. C'est l'indicateur le plus révélateur de la qualité de votre suivi.</p></div>
+    <div class="kpi"><b class="h">Délai moyen de réachat</b><span class="f">Moyenne des jours entre deux commandes d'un même produit</span><p>Vous indique la vraie durée de vos produits chez vos clients, pour relancer au bon moment.</p></div>
+    <div class="kpi"><b class="h">Panier moyen</b><span class="f">Ventes du mois ÷ nombre de commandes</span><p>Évolue avec les routines et les conseils complémentaires, sans pousser à la vente.</p></div>
+    <div class="kpi"><b class="h">Clients dormants</b><span class="f">Sans commande depuis plus de 3 mois</span><p>Votre réserve de ventes. Un nombre qui grimpe signale des relances oubliées.</p></div>
+    <div class="kpi"><b class="h">Taux de réponse aux relances</b><span class="f">Réponses ÷ relances envoyées</span><p>S'il est faible, vos messages sont peut-être trop génériques ou envoyés trop tard.</p></div>
+  </div>
+  <h3>Un tableau de bord sur une page</h3>
+  <table>
+    <tr><th>Indicateur</th><th>Mois dernier</th><th>Ce mois-ci</th><th>Tendance</th></tr>
+    <tr><td>Clients actifs</td><td></td><td></td><td></td></tr>
+    <tr><td>Taux de réachat</td><td></td><td></td><td></td></tr>
+    <tr><td>Clients dormants</td><td></td><td></td><td></td></tr>
+    <tr><td>Panier moyen</td><td></td><td></td><td></td></tr>
+    <tr><td>Relances envoyées / réponses</td><td></td><td></td><td></td></tr>
+  </table>
+  <div class="box or"><span class="t">Un seul chiffre à retenir</span><p>Si vous ne deviez en suivre qu'un : le <b>taux de réachat</b>. Il dit si les clients qui vous découvrent ont envie de revenir. C'est la base de tout le reste.</p></div>
+  <div class="foot"><span><b>recharge</b> · Le Playbook de la vente directe</span><span>10</span></div>
+</section>
+
+<!-- ============ 9. OUTILS ============ -->
+<section class="page">
+  <div class="chap"><span class="no">09</span><span class="k">Outils</span></div>
+  <h2>Les outils numériques pour professionnaliser son activité</h2>
+  <p class="lead">Le bon outil est celui que vous utiliserez vraiment, tous les jours. Voici les options les plus courantes, avec leurs forces et leurs limites.</p>
+  <table>
+    <tr><th style="width:20%">Outil</th><th style="width:40%">Points forts</th><th>Limites</th></tr>
+    <tr><td><b>Carnet papier</b></td><td>Simple, toujours disponible, rien à apprendre.</td><td>Pas de rappel, difficile à trier, risque de perte. Ne calcule pas les dates de fin.</td></tr>
+    <tr><td><b>Tableur</b></td><td>Gratuit, permet de trier et de faire des calculs.</td><td>Peu pratique sur téléphone, demande de la rigueur, ne prévient de rien.</td></tr>
+    <tr><td><b>Notes et rappels du téléphone</b></td><td>Rappels ponctuels faciles à créer.</td><td>Un rappel par client devient vite ingérable ; aucune vue d'ensemble.</td></tr>
+    <tr><td><b>Outil de la marque</b></td><td>Historique des commandes à jour.</td><td>Pensé pour la commande, rarement pour le suivi et la relance.</td></tr>
+    <tr><td><b>Application de suivi client</b></td><td>Fiches, dates de fin, liste du jour et messages prêts au même endroit.</td><td>Demande un temps d'installation et la saisie de l'historique.</td></tr>
+  </table>
+  <h3>Les critères pour choisir</h3>
+  <ul class="check">
+    <li><b>Mobile d'abord</b> : vous devez pouvoir noter une vente en quelques secondes, n'importe où.</li>
+    <li><b>Proactif</b> : l'outil doit vous dire qui contacter aujourd'hui, pas seulement stocker des informations.</li>
+    <li><b>Compatible avec vos messages</b> : envoyer le message prêt sur WhatsApp ou par SMS en un geste.</li>
+    <li><b>Indépendant de la marque</b> : vos clients vous suivent si vous changez de marque ou en ajoutez une.</li>
+  </ul>
+  <h3>Vos contacts et le RGPD : l'essentiel</h3>
+  <div class="box lav">
+    <ul style="margin:0"><li>Ne notez que ce qui sert à votre suivi : coordonnées, achats, préférences utiles.</li>
+    <li>Évitez les données sensibles (santé, par exemple), même si un client vous en parle.</li>
+    <li>Respectez immédiatement la demande d'un client qui ne veut plus être contacté, et supprimez ses données s'il le demande.</li>
+    <li>Ne partagez jamais votre fichier clients et ne l'achetez jamais à un tiers.</li></ul></div>
+  <div class="box sand"><span class="t">Action de la semaine</span><p>Rassemblez toutes vos informations clients au même endroit, quel que soit l'outil choisi. Un fichier unique vaut mieux que trois carnets à moitié remplis.</p></div>
+  <div class="foot"><span><b>recharge</b> · Le Playbook de la vente directe</span><span>11</span></div>
+</section>
+
+<!-- ============ PLAN 30 JOURS ============ -->
+<section class="page">
+  <div class="chap"><span class="no">+</span><span class="k">Passer à l'action</span></div>
+  <h2>Votre plan d'action sur 30 jours</h2>
+  <p class="lead">Tout ce guide, résumé en quatre semaines. Une étape à la fois : à la fin du mois, votre activité aura une vraie structure.</p>
+  <div class="time">
+    <span class="d">Semaine 1</span><span class="c"><b>Rassembler</b>
+      <ul class="check" style="margin:2mm 0 0"><li>Réunir toutes vos fiches clients au même endroit.</li><li>Noter les achats des 6 derniers mois, avec la date et la quantité.</li><li>Lister la durée d'utilisation de vos 10 produits principaux.</li></ul></span>
+    <span class="d">Semaine 2</span><span class="c"><b>Organiser</b>
+      <ul class="check" style="margin:2mm 0 0"><li>Calculer la date de fin de chaque produit acheté.</li><li>Classer vos clients : actifs, à relancer, dormants, perdus.</li><li>Choisir votre créneau quotidien de 15 minutes.</li></ul></span>
+    <span class="d">Semaine 3</span><span class="c"><b>Relancer</b>
+      <ul class="check" style="margin:2mm 0 0"><li>Relancer chaque client 5 jours avant la fin de son produit.</li><li>Envoyer le message de suivi une semaine après chaque nouvel achat.</li><li>Écrire à 5 clients dormants, sans offre.</li></ul></span>
+    <span class="d">Semaine 4</span><span class="c"><b>Mesurer et ajuster</b>
+      <ul class="check" style="margin:2mm 0 0"><li>Remplir le tableau de bord du chapitre 8.</li><li>Demander une recommandation à vos 3 clients les plus satisfaits.</li><li>Choisir une seule amélioration pour le mois suivant.</li></ul></span>
+  </div>
+  <div class="box ink" style="margin-top:6mm"><span class="t">À garder en tête</span>
+    <p style="font-size:11pt">La régularité compte plus que l'intensité. Quinze minutes par jour, pendant un mois, transforment davantage une activité qu'un grand week-end de rangement une fois par an.</p></div>
+  <div class="foot"><span><b>recharge</b> · Le Playbook de la vente directe</span><span>12</span></div>
+</section>
+
+<!-- ============ 10. CONCLUSION + RECHARGE ============ -->
+<section class="page back" style="padding-top:24mm">
+  <div class="chap"><span class="no" style="border-color:var(--or);color:var(--or)">10</span><span class="k" style="color:#FFB284">Conclusion</span></div>
+  <h2 style="color:#fff">Une activité structurée, une relation qui reste humaine</h2>
+  <p style="color:#C9C6D0;font-size:11.5pt;line-height:1.55">La vente directe repose sur la confiance. Ce guide ne vous demande pas de changer votre manière d'être avec vos clients : il vous propose de ne plus dépendre de votre mémoire pour prendre soin d'eux. Connaître la fin de chaque produit, relancer au bon moment, prendre des nouvelles après l'achat, suivre quelques chiffres : c'est cette régularité qui construit une clientèle fidèle.</p>
+  <h3 style="color:#fff;margin-top:8mm">Recharge, l'outil construit pour cette méthode</h3>
+  <p style="color:#C9C6D0">Recharge est une application de suivi client pensée pour les professionnels de la vente directe, toutes marques confondues. Elle applique la méthode de ce guide au quotidien :</p>
+  <div class="recharge-feat">
+    <div><b>La date de fin de chaque produit</b><p>Calculée à partir de l'achat, de la quantité et de la durée du produit, puis ajustée au vrai rythme de chaque client.</p></div>
+    <div><b>Votre liste du jour</b><p>Qui relancer, qui suivre une semaine après l'achat, qui recontacter, selon le temps dont vous disposez.</p></div>
+    <div><b>Des messages prêts à envoyer</b><p>Personnalisés avec le prénom et le produit, à envoyer sur WhatsApp en un geste, et à modifier si vous le souhaitez.</p></div>
+    <div><b>Vos clients importés en quelques minutes</b><p>Depuis une photo de votre carnet, une capture de votre back-office ou un fichier Excel.</p></div>
+  </div>
+  <p style="color:#C9C6D0">Vos contacts restent les vôtres : Recharge ne les revend pas et ne leur écrit jamais à votre place.</p>
+  <a class="cta" href="https://recharge.delaineval.workers.dev/app/">Essayer Recharge 14 jours</a>
+  <p style="color:#8F8A99;font-size:8.6pt;margin-top:4mm">14 jours d'essai, sans engagement. recharge.delaineval.workers.dev</p>
+  <div class="foot" style="border-color:rgba(255,255,255,.15);color:#8F8A99"><span class="lg">{{LOGO}}</span><span>© 2026 Recharge · Ce guide peut être partagé librement, sans modification.</span></div>
+</section>
+
+</body>
+</html>

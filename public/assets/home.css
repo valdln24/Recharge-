@@ -186,3 +186,10 @@ body.home .sfab{display:none!important}
 .fnd svg{width:42px;height:42px;flex:0 0 auto}.fnd .trk{fill:none;stroke:rgba(255,255,255,.14);stroke-width:4}.fnd .arc{fill:none;stroke:var(--orange);stroke-width:4;stroke-linecap:round;transition:stroke-dasharray .8s}
 .fnd>span{font-size:.88rem;color:#C9CBD6;font-weight:600;line-height:1.35}.fnd b{display:block;color:#fff}
 @media (max-width:900px){.price3.p3{grid-template-columns:1fr}}
+
+/* Bandeau « Ressource gratuite » (le Playbook) */
+.pbband{display:grid;grid-template-columns:1.3fr .7fr;gap:28px;align-items:center;background:#17151B;color:#fff;border-radius:32px;padding:40px 44px;overflow:hidden}
+.pbband .k{color:#FFB284}.pbband h2{margin:8px 0 10px;color:#fff;font-size:clamp(1.6rem,3vw,2.3rem);letter-spacing:-.03em;line-height:1.08}
+.pbband p{color:#C9C6D0;margin:0 0 20px;max-width:520px}
+.pbband-c{display:flex;justify-content:center}.pbband-c .pbm-cover{width:260px;transform:rotate(3deg)}.pbband-c .pbm-cover svg{width:190px;height:190px;right:-58px;top:-58px}
+@media (max-width:760px){.pbband{grid-template-columns:1fr;padding:28px 22px}.pbband-c{display:none}}

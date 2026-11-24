@@ -792,3 +792,59 @@ header.nav.solid{background:rgba(244,239,232,.86)}
 .pbanner b{color:#fff}.pbanner span{flex:1}
 .pbanner button{flex:none;width:32px;height:32px;border:0;border-radius:50%;background:rgba(255,255,255,.12);color:#fff;font-size:1.2rem;line-height:1;cursor:pointer}
 .pnote{margin-top:18px;text-align:center;font-weight:650;color:var(--ink-2)}.pnote b{color:var(--ink)}
+
+/* ---------- Lead magnet : le Playbook ---------- */
+.pbm{--pi:#1C1A22;--pi2:#4A4652;--pi3:#8A8592;--po:#FF782E;--pos:#FFF1E8;--pl:#E7DFD5;position:fixed;inset:0;z-index:1000;display:grid;place-items:center;padding:20px}
+.pbm[hidden]{display:none}
+.pbm-lock,.pbm-lock body{overflow:hidden}
+.pbm-bg{position:absolute;inset:0;background:rgba(18,16,24,.62);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);opacity:0;transition:opacity .22s}
+.pbm-box{position:relative;width:min(900px,100%);max-height:calc(100dvh - 40px);overflow:auto;display:grid;grid-template-columns:330px 1fr;background:#fff;border-radius:30px;box-shadow:0 40px 90px -30px rgba(0,0,0,.55);opacity:0;transform:translateY(16px) scale(.98);transition:opacity .22s,transform .28s cubic-bezier(.2,.8,.2,1);color:var(--pi);font-family:inherit}
+.pbm.in .pbm-bg{opacity:1}.pbm.in .pbm-box{opacity:1;transform:none}
+.pbm-x{position:absolute;top:14px;right:14px;z-index:2;width:40px;height:40px;border-radius:50%;border:0;background:#F3EFEA;color:var(--pi);display:grid;place-items:center;cursor:pointer}
+.pbm-x svg{width:20px;height:20px}.pbm-x:hover{background:#E9E3DC}
+.pbm-side{background:var(--pi);padding:22px;display:flex;align-items:center;justify-content:center;border-radius:30px 0 0 30px}
+.pbm-cover{position:relative;overflow:hidden;width:100%;aspect-ratio:210/297;border-radius:14px;background:#24212B;padding:24px 20px;display:flex;flex-direction:column;justify-content:flex-end;box-shadow:0 24px 50px -20px rgba(0,0,0,.7),inset 0 0 0 1px rgba(255,255,255,.06);color:#fff}
+.pbm-cover svg{position:absolute;right:-70px;top:-60px;width:250px;height:250px}
+.pbm-ck{position:relative;font-size:.62rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#FFB284}
+.pbm-cover b{position:relative;font-size:1.55rem;line-height:1.05;letter-spacing:-.03em;margin:8px 0 10px}.pbm-cover em{font-style:normal;color:var(--po,#FF782E)}
+.pbm-cs{position:relative;font-size:.74rem;line-height:1.4;color:#C9C6D0}
+.pbm-main{padding:38px 40px 30px}
+.pbm-k{display:block;font-size:.74rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#C9541A;margin-bottom:8px}
+.pbm h2{margin:0;font-size:clamp(1.5rem,3.2vw,2rem);line-height:1.1;letter-spacing:-.03em;color:var(--pi);padding-right:36px}
+.pbm-main>.pbm-step>p{margin:10px 0 0;color:var(--pi2);font-size:1rem;line-height:1.5}
+.pbm-ben{list-style:none;padding:0;margin:18px 0 20px;display:grid;gap:9px}
+.pbm-ben li{display:flex;gap:10px;align-items:flex-start;font-size:.94rem;font-weight:600;line-height:1.4}.pbm-ben svg{flex:0 0 auto;width:22px;height:22px}
+.pbm-form{display:grid;gap:12px}
+.pbm-f label{display:block;font-size:.84rem;font-weight:700;margin-bottom:6px}.pbm-f label span{font-weight:500;color:var(--pi3)}
+.pbm-f input{width:100%;min-height:50px;border-radius:14px;border:1.5px solid var(--pl);background:#fff;padding:0 15px;font:inherit;font-size:1rem;color:var(--pi);transition:border-color .15s,box-shadow .15s}
+.pbm-f input:focus{outline:none;border-color:var(--pi);box-shadow:0 0 0 4px rgba(28,26,34,.08)}
+.pbm-f input[aria-invalid=true]{border-color:#D8442B;box-shadow:0 0 0 4px rgba(216,68,43,.1)}
+.pbm-hp{position:absolute!important;left:-10000px;width:1px;height:1px;overflow:hidden}
+.pbm-c{display:flex;gap:10px;align-items:flex-start;font-size:.82rem;line-height:1.4;color:var(--pi2);cursor:pointer}
+.pbm-c input{flex:0 0 auto;width:18px;height:18px;margin:1px 0 0;accent-color:var(--po)}
+.pbm-err{margin:0;min-height:0;font-size:.86rem;font-weight:700;color:#C2381F}.pbm-err:empty{display:none}
+.pbm-go{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:54px;border:0;border-radius:999px;background:var(--po);color:var(--pi);font:inherit;font-size:1.02rem;font-weight:800;cursor:pointer;text-decoration:none;box-shadow:0 14px 28px -14px rgba(255,120,46,.9);transition:transform .15s,background .15s}
+.pbm-go:hover{background:#FF8A47}.pbm-go:active{transform:scale(.98)}.pbm-go:disabled{opacity:.7;cursor:default}
+.pbm-go:focus-visible,.pbm-x:focus-visible,.pbm-next a:focus-visible{outline:3px solid var(--pi);outline-offset:3px}
+.pbm-note{margin:0;text-align:center;font-size:.82rem;font-weight:700;color:var(--pi2)}
+.pbm-legal{margin:2px 0 0;text-align:center;font-size:.74rem;line-height:1.45;color:var(--pi3)}.pbm-legal a{color:var(--pi2)}
+.pbm-step[data-step=ok]{display:flex;flex-direction:column;gap:12px;padding-top:6px}
+.pbm-step[hidden]{display:none!important}
+.pbm-okring svg{width:68px;height:68px}
+.pbm-arc{stroke-dasharray:176;stroke-dashoffset:176}.pbm-tick{stroke-dasharray:40;stroke-dashoffset:40}
+.pbm.done .pbm-arc{animation:pbmArc .7s .1s cubic-bezier(.4,0,.2,1) forwards}.pbm.done .pbm-tick{animation:pbmArc .35s .65s ease-out forwards}
+@keyframes pbmArc{to{stroke-dashoffset:0}}
+.pbm-okt:focus{outline:none}
+.pbm-okd{margin:0;color:var(--pi2);font-size:1rem}
+.pbm-next{margin-top:8px;padding:16px 18px;border-radius:18px;background:#F4EFE8;display:grid;gap:4px;font-size:.9rem}
+.pbm-next span{color:var(--pi2)}.pbm-next a{color:#C9541A;font-weight:800;text-decoration:none;margin-top:2px}
+@media (max-width:760px){
+  .pbm{padding:0;align-items:end}
+  .pbm-box{grid-template-columns:1fr;border-radius:26px 26px 0 0;max-height:94dvh;transform:translateY(40px)}
+  .pbm-side{display:none}
+  .pbm-main{padding:30px 20px calc(22px + env(safe-area-inset-bottom))}
+  .pbm-main::before{content:"";position:absolute;top:10px;left:50%;width:40px;height:5px;margin-left:-20px;border-radius:9px;background:#E7DFD5}
+  .pbm-x{top:12px;right:12px;width:36px;height:36px}
+  .pbm-ben{margin:14px 0 16px;gap:7px}.pbm-ben li{font-size:.9rem}
+}
+@media (prefers-reduced-motion:reduce){.pbm-bg,.pbm-box{transition:none}.pbm.done .pbm-arc,.pbm.done .pbm-tick{animation:none;stroke-dashoffset:0}}

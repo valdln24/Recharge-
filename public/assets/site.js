@@ -285,3 +285,133 @@ window.rcTrack = function (e) {
   b.querySelector("button").addEventListener("click", function () { b.remove(); });
   document.body.appendChild(b);
 })();
+
+/* ---------- Lead magnet : « Le Playbook de la vente directe » ----------
+   S'ouvre une seule fois, quand la personne a lu environ 45 % de la page (jamais à l'arrivée), ou à la demande
+   (liens #playbook ou [data-playbook]). Fermé : on ne le repropose pas avant 14 jours. Déjà reçu : plus jamais.
+   Le formulaire n'inscrit à aucune lettre d'information : la case marketing est facultative et jamais précochée. */
+(() => {
+  const path = location.pathname;
+  if (/^\/(app|analyse|stats|admin)\//.test(path)) return;
+  const KEY = "recharge.playbook", SNOOZE = 14 * 864e5;
+  const read = () => { try { return JSON.parse(localStorage.getItem(KEY) || "{}"); } catch (e) { return {}; } };
+  const write = v => { try { localStorage.setItem(KEY, JSON.stringify({ ...read(), ...v })); } catch (e) {} };
+  const sessionSeen = () => { try { return sessionStorage.getItem(KEY) === "1"; } catch (e) { return false; } };
+  const page = (path.replace(/^\/|\/$/g, "").split("/")[0] || "accueil").slice(0, 30);
+  const utm = new URLSearchParams(location.search).get("utm_source");
+  const track = e => { try { window.rcTrack && window.rcTrack(e); } catch (x) {} };
+  const escH = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  let root = null, lastFocus = null, shownAt = 0, trigger = "bouton";
+
+  const check = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#FFF1E8"/><path d="M7 12.4l3.2 3.2L17 8.8" fill="none" stroke="#FF782E" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const cover = `<div class="pbm-cover" aria-hidden="true"><svg viewBox="0 0 200 200"><defs><linearGradient id="pbmg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F59A4A"/><stop offset=".5" stop-color="#DB6578"/><stop offset="1" stop-color="#7C7CF2"/></linearGradient></defs><circle cx="100" cy="100" r="74" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="18"/><path d="M152.3 47.7A74 74 0 1 1 100 26" fill="none" stroke="url(#pbmg)" stroke-width="18" stroke-linecap="round"/></svg>
+    <span class="pbm-ck">Guide pratique · 13 pages</span><b>Le Playbook de la <em>vente directe</em></b><span class="pbm-cs">Méthodes, messages types, indicateurs et plan d'action sur 30 jours</span></div>`;
+
+  function build() {
+    root = document.createElement("div");
+    root.className = "pbm"; root.hidden = true;
+    root.innerHTML = `<div class="pbm-bg" data-pbm-close></div>
+    <div class="pbm-box" role="dialog" aria-modal="true" aria-labelledby="pbmT" aria-describedby="pbmD">
+      <button type="button" class="pbm-x" data-pbm-close aria-label="Fermer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button>
+      <div class="pbm-side">${cover}</div>
+      <div class="pbm-main">
+        <div class="pbm-step" data-step="form">
+          <span class="pbm-k">Ressource gratuite</span>
+          <h2 id="pbmT">Le Playbook de la vente directe</h2>
+          <p id="pbmD">Découvrez les méthodes pour mieux fidéliser vos clients, structurer votre portefeuille et développer votre activité commerciale.</p>
+          <ul class="pbm-ben">
+            <li>${check}<span>Les méthodes pour améliorer votre suivi client.</span></li>
+            <li>${check}<span>Les bonnes pratiques pour développer vos commandes récurrentes.</span></li>
+            <li>${check}<span>Les outils pour professionnaliser votre activité.</span></li>
+          </ul>
+          <form class="pbm-form" novalidate>
+            <div class="pbm-f"><label for="pbmP">Prénom</label><input id="pbmP" name="prenom" autocomplete="given-name" required maxlength="60" placeholder="Votre prénom"></div>
+            <div class="pbm-f"><label for="pbmE">Adresse email <span>professionnelle ou personnelle</span></label><input id="pbmE" name="email" type="email" inputmode="email" autocomplete="email" required maxlength="254" placeholder="vous@exemple.fr"></div>
+            <div class="pbm-hp" aria-hidden="true"><label for="pbmW">Ne pas remplir</label><input id="pbmW" name="website" tabindex="-1" autocomplete="off"></div>
+            <label class="pbm-c"><input type="checkbox" name="marketing" id="pbmM"><span>J'accepte de recevoir les actualités et offres de Recharge par email (facultatif, désinscription en un clic).</span></label>
+            <p class="pbm-err" role="alert" aria-live="assertive"></p>
+            <button type="submit" class="pbm-go">Recevoir mon Playbook gratuitement <span aria-hidden="true">→</span></button>
+            <p class="pbm-note">100 % gratuit · Sans engagement · Accès immédiat</p>
+            <p class="pbm-legal">Votre prénom et votre email servent à vous envoyer le Playbook. Ils ne sont ni vendus ni partagés. <a href="/confidentialite/#playbook">Vos données et vos droits</a></p>
+          </form>
+        </div>
+        <div class="pbm-step" data-step="ok" hidden>
+          <div class="pbm-okring" aria-hidden="true"><svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="28" fill="none" stroke="#FFF1E8" stroke-width="6"/><circle class="pbm-arc" cx="32" cy="32" r="28" fill="none" stroke="#FF782E" stroke-width="6" stroke-linecap="round" transform="rotate(-90 32 32)"/><path class="pbm-tick" d="M21 33l7.5 7.5L44 25" fill="none" stroke="#1C1A22" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <h2 class="pbm-okt" tabindex="-1">C'est prêt !</h2>
+          <p class="pbm-okd"></p>
+          <a class="pbm-go pbm-dl" href="#" download>Télécharger le Playbook (PDF) <span aria-hidden="true">↓</span></a>
+          <p class="pbm-note pbm-okmail"></p>
+          <div class="pbm-next"><b>Envie de l'appliquer tout de suite ?</b><span>Recharge calcule la fin de chaque produit et vous dit qui relancer chaque jour.</span><a href="/app/">Essayer Recharge 14 jours</a></div>
+        </div>
+      </div>
+    </div>`;
+    document.body.appendChild(root);
+    root.addEventListener("click", e => { if (e.target.closest("[data-pbm-close]")) close(); });
+    root.addEventListener("keydown", e => {
+      if (e.key === "Escape") { e.preventDefault(); close(); }
+      if (e.key === "Tab") {   // la tabulation reste dans la fenêtre
+        const f = [...root.querySelectorAll('a[href],button,input:not([tabindex="-1"]),[tabindex="0"]')].filter(x => x.offsetParent !== null);
+        if (!f.length) return; const a = f[0], z = f[f.length - 1];
+        if (e.shiftKey && document.activeElement === a) { e.preventDefault(); z.focus(); } else if (!e.shiftKey && document.activeElement === z) { e.preventDefault(); a.focus(); }
+      }
+    });
+    root.querySelector(".pbm-form").addEventListener("submit", submit);
+    root.querySelector(".pbm-form").addEventListener("input", e => { if (e.target.getAttribute("aria-invalid")) { e.target.removeAttribute("aria-invalid"); root.querySelector(".pbm-err").textContent = ""; } });
+    root.querySelector(".pbm-dl").addEventListener("click", () => track("playbook_telecharge"));
+  }
+
+  function open(how) {
+    if (!root) build();
+    if (!root.hidden) return;
+    trigger = how || "bouton"; lastFocus = document.activeElement; shownAt = Date.now();
+    root.hidden = false; document.documentElement.classList.add("pbm-lock");
+    requestAnimationFrame(() => root.classList.add("in"));
+    try { sessionStorage.setItem(KEY, "1"); } catch (e) {}
+    track(trigger === "scroll" ? "playbook_vue" : "playbook_ouvert");
+    setTimeout(() => { const s = root.querySelector('.pbm-step:not([hidden])'); const el = s.querySelector("#pbmP") || s.querySelector(".pbm-okt"); if (el && matchMedia("(min-width: 700px)").matches) el.focus(); else root.querySelector(".pbm-x").focus(); }, 60);
+  }
+  function close() {
+    if (!root || root.hidden) return;
+    root.classList.remove("in"); document.documentElement.classList.remove("pbm-lock");
+    if (!read().done) { write({ closedAt: Date.now() }); track("playbook_ferme"); }
+    setTimeout(() => { root.hidden = true; }, 220);
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+  async function submit(e) {
+    e.preventDefault();
+    const f = e.target, err = f.querySelector(".pbm-err"), btn = f.querySelector(".pbm-go");
+    const P = f.prenom, E = f.email, prenom = P.value.trim(), email = E.value.trim();
+    [P, E].forEach(x => x.removeAttribute("aria-invalid")); err.textContent = "";
+    if (!prenom) { P.setAttribute("aria-invalid", "true"); err.textContent = "Indiquez votre prénom."; return P.focus(); }
+    if (!/^[^\s@,;<>()"]+@[^\s@,;<>()"]+\.[^\s@,;<>()"]{2,}$/.test(email)) { E.setAttribute("aria-invalid", "true"); err.textContent = "Cette adresse email ne semble pas valide."; return E.focus(); }
+    btn.disabled = true; const lbl = btn.innerHTML; btn.textContent = "Préparation de votre Playbook…";
+    try {
+      const r = await fetch("/api/playbook", { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prenom, email, marketing: f.marketing.checked, website: f.website.value, elapsed: Date.now() - shownAt, source: (utm ? "utm:" + utm : page) + "/" + trigger }) });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok || !j.download) throw new Error(j.error || "Une erreur est survenue. Réessayez dans un instant.");
+      write({ done: Date.now() }); track("playbook_inscrit");
+      const ok = root.querySelector('[data-step="ok"]');
+      ok.querySelector(".pbm-okt").textContent = `C'est prêt, ${prenom} !`;
+      ok.querySelector(".pbm-okd").textContent = "Votre Playbook de la vente directe est disponible. Bonne lecture !";
+      ok.querySelector(".pbm-okmail").innerHTML = j.emailed ? `Nous vous l'avons aussi envoyé à <b>${escH(email)}</b>.` : "Pensez à l'enregistrer sur votre téléphone ou votre ordinateur.";
+      ok.querySelector(".pbm-dl").href = j.download;
+      root.querySelector('[data-step="form"]').hidden = true; ok.hidden = false; root.classList.add("done");
+      ok.querySelector(".pbm-okt").focus();
+    } catch (x) { err.textContent = x.message; btn.disabled = false; btn.innerHTML = lbl; }
+  }
+
+  // À la demande : liens #playbook ou boutons [data-playbook]
+  document.addEventListener("click", e => { const a = e.target.closest('a[href="#playbook"],a[href="/#playbook"],[data-playbook]'); if (!a) return; if (a.getAttribute("href") === "/#playbook" && path !== "/") return; e.preventDefault(); open("bouton"); });
+  if (location.hash === "#playbook") { history.replaceState(null, "", path + location.search); setTimeout(() => open("lien"), 400); }
+
+  // Automatiquement : vers 45 % de la page, une fois par visite, pas si fermé il y a moins de 14 jours, plus jamais une fois reçu
+  const st = read();
+  if (st.done || (st.closedAt && Date.now() - st.closedAt < SNOOZE) || sessionSeen()) return;
+  const onScroll = () => {
+    const max = document.documentElement.scrollHeight - innerHeight;
+    if (max < 400) return;                                  // page trop courte : pas d'ouverture automatique
+    if (scrollY / max >= .45 && !document.querySelector(".sheet-bg,.sfab.open")) { removeEventListener("scroll", onScroll); open("scroll"); }
+  };
+  addEventListener("scroll", onScroll, { passive: true });
+})();

@@ -7,6 +7,7 @@
 import { coach, CoachError, Quota } from "./coach.js";
 import { TIERS, EXTRA_SEAT, FOUNDER_SLOTS, MAX_SEATS } from "./billing.js";
 import { importDocs, ImportError } from "./importer.js";
+import { playbookSignup, playbookDownload, playbookUnsubscribe, adminProspects, PlaybookError } from "./playbook.js";
 import { Store, storeDb } from "./store.js";
 import { checkout, confirm, portal, refreshPlan, cancelSub, BillingError } from "./billing.js";
 export { Quota, Store };
@@ -19,16 +20,19 @@ const MAX_LINKS_PER_HOUR = 5;                   // limite d'envois de liens par 
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
-    if (!url.pathname.startsWith("/api/")) return env.ASSETS.fetch(request);
+    const isPlaybook = url.pathname.startsWith("/playbook/");
+    if (!url.pathname.startsWith("/api/") && !isPlaybook) return env.ASSETS.fetch(request);
     // Pas de base D1 branchée : les comptes vivent dans le stockage Cloudflare créé automatiquement
     if (!env.DB && env.STORE) env = { ...env, DB: storeDb(env) };
+    // Le Playbook PDF : uniquement avec un lien de téléchargement personnel
+    if (isPlaybook) { try { return env.DB ? await playbookDownload(request, env, url) : Response.redirect(url.origin + "/", 302); } catch (e) { console.error("playbook", e && e.message); return new Response("Le Playbook est momentanément indisponible.", { status: 503 }); } }
     try {
       const res = await route(request, env, url, ctx);
       res.headers.set("Cache-Control", "no-store");
       res.headers.set("X-Content-Type-Options", "nosniff");
       return res;
     } catch (e) {
-      if (e instanceof HttpError || e instanceof CoachError || e instanceof ImportError || e instanceof BillingError) return json({ error: e.message }, e.status);
+      if (e instanceof HttpError || e instanceof CoachError || e instanceof ImportError || e instanceof BillingError || e instanceof PlaybookError) return json({ error: e.message }, e.status);
       console.error("API", url.pathname, e && e.stack || e);   // visible dans Cloudflare › Observabilité
       return json({ error: "Une erreur est survenue. Réessayez dans un instant." }, 500);
     }
@@ -62,6 +66,9 @@ async function route(request, env, url, ctx) {
     if (origin && origin !== url.origin) throw new HttpError(403, "Origine refusée.");
   }
   if (p === "/api/event" && m === "POST") return trackEvent(request, env);
+  if (p === "/api/playbook" && m === "POST") return playbookSignup(request, env, url, ctx);
+  if (p === "/api/playbook/desinscription" && (m === "GET" || m === "POST")) return playbookUnsubscribe(request, env, url);
+  if (p === "/api/admin/prospects" && (m === "GET" || m === "DELETE")) return adminProspects(request, env, url);
   if (p === "/api/lead" && m === "POST") return saveLead(request, env, url);
   if (p === "/api/stats" && m === "GET") return stats(request, env);
   if (p === "/api/referral" && m === "GET") return referral(request, env, url);
@@ -280,7 +287,7 @@ async function referral(request, env, url) {
    Un compteur par jour et par étape. Aucun cookie, aucune adresse IP, aucun identifiant : on sait combien de
    personnes passent chaque étape, jamais qui. Les noms d'étapes sont limités à une liste connue. */
 const EVENTS = new Set(["site_visite", "analyse_cta", "analyse_debut", "analyse_q1", "analyse_q2", "analyse_q3", "analyse_q4", "analyse_resultat",
-  "analyse_reseau", "analyse_coach", "analyse_email", "analyse_essai", "parrain_visite", "parrainage_ouvert", "parrainage_partage", "app_ouverte", "app_depuis_analyse", "onboarding_fin", "premiers_clients", "premiere_relance", "compte_cree", "saisie_phrase"]);
+  "analyse_reseau", "analyse_coach", "analyse_email", "analyse_essai", "parrain_visite", "parrainage_ouvert", "parrainage_partage", "app_ouverte", "app_depuis_analyse", "onboarding_fin", "premiers_clients", "premiere_relance", "compte_cree", "saisie_phrase", "playbook_vue", "playbook_ouvert", "playbook_ferme", "playbook_inscrit", "playbook_telecharge"]);
 async function trackEvent(request, env) {
   const body = await readJson(request, 1024);
   const name = String(body.e || "");
@@ -299,7 +306,8 @@ async function stats(request, env) {
   const r = await env.DB.prepare("SELECT day, name, n FROM events_daily WHERE day >= ? ORDER BY day").bind(since).all();
   const leads = await env.DB.prepare("SELECT COUNT(*) AS n, SUM(news) AS news FROM leads").first();
   const users = await env.DB.prepare("SELECT COUNT(*) AS n FROM users").first();
-  return json({ since, events: r.results || [], leads: leads || { n: 0, news: 0 }, users: users ? users.n : 0 });
+  let prospects = { n: 0, marketing: 0 }; try { prospects = await env.DB.prepare("SELECT COUNT(*) AS n, SUM(marketing) AS marketing FROM prospects").first() || prospects; } catch { /* table absente */ }
+  return json({ since, events: r.results || [], leads: leads || { n: 0, news: 0 }, users: users ? users.n : 0, prospects });
 }
 
 /* ---------- Analyse gratuite : sauvegarde avec l'email ----------
