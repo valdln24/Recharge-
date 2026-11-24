@@ -5,10 +5,17 @@
 // - Le statut est revérifié chez Stripe au plus toutes les 12 h : pas de webhook à configurer.
 // Aucun secret ici : STRIPE_SECRET_KEY est un secret Cloudflare (Variables et secrets).
 
-export const PLANS = {
-  month: { amount: 990, interval: "month", label: "Recharge · abonnement mensuel" },
-  year: { amount: 8900, interval: "year", label: "Recharge · abonnement annuel" }
+/* Les offres (prix en centimes). Annuel = −25 % par rapport au mensuel.
+   Prix fondateur : réservé aux 50 premiers abonnés, gardé tant que l'abonnement continue. */
+export const TIERS = {
+  starter: { name: "Starter", month: 990, year: 8900, founderMonth: 590, founderYear: 5900 },
+  pro: { name: "Pro", month: 1990, year: 17900, founderMonth: 1190, founderYear: 11900 },
+  equipe: { name: "Équipe", month: 3990, year: 35900, founderMonth: 2490, founderYear: 23900, seats: 6 }
 };
+export const EXTRA_SEAT = { month: 790, year: 7100 };   // par personne au-delà des 6 places de l'offre Équipe
+export const FOUNDER_SLOTS = 50;
+export const MAX_SEATS = 60;
+export const TIER_KEYS = Object.keys(TIERS);
 const TRIAL_DAYS = 14;
 const RECHECK = 12 * 3600 * 1000;
 const ACTIVE = ["active", "trialing", "past_due"];
@@ -40,15 +47,23 @@ async function stripe(env, method, path, params) {
 }
 
 /* 1. Ouvrir la page de paiement */
-export async function checkout(env, origin, period, user, ref = {}) {
-  const p = PLANS[period]; if (!p) throw new BillingError(400, "Formule inconnue.");
+export async function checkout(env, origin, offer, user, ref = {}) {
+  const t = TIERS[offer.tier], period = offer.period === "year" ? "year" : "month";
+  if (!t) throw new BillingError(400, "Offre inconnue.");
+  const amount = offer.founder ? t[period === "year" ? "founderYear" : "founderMonth"] : t[period];
+  const seats = offer.tier === "equipe" ? Math.max(t.seats, Math.min(MAX_SEATS, Math.round(+offer.seats || t.seats))) : 1;
+  const label = `Recharge ${t.name}${offer.tier === "equipe" ? ` · ${t.seats} personnes` : ""}${offer.founder ? " · prix fondateur" : ""}`;
+  const items = { 0: { quantity: 1, price_data: { currency: "eur", unit_amount: amount, recurring: { interval: period }, product_data: { name: label } } } };
+  if (seats > t.seats) items[1] = { quantity: seats - t.seats, price_data: { currency: "eur", unit_amount: EXTRA_SEAT[period], recurring: { interval: period }, product_data: { name: "Recharge Équipe · personne en plus" } } };
+  const meta = { tier: offer.tier, founder: offer.founder ? 1 : 0, seats, team_name: offer.teamName || "" };
   // Parrainage : +30 jours d'essai pour une invitée, +30 jours par mois gagné en tant que marraine
   const bonus = (ref.invited ? 30 : 0) + 30 * (ref.refMonths || 0);
   const s = await stripe(env, "POST", "checkout/sessions", {
     mode: "subscription",
     locale: "fr",
-    line_items: { 0: { quantity: 1, price_data: { currency: "eur", unit_amount: p.amount, recurring: { interval: p.interval }, product_data: { name: p.label } } } },
-    subscription_data: { trial_period_days: user && user.stripe_sub ? undefined : TRIAL_DAYS + bonus, metadata: { ref_months: ref.refMonths || 0 } },
+    line_items: items,
+    subscription_data: { trial_period_days: user && user.stripe_sub ? undefined : TRIAL_DAYS + bonus, metadata: { ref_months: ref.refMonths || 0, ...meta } },
+    metadata: meta,
     allow_promotion_codes: "true",
     customer: user && user.stripe_customer ? user.stripe_customer : undefined,
     customer_email: user && !user.stripe_customer ? user.email : undefined,
@@ -67,7 +82,9 @@ export async function confirm(env, id) {
   if (s.mode !== "subscription" || s.status !== "complete" || !sub || !ACTIVE.includes(sub.status)) throw new BillingError(402, "Le paiement n'est pas terminé.");
   const email = String((s.customer_details && s.customer_details.email) || s.customer_email || "").trim().toLowerCase();
   if (!email) throw new BillingError(400, "Email introuvable sur ce paiement.");
-  return { email, customer: typeof s.customer === "string" ? s.customer : s.customer && s.customer.id, sub: sub.id, userId: s.client_reference_id || null, refMonths: Math.max(0, +((sub.metadata && sub.metadata.ref_months) || 0)) };
+  const md = sub.metadata || {}, tier = TIERS[md.tier] ? md.tier : "pro";
+  return { email, customer: typeof s.customer === "string" ? s.customer : s.customer && s.customer.id, sub: sub.id, userId: s.client_reference_id || null, refMonths: Math.max(0, +(md.ref_months || 0)),
+    tier, founder: md.founder === "1" || md.founder === 1, seats: Math.max(1, +md.seats || 1), teamName: String(md.team_name || "").slice(0, 60) };
 }
 
 /* 3. L'espace client Stripe : carte, factures, résiliation */
@@ -83,7 +100,7 @@ export async function refreshPlan(env, db, u) {
   if (u.plan_checked_at && Date.now() - u.plan_checked_at < (env.PLAN_RECHECK_MS ? +env.PLAN_RECHECK_MS : RECHECK)) return u.plan;
   try {
     const sub = await stripe(env, "GET", `subscriptions/${u.stripe_sub}`);
-    const plan = ACTIVE.includes(sub.status) ? "recharge" : "free";
+    const plan = ACTIVE.includes(sub.status) ? (TIERS[u.tier] ? u.tier : "recharge") : "free";
     await db.prepare("UPDATE users SET plan = ?, plan_checked_at = ? WHERE id = ?").bind(plan, Date.now(), u.id).run();
     if (sub.status === "active") await rewardReferral(env, db, u.id);   // premier vrai paiement, après l'essai
     return plan;

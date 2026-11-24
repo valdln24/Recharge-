@@ -176,3 +176,13 @@ body.home .sfab{display:none!important}
 .ab-ph img{object-position:50% 0;transform:none}
 .ab-ph{aspect-ratio:3/4}
 @media (max-width:860px){.ab-ph{aspect-ratio:3/4}}
+
+/* Offres : 3 colonnes, prix fondateur */
+.price3.p3{grid-template-columns:repeat(3,1fr);max-width:1080px}
+.pc .ps{min-height:0;margin:4px 0 0}.pc .pr s{color:var(--ink-3,#9a94a0);font-weight:650;font-size:1rem}
+.pc .pb{margin:0;font-size:.86rem;color:var(--ink-2);font-weight:600}.pc.hot .pb{color:#B9B2C0}.pc.hot .pr s{color:#8F8898}
+.pc li::before{content:"";flex:0 0 auto;width:8px;height:8px;border-radius:50%;margin-top:7px;background:var(--orange)}
+.fnd{display:inline-flex;gap:12px;align-items:center;text-align:left;margin:0 auto 18px;padding:12px 18px 12px 12px;border-radius:20px;background:#17151B;color:#fff;max-width:520px}
+.fnd svg{width:42px;height:42px;flex:0 0 auto}.fnd .trk{fill:none;stroke:rgba(255,255,255,.14);stroke-width:4}.fnd .arc{fill:none;stroke:var(--orange);stroke-width:4;stroke-linecap:round;transition:stroke-dasharray .8s}
+.fnd>span{font-size:.88rem;color:#C9CBD6;font-weight:600;line-height:1.35}.fnd b{display:block;color:#fff}
+@media (max-width:900px){.price3.p3{grid-template-columns:1fr}}

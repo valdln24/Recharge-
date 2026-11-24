@@ -736,6 +736,23 @@ nav.tabs .tab.on svg{background:var(--navy);color:#fff;box-shadow:0 8px 18px -8p
 .imtxt b{display:block;font-size:.98rem}.imtxt span{display:block;font-size:.84rem;color:var(--ink-2);font-weight:600;margin-top:1px}
 .improw:not(.edit) .imedit{display:none}.improw .imedit{padding:0 14px 14px 48px}
 .improw.edit .imsum{padding-bottom:4px}
+
+/* ===== Offres ===== */
+.ofound{display:flex;gap:12px;align-items:center;margin-top:14px;padding:12px 14px;border-radius:18px;background:var(--ink);color:#fff}
+.ofound svg{width:40px;height:40px;flex:0 0 auto}.ofound .trk{fill:none;stroke:rgba(255,255,255,.14);stroke-width:4}.ofound .arc{fill:none;stroke:var(--orange);stroke-width:4;stroke-linecap:round}
+.ofound span{font-size:.84rem;color:#C9CBD6;font-weight:600;line-height:1.35}.ofound b{display:block;color:#fff;font-size:.95rem}
+.oftog{margin:14px 0 0}.oftog em{font-style:normal;color:var(--o-text);font-weight:800;margin-left:4px}
+.ofrs{display:grid;gap:10px;margin-top:12px}
+.ofr{display:block;width:100%;text-align:left;border:1.5px solid var(--line);background:var(--surface);border-radius:22px;padding:14px 16px;font:inherit;color:var(--ink);cursor:pointer;transition:border-color .15s,box-shadow .15s}
+.ofr.on{border-color:var(--ink);box-shadow:0 12px 26px -18px rgba(28,26,34,.55)}
+.ofh{display:flex;align-items:center;gap:8px}.ofh b{font-size:1.05rem}.ofh i{font-style:normal;font-size:.7rem;font-weight:800;letter-spacing:.04em;padding:4px 9px;border-radius:99px;background:var(--o-soft);color:var(--o-text)}
+.ofdot{margin-left:auto;width:20px;height:20px;border-radius:50%;border:2px solid var(--line-2)}.ofr.on .ofdot{border:6px solid var(--orange)}
+.ofp{display:flex;align-items:baseline;gap:6px;margin-top:8px}.ofp b{font-size:1.7rem;font-weight:800;letter-spacing:-.04em}.ofp span{font-weight:650;color:var(--ink-2)}.ofp s{margin-left:4px;color:var(--ink-3);font-weight:650}
+.ofr small{display:block;font-size:.8rem;color:var(--ink-2);font-weight:600;margin-top:2px}.ofr .ofpitch{color:var(--ink-3)}
+.ofl{list-style:none;padding:0;margin:10px 0 0;display:grid;gap:6px}.ofl li{display:flex;gap:8px;font-size:.88rem;font-weight:600}
+.ofl li::before{content:"";flex:0 0 auto;width:8px;height:8px;border-radius:50%;margin-top:6px;background:var(--orange)}
+.ofteam{margin-top:12px;padding:14px;border-radius:20px;background:var(--surface-2)}
+.ofteam .seg button{font-size:.86rem}
 </style>
 </head>
 <body>
@@ -936,8 +953,9 @@ async function afterLogin(r) {
   if (r.isNew) rcTrack("compte_cree");
   let ensuite = null; try { ensuite = localStorage.getItem("recharge.ensuite"); localStorage.removeItem("recharge.ensuite"); } catch (e) {}
   if (ensuite === "parrain") setTimeout(() => openParrain(), 900);
+  if (ensuite === "equipe") setTimeout(() => joinTeam(), 900);
   if (r.analyse && !S.analyse) { S.analyse = r.analyse; save(); }
-  session = { token: r.session, email: r.user.email, plan: r.user.plan, paid: !!r.user.paid, billing: !!r.user.billing, canSync: r.user.canSync };
+  session = { token: r.session, email: r.user.email, plan: r.user.plan, paid: !!r.user.paid, billing: !!r.user.billing, canSync: r.user.canSync, founder: !!r.user.founder, team: !!r.user.team };
   writeLS(SESSION_KEY, session);
   sync = { rev: 0, dirty: false, lastAt: 0 }; saveSync();
   const serverHas = r.backup && r.backup.rev > 0;
@@ -947,24 +965,97 @@ async function afterLogin(r) {
   if (hasRealData(S)) { await pushNow(true); render(); toast("C'est fait ! Vos données sont sauvegardées sur votre compte ✅"); }
   else toast("Compte créé ✅ Vos données seront sauvegardées automatiquement.");
 }
-let loginEmail = "", upPeriod = "year";
-function openUpgrade() {
-  if (!BILLING_OK) return API_OK ? openAccountForm("upgrade") : toast("Le paiement en ligne arrive très bientôt 🙂");
-  openSheet(`<div class="shead"><h3>✨ Passer à Recharge</h3>${closeBtn}</div>
-    <p class="lede" style="margin-top:8px"><b>14 jours gratuits</b>, puis sans engagement : vous résiliez en 1 clic quand vous voulez.</p>
-    <ul class="perks"><li>♾️ <b>Clients illimités</b> (la version gratuite va jusqu'à 10)</li><li>🧭 <b>Coach IA illimité</b> : captures, réponses, messages</li><li>☁️ <b>Sauvegarde automatique</b> et vos clients sur un nouveau téléphone</li><li>💸 Ce que Recharge vous rapporte, chaque mois</li></ul>
-    ${(() => { const an = S.analyse; return an && an.totalAn >= 178 ? `<p class="devnet" style="margin-top:12px">Votre analyse : jusqu'à <b>~${an.totalAn.toLocaleString("fr-FR")} € par an</b> à aller chercher, soit <b>${Math.floor(an.totalAn / 89)} fois</b> le prix de l'abonnement annuel.</p>` : ""; })()}
-    <div class="upplans upyear">
-      <button class="upplan ${upPeriod === "year" ? "on" : ""}" data-act="upPeriod" data-p="year"><i>Meilleur choix · −25 %</i><b>7,42 €</b><span>par mois, facturé 89 € par an</span><small>29,80 € d'économie</small></button>
-      <button class="upplan ${upPeriod === "month" ? "on" : ""}" data-act="upPeriod" data-p="month"><b>9,90 €</b><span>par mois, sans engagement</span></button></div>
-    <button class="btn orange" style="margin-top:14px" data-act="upGo">Commencer mes 14 jours gratuits</button>
-    <p class="hint" style="text-align:center">🔒 Paiement sécurisé par Stripe : Recharge ne voit jamais votre carte. Aucun prélèvement avant la fin de l'essai.</p>
-    ${!session && API_OK ? `<button class="linkbtn" data-act="accLogin">J'ai déjà un compte : me connecter</button>` : ""}`);
+let loginEmail = "", upPeriod = "year", upTier = "pro", upTeam = { mode: "new", name: "", seats: 6, code: "" }, offersInfo = null;
+/* Les offres : les prix affichés ici sont indicatifs, le serveur fixe le vrai prix au paiement */
+const OFFERS = {
+  starter: { n: "Starter", m: 990, y: 8900, fm: 590, fy: 5900, pitch: "Pour bien démarrer", perks: ["Jusqu'à 50 clients", "Relances au bon moment, rythme réel de chaque client", "3 imports photo par mois"] },
+  pro: { n: "Pro", m: 1990, y: 17900, fm: 1190, fy: 11900, pitch: "Pour développer son activité", perks: ["Clients illimités", "Imports photo illimités", "Coach IA illimité", "Prospection, promos et recommandations"] },
+  equipe: { n: "Équipe", m: 3990, y: 35900, fm: 2490, fy: 23900, seats: 6, pitch: "Pour animer son équipe", perks: ["6 personnes incluses, puis 7,90 € par personne", "Tout Pro pour chaque membre", "Le suivi des résultats de l'équipe"] }
+};
+const EXTRA = { m: 790, y: 7100 };
+const eur = c => (c / 100).toLocaleString("fr-FR", { minimumFractionDigits: c % 100 ? 2 : 0, maximumFractionDigits: 2 }) + " €";
+const TIER_NAME = { starter: "Starter", pro: "Pro", equipe: "Équipe", recharge: "Recharge", fondatrice: "Recharge" };
+function offerPrice(k, founder) {
+  const o = OFFERS[k], y = upPeriod === "year", seats = k === "equipe" ? Math.max(6, upTeam.seats) : 1;
+  const base = founder ? (y ? o.fy : o.fm) : (y ? o.y : o.m), normal = y ? o.y : o.m, extra = k === "equipe" ? (seats - 6) * (y ? EXTRA.y : EXTRA.m) : 0;
+  const total = base + extra, totalNormal = normal + extra;
+  return { total, totalNormal, perMonth: y ? Math.round(total / 12) : total, perMonthNormal: y ? Math.round(totalNormal / 12) : totalNormal };
+}
+async function openUpgrade(tier) {
+  if (tier) upTier = tier;
+  if (!BILLING_OK && !API_OK) return toast("Le paiement en ligne arrive très bientôt.");
+  if (!offersInfo && API_OK) { try { offersInfo = await api("GET", "offers"); } catch (e) { offersInfo = {}; } }
+  const left = offersInfo && Number.isFinite(offersInfo.founderLeft) ? offersInfo.founderLeft : null, founder = left === null || left > 0;
+  const total = (offersInfo && offersInfo.founderTotal) || 50, RC = 2 * Math.PI * 15;
+  const card = k => { const o = OFFERS[k], pr = offerPrice(k, founder), on = upTier === k;
+    return `<button type="button" class="ofr ${on ? "on" : ""} t-${k}" data-act="upTier" data-t="${k}" aria-pressed="${on}">
+      <span class="ofh"><b>${o.n}</b>${k === "pro" ? `<i>Le plus choisi</i>` : ""}<span class="ofdot"></span></span>
+      <span class="ofp"><b class="num">${eur(pr.perMonth)}</b><span>/ mois</span>${founder ? `<s class="num">${eur(pr.perMonthNormal)}</s>` : ""}</span>
+      <small>${upPeriod === "year" ? `Facturé ${eur(pr.total)} par an${founder ? ` au lieu de ${eur(pr.totalNormal)}` : ""}` : `Sans engagement${founder ? ` · au lieu de ${eur(pr.totalNormal)}` : ""}`}</small>
+      ${on ? `<ul class="ofl">${o.perks.map(x => `<li>${x}</li>`).join("")}</ul>` : `<small class="ofpitch">${o.pitch}</small>`}</button>`; };
+  const team = upTier !== "equipe" ? "" : `<div class="ofteam">
+      <div class="seg" style="margin:0"><button type="button" class="${upTeam.mode === "new" ? "on" : ""}" data-act="upTeamMode" data-m="new">Je crée mon équipe</button><button type="button" class="${upTeam.mode === "join" ? "on" : ""}" data-act="upTeamMode" data-m="join">J'ai déjà une équipe</button></div>
+      ${upTeam.mode === "new" ? `<label class="field"><span>Le nom de votre équipe</span><input class="input" id="upTeamName" value="${esc(upTeam.name)}" placeholder="ex. : Les Étoiles de Laura" maxlength="60"></label>
+        <div class="field"><span>Combien de personnes, vous comprise ?</span>${seatScroller(upTeam.seats)}</div>`
+      : `<p class="hint" style="margin:12px 0 0">La personne qui gère votre équipe vous a donné un code ou un lien : votre accès est compris dans son abonnement.</p>
+        <label class="field"><span>Code de l'équipe</span><input class="input" id="upTeamCode" value="${esc(upTeam.code)}" placeholder="ex. : K7M2QX9A" autocapitalize="characters" maxlength="12"></label>`}</div>`;
+  const join = upTier === "equipe" && upTeam.mode === "join";
+  const html = `<div class="shead"><h3>Choisir mon offre</h3>${closeBtn}</div>
+    <p class="lede" style="margin-top:8px"><b>14 jours gratuits</b>, puis sans engagement : vous résiliez en un clic.</p>
+    ${founder ? `<div class="ofound"><svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="15" class="trk"/><circle cx="18" cy="18" r="15" class="arc" stroke-dasharray="${left === null ? 0 : (RC * left / total).toFixed(1)} ${RC.toFixed(1)}" transform="rotate(-90 18 18)"/></svg>
+      <span><b>Prix fondateur</b>${left === null ? `Réservé aux ${total} premiers abonnés, gardé tant que vous restez abonnée.` : `Encore <span class="num">${left}</span> place${left > 1 ? "s" : ""} sur ${total} · gardé tant que vous restez abonnée.`}</span></div>` : ""}
+    <div class="seg oftog"><button type="button" class="${upPeriod === "year" ? "on" : ""}" data-act="upPeriod" data-p="year">À l'année <em>−25 %</em></button><button type="button" class="${upPeriod === "month" ? "on" : ""}" data-act="upPeriod" data-p="month">Au mois</button></div>
+    <div class="ofrs">${["starter", "pro", "equipe"].map(card).join("")}</div>
+    ${team}
+    ${(() => { const an = S.analyse; return an && an.totalAn >= 178 && !join ? `<p class="devnet" style="margin-top:12px">Votre analyse : jusqu'à <b>~${an.totalAn.toLocaleString("fr-FR")} € par an</b> à aller chercher.</p>` : ""; })()}
+    <button class="btn orange" style="margin-top:14px" data-act="${join ? "upJoin" : "upGo"}">${join ? "Rejoindre mon équipe" : "Commencer mes 14 jours gratuits"}</button>
+    ${join ? "" : `<p class="hint" style="text-align:center">Paiement sécurisé par Stripe : Recharge ne voit jamais votre carte. Aucun prélèvement avant la fin de l'essai.${BILLING_OK ? "" : " Le paiement en ligne s'ouvre très bientôt."}</p>`}
+    ${!session && API_OK ? `<button class="linkbtn" data-act="accLogin">J'ai déjà un compte : me connecter</button>` : ""}`;
+  const cur = sheetEl.querySelector(".sheet.offsheet");
+  if (cur) { const y = cur.scrollTop; cur.innerHTML = `<div class="grab"></div>` + html; cur.scrollTop = y; requestAnimationFrame(() => initScrollers(cur)); }
+  else { openSheet(html); sheetEl.querySelector(".sheet").classList.add("offsheet"); }
+}
+const seatScroller = v => `<div class="dscr" data-k="p"><div class="dscr-t">${dsTrack(v, "p")}</div><input type="hidden" id="upSeats" value="${v}"><p class="dscr-l">${seatLabel(v)}</p></div>`;
+const seatLabel = n => n <= 6 ? `${n} personnes · compris dans l'offre` : `${n} personnes · 6 comprises + ${n - 6} × 7,90 €`;
+function readUpTeam() { const n = document.getElementById("upTeamName"), c = document.getElementById("upTeamCode"); if (n) upTeam.name = n.value.trim(); if (c) upTeam.code = c.value.trim().toUpperCase(); }
+const TEAM_KEY = "recharge.rejoindre";
+/* Offre Starter : jusqu'à 50 clients ; promos et outils de prospection avec Pro */
+const STARTER_MAX = 50;
+const isStarter = () => !!(session && session.paid && session.plan === "starter");
+const realClientCount = () => S.clients.filter(c => !c.example).length;
+function starterRoom(add = 1) { return !isStarter() || realClientCount() + add <= STARTER_MAX; }
+function proOnly(what) { toast(`${what} : avec l'offre Pro.`); setTimeout(() => openUpgrade("pro"), 500); }
+async function joinTeam(code) {
+  try { code = code || localStorage.getItem(TEAM_KEY) || ""; } catch (e) {}
+  code = String(code || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+  if (!code) return;
+  if (!session) { try { localStorage.setItem(TEAM_KEY, code); } catch (e) {} upTeam = { ...upTeam, mode: "join", code }; loginEmail = ""; return openAccountForm("equipe"); }
+  try { const r = await api("POST", "team/join", { code }); try { localStorage.removeItem(TEAM_KEY); } catch (e) {}
+    const m = await api("GET", "me"); session = { ...session, plan: m.user.plan, paid: !!m.user.paid, team: !!m.user.team }; writeLS(SESSION_KEY, session);
+    closeSheet(); render(); toast(`Bienvenue dans l'équipe « ${r.name} » ✅`); }
+  catch (e) { toast(e.message); }
+}
+async function openTeam() {
+  openSheet(`<div class="shead"><h3>Mon équipe</h3>${closeBtn}</div><p class="lede" style="margin-top:8px">Chargement…</p>`);
+  let r; try { r = await api("GET", "team"); } catch (e) { return openSheet(`<div class="shead"><h3>Mon équipe</h3>${closeBtn}</div><p class="lede" style="margin-top:8px">${esc(e.message)}</p>`); }
+  const t = r.team; if (!t) return openSheet(`<div class="shead"><h3>Mon équipe</h3>${closeBtn}</div><p class="lede" style="margin-top:8px">Vous ne faites partie d'aucune équipe.</p><button class="btn primary" style="margin-top:12px" data-act="upTeamOpen">Créer ou rejoindre une équipe</button>`);
+  const RC = 2 * Math.PI * 15;
+  if (!t.owner) return openSheet(`<div class="shead"><h3>${esc(t.name)}</h3>${closeBtn}</div>
+    <p class="lede" style="margin-top:8px">${t.active ? "Votre accès Recharge est compris dans l'abonnement de votre équipe." : "L'abonnement de votre équipe n'est plus actif : rapprochez-vous de la personne qui la gère."}</p>
+    <button class="linkbtn danger-link" data-act="teamLeave">Quitter l'équipe</button>`);
+  const msgTxt = `Je t'invite dans notre équipe « ${t.name} » sur Recharge : ton accès est compris. Crée ton compte avec ce lien : ${t.link}`;
+  openSheet(`<div class="shead"><h3>${esc(t.name)}</h3>${closeBtn}</div>
+    <div class="ofound" style="margin-top:10px"><svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="15" class="trk"/><circle cx="18" cy="18" r="15" class="arc" stroke-dasharray="${(RC * t.used / t.seats).toFixed(1)} ${RC.toFixed(1)}" transform="rotate(-90 18 18)"/></svg>
+      <span><b><span class="num">${t.used}</span> / ${t.seats} places utilisées</b>Code de l'équipe : <span class="num" style="font-weight:800;letter-spacing:.08em">${esc(t.code)}</span></span></div>
+    <a class="btn primary send" style="margin-top:12px" href="https://wa.me/?text=${encodeURIComponent(msgTxt)}" target="_blank" rel="noopener">${I.wa}<span class="sl">Inviter sur WhatsApp</span></a>
+    <button class="btn soft" style="margin-top:8px" data-act="parrainCopy" data-l="${esc(t.link)}">${I.copy} Copier le lien d'invitation</button>
+    <div class="card list" style="margin-top:14px">${t.members.map(x => `<div class="row"><span style="min-width:0"><b style="font-weight:650">${esc(x.email)}</b>${x.owner ? `<br><small>vous gérez l'équipe</small>` : ""}</span>${x.owner ? "" : `<button class="x" data-act="teamRemove" data-e="${esc(x.email)}" aria-label="Retirer ${esc(x.email)}">${I.x}</button>`}</div>`).join("")}</div>
+    <p class="hint">Plus de ${t.seats} personnes ? Chaque place en plus coûte 7,90 € par mois. [À COMPLÉTER : comment demander des places en plus (email de contact), en attendant l'ajout automatique]</p>`);
 }
 function openAccountForm(mode) {
-  try { if (mode === "parrain") localStorage.setItem("recharge.ensuite", "parrain"); else localStorage.removeItem("recharge.ensuite"); } catch (e) {}
-  openSheet(`<div class="shead"><h3>${mode === "login" ? "Me connecter" : mode === "parrain" ? "Mon lien d'invitation" : "Passer à la version complète"}</h3>${closeBtn}</div>
-    ${mode === "parrain" ? `<p class="lede" style="margin-top:8px">Votre email suffit, sans mot de passe. Vous recevez un lien de connexion, puis votre lien d'invitation s'affiche ici.</p>` : mode === "login" ? `<p class="lede" style="margin-top:8px">Indiquez l'email de votre compte : vous recevez un lien et un code pour retrouver vos clients.</p>` : `<p class="lede" style="margin-top:8px">Votre email suffit : pas de mot de passe. Vous recevez un lien et un code pour vous connecter.</p>
+  try { if (mode === "parrain" || mode === "equipe") localStorage.setItem("recharge.ensuite", mode); else localStorage.removeItem("recharge.ensuite"); } catch (e) {}
+  openSheet(`<div class="shead"><h3>${mode === "login" ? "Me connecter" : mode === "parrain" ? "Mon lien d'invitation" : mode === "equipe" ? "Rejoindre mon équipe" : "Passer à la version complète"}</h3>${closeBtn}</div>
+    ${mode === "equipe" ? `<p class="lede" style="margin-top:8px">Créez votre compte avec votre email, sans mot de passe : vous rejoignez ensuite votre équipe, votre accès est compris.</p>` : mode === "parrain" ? `<p class="lede" style="margin-top:8px">Votre email suffit, sans mot de passe. Vous recevez un lien de connexion, puis votre lien d'invitation s'affiche ici.</p>` : mode === "login" ? `<p class="lede" style="margin-top:8px">Indiquez l'email de votre compte : vous recevez un lien et un code pour retrouver vos clients.</p>` : `<p class="lede" style="margin-top:8px">Votre email suffit : pas de mot de passe. Vous recevez un lien et un code pour vous connecter.</p>
     <ul class="perks"><li>☁️ <b>Sauvegarde automatique</b> de vos clients, prospects et relances</li><li>📱 Vous les retrouvez sur un <b>nouveau téléphone</b></li><li>♾️ <b>Clients illimités</b> (la version gratuite va jusqu'à 10)</li><li>🔒 Vos données restent les vôtres, jamais revendues</li></ul>
     <p class="hint" style="margin-top:6px">${hasRealData(S) ? "Vos données de ce téléphone seront envoyées sur votre compte, sans rien perdre." : ""}</p>`}
     <form id="accForm" autocomplete="on"><label class="field"><span>Votre email</span><input class="input" id="accEmail" type="email" inputmode="email" autocomplete="email" required placeholder="vous@exemple.fr" value="${esc(loginEmail || "")}"></label>
@@ -1004,13 +1095,14 @@ function accountSection() {
     <button class="btn soft" data-act="export">${I.down} Exporter mes données</button></div>`;
   if (!session) return section("Mon compte") + `<div class="card pad acc">
     <b style="display:block">📱 Version gratuite</b><p class="hint" style="margin:4px 0 12px">Jusqu'à 10 clients, 3 échanges par mois avec le coach IA, sans compte. Vos données restent uniquement dans ce téléphone.</p>
-    <button class="btn orange" data-act="accUpgrade">✨ Passer à Recharge · 14 jours gratuits</button>
+    <button class="btn orange" data-act="accUpgrade">Choisir mon offre · 14 jours gratuits</button>
     ${API_OK ? `<button class="linkbtn" data-act="accLogin">J'ai déjà un compte : me connecter</button>` : ""}</div>`;
   return section("Mon compte") + `<div class="card pad acc">
     <b style="display:block">☁️ Compte : ${esc(session.email)}</b>
-    <p class="plan-line">${session.paid ? "✨ Abonnement Recharge actif" : "📱 Version gratuite"}</p>
+    <p class="plan-line">${session.paid ? `Offre ${TIER_NAME[session.plan] || "Recharge"} active${session.founder ? " · prix fondateur" : ""}` : "Essai gratuit"}</p>
+    ${session.team || session.plan === "equipe" ? `<button class="btn soft" style="margin-bottom:8px" data-act="teamOpen">Mon équipe</button>` : ""}
     ${session.billing ? `<button class="btn soft" style="margin-bottom:8px" data-act="accPortal">💳 Gérer mon abonnement · factures, carte, résiliation</button>` : ""}
-    ${!session.paid && BILLING_OK ? `<button class="btn orange" style="margin-bottom:8px" data-act="accUpgrade">✨ Passer à Recharge · 14 jours gratuits</button>` : ""}
+    ${!session.paid ? `<button class="btn orange" style="margin-bottom:8px" data-act="accUpgrade">Choisir mon offre · 14 jours gratuits</button>` : session.plan === "starter" ? `<button class="btn soft" style="margin-bottom:8px" data-act="upPro">Passer à Pro</button>` : ""}
     <p class="hint" id="syncState" style="margin:4px 0 12px">${syncLabel()}</p>
     <button class="btn soft" data-act="accSyncNow">Sauvegarder maintenant</button>
     <button class="btn outline" style="margin-top:8px" data-act="accLogout">Me déconnecter</button>
@@ -2699,6 +2791,7 @@ function submitSale() {
   let c = S.clients.find(x => x.name.toLowerCase() === name.toLowerCase());
   const refName = (document.getElementById("fRef") || {}).value?.trim() || "";
   let isNew = false;
+  if (!c && !starterRoom()) return proOnly(`L'offre Starter va jusqu'à ${STARTER_MAX} clients. Les clients illimités`);
   if (!c) { c = { id: uid(), name, phone, example: false, createdAt: today(), status: "direct", statusLog: [{ s: "direct", date: today() }] }; S.clients.push(c); isNew = true; }
   else if (phone) c.phone = phone;
   if (isNew && refName) {
@@ -3744,10 +3837,11 @@ function openDurations(pids) {
 /* ---------- Molette de durée : on fait défiler de 5 en 5 jours au lieu de taper ---------- */
 const DSTEPS = v => [...new Set([...Array.from({ length: 36 }, (_, i) => (i + 1) * 5), v])].filter(x => x > 0).sort((a, b) => a - b);
 const durLabel = d => { const m = Math.round(d / 15) / 2; return `${d} jours` + (d >= 25 ? ` · environ ${String(m).replace(".", ",")} mois` : d >= 7 ? ` · environ ${Math.round(d / 7)} sem.` : ""); };
+const PSTEPS = v => [...new Set([...Array.from({ length: 35 }, (_, i) => i + 6), v])].sort((a, b) => a - b);
 const QSTEPS = v => [...new Set([...Array.from({ length: 20 }, (_, i) => i + 1), v])].sort((a, b) => a - b);
 const qtyLabel = q => q === 1 ? "1 produit" : `${q} produits`;
-const dsLab = (w, v) => w.dataset.k === "q" ? qtyLabel(v) : durLabel(v);
-const dsTrack = (v, k) => (k === "q" ? QSTEPS(v) : DSTEPS(v)).map(d => `<button type="button" data-act="dsPick" data-dv="${d}" class="${d === v ? "on" : ""}">${d}</button>`).join("");
+const dsLab = (w, v) => w.dataset.k === "q" ? qtyLabel(v) : w.dataset.k === "p" ? seatLabel(v) : durLabel(v);
+const dsTrack = (v, k) => (k === "q" ? QSTEPS(v) : k === "p" ? PSTEPS(v) : DSTEPS(v)).map(d => `<button type="button" data-act="dsPick" data-dv="${d}" class="${d === v ? "on" : ""}">${d}</button>`).join("");
 function qtyScroller(attrs, v) {
   v = Math.max(1, Math.round(+v) || 1);
   return `<div class="dscr" data-k="q"><div class="dscr-t">${dsTrack(v, "q")}</div><input type="hidden" ${attrs} value="${v}"><p class="dscr-l">${qtyLabel(v)}</p></div>`;
@@ -3932,6 +4026,8 @@ function saveSaisie() {
   const ta = document.getElementById("voiceText"), text = ta ? ta.value : "", r = parseSaisie(text);
   if (r.kind !== "sale") return runVoice(text);
   const segs = r.segs.filter(sg => sg.name && sg.items.length); if (!segs.length) return toast("Dites le nom du client et le produit.");
+  const newNames = new Set(segs.filter(sg => !(sg.c && client(sg.c.id)) && !S.clients.some(x => norm(x.name) === norm(sg.name))).map(sg => norm(sg.name)));
+  if (!starterRoom(newNames.size)) return proOnly(`L'offre Starter va jusqu'à ${STARTER_MAX} clients. Les clients illimités`);
   const snap = snapshot(); let nVentes = 0, nNew = 0; const created = [];
   if (!DEMO && S.clients.every(x => x.example)) clearExampleData();
   for (const sg of segs) {
@@ -4250,7 +4346,7 @@ const impSummary = r => { const pn = r.p ? r.p.name : r.product;
 function applyImport() {
   const snap = snapshot(), newStatus = document.getElementById("impStatusNew").value;
   if (obImporting) { clearExampleData(); obImporting = false; }
-  let added = 0, skipped = 0, newC = 0; const created = [];
+  let added = 0, skipped = 0, newC = 0, capHit = false; const created = [];
   document.querySelectorAll(".improw").forEach(row => {
     if (!row.querySelector(".impOn").checked) return;
     const r = importRows[+row.dataset.i];
@@ -4258,6 +4354,7 @@ function applyImport() {
     const date = row.querySelector(".impD").value || today(), qty = Math.max(1, Math.min(99, parseInt(row.querySelector(".impQ").value, 10) || 1));
     let c = cid ? client(cid) : S.clients.find(x => norm(x.name) === norm(name));
     const ph = (row.querySelector(".impT") || {}).value?.trim() || r.phone || "";
+    if (!c && !starterRoom()) { skipped++; capHit = true; return; }
     if (!c) { if (!name) return; c = { id: uid(), name, phone: ph, example: false, createdAt: today(), status: newStatus, statusLog: [{ s: newStatus, date: today() }] }; S.clients.push(c); newC++; }
     else if (ph && !c.phone) c.phone = ph;
     if (pid === "none") return;
@@ -4269,6 +4366,7 @@ function applyImport() {
   save(); closeSheet(); tab = "today"; render();
   toast(`${plural(added, "commande importée", "commandes importées")}${newC ? ` · ${plural(newC, "nouveau contact", "nouveaux contacts")}` : ""}${skipped ? ` · ${skipped} déjà connue${skipped > 1 ? "s" : ""}` : ""}`, snap);
   if (created.length) setTimeout(() => openDurations(created), 450);
+  else if (capHit) setTimeout(() => proOnly(`L'offre Starter va jusqu'à ${STARTER_MAX} clients. Les clients illimités`), 900);
 }
 document.addEventListener("change", async ev => {
   const t = ev.target;
@@ -4431,12 +4529,12 @@ const actions = {
     pform.where = pform.where === el.dataset.w ? "" : el.dataset.w; drawWhere();
     if (!pform.touched) document.getElementById("pNext").value = pform.where === "bao" ? today() : addDays(today(), 1);
   },
-  newPromo: () => openPromoForm(),
+  newPromo: () => isStarter() ? proOnly("Les promos") : openPromoForm(),
   coachF: el => { coachF = coachF === el.dataset.d ? null : el.dataset.d; render(); },
   setDefMin: el => { actions.planTime(el); toast(`Temps par défaut : ${fmtMin(+el.dataset.m)}`); },
   unmute: el => { const snap = snapshot(); delete S.mute[el.dataset.k]; save(); render(); toast("Action rétablie dans votre plan", snap); },
   homeHelp: () => openHomeScreen(),
-  findOpen: el => openFind(el.dataset.w),
+  findOpen: el => isStarter() ? proOnly("Les outils de prospection") : openFind(el.dataset.w),
   tagsCopy: async () => { const ok = await copyText(cityTags(myCity()).join(" ")); toast(ok ? "Hashtags copiés" : "Impossible de copier."); },
   namesAdd: () => {
     const names = document.getElementById("nameList").value.split("\n").map(x => x.trim()).filter(Boolean).slice(0, 100);
@@ -4578,12 +4676,23 @@ const actions = {
   pfilter: el => { pfilter = el.dataset.f; render(); },
   cfilter: el => { cfilter = el.dataset.f; render(); },
   accUpgrade: () => openUpgrade(),
-  upPeriod: el => { upPeriod = el.dataset.p; openUpgrade(); },
+  upPeriod: el => { readUpTeam(); upPeriod = el.dataset.p; openUpgrade(); },
+  upTier: el => { readUpTeam(); upTier = el.dataset.t; openUpgrade(); },
+  upTeamMode: el => { readUpTeam(); upTeam.mode = el.dataset.m; openUpgrade(); },
+  upTeamOpen: () => { upTier = "equipe"; openUpgrade(); },
+  upPro: () => openUpgrade("pro"),
+  upJoin: () => { readUpTeam(); if (!upTeam.code) { toast("Tapez le code de votre équipe."); return document.getElementById("upTeamCode").focus(); } joinTeam(upTeam.code); },
   upGo: async el => {
+    readUpTeam();
+    if (upTier === "equipe" && upTeam.name.length < 2) { toast("Donnez un nom à votre équipe."); return document.getElementById("upTeamName").focus(); }
+    if (!BILLING_OK) return toast("Le paiement en ligne s'ouvre très bientôt. Votre choix est noté : revenez ici dans quelques jours.");
     el.disabled = true; el.textContent = "Ouverture du paiement sécurisé…";
-    try { const r = await api("POST", "billing/checkout", { period: upPeriod }); location.href = r.url; }
+    try { const r = await api("POST", "billing/checkout", { tier: upTier, period: upPeriod, seats: upTeam.seats, teamName: upTeam.name }); location.href = r.url; }
     catch (e) { toast(e.message); el.disabled = false; el.textContent = "Commencer mes 14 jours gratuits"; }
   },
+  teamOpen: () => openTeam(),
+  teamLeave: async () => { if (!confirm("Quitter l'équipe ? Votre accès compris dans son abonnement s'arrête.")) return; try { await api("POST", "team/leave"); session = { ...session, team: false, plan: "free", paid: false }; writeLS(SESSION_KEY, session); closeSheet(); render(); toast("Vous avez quitté l'équipe."); } catch (e) { toast(e.message); } },
+  teamRemove: async el => { if (!confirm(`Retirer ${el.dataset.e} de l'équipe ?`)) return; try { await api("POST", "team/remove", { email: el.dataset.e }); openTeam(); toast("Membre retiré : sa place est libérée."); } catch (e) { toast(e.message); } },
   accPortal: async () => { try { const r = await api("POST", "billing/portal"); location.href = r.url; } catch (e) { toast(e.message); } },
   accLogin: () => openAccountForm("login"),
   accResend: () => sendLink(),
@@ -4881,6 +4990,7 @@ document.addEventListener("input", ev => {
     if (!d.dataset.touched) dsSet(d, e.days); if (h) h.textContent = t.value.trim() ? (e.why ? `Estimation Recharge (${e.why}) : ${e.days} jours. Ajustez si vous savez mieux.` : "Pas d'estimation précise : 30 jours par défaut, ajustez si besoin.") : ""; }
   if (t.id === "npDays") t.dataset.touched = "1";
   if (t.dataset.pdays) { clearTimeout(t._sv); t._sv = setTimeout(() => { const p = S.products.find(x => x.id === t.dataset.pdays), v = +t.value; if (!p || p.days === v) return; const snap = snapshot(); setProductDays(p, v); save(); const b = t.closest(".prodblk"); if (b) { b.classList.remove("estd"); const i = b.querySelector(".proddays i"); if (i) i.remove(); } toast(`${p.name} : ${v} jours`, snap); }, 700); }
+  if (t.id === "upSeats") { upTeam.seats = +t.value || 6; clearTimeout(t._sv); t._sv = setTimeout(() => { readUpTeam(); openUpgrade(); }, 650); }
   if (t.id === "setCycle") { clearTimeout(t._sv); t._sv = setTimeout(() => t.dispatchEvent(new Event("change", { bubbles: true })), 700); }
   if (t.id === "endIn") endInfo();
   if (t.id === "fEnd") { t.dataset.touched = "1"; updateEnd(); }
@@ -4998,16 +5108,18 @@ if (teamNotice) setTimeout(() => toast(teamNotice), 300);
 let obSkipFlag = false; try { obSkipFlag = localStorage.getItem("recharge.ob") === "skip"; } catch (e) {}
 const loginParam = DEMO ? null : new URLSearchParams(location.search).get("login");
 const paidParam = DEMO ? null : new URLSearchParams(location.search).get("paid");
+const joinParam = DEMO ? null : new URLSearchParams(location.search).get("rejoindre");
+if (joinParam) { history.replaceState(null, "", location.pathname); try { localStorage.setItem(TEAM_KEY, joinParam.toUpperCase().replace(/[^A-Z0-9]/g, "")); } catch (e) {} setTimeout(() => joinTeam(), 700); }
 if (paidParam) {
   history.replaceState(null, "", location.pathname);
-  api("POST", "billing/confirm", { id: paidParam }).then(async r => { await afterLogin(r); toast("Bienvenue dans Recharge 🎉 Vos 14 jours gratuits commencent."); }).catch(e => toast(e.message));
+  api("POST", "billing/confirm", { id: paidParam }).then(async r => { await afterLogin(r); toast(`Bienvenue dans Recharge ${TIER_NAME[r.user.plan] || ""} ! Vos 14 jours gratuits commencent.`); if (r.user.plan === "equipe") setTimeout(() => openTeam(), 1600); }).catch(e => toast(e.message));
 } else if (loginParam) {
   history.replaceState(null, "", location.pathname);
   api("POST", "auth/verify", { token: loginParam, ref: readRef() }).then(afterLogin).catch(e => toast(e.message));
 } else if (session) {
   /* Au démarrage : on récupère ce qu'un autre téléphone aurait sauvegardé, ou on envoie ce qui attend */
   api("GET", "me").then(async r => {
-    session = { ...session, plan: r.user.plan, paid: !!r.user.paid, billing: !!r.user.billing, canSync: r.user.canSync }; writeLS(SESSION_KEY, session);
+    session = { ...session, plan: r.user.plan, paid: !!r.user.paid, billing: !!r.user.billing, canSync: r.user.canSync, founder: !!r.user.founder, team: !!r.user.team }; writeLS(SESSION_KEY, session);
     if (r.analyse && !S.analyse) { S.analyse = r.analyse; save(); }
     const srv = r.backup ? r.backup.rev : 0;
     if (srv > sync.rev) { if (sync.dirty) return askConflict(r.backup); await pullNow(); render(); toast("Données mises à jour depuis votre autre appareil ☁️"); }
@@ -5016,6 +5128,7 @@ if (paidParam) {
 }
 addEventListener("online", () => { if (sync.dirty) pushNow(); });
 document.addEventListener("visibilitychange", () => { if (document.hidden && sync.dirty) pushNow(); });
+if (!DEMO && location.hash === "#equipe") { upTier = "equipe"; history.replaceState(null, "", location.pathname + "#abonnement"); }
 if (!DEMO && location.hash === "#abonnement") { history.replaceState(null, "", location.pathname); setTimeout(() => { if (BILLING_OK || API_OK) openUpgrade(); else setTimeout(openUpgrade, 1200); }, 400); }
 if (!DEMO) {
   rcTrack("app_ouverte");

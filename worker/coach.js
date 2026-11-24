@@ -67,14 +67,14 @@ export async function coach(request, env, plan = "free") {
   const ip = request.headers.get("CF-Connecting-IP") || "?";
   limit(ip);
   // Version gratuite : 3 échanges par mois. Abonnement : illimité.
-  const paid = plan && plan !== "free", month = new Date().toISOString().slice(0, 7);
+  const paid = plan && !["free", "starter"].includes(plan), month = new Date().toISOString().slice(0, 7);
   const device = (request.headers.get("X-Recharge-Device") || "").replace(/[^A-Za-z0-9-]/g, "").slice(0, 64);
   let used = 0;
   if (!paid) {
     if (!device || !env.QUOTA) throw new CoachError(400, "Mettez l'appli à jour pour utiliser le coach.");
     used = await counter(env, "d:" + device).peek(month);
     const ipUsed = await counter(env, "ip:" + ip).peek(month);
-    if (used >= FREE_PER_MONTH || ipUsed >= FREE_PER_IP) throw new CoachError(402, `Vous avez utilisé vos ${FREE_PER_MONTH} échanges gratuits avec le coach ce mois-ci. Avec l'abonnement Recharge, le coach est illimité.`);
+    if (used >= FREE_PER_MONTH || ipUsed >= FREE_PER_IP) throw new CoachError(402, `Vous avez utilisé vos ${FREE_PER_MONTH} échanges gratuits avec le coach ce mois-ci. Avec l'offre Pro, le coach est illimité.`);
   }
   const len = +request.headers.get("Content-Length") || 0;
   if (len > MAX_IMAGE + 64 * 1024) throw new CoachError(413, "La capture est trop lourde.");

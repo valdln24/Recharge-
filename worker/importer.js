@@ -73,14 +73,15 @@ export async function importDocs(request, env, plan = "free") {
   if (!env.ANTHROPIC_API_KEY) throw new ImportError(503, "La lecture intelligente n'est pas encore activée.");
   const ip = request.headers.get("CF-Connecting-IP") || "?";
   limit(ip);
-  const paid = plan && plan !== "free", month = new Date().toISOString().slice(0, 7);
+  // Essai : 5 imports par mois · Starter : 3 par mois · Pro et Équipe : illimité
+  const paid = plan && !["free", "starter"].includes(plan), cap = plan === "starter" ? 3 : FREE_PER_MONTH, month = new Date().toISOString().slice(0, 7);
   const device = (request.headers.get("X-Recharge-Device") || "").replace(/[^A-Za-z0-9-]/g, "").slice(0, 64);
   let used = 0;
   if (!paid) {
     if (!device || !env.QUOTA) throw new ImportError(400, "Mettez l'appli à jour pour utiliser l'import.");
     used = await counter(env, "imp:d:" + device).peek(month);
     const ipUsed = await counter(env, "imp:ip:" + ip).peek(month);
-    if (used >= FREE_PER_MONTH || ipUsed >= FREE_PER_IP) throw new ImportError(402, `Vous avez utilisé vos ${FREE_PER_MONTH} imports du mois. Avec l'abonnement, l'import est illimité.`);
+    if (used >= cap || ipUsed >= FREE_PER_IP) throw new ImportError(402, `Vous avez utilisé vos ${cap} imports du mois. Avec l'offre Pro, l'import est illimité.`);
   }
   const len = +request.headers.get("Content-Length") || 0;
   if (len > MAX_IMAGES * MAX_IMAGE + 128 * 1024) throw new ImportError(413, "Les photos sont trop lourdes.");
@@ -128,7 +129,7 @@ export async function importDocs(request, env, plan = "free") {
   })).filter(r => r.name);
   // l'import n'est compté que s'il a donné quelque chose
   let left = null;
-  if (!paid && rows.length) { const n = await counter(env, "imp:d:" + device).add(month); await counter(env, "imp:ip:" + ip).add(month); left = Math.max(0, FREE_PER_MONTH - n); }
+  if (!paid && rows.length) { const n = await counter(env, "imp:d:" + device).add(month); await counter(env, "imp:ip:" + ip).add(month); left = Math.max(0, cap - n); }
   return { rows, note: clean(out.remarque, 300), left };
 }
 

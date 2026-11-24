@@ -52,14 +52,30 @@
     var mcu = function () { var past = ac.getBoundingClientRect().bottom < 0, end = fin.getBoundingClientRect().top < innerHeight * .9; mc.classList.toggle("show", past && !end); };
     addEventListener("scroll", mcu, { passive: true }); mcu();
   }
-  /* 6. Tarifs : l'annuel par défaut */
+  /* 6. Tarifs : l'annuel par défaut, prix fondateur tant qu'il reste des places (compteur réel du serveur) */
+  var P = { starter: [990, 8900, 590, 5900], pro: [1990, 17900, 1190, 11900], equipe: [3990, 35900, 2490, 23900] }, year = true, founder = true;
+  var eur = function (c) { return (c / 100).toLocaleString("fr-FR", { minimumFractionDigits: c % 100 ? 2 : 0, maximumFractionDigits: 2 }) + " €"; };
+  function prices() {
+    document.querySelectorAll(".p3 .pc").forEach(function (c) {
+      var p = P[c.dataset.t]; if (!p) return;
+      var n = year ? p[1] : p[0], f = year ? p[3] : p[2], v = founder ? f : n;
+      c.querySelector(".pv").textContent = eur(year ? Math.round(v / 12) : v);
+      var s = c.querySelector(".pn"); s.textContent = founder ? eur(year ? Math.round(n / 12) : n) : ""; s.style.display = founder ? "" : "none";
+      c.querySelector(".pb").textContent = year ? "Facturé " + eur(v) + " par an" + (founder ? " au lieu de " + eur(n) : "") : "Sans engagement" + (founder ? " · au lieu de " + eur(n) : "");
+    });
+  }
   var tog = document.querySelector(".tog");
   if (tog) tog.addEventListener("click", function (e) {
     var b = e.target.closest("button"); if (!b) return;
     tog.querySelectorAll("button").forEach(function (x) { x.classList.toggle("on", x === b); });
-    var y = b.dataset.p === "year";
-    document.getElementById("pPrice").textContent = y ? "7,42 €" : "9,90 €";
-    document.getElementById("pSub").textContent = y ? "Facturé 89 € par an : 29,80 € d'économie. Remboursé dès 2 à 3 commandes récupérées." : "Sans engagement. À l'année, vous économiseriez 29,80 €.";
-    document.getElementById("pBadge").textContent = y ? "Meilleur choix" : "Passez à l'année : −25 %";
+    year = b.dataset.p === "year"; prices();
   });
+  fetch("/api/offers").then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
+    if (!j || typeof j.founderLeft !== "number") return;
+    var fnd = document.getElementById("fnd"), t = j.founderTotal || 50;
+    if (j.founderLeft <= 0) { founder = false; if (fnd) fnd.style.display = "none"; prices(); return; }
+    document.getElementById("fndTxt").textContent = "Encore " + j.founderLeft + " place" + (j.founderLeft > 1 ? "s" : "") + " sur " + t + " · gardé tant que l'abonnement continue.";
+    document.getElementById("fndArc").setAttribute("stroke-dasharray", (94.2 * j.founderLeft / t).toFixed(1) + " 94.2");
+  }).catch(function () {});
+  prices();
 })();

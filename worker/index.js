@@ -5,6 +5,7 @@
 // Aucun secret dans ce fichier : RESEND_API_KEY et ANTHROPIC_API_KEY sont des secrets Cloudflare (Variables et secrets).
 
 import { coach, CoachError, Quota } from "./coach.js";
+import { TIERS, EXTRA_SEAT, FOUNDER_SLOTS, MAX_SEATS } from "./billing.js";
 import { importDocs, ImportError } from "./importer.js";
 import { Store, storeDb } from "./store.js";
 import { checkout, confirm, portal, refreshPlan, cancelSub, BillingError } from "./billing.js";
@@ -72,6 +73,11 @@ async function route(request, env, url, ctx) {
   if (p === "/api/data" && m === "PUT") return putData(request, env);
   if (p === "/api/account" && m === "DELETE") return deleteAccount(request, env);
   if (p === "/api/billing/checkout" && m === "POST") return billingCheckout(request, env, url);
+  if (p === "/api/offers" && m === "GET") return offers(env);
+  if (p === "/api/team" && m === "GET") return teamInfo(request, env, url);
+  if (p === "/api/team/join" && m === "POST") return teamJoin(request, env);
+  if (p === "/api/team/leave" && m === "POST") return teamLeave(request, env);
+  if (p === "/api/team/remove" && m === "POST") return teamRemove(request, env);
   if (p === "/api/billing/confirm" && m === "POST") return billingConfirm(request, env);
   if (p === "/api/billing/portal" && m === "POST") return billingPortal(request, env, url);
   throw new HttpError(404, "Introuvable.");
@@ -112,7 +118,7 @@ async function auth(request, env) {
   const token = h.startsWith("Bearer ") ? h.slice(7).trim() : "";
   if (!token || token.length > 200) throw new HttpError(401, "Connexion nécessaire.");
   const row = await env.DB.prepare(
-    "SELECT s.token_hash, s.expires_at, u.id, u.email, u.plan, u.created_at, u.stripe_customer, u.stripe_sub, u.plan_checked_at FROM sessions s JOIN users u ON u.id = s.user_id WHERE s.token_hash = ?"
+    "SELECT s.token_hash, s.expires_at, u.id, u.email, u.plan, u.created_at, u.stripe_customer, u.stripe_sub, u.plan_checked_at, u.tier, u.founder, u.team_id FROM sessions s JOIN users u ON u.id = s.user_id WHERE s.token_hash = ?"
   ).bind(await sha256(token)).first();
   if (!row || row.expires_at < now()) throw new HttpError(401, "Votre connexion a expiré. Reconnectez-vous.");
   // Prolonge la session et note la dernière activité (au plus une fois par heure)
@@ -122,10 +128,16 @@ async function auth(request, env) {
       env.DB.prepare("UPDATE users SET last_seen_at = ? WHERE id = ?").bind(now(), row.id)
     ]);
   }
-  const plan = await refreshPlan(env, env.DB, row);
-  return { id: row.id, email: row.email, plan, createdAt: row.created_at, tokenHash: row.token_hash, stripe_customer: row.stripe_customer, stripe_sub: row.stripe_sub };
+  let plan = await refreshPlan(env, env.DB, row);
+  // Membre d'une équipe (sans abonnement à son nom) : actif tant que l'abonnement de l'équipe l'est
+  if (!row.stripe_sub && row.team_id) {
+    const o = await env.DB.prepare("SELECT u.plan FROM teams t JOIN users u ON u.id = t.owner_id WHERE t.id = ?").bind(row.team_id).first();
+    const p2 = o && o.plan === "equipe" ? "equipe" : "free";
+    if (p2 !== plan) { await env.DB.prepare("UPDATE users SET plan = ? WHERE id = ?").bind(p2, row.id).run(); plan = p2; }
+  }
+  return { id: row.id, email: row.email, plan, createdAt: row.created_at, tokenHash: row.token_hash, stripe_customer: row.stripe_customer, stripe_sub: row.stripe_sub, tier: row.tier, founder: !!row.founder, team_id: row.team_id };
 }
-const isPaid = u => ["recharge", "fondatrice", "equipe"].includes(u.plan);
+const isPaid = u => ["recharge", "fondatrice", "equipe", "starter", "pro"].includes(u.plan);
 
 /* ---------- Connexion par lien ---------- */
 async function requestLink(request, env, url, given) {
@@ -217,7 +229,7 @@ async function openSession(env, user, isNew) {
 async function leadAnalyse(env, email) {
   try { const l = await env.DB.prepare("SELECT analyse FROM leads WHERE email = ?").bind(email).first(); return l && l.analyse ? JSON.parse(l.analyse) : null; } catch { return null; }
 }
-const publicUser = (u, env) => ({ email: u.email, plan: u.plan, paid: isPaid(u), billing: !!u.stripe_customer, createdAt: u.created_at ?? u.createdAt, canSync: env.REQUIRE_PAID !== "true" || isPaid(u) });
+const publicUser = (u, env) => ({ email: u.email, plan: u.plan, paid: isPaid(u), billing: !!u.stripe_customer, founder: !!u.founder, team: !!u.team_id, createdAt: u.created_at ?? u.createdAt, canSync: env.REQUIRE_PAID !== "true" || isPaid(u) });
 
 async function logout(request, env) {
   const u = await auth(request, env);
@@ -362,7 +374,78 @@ async function billingCheckout(request, env, url) {
   if (u && !u.stripe_sub) {
     try { const r = await env.DB.prepare("SELECT referred_by, ref_pending FROM users WHERE id = ?").bind(u.id).first(); invited = !!(r && r.referred_by); refMonths = Math.min(12, (r && r.ref_pending) || 0); } catch { /* colonnes absentes : pas de parrainage */ }
   }
-  return json({ url: await checkout(env, env.APP_ORIGIN || url.origin, body.period === "year" ? "year" : "month", u, { invited, refMonths }) });
+  const tier = TIERS[body.tier] ? body.tier : "pro";
+  const teamName = String(body.teamName || "").replace(/[\u0000-\u001f<>]/g, "").trim().slice(0, 60);
+  if (tier === "equipe" && teamName.length < 2) throw new HttpError(400, "Donnez un nom à votre équipe.");
+  if (u && u.team_id && tier !== "equipe") throw new HttpError(400, "Vous faites partie d'une équipe : votre accès est déjà compris.");
+  const founder = (await founderLeft(env)) > 0;
+  const offer = { tier, period: body.period === "year" ? "year" : "month", seats: body.seats, teamName, founder };
+  return json({ url: await checkout(env, env.APP_ORIGIN || url.origin, offer, u, { invited, refMonths }) });
+}
+/* Prix fondateur : les 50 premiers comptes abonnés (un abonnement arrêté libère la place) */
+async function founderLeft(env) {
+  try { const r = await env.DB.prepare("SELECT COUNT(*) AS n FROM users WHERE founder = 1 AND plan != 'free'").first(); return Math.max(0, FOUNDER_SLOTS - ((r && r.n) || 0)); }
+  catch { return 0; }
+}
+async function offers(env) {
+  return json({ founderLeft: await founderLeft(env), founderTotal: FOUNDER_SLOTS, tiers: TIERS, extraSeat: EXTRA_SEAT, billing: !!env.STRIPE_SECRET_KEY });
+}
+/* ---------- Équipe ----------
+   La personne qui paie l'offre Équipe crée l'équipe (son nom) et reçoit un code à partager.
+   Chaque membre crée son compte et rejoint l'équipe avec ce code : son accès est compris dans l'abonnement de l'équipe. */
+const TEAM_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
+const teamCode = () => { const b = crypto.getRandomValues(new Uint8Array(8)); return Array.from(b, x => TEAM_ALPHABET[x % TEAM_ALPHABET.length]).join(""); };
+async function createTeam(env, ownerId, name, seats) {
+  const ex = await env.DB.prepare("SELECT id FROM teams WHERE owner_id = ?").bind(ownerId).first();
+  if (ex) { await env.DB.prepare("UPDATE teams SET seats = ?, name = COALESCE(NULLIF(?, ''), name) WHERE id = ?").bind(seats, name, ex.id).run(); return ex.id; }
+  const id = crypto.randomUUID();
+  await env.DB.batch([
+    env.DB.prepare("INSERT INTO teams (id, name, owner_id, seats, code, created_at) VALUES (?, ?, ?, ?, ?, ?)").bind(id, name || "Mon équipe", ownerId, seats, teamCode(), now()),
+    env.DB.prepare("UPDATE users SET team_id = ? WHERE id = ?").bind(id, ownerId)
+  ]);
+  return id;
+}
+async function teamInfo(request, env, url) {
+  const u = await auth(request, env);
+  if (!u.team_id) return json({ team: null });
+  const t = await env.DB.prepare("SELECT id, name, owner_id, seats, code FROM teams WHERE id = ?").bind(u.team_id).first();
+  if (!t) return json({ team: null });
+  const owner = t.owner_id === u.id;
+  const members = await env.DB.prepare("SELECT id, email FROM users WHERE team_id = ? ORDER BY created_at").bind(t.id).all();
+  const list = (members.results || []).map(x => ({ email: x.email, me: x.id === u.id, owner: x.id === t.owner_id }));
+  return json({ team: { name: t.name, seats: t.seats, used: list.length, owner, active: u.plan === "equipe",
+    code: owner ? t.code : undefined, link: owner ? `${env.APP_ORIGIN || url.origin}/app/?rejoindre=${t.code}` : undefined, members: owner ? list : undefined } });
+}
+async function teamJoin(request, env) {
+  const u = await auth(request, env), body = await readJson(request);
+  const code = String(body.code || "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 12);
+  const t = code ? await env.DB.prepare("SELECT id, name, owner_id, seats FROM teams WHERE code = ?").bind(code).first() : null;
+  if (!t) throw new HttpError(404, "Ce code d'équipe n'existe pas. Vérifiez-le avec la personne qui gère l'équipe.");
+  if (u.team_id === t.id) return json({ ok: true, name: t.name });
+  if (u.team_id) throw new HttpError(409, "Vous faites déjà partie d'une autre équipe.");
+  if (u.stripe_sub && isPaid(u)) throw new HttpError(409, "Vous avez déjà un abonnement à votre nom : résiliez-le d'abord (Menu › Mon compte), puis rejoignez l'équipe.");
+  const n = await env.DB.prepare("SELECT COUNT(*) AS n FROM users WHERE team_id = ?").bind(t.id).first();
+  if (n && n.n >= t.seats) throw new HttpError(409, `L'équipe « ${t.name} » est complète (${t.seats} places). Demandez à la personne qui la gère d'ajouter une place.`);
+  const o = await env.DB.prepare("SELECT plan FROM users WHERE id = ?").bind(t.owner_id).first();
+  await env.DB.prepare("UPDATE users SET team_id = ?, plan = ? WHERE id = ?").bind(t.id, o && o.plan === "equipe" ? "equipe" : "free", u.id).run();
+  return json({ ok: true, name: t.name });
+}
+async function teamLeave(request, env) {
+  const u = await auth(request, env);
+  if (!u.team_id) return json({ ok: true });
+  const t = await env.DB.prepare("SELECT owner_id FROM teams WHERE id = ?").bind(u.team_id).first();
+  if (t && t.owner_id === u.id) throw new HttpError(400, "Vous gérez cette équipe : pour l'arrêter, résiliez l'abonnement.");
+  await env.DB.prepare("UPDATE users SET team_id = NULL, plan = 'free' WHERE id = ?").bind(u.id).run();
+  return json({ ok: true });
+}
+async function teamRemove(request, env) {
+  const u = await auth(request, env), body = await readJson(request);
+  const t = u.team_id ? await env.DB.prepare("SELECT id, owner_id FROM teams WHERE id = ?").bind(u.team_id).first() : null;
+  if (!t || t.owner_id !== u.id) throw new HttpError(403, "Seule la personne qui gère l'équipe peut retirer un membre.");
+  const email = String(body.email || "").trim().toLowerCase();
+  if (email === u.email) throw new HttpError(400, "Vous ne pouvez pas vous retirer vous-même.");
+  await env.DB.prepare("UPDATE users SET team_id = NULL, plan = 'free' WHERE team_id = ? AND email = ? AND id != ?").bind(t.id, email, u.id).run();
+  return json({ ok: true });
 }
 async function billingConfirm(request, env) {
   const body = await readJson(request);
@@ -380,10 +463,12 @@ async function billingConfirm(request, env) {
     isNew = true;
   }
   await env.DB.batch([
-    env.DB.prepare("UPDATE users SET plan = 'recharge', stripe_customer = ?, stripe_sub = ?, plan_checked_at = ?, ref_pending = MAX(0, ref_pending - ?) WHERE id = ?").bind(c.customer, c.sub, now(), c.refMonths || 0, user.id),
+    env.DB.prepare("UPDATE users SET plan = ?, tier = ?, founder = ?, stripe_customer = ?, stripe_sub = ?, plan_checked_at = ?, ref_pending = MAX(0, ref_pending - ?) WHERE id = ?").bind(c.tier, c.tier, c.founder ? 1 : 0, c.customer, c.sub, now(), c.refMonths || 0, user.id),
     env.DB.prepare("INSERT INTO checkout_used (id, used_at) VALUES (?, ?)").bind(id, now())
   ]);
-  user = { ...user, plan: "recharge", stripe_customer: c.customer };
+  let teamId = null;
+  if (c.tier === "equipe") teamId = await createTeam(env, user.id, c.teamName, Math.max(TIERS.equipe.seats, Math.min(MAX_SEATS, c.seats)));
+  user = { ...user, plan: c.tier, stripe_customer: c.customer, founder: c.founder, team_id: teamId };
   return json(await openSession(env, user, isNew));
 }
 async function billingPortal(request, env, url) {
