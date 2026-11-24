@@ -892,7 +892,7 @@ a.btn.send{background:var(--rc-orange)!important;color:var(--rc-ink)!important}
 .plist .rcard.lite:not(.exp) .rsn,.plist .rcard.lite:not(.exp) .rwhy{padding-right:70px}
 
 /* Menu : listes groupées */
-.mlist{background:var(--rc-paper);border:1px solid var(--rc-line);border-radius:20px;overflow:hidden}
+.mgrp{background:var(--rc-paper);border:1px solid var(--rc-line);border-radius:20px;overflow:hidden}
 .mrow{display:grid;grid-template-columns:24px 1fr 20px;gap:14px;align-items:center;width:100%;min-height:54px;padding:0 16px;border:0;background:none;font:inherit;color:var(--rc-ink);text-align:left;position:relative;cursor:pointer;transition:background-color var(--rc-t2) var(--rc-ease)}
 .mrow+.mrow::before{content:"";position:absolute;top:0;left:54px;right:0;height:1px;background:var(--rc-line)}
 .mrow:hover{background:var(--rc-sand)}.mrow:active{background:var(--rc-sand-2)}
@@ -912,6 +912,30 @@ a.btn.send{background:var(--rc-orange)!important;color:var(--rc-ink)!important}
 .sx-short{border:1px solid var(--rc-line-2)!important;background:var(--rc-paper)!important;border-radius:14px!important}
 .ctip{color:var(--rc-lav-text)}
 .notice{box-shadow:none!important}
+
+/* Ordinateur : barre latérale pleine hauteur, colonne de lecture de 760 px */
+@media (min-width:760px){
+  body{padding-left:240px}
+  nav.tabs{left:0;top:0;bottom:0;width:240px;padding:calc(76px + env(safe-area-inset-top)) 14px 20px;background:var(--rc-paper);border-right:1px solid var(--rc-line)}
+  nav.tabs .in{border:0;border-radius:0;box-shadow:none;padding:0;background:none}
+  nav.tabs .tab{font-size:.94rem;color:var(--rc-ink-2);border-radius:10px;padding:10px 12px;min-height:44px}
+  nav.tabs .tab:hover{background:var(--rc-sand)}
+  nav.tabs .tab.on{background:var(--rc-sand-2);color:var(--rc-ink)}
+  nav.tabs .tab.on svg{width:22px;height:22px;padding:0;margin:0}
+  .plus{border-radius:12px!important;height:46px!important;font-weight:650!important;font-size:.94rem!important;margin:0 0 14px!important}
+  .topbar{padding-left:28px;padding-right:28px}
+  main,.topbar .in{max-width:760px}
+  .sheet{border-radius:20px;max-width:560px}
+}
+@media (min-width:1100px){
+  body{padding-left:256px}nav.tabs{width:256px}
+  main,.topbar .in{max-width:760px}
+  #app>.enter:not(:has(.chatbox)){display:block}
+  main:has(.chatbox),.topbar .in:has(~ main .chatbox){max-width:1120px}
+}
+
+.tag{font-size:.75rem!important;font-weight:650}
+.dot.num,#tabDot .dot{color:var(--rc-ink)!important;background:var(--rc-orange)!important}
 
 /* Animations : une seule courbe, discrète */
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:1ms!important;transition-duration:1ms!important}}
@@ -2793,7 +2817,7 @@ function viewSettings() {
   const GROUPS = [["Mon activité", [["users", "Clients", "goto", "clients", "clients"], ["hand", "Prospects", "goto", "clients", "prospects"], ["spark", "Mon coach", "goto", "coach", ""], ["chart", "Bilan du mois", "openBilan", "", ""], ["map", "Carte de mes clients", "goto", "map", ""]]],
     ["Développer", [["card", "Carte fidélité", "goto", "settings", "Carte fidélité"], ["mega", "Promo du moment", "newPromo", "", ""], ["gift", "Parrainage", "openParrain", "", ""], ["grow", "Trouver de nouveaux clients", "goto", "dev", ""], ["team", "Mon équipe", "goto", "settings", "Mon équipe"]]],
     ["Mes données", [["camera", "Importer un carnet ou un fichier", "openImport", "", ""], ["save", "Sauvegarder mes clients", "goto", "settings", "Sauvegarder mes clients"], ["restore", "Restaurer une sauvegarde", "import", "", ""]]]];
-  let h = `<h1 class="title">Menu</h1>` + GROUPS.map(([g, rows]) => `<div class="section"><h2>${g}</h2></div><div class="mlist">${rows.map(([ic, l, a, t2, c2]) => `<button class="mrow" data-act="${a}" data-t="${t2}" data-c="${esc(c2)}"><span class="mi">${I[ic]}</span><b>${l}</b><span class="mc">${I.chev}</span></button>`).join("")}</div>`).join("") + `
+  let h = `<h1 class="title">Menu</h1>` + GROUPS.map(([g, rows]) => `<div class="section"><h2>${g}</h2></div><div class="mgrp">${rows.map(([ic, l, a, t2, c2]) => `<button class="mrow" data-act="${a}" data-t="${t2}" data-c="${esc(c2)}"><span class="mi">${I[ic]}</span><b>${l}</b><span class="mc">${I.chev}</span></button>`).join("")}</div>`).join("") + `
     <div class="section"><h2>Réglages</h2></div><div class="setidx">${SET_INDEX.map(t2 => `<button data-act="goto" data-t="settings" data-c="${t2}">${t2}</button>`).join("")}</div>`;
   h += accountSection();
   const pf = prof(), catL = cats().map(k => ((OB_CATS.find(x => x[0] === k) || [])[1] || "").replace(/^\S+\s/, "")).filter(Boolean).join(", ") || "Non renseigné";
