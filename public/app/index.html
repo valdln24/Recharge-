@@ -890,7 +890,7 @@ const REF_KEY = "recharge.parrain";
 (() => { const c = DEMO ? "" : (new URLSearchParams(location.search).get("parrain") || "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 12); if (c.length >= 4) try { localStorage.setItem(REF_KEY, c); } catch (e) {} })();
 const readRef = () => { try { return localStorage.getItem(REF_KEY) || undefined; } catch (e) { return undefined; } };
 const isPaidS = () => !!(session && session.paid);
-if (!DEMO && location.protocol.startsWith("http")) fetch(new URL("../api/health", location.href)).then(r => r.ok ? r.json() : null).then(j => { if (!j) return; API_OK = !!j.accounts; COACH_OK = !!j.coach; BILLING_OK = !!j.billing; if ((API_OK || COACH_OK || BILLING_OK) && typeof render === "function" && S) render(); }).catch(() => {});
+if (!DEMO && location.protocol.startsWith("http")) fetch(new URL("../api/health", location.href), { cache: "no-store" }).then(r => r.ok ? r.json() : null).then(j => { if (!j) return; API_OK = !!j.accounts; COACH_OK = !!j.coach; BILLING_OK = !!j.billing; if ((API_OK || COACH_OK || BILLING_OK) && typeof render === "function" && S) render(); }).catch(() => {});
 let sync = readLS(SYNC_KEY) || { rev: 0, dirty: false, lastAt: 0 };
 const saveSync = () => writeLS(SYNC_KEY, sync);
 const deviceName = () => { const u = navigator.userAgent; return /iPhone/.test(u) ? "iPhone" : /iPad/.test(u) ? "iPad" : /Android/.test(u) ? "Android" : /Mac/.test(u) ? "Mac" : /Windows/.test(u) ? "PC" : "Navigateur"; };

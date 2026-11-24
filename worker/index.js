@@ -45,7 +45,8 @@ export default {
 };
 
 class HttpError extends Error { constructor(status, message) { super(message); this.status = status; } }
-const json = (data, status = 200) => new Response(JSON.stringify(data), { status, headers: { "Content-Type": "application/json; charset=utf-8" } });
+// no-store : le navigateur ne garde jamais une ancienne réponse (ex. état des comptes avant l'ajout d'une clé)
+const json = (data, status = 200) => new Response(JSON.stringify(data), { status, headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" } });
 
 async function route(request, env, url, ctx) {
   const m = request.method, p = url.pathname;
