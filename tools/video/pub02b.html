@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8">
+<!-- Recharge · Pub 02 (version démo produit) · 540×960 CSS px rendus en 1080×1920, 30 i/s, 25 s.
+     Fond bleu nuit de la vidéo 01. Les éléments de l'appli sont redessinés à l'identique (couleurs, police, icônes de l'appli),
+     avec les fiches d'exemple du mode démo. Aucun emoji. render(t) place chaque élément pour l'instant t. -->
+<link rel="stylesheet" href="font.css">
+<style>
+:root{--navy:#08152E;--ink:#1C1A22;--ink2:#57515C;--ink3:#8A8390;--sand:#F4EFE8;--s2:#F1EBE3;--line:#E7DFD5;--line2:#D9CFC3;
+  --o1:#FF782E;--osoft:#FFF1E7;--otext:#D2601A;--late:#E5364B;--latesoft:#FDE8EA;--g:#35B879;--gsoft:#E5F6EE;--gtext:#1F8F58;--wa:#25A35A}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:540px;height:960px;overflow:hidden;background:var(--navy)}
+body{font-family:Manrope,system-ui,sans-serif;color:#fff;-webkit-font-smoothing:antialiased}
+#stage{position:absolute;inset:0;overflow:hidden}
+.bg{position:absolute;inset:0}
+#bgNavy{background:radial-gradient(120% 80% at 50% 40%,#12244A 0%,var(--navy) 62%)}
+#glow{background:radial-gradient(48% 30% at 50% 50%,rgba(38,117,232,.5) 0%,rgba(38,117,232,.16) 45%,rgba(38,117,232,0) 75%)}
+#grain{position:absolute;inset:-50%;opacity:.05;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.abs{position:absolute;left:0;top:0;will-change:transform,opacity,filter}
+svg{display:block}
+/* notifications de la vidéo 01 */
+.notif{width:290px;padding:12px 14px;border-radius:18px;background:rgba(255,255,255,.95);color:var(--ink);display:flex;gap:11px;align-items:flex-start;box-shadow:0 18px 40px rgba(0,0,0,.35)}
+.notif .ic{flex:none;width:34px;height:34px;border-radius:9px;background:var(--wa);display:grid;place-items:center;color:#fff}
+.notif .ic svg{width:20px;height:20px}
+.notif b{display:block;font-size:13.5px;font-weight:800}
+.notif span{display:block;font-size:13px;font-weight:500;color:var(--ink2);line-height:1.3;margin-top:1px}
+/* gros texte */
+.big{width:540px;text-align:center;font-weight:800;letter-spacing:-.04em;line-height:1.04}
+.big span{display:inline-block}
+.big em{font-style:normal;color:var(--o1)}
+#w{font-size:52px}
+.cap{width:540px;padding:0 28px;text-align:center;font-size:36px;font-weight:800;letter-spacing:-.035em;line-height:1.08}
+.cap span{display:inline-block}
+.cap em{font-style:normal;color:var(--o1)}
+/* cartes de l'appli (mêmes réglages que l'appli : blanc, rayons 22, ombre douce, Manrope) */
+.card{width:450px;border-radius:26px;background:#fff;color:var(--ink);box-shadow:0 30px 70px rgba(0,0,0,.42),0 2px 0 rgba(255,255,255,.6) inset}
+.hd{display:flex;align-items:baseline;justify-content:space-between;padding:20px 22px 8px}
+.hd b{font-size:22px;font-weight:800;letter-spacing:-.03em}
+.hd span{font-size:14px;font-weight:700;color:var(--ink3)}
+.row{display:flex;align-items:center;gap:13px;padding:12px 20px;border-top:1px solid var(--line)}
+.row:first-of-type{border-top:none}
+.av{flex:none;width:44px;height:44px;border-radius:50%;background:var(--osoft);color:var(--otext);display:grid;place-items:center;font-weight:800;font-size:15px}
+.row .tx{flex:1;min-width:0}
+.row .nm{font-size:16.5px;font-weight:800;letter-spacing:-.02em}
+.row .pd{display:flex;align-items:center;gap:5px;font-size:13.5px;font-weight:600;color:var(--ink2);margin-top:2px;white-space:nowrap}
+.pd svg,.mt svg{width:15px;height:15px;flex:none;color:var(--ink3)}
+.pill{flex:none;padding:6px 11px;border-radius:999px;font-size:13px;font-weight:800;white-space:nowrap}
+.p-ok{background:var(--gsoft);color:var(--gtext)}.p-soon{background:var(--osoft);color:var(--otext)}.p-late{background:var(--latesoft);color:var(--late)}
+#search{width:450px;height:62px;border-radius:20px;background:#fff;color:var(--ink);display:flex;align-items:center;gap:12px;padding:0 20px;box-shadow:0 24px 60px rgba(0,0,0,.4)}
+#search svg{width:22px;height:22px;color:var(--ink3);flex:none}
+#sq{font-size:19px;font-weight:700;white-space:nowrap}
+#sq.ph{color:var(--ink3);font-weight:600;font-size:17px}
+#sq i{display:inline-block;width:2.5px;height:24px;background:var(--o1);vertical-align:-5px;margin-left:2px}
+/* fiche */
+#fiche{padding:22px 22px 18px}
+#fiche .top{display:flex;align-items:center;gap:14px}
+#fiche .av{width:56px;height:56px;font-size:18px}
+#fiche .nm{font-size:24px;font-weight:800;letter-spacing:-.03em}
+.mt{display:flex;align-items:center;gap:5px;font-size:14px;font-weight:600;color:var(--ink2);margin-top:3px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:18px}
+.st{border:1px solid var(--line);border-radius:16px;padding:12px 6px;text-align:center}
+.st b{display:block;font-size:22px;font-weight:800;letter-spacing:-.03em}
+.st span{font-size:12.5px;font-weight:700;color:var(--ink3)}
+.hist{margin-top:14px;border:1.5px solid var(--line);border-radius:18px;padding:13px 14px;display:flex;align-items:center;gap:12px;position:relative}
+.hist .bi{flex:none;width:40px;height:40px;border-radius:12px;background:var(--osoft);color:var(--otext);display:grid;place-items:center}
+.hist .bi svg{width:22px;height:22px}
+.hist .t1{font-size:16px;font-weight:800}
+.hist .t2{font-size:13.5px;font-weight:600;color:var(--ink2);margin-top:2px}
+.hist .pill{margin-left:auto}
+#hring{position:absolute;inset:-2px;border-radius:19px;border:3px solid var(--o1);box-shadow:0 0 26px rgba(255,120,46,.5);opacity:0}
+/* frise */
+#tl{padding:22px 24px 22px}
+#tl .who{display:flex;align-items:center;gap:12px}
+#tl .track{position:relative;height:8px;border-radius:8px;background:#EEE8E0;margin:34px 8px 0}
+#tl .fill{position:absolute;left:0;top:0;bottom:0;border-radius:8px;width:0}
+#tl .node{position:absolute;top:50%;width:18px;height:18px;margin:-9px 0 0 -9px;border-radius:50%;background:#fff;border:4px solid var(--line2)}
+#tl .node.on{border-color:var(--o1)}#tl .node.late{border-color:var(--late)}
+#tl .lb{position:absolute;top:22px;transform:translateX(-50%);text-align:center;font-size:12.5px;font-weight:700;color:var(--ink2);white-space:nowrap;line-height:1.25}
+#tl .lb b{display:block;color:var(--ink);font-size:14px}
+#tl .chk{margin-top:62px;display:grid;gap:10px;border-top:1px solid var(--line);padding-top:16px}
+.ck{display:flex;align-items:center;gap:11px;font-size:16px;font-weight:700;opacity:0}
+.ck .o{position:relative;flex:none;width:24px;height:24px;border-radius:50%;border:2.5px solid var(--line)}
+.ck .o::after{content:"";position:absolute;inset:-2.5px;border-radius:50%;border:2.5px solid transparent;border-top-color:var(--o1)}
+.ck.done .o{background:var(--o1);border-color:var(--o1);color:#fff;display:grid;place-items:center}
+.ck.done .o::after{display:none}
+.ck .o svg{width:15px;height:15px;display:none}.ck.done .o svg{display:block}
+.ck > span:not(.o){color:var(--ink3);font-weight:600}.ck .o span{color:#fff}
+/* plan du jour */
+#plan{padding-bottom:6px}
+.pi{display:flex;align-items:center;gap:13px;padding:10px 20px 16px}
+.ring{position:relative;flex:none;width:58px;height:58px}
+.ring svg{width:58px;height:58px}
+.ring div{position:absolute;inset:0;display:grid;place-items:center;text-align:center;line-height:1}
+.ring b{display:block;font-size:15px;font-weight:800}
+.ring small{display:block;font-size:7.5px;font-weight:800;color:var(--late);text-transform:uppercase;letter-spacing:.04em;margin-top:1px}
+.pi .tx{flex:1}
+.pi .nm{font-size:17px;font-weight:800}
+.pi .why{font-size:15px;font-weight:700;color:var(--otext);margin-top:3px}
+.wab{position:relative;flex:none;width:50px;height:50px;border-radius:50%;background:var(--ink);color:#fff;display:grid;place-items:center}
+.wab svg{width:24px;height:24px}
+#waRing{position:absolute;inset:0;border-radius:50%;border:3px solid var(--wa);opacity:0}
+#badge{margin:0 20px 14px;display:inline-block;padding:7px 14px;border-radius:999px;background:var(--latesoft);color:var(--late);font-weight:800;font-size:14px}
+/* fin */
+#logo{width:420px}
+#url{width:540px;text-align:center;font-size:18px;font-weight:700;letter-spacing:.02em;color:rgba(255,255,255,.75)}
+</style></head><body>
+<div id="stage">
+  <div class="bg" id="bgNavy"></div><div class="bg" id="glow"></div>
+  <div class="abs notif" id="n1"><div class="ic">WA</div><div><b>Julie</b><span>Tu me remets la crème ?</span></div></div>
+  <div class="abs notif" id="n2"><div class="ic">WA</div><div><b>Inès</b><span>Tu as encore du gel ?</span></div></div>
+  <div class="abs notif" id="n3"><div class="ic">WA</div><div><b>Nathalie</b><span>Tu peux me livrer samedi ?</span></div></div>
+  <div class="abs big" id="w"><span id="w1">Il est temps</span><br><span id="w2">de changer</span> <span id="w3">votre façon</span><br><span id="w4">de suivre</span> <span id="w5"><em>vos clients.</em></span></div>
+
+  <!-- liste des clients (fiches d'exemple) -->
+  <div class="abs card" id="list"><div class="hd"><b>Clients</b><span>10 clients</span></div>
+    <div class="row" id="r1"><div class="av">CG</div><div class="tx"><div class="nm">Céline Garnier</div><div class="pd">BAG Complément alimentaire</div></div><span class="pill p-ok">Fin 8 janv.</span></div>
+    <div class="row" id="r2"><div class="av">JB</div><div class="tx"><div class="nm">Julie Bernard</div><div class="pd">BAG Gel aloe vera</div></div><span class="pill p-ok">Fin 13 janv.</span></div>
+    <div class="row" id="r3"><div class="av">KB</div><div class="tx"><div class="nm">Karim Benali</div><div class="pd">BAG Crème visage</div></div><span class="pill p-soon">Dans 2 j</span></div>
+    <div class="row" id="r4"><div class="av">MD</div><div class="tx"><div class="nm">Marie Dupont</div><div class="pd">BAG Gel aloe vera</div></div><span class="pill p-late">Retard 2 j</span></div>
+  </div>
+  <div class="abs" id="search">SEARCH<div id="sq"></div></div>
+
+  <!-- fiche de Marie -->
+  <div class="abs card" id="fiche"><div class="top"><div class="av">MD</div><div><div class="nm">Marie Dupont</div><div class="mt">PIN Lyon · Client depuis 1 mois</div></div></div>
+    <div class="stats"><div class="st"><b id="s1">1</b><span>commande</span></div><div class="st"><b id="s2">35 €</b><span>au total</span></div><div class="st"><b id="s3">32 j</b><span>dernier achat</span></div></div>
+    <div class="hist" id="hist"><div class="bi">BAG</div><div><div class="t1">Gel aloe vera × 1</div><div class="t2">Acheté le 23 oct. · fin 22 nov.</div></div><div id="hring"></div></div>
+  </div>
+
+  <!-- frise du renouvellement -->
+  <div class="abs card" id="tl"><div class="who"><div class="av">MD</div><div><div class="nm" style="font-size:19px;font-weight:800">Marie Dupont</div><div class="mt">BAG Gel aloe vera · environ 30 jours</div></div></div>
+    <div class="track"><div class="fill" id="tlFill"></div>
+      <div class="node" id="nd0" style="left:0%"></div><div class="lb" style="left:0%;transform:translateX(-22%)"><b>23 oct.</b>acheté</div>
+      <div class="node" id="nd1" style="left:62%"></div><div class="lb" style="left:62%"><b>22 nov.</b>fin prévue</div>
+      <div class="node" id="nd2" style="left:100%"></div><div class="lb" style="left:100%;transform:translateX(-78%)"><b>24 nov.</b>aujourd'hui</div></div>
+    <div class="chk"><div class="ck" id="k1"><div class="o">CHK</div>Achat noté <span>· 23 oct.</span></div><div class="ck" id="k2"><div class="o">CHK</div>Fin estimée <span>· 22 nov.</span></div><div class="ck" id="k3"><div class="o">CHK</div>Ajoutée à votre plan du jour</div></div>
+  </div>
+
+  <!-- plan du jour -->
+  <div class="abs card" id="plan"><div class="hd"><b>Mon plan du jour</b><span>aujourd'hui</span></div>
+    <div class="pi"><div class="ring"><svg viewBox="0 0 52 52"><circle cx="26" cy="26" r="22" fill="none" stroke="#FDE8EA" stroke-width="5"/><circle cx="26" cy="26" r="22" fill="none" stroke="#E5364B" stroke-width="5" stroke-linecap="round" stroke-dasharray="138.2" stroke-dashoffset="0" transform="rotate(-90 26 26)"/></svg><div><span><b>2 j</b><small>retard</small></span></div></div>
+      <div class="tx"><div class="nm">Marie Dupont</div><div class="why">Gel aloe vera terminé depuis 2 j</div></div>
+      <div class="wab">WA<div id="waRing"></div></div></div>
+    <span id="badge">À relancer aujourd'hui</span>
+  </div>
+
+  <div class="abs cap" id="c2">Une vision <em>claire</em><br>de votre activité.</div>
+  <div class="abs cap" id="c3"><span id="c3a">Chaque client.</span> <span id="c3b">Ses produits.</span><br><span id="c3c"><em>Son suivi.</em></span></div>
+  <div class="abs cap" id="c4"><span id="c4a">Anticipez.</span> <span id="c4b">Organisez.</span> <span id="c4c"><em>Suivez.</em></span></div>
+  <div class="abs" id="logo">LOGO</div>
+  <div class="abs cap" id="c5" style="font-size:44px">Votre activité.<br><em>Mieux organisée.</em></div>
+  <div class="abs cap" id="c6" style="font-size:24px;color:rgba(255,255,255,.92)">Découvrez Recharge</div>
+  <div class="abs" id="url">getrecharge.fr</div>
+  <div id="grain"></div>
+</div>
+<script>
+const $ = id => document.getElementById(id);
+const SV = {
+  wa: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2c-1.5 0-3-.4-4.3-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.300-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3z"/></svg>',
+  bag: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1 12H6L5 8z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/><path d="M9.5 13.5l2 2 3.5-3.5"/></svg>',
+  search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg>',
+  check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l4.5 4.5L19.5 6.5"/></svg>',
+  pin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg>'
+};
+for (const [k, v] of [["WA", SV.wa], ["BAG", SV.bag], ["SEARCH", SV.search], ["CHK", SV.check], ["PIN", SV.pin]])
+  document.querySelectorAll("#stage *").forEach(e => { for (const n of [...e.childNodes]) if (n.nodeType === 3 && n.nodeValue.includes(k)) { const s = document.createElement("span"); s.innerHTML = n.nodeValue.replace(k, v); s.style.display = "contents"; n.replaceWith(s); } });
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const lerp = (a, b, k) => a + (b - a) * k;
+const prog = (t, a, b) => clamp((t - a) / (b - a));
+const eOut = k => 1 - Math.pow(1 - k, 3), eIn = k => k * k * k;
+const eIO = k => k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+const eBack = k => { const c = 1.6; return 1 + (c + 1) * Math.pow(k - 1, 3) + c * Math.pow(k - 1, 2); };
+function put(id, { x = 270, y = 480, s = 1, r = 0, o = 1, b = 0 } = {}) {
+  const e = $(id); const w = e.offsetWidth, h = e.offsetHeight;
+  e.style.transform = `translate(${x - w / 2}px,${y - h / 2}px) rotate(${r}deg) scale(${s})`;
+  e.style.opacity = o; e.style.filter = b > .05 ? `blur(${b}px)` : "none";
+}
+const hide = id => { $(id).style.opacity = 0; $(id).style.filter = "none"; };
+// apparition / sortie standard : monte en se nettoyant, repart en flou
+function show(id, t, a, b, y, { x = 270, s0 = .94, dy = 26 } = {}) {
+  if (t < a || t > b) return hide(id), 0;
+  const i = eOut(prog(t, a, a + .4)), o = eIn(prog(t, b - .3, b));
+  put(id, { x, y: y + (1 - i) * dy - o * 24, s: lerp(s0, 1, i) * lerp(1, .97, o), o: i * (1 - o), b: (1 - i) * 10 + o * 10 });
+  return i * (1 - o);
+}
+const word = (id, a, t, d = 16) => { const k = eOut(prog(t, a, a + .32)); const e = $(id); e.style.opacity = k; e.style.transform = `translateY(${(1 - k) * d}px) scale(${lerp(.9, 1, k)})`; e.style.filter = k < .98 ? `blur(${(1 - k) * 8}px)` : "none"; };
+
+function render(t) {
+  $("glow").style.opacity = .55 + .25 * Math.sin(t * 1.3);
+  $("glow").style.transform = `scale(${1 + .06 * Math.sin(t * .9)})`;
+
+  /* 1 · le désordre, puis la phrase en gros (0 – 3.3) */
+  const N = [["n1", -240, 150, 175, 175, -4, .0], ["n2", 790, 250, 360, 300, 4, .15], ["n3", 270, 1100, 300, 790, -3, .3]];
+  for (const [id, fx, fy, tx, ty, r, a] of N) {
+    if (t > 3.0) { hide(id); continue; }
+    const i = eBack(prog(t, a, a + .6)), g = eIn(prog(t, 2.55, 3.0)), dim = prog(t, .9, 1.4);
+    put(id, { x: lerp(lerp(fx, tx, i), 270, g) + Math.sin(t * 1.4 + a * 9) * 4, y: lerp(lerp(fy, ty, i), 480, g), r: r * (1 - g), s: lerp(1, .8, dim) * lerp(1, .2, g), o: (1 - .55 * dim) * (1 - g), b: dim * 3 + g * 6 });
+  }
+  if (t < 3.1) {
+    const out = eIn(prog(t, 2.6, 3.05));
+    put("w", { y: 470, s: lerp(1, .6, out), o: 1 - out, b: out * 10 });
+    [["w1", .35], ["w2", .7], ["w3", 1.05], ["w4", 1.45], ["w5", 1.8]].forEach(([id, a]) => word(id, a, t, 22));
+  } else hide("w");
+
+  /* logo : construit au centre (3.0 – 4.7) puis à la fin (19.5 –) */
+  const lg = $("logo");
+  if (lg.firstElementChild) {
+    const [ring, tri, bolt, wd, dot] = lg.querySelectorAll("path");
+    let a0 = null; if (t >= 3.0 && t < 5.0) a0 = 3.0; if (t >= 19.5) a0 = 19.5;
+    if (a0 !== null) {
+      const RL = 236; ring.style.strokeDasharray = RL; ring.style.strokeDashoffset = RL * (1 - eIO(prog(t, a0, a0 + .55)));
+      const tk = eBack(prog(t, a0 + .4, a0 + .65)); tri.style.opacity = clamp(prog(t, a0 + .4, a0 + .46)); tri.style.transformBox = "fill-box"; tri.style.transformOrigin = "center"; tri.style.transform = `scale(${tk})`;
+      const bk = eBack(prog(t, a0 + .5, a0 + .78)); bolt.style.opacity = clamp(prog(t, a0 + .5, a0 + .56)); bolt.style.transformBox = "fill-box"; bolt.style.transformOrigin = "center"; bolt.style.transform = `translateY(${(1 - bk) * -30}px) scale(${lerp(.4, 1, bk)})`;
+      const wk = eOut(prog(t, a0 + .7, a0 + 1.1)); wd.style.opacity = wk; wd.style.transform = `translateX(${(1 - wk) * -24}px)`; wd.style.fill = "#fff";
+      const dk = eBack(prog(t, a0 + 1.05, a0 + 1.3)); dot.style.opacity = clamp(prog(t, a0 + 1.05, a0 + 1.12)); dot.style.transformBox = "fill-box"; dot.style.transformOrigin = "center"; dot.style.transform = `scale(${dk})`;
+      if (a0 < 10) { const out = eIn(prog(t, 4.35, 4.85)); put("logo", { y: 480 - out * 60, s: lerp(1.08, 1, eOut(prog(t, 3, 4.4))) * lerp(1, .5, out), o: 1 - out, b: out * 8 }); }
+      else put("logo", { y: lerp(470, 380, eIO(prog(t, 20.6, 21.2))), s: lerp(1.08, 1, eOut(prog(t, 19.5, 21))) });
+    } else hide("logo");
+  }
+
+  /* 2 · la liste des clients se range (4.7 – 10.0) */
+  const L = show("list", t, 4.75, 10.25, 545, { s0: .9, dy: 40 });
+  if (L) {
+    [["r1", 4.95, -1], ["r2", 5.07, 1], ["r3", 5.19, -1], ["r4", 5.31, 1]].forEach(([id, a, sd], k) => {
+      const e = $(id), i = eOut(prog(t, a, a + .45));
+      // après la recherche, seules les autres lignes s'effacent ; Marie remonte
+      const f = id === "r4" ? 0 : eIO(prog(t, 9.0, 9.35));
+      const up = id === "r4" ? eIO(prog(t, 9.15, 9.55)) * 3 * 69 : 0;
+      e.style.opacity = i * (1 - f); e.style.transform = `translate(${(1 - i) * sd * 70}px,${-up}px)`; e.style.filter = (1 - i) > .02 ? `blur(${(1 - i) * 6}px)` : "none";
+      const pl = e.querySelector(".pill"), pk = eBack(prog(t, 5.9 + k * .12, 6.2 + k * .12)); pl.style.transform = `scale(${pk})`; pl.style.opacity = clamp(prog(t, 5.9 + k * .12, 6.0 + k * .12));
+    });
+    $("list").style.height = t > 9.0 ? lerp(354, 354 - 3 * 69, eIO(prog(t, 9.15, 9.55))) + "px" : "";
+  }
+  /* la recherche : « Marie » se tape (8.0 – 9.0) */
+  if (t >= 7.75 && t < 10.25) {
+    const i = eOut(prog(t, 7.75, 8.15)), o = eIn(prog(t, 9.95, 10.25));
+    put("search", { y: lerp(300, 318, i) - o * 20, s: lerp(.92, 1, i), o: i * (1 - o), b: (1 - i) * 8 + o * 8 });
+    const n = clamp(Math.floor((t - 8.2) / .11) + 1, 0, 5), car = Math.floor(t * 4) % 2 === 0 && t < 9.3 ? "<i></i>" : "";
+    $("sq").className = n ? "" : "ph"; $("sq").innerHTML = n ? "Marie".slice(0, n) + car : "Rechercher un client" + car;
+  } else hide("search");
+  // la liste descend pour laisser la place à la barre
+  if (L && t >= 7.75) { const d = eIO(prog(t, 7.75, 8.2)) * 40; $("list").style.transform += ` translateY(${d}px)`; }
+
+  /* 3 · la fiche de Marie s'ouvre (9.9 – 14.0) */
+  const F = show("fiche", t, 9.9, 14.05, 520, { s0: .9, dy: 50 });
+  if (F) {
+    const c = eOut(prog(t, 10.3, 11.0));
+    $("s1").textContent = Math.round(c * 1); $("s2").textContent = Math.round(c * 35) + " €"; $("s3").textContent = Math.round(c * 32) + " j";
+    const h = eOut(prog(t, 11.2, 11.6)); $("hist").style.opacity = h; $("hist").style.transform = `translateY(${(1 - h) * 16}px)`;
+    $("hring").style.opacity = eOut(prog(t, 11.9, 12.2)) * (1 - prog(t, 13.4, 13.7));
+  }
+  show("c2", t, 4.6, 7.65, 168);
+  if (show("c3", t, 7.85, 14.0, 168)) { word("c3a", 7.85, t); word("c3b", 10.3, t); word("c3c", 11.75, t); }
+
+  /* 4 · anticiper : la frise et la liste qui se coche (14.1 – 17.7), puis le plan du jour (17.5 – 19.4) */
+  if (show("c4", t, 14.1, 19.35, 168)) { word("c4a", 14.15, t); word("c4b", 15.3, t); word("c4c", 16.5, t); }
+  if (show("tl", t, 14.25, 17.75, 520, { s0: .92, dy: 50 })) {
+    const f = eIO(prog(t, 14.65, 15.55)); $("tlFill").style.width = (f * 100) + "%";
+    $("tlFill").style.background = f > .62 ? "linear-gradient(90deg,#F59A4A 0%,#FF782E 60%,#E5364B 100%)" : "linear-gradient(90deg,#F59A4A,#FF782E)";
+    $("nd0").className = "node on"; $("nd1").className = "node" + (f >= .62 ? " on" : ""); $("nd2").className = "node" + (f >= .99 ? " late" : "");
+    [["k1", 15.45], ["k2", 15.85], ["k3", 16.25]].forEach(([id, a]) => {
+      const e = $(id), k = eOut(prog(t, a, a + .25)), done = t >= a + .28;
+      e.style.opacity = k; e.style.transform = `translateX(${(1 - k) * -14}px)`; e.className = "ck" + (done ? " done" : "");
+      e.firstElementChild.style.transform = done ? `scale(${eBack(prog(t, a + .28, a + .45))})` : `rotate(${(t - a) * 1000}deg)`;
+    });
+  }
+  if (show("plan", t, 17.55, 19.4, 525, { s0: .9, dy: 50 })) {
+    const b = eBack(prog(t, 17.95, 18.25)); $("badge").style.transform = `scale(${b})`; $("badge").style.opacity = clamp(prog(t, 17.95, 18.05));
+    const k = (t - 18.1) / .6 % 1, on = t >= 18.1 && t < 19.3; $("waRing").style.opacity = on ? 1 - k : 0; $("waRing").style.transform = `scale(${lerp(1, 1.8, eOut(k))})`;
+  }
+
+  /* 5 · signature */
+  show("c5", t, 20.6, 25.5, 560, { dy: 20 });
+  show("c6", t, 21.9, 25.5, 668, { dy: 14 });
+  show("url", t, 22.3, 25.5, 712, { dy: 10 });
+}
+window.render = render; window.warp = t => t;
+fetch("logo.svg").then(r => r.text()).then(s => { $("logo").innerHTML = s.replace(/style="[^"]*"/, 'style="width:100%;height:auto;overflow:visible"'); document.fonts.ready.then(() => { window.__ready = true; }); });
+</script>
+</body></html>
