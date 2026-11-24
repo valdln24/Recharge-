@@ -1741,7 +1741,7 @@ function render() {
   document.getElementById("coachFab").classList.toggle("hidden", tab === "coach");
   if (tab === "dev") mountDev();
   if (tab === "map") mountMap();
-  fitAreas();
+  fitAreas(); initScrollers(app);
   if (!storageOk) app.insertAdjacentHTML("afterbegin", `<div class="notice warn">Ce navigateur bloque l'enregistrement (navigation privée ?). Vos données risquent d'être perdues.</div>`);
 }
 function fitAreas(root = document) {
@@ -2447,7 +2447,7 @@ function viewSettings() {
     <button class="btn soft" style="margin-top:12px" data-act="homeHelp">📲 Installer l'appli sur l'écran d'accueil</button>
     <button class="btn soft" style="margin-top:8px" data-act="obOpen">👋 Revoir l'accueil de démarrage</button></div>`;
   h += section("Mes produits", realProducts().length) + `<div class="card pad">
-    <label class="field" style="margin-top:0"><span>Commande sans produit précis : relancer après</span><div class="unit"><input class="input num" id="setCycle" inputmode="numeric" value="${S.settings.cycle}"><b>jours</b></div></label>
+    <div class="field" style="margin-top:0"><span>Commande sans produit précis : relancer après</span>${dayScroller('id="setCycle"', S.settings.cycle)}</div>
     <p class="hint" style="margin:6px 0 14px">Utile quand votre back-office ne montre que la date de commande.</p>
     <div class="prodhead"><span>Produit</span><span>Jours</span><span>Prix €</span><span></span></div>`;
   for (const p of realProducts()) {
@@ -4700,6 +4700,7 @@ document.addEventListener("input", ev => {
   if (t.id === "npName") { const e = estimateDays(t.value), d = document.getElementById("npDays"), h = document.getElementById("npEst");
     if (!d.dataset.touched) dsSet(d, e.days); if (h) h.textContent = t.value.trim() ? (e.why ? `Estimation Recharge (${e.why}) : ${e.days} jours. Ajustez si vous savez mieux.` : "Pas d'estimation précise : 30 jours par défaut, ajustez si besoin.") : ""; }
   if (t.id === "npDays") t.dataset.touched = "1";
+  if (t.id === "setCycle") { clearTimeout(t._sv); t._sv = setTimeout(() => t.dispatchEvent(new Event("change", { bubbles: true })), 700); }
   if (t.id === "endIn") endInfo();
   if (t.id === "fEnd") { t.dataset.touched = "1"; updateEnd(); }
   if (t.id === "pNext") pform.touched = true;
@@ -4728,7 +4729,7 @@ document.addEventListener("change", ev => {
     save(); toast("Réglage enregistré"); return;
   }
   if (t.id === "setCycle") {
-    S.settings.cycle = Math.max(7, Math.min(180, Math.round(num(t.value)) || 30)); const g = genericProduct();
+    S.settings.cycle = Math.max(5, Math.min(180, Math.round(num(t.value)) || 30)); const g = genericProduct();
     for (const sl of S.sales) if (sl.productId === g.id && sl.status === "open" && !sl.learned) { sl.days = g.days; sl.end = addDays(sl.date, g.days * sl.qty); }
     save(); toast(`Relance ${S.settings.cycle} jours après une commande sans produit précis`); return;
   }
