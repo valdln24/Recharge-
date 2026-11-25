@@ -271,7 +271,7 @@ body{background:var(--bg)}
     var prio = n <= 25 ? "croissance" : dorm >= n * .2 ? "reveil" : "rachats";
     return { clients: n, cat: c[0], catLabel: c[1], dorm: dorm, pains: st.pains.slice(), renouv: renouv, panier: c[4], duree: c[3], semaine: semaine,
       valClient: valClient, revenus: revenus, reveilAn: reveilAn, nouveaux: nouveaux, resAn: resAn, totalAn: totalAn, prio: prio,
-      team: st.team, first: tr.name.trim() ? { name: tr.name.trim(), prod: prodName(), ago: tr.ago } : null, tone: tr.tone, fois: Math.floor(totalAn / 89), cmdRemb: Math.max(1, Math.ceil(89 / c[4])), at: new Date().toISOString().slice(0, 10) };
+      team: st.team, first: tr.name.trim() ? { name: tr.name.trim(), prod: prodName(), ago: tr.ago } : null, tone: tr.tone, fois: Math.floor(totalAn / 119), cmdRemb: Math.max(1, Math.ceil(119 / c[4])), at: new Date().toISOString().slice(0, 10) };
   }
   function result() {
     var a = compute();
@@ -286,10 +286,10 @@ body{background:var(--bg)}
     var gain = '<div class="rgain"><div class="rg-k">Votre potentiel sur un an</div><div class="rg-v">~<b id="rgTotal">0</b> €</div>' +
       '<div class="rg-row"><span>Clients endormis à réveiller (' + a.dorm + ', si 1 sur 3 revient)</span><b>~' + fmt(a.reveilAn) + ' €</b></div>' +
       '<div class="rg-row"><span>Nouveaux clients amenés par vos clients (<span id="rgNew">' + a.nouveaux + '</span>)</span><b>~<span id="rgRes">' + fmt(a.resAn) + '</span> €</b></div></div>';
-    var roi = '<div class="rroi"><div class="ro-p"><b>89 €</b><span>par an avec Recharge, <br>soit 7,42 € par mois</span></div><div class="ro-t">' +
+    var roi = '<div class="rroi"><div class="ro-p"><b>119 €</b><span>par an avec Recharge Pro, <br>soit 9,92 € par mois</span></div><div class="ro-t">' +
       '<p>Remboursé dès la <b>' + a.cmdRemb + (a.cmdRemb > 1 ? "e" : "re") + ' commande récupérée</b>.</p>' +
       (a.fois >= 2 ? '<p>Votre potentiel représente <b id="rgFois">' + a.fois + ' fois</b> son prix.</p>' : "") +
-      '<small>Au mois : 9,90 € (118,80 € sur un an). L’annuel vous fait économiser 29,80 €.</small></div></div>';
+      '<small>Prix fondateur, réservé aux 50 premiers abonnés. Au mois : 11,90 €. À l’année, vous économisez 23,80 €.</small></div></div>';
     var stats = '<div class="rstats"><div class="rs"><b>' + a.renouv + '</b><span>renouvellements possibles par mois</span></div>' +
       '<div class="rs"><b>~' + a.dorm + '</b><span>clients endormis depuis 3 mois</span></div>' +
       '<div class="rs hl"><b>~' + fmt(a.valClient) + ' €</b><span>par an pour un client fidèle</span></div></div>';
@@ -366,7 +366,7 @@ body{background:var(--bg)}
       document.getElementById("anCA").textContent = "≈ " + fmt(an) + " €";
       document.getElementById("rgNew").textContent = nw; document.getElementById("rgRes").textContent = fmt(an);
       document.getElementById("rgTotal").textContent = fmt(netA.reveilAn + an);
-      var fo = document.getElementById("rgFois"); if (fo) fo.textContent = Math.floor((netA.reveilAn + an) / 89) + " fois";
+      var fo = document.getElementById("rgFois"); if (fo) fo.textContent = Math.floor((netA.reveilAn + an) / 119) + " fois";
     };
     if (!netUpd) {
       netUpd = constellation(svg, svg.parentNode.querySelector(".pot-mid"), document.getElementById("anTot"));
