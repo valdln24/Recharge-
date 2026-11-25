@@ -120,12 +120,12 @@ body{background:var(--bg)}
 .tform{display:grid;gap:10px;margin-top:18px}
 .tform input{font:inherit;font-size:1rem;padding:14px 16px;border-radius:16px;border:1.5px solid var(--line);background:#fff;color:var(--ink);width:100%}
 .tform input:focus{outline:none;border-color:var(--orange)}
-.tlab{font-size:.8rem;font-weight:800;color:var(--ink-3);letter-spacing:.03em;text-transform:uppercase;margin:6px 2px 0}
+.tlab{font-size:.9rem;font-weight:700;color:var(--ink-2);margin:8px 2px 0}
 .tchips{display:flex;flex-wrap:wrap;gap:8px}
 .tchips button{font:inherit;font-weight:700;font-size:.9rem;padding:9px 13px;border-radius:99px;border:1.5px solid var(--line);background:#fff;color:var(--ink);cursor:pointer}
 .tchips button.on{background:var(--navy);border-color:var(--navy);color:#fff}
-.tcard{margin-top:18px;border-radius:24px;padding:16px;background:#fff;border:1px solid var(--line);box-shadow:0 24px 50px -30px rgba(28,26,34,.35)}
-.tcard .tk{font-size:.74rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--orange);margin-bottom:10px}
+.tcard{margin-top:18px;border-radius:18px;padding:14px;background:#fff;border:1px solid var(--line)}
+.tcard .tk{font-size:.8rem;font-weight:700;color:var(--ink-3);margin-bottom:10px}
 .tfiche{display:flex;align-items:center;gap:12px}
 .tav{width:46px;height:46px;border-radius:50%;flex:none;display:grid;place-items:center;font-weight:800;color:#fff;background:linear-gradient(145deg,#FFB38A,#F2774A)}
 .tfiche .tx{flex:1;min-width:0}.tfiche b{display:block;font-size:1.05rem}.tfiche small{color:var(--ink-3);font-weight:600}
@@ -217,15 +217,15 @@ body{background:var(--bg)}
     var d = daysLeft(), dur = CATS[st.cat || 0][3], frac = Math.max(0, Math.min(1, d / dur)), C = 2 * Math.PI * 24;
     var pill = d <= 0 ? '<span class="tpill r">À relancer aujourd’hui</span>' : d <= 7 ? '<span class="tpill r">Finie dans ' + d + " j · à relancer cette semaine</span>" : '<span class="tpill">Recharge vous préviendra dans ' + (d - 3) + " jours</span>";
     var ini = first().slice(0, 1).toUpperCase() + ((tr.name.trim().split(/\s+/)[1] || "").slice(0, 1).toUpperCase());
-    box.innerHTML = '<div class="tk">Dans Recharge</div><div class="tfiche"><span class="tav">' + esc(ini) + '</span><div class="tx"><b>' + esc(tr.name.trim() || "Marie") + "</b><small>" + esc(prodName()) + " · acheté il y a " + esc(AGO.filter(function (a) { return a[0] === tr.ago; })[0][1]) + "</small></div>" +
+    box.innerHTML = '<div class="tk">Aperçu dans l’appli</div><div class="tfiche"><span class="tav">' + esc(ini) + '</span><div class="tx"><b>' + esc(tr.name.trim() || "Marie") + "</b><small>" + esc(prodName()) + " · acheté il y a " + esc(AGO.filter(function (a) { return a[0] === tr.ago; })[0][1]) + "</small></div>" +
       '<div class="tring"><svg viewBox="0 0 58 58"><circle cx="29" cy="29" r="24" fill="none" stroke="#EDE5DB" stroke-width="6"/><circle cx="29" cy="29" r="24" fill="none" stroke="' + (d <= 7 ? "#E5484D" : "#FF782E") + '" stroke-width="6" stroke-linecap="round" stroke-dasharray="' + (C * frac).toFixed(1) + " " + C.toFixed(1) + '"/></svg><div class="n"><div>' + Math.max(0, d) + "<small>JOURS</small></div></div></div></div>" + pill +
       '<div class="tmsg">' + esc(msgText()) + "</div>" +
       '<button type="button" class="tsend" data-a="send">Envoyer sur WhatsApp</button>' +
-      (tr.sent ? '<p class="tnote ok">✓ Dans l’appli, WhatsApp s’ouvre avec ce message, prêt à partir. Ici c’est un essai : rien n’a été envoyé.</p>' : '<p class="tnote">Changez le produit, la date ou le ton : tout se met à jour.</p>');
+      (tr.sent ? '<p class="tnote ok">Dans l’appli, ce bouton ouvre WhatsApp avec le message. Ici c’est un essai, rien n’est parti.</p>' : '<p class="tnote">La fiche et le message changent dès que vous modifiez quelque chose.</p>');
   }
   function tryStep(S) {
     var prods = PRODS[CATS[st.cat || 0][0]] || [];
-    draw(head(S) + '<h1 class="aq">Essayez avec une vraie cliente</h1><p class="asub">Comme dans l’appli : son prénom, ce qu’elle a pris et quand. Recharge calcule le bon moment et écrit le message.</p>' +
+    draw(head(S) + '<h1 class="aq">Essayez avec une vraie cliente</h1><p class="asub">Donnez son prénom, ce qu’elle a pris et quand. Recharge calcule le moment de la relancer et écrit le message.</p>' +
       '<div class="tform"><input id="tName" placeholder="Prénom de votre cliente (ex. : Marie)" autocomplete="off" value="' + esc(tr.name) + '">' +
       '<input id="tProd" list="tProds" placeholder="Ce qu’elle a pris (ex. : ' + esc(prods[0] || "Crème de jour") + ')" autocomplete="off" value="' + esc(tr.prod) + '"><datalist id="tProds">' + prods.map(function (x) { return '<option value="' + esc(x) + '">'; }).join("") + "</datalist>" +
       '<div class="tlab">Acheté il y a</div><div class="tchips" data-k="ago">' + AGO.map(function (a) { return '<button type="button" data-v="' + a[0] + '" class="' + (tr.ago === a[0] ? "on" : "") + '">' + a[1] + "</button>"; }).join("") + "</div>" +
@@ -238,9 +238,9 @@ body{background:var(--bg)}
   function recoStep(S) {
     var p = first();
     var who = [["Sa sœur", "à qui elle a parlé de vous"], ["Une collègue", "qui cherche la même chose"], ["Sa voisine", "qui a vu le produit chez elle"]];
-    draw(head(S) + '<h1 class="aq">' + esc(p) + " est contente. Et ensuite ?</h1>" + '<p class="asub">C’est le meilleur moment pour demander une recommandation. Recharge vous le rappelle et écrit la demande pour vous.</p>' +
-      '<div class="tcard"><div class="tk">Dans Recharge</div><div class="tmsg">' + esc(tr.tone === "pro" ? "Je suis ravie que le produit vous plaise, " + p + " ! Pensez-vous à quelqu’un de votre entourage à qui il pourrait plaire aussi ? 🙂" : "Trop contente que ça te plaise, " + p + " ! Tu penses à quelqu’un autour de toi à qui ça pourrait plaire aussi ?" + (tr.tone === "simple" ? "" : " 😊")) + "</div>" +
-      (tr.reco ? '<p class="tnote ok">✓ ' + esc(p) + " vous présente " + tr.reco + " personnes. Elles arrivent dans vos prospects, avec la date pour les contacter.</p>" + '<div class="treco">' + who.slice(0, tr.reco).map(function (w, i) { return '<span style="animation-delay:' + (i * .15) + 's"><i></i>' + esc(w[0]) + " de " + esc(p) + "</span>"; }).join("") + "</div>"
+    draw(head(S) + '<h1 class="aq">' + esc(p) + " est contente. Et ensuite ?</h1>" + '<p class="asub">C’est le bon moment pour lui demander une recommandation. Recharge vous le rappelle et écrit la demande.</p>' +
+      '<div class="tcard"><div class="tk">Aperçu dans l’appli</div><div class="tmsg">' + esc(tr.tone === "pro" ? "Je suis ravie que le produit vous plaise, " + p + " ! Pensez-vous à quelqu’un de votre entourage à qui il pourrait plaire aussi ? 🙂" : "Trop contente que ça te plaise, " + p + " ! Tu penses à quelqu’un autour de toi à qui ça pourrait plaire aussi ?" + (tr.tone === "simple" ? "" : " 😊")) + "</div>" +
+      (tr.reco ? '<p class="tnote ok">' + esc(p) + " vous présente " + tr.reco + " personnes. Elles sont ajoutées à vos prospects, avec une date pour les contacter.</p>" + '<div class="treco">' + who.slice(0, tr.reco).map(function (w, i) { return '<span style="animation-delay:' + (i * .15) + 's"><i></i>' + esc(w[0]) + " de " + esc(p) + "</span>"; }).join("") + "</div>"
         : '<button type="button" class="tsend" data-a="reco" style="background:var(--navy)">Demander une recommandation à ' + esc(p) + "</button>") + "</div>" +
       '<div class="anav"><button type="button" class="back" data-a="back">← Retour</button><button type="button" class="btn orange" data-a="tnext">Continuer' + ARROW + "</button></div>");
   }

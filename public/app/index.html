@@ -279,14 +279,30 @@ button.cbtn{font:inherit;cursor:pointer}
 .obbar{flex:1;height:6px;border-radius:9px;background:var(--surface-2);overflow:hidden;margin-right:12px}.obbar span{display:block;height:100%;background:var(--grad);border-radius:9px;transition:width .4s}
 .obskip{background:none;border:0;color:var(--ink-3);font:inherit;font-weight:650;font-size:.88rem;cursor:pointer;padding:8px}
 .obq{font-size:1.45rem;letter-spacing:-.03em;margin:14px 0 4px;line-height:1.2}
-/* visite guidée */
-.tourdots{display:flex;gap:6px;flex:1}.tourdots i{height:5px;flex:1;max-width:34px;border-radius:9px;background:var(--line,#E5DDD3)}.tourdots i.done{background:#FFB98C}.tourdots i.on{background:#FF782E}
-.tourv{position:relative;margin:14px 0 4px;padding:26px 18px 18px;border-radius:26px;background:radial-gradient(120% 120% at 0% 0%,#EEF1FF 0%,#FFF1E8 100%);display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center}
-.tourico{width:74px;height:74px;border-radius:24px;display:grid;place-items:center;font-size:2.2rem;background:#fff;box-shadow:0 18px 36px -18px rgba(28,26,34,.35)}
-.tourex{background:#fff;border-radius:18px;padding:12px 14px;box-shadow:0 12px 30px -18px rgba(28,26,34,.3);max-width:290px;display:flex;flex-direction:column;gap:4px;align-items:center}.tourex b{font-size:.95rem;line-height:1.3}.tourex small{color:#8A93A6;font-weight:700;font-size:.8rem}.tourex .tag{margin:0}
-.tourk{margin:12px 0 0;font-size:.78rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:#FF782E}.tourk+.obq{margin-top:4px}
-.tourgain{margin-top:12px;padding:13px 15px;border-radius:18px;background:#F4EFE8;display:flex;flex-direction:column;gap:3px}.tourgain b{font-size:.8rem;letter-spacing:.03em;text-transform:uppercase;color:#1C1A22}.tourgain span{font-weight:600;line-height:1.4}
-.toursteps{margin:12px 0 0;padding-left:22px;display:grid;gap:6px;font-weight:650}
+/* visite guidée : des morceaux de l'appli, sur le fond de l'appli */
+.tourdots{display:flex;gap:5px;flex:1}.tourdots i{height:4px;flex:1;max-width:30px;border-radius:4px;background:#E5DDD3}.tourdots i.done{background:#1C1A22}.tourdots i.on{background:#FF782E}
+.tm{position:relative;margin:14px 0 6px;padding:18px 16px 26px;border-radius:18px;background:#EFE8DF;min-height:150px;display:flex;align-items:center;justify-content:center}
+.tm-ex{position:absolute;right:12px;bottom:6px;font-size:.7rem;font-weight:700;color:#9A8F84}
+.tm-dark{width:100%;max-width:300px;background:#1C1A22;color:#fff;border-radius:16px;padding:12px}.tm-dark p{margin:0 0 8px;font-size:.8rem;font-weight:700;color:#BDB4C4}
+.tm-dark .tm-row{background:#2A2631;border-color:transparent}.tm-dark .tm-row small{color:#BDB4C4}
+.tm-list{width:100%;max-width:300px;display:grid;gap:6px}
+.tm-row{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:12px;background:#fff;border:1px solid #E5DDD3}
+.tm-av{width:32px;height:32px;border-radius:50%;flex:none;display:grid;place-items:center;font-size:.72rem;font-weight:800;color:#fff}
+.tm-tx{flex:1;min-width:0;line-height:1.2}.tm-tx b{display:block;font-size:.9rem}.tm-tx small{font-size:.76rem;color:#7A7068;font-weight:600}
+.tm-row em{font-style:normal;font-size:.72rem;font-weight:800;color:#3C5BD6;white-space:nowrap}.tm-row em.r{color:#E05A40}
+.tm-chat{width:100%;max-width:300px;display:flex;flex-direction:column;gap:8px}
+.tm-chat p{margin:0;padding:10px 12px;font-size:.88rem;font-weight:600;line-height:1.4;max-width:88%}
+.tm-in{background:#fff;border-radius:14px 14px 14px 4px;align-self:flex-start}
+.tm-out{background:#DCF5D6;border-radius:14px 14px 4px 14px;align-self:flex-end}.tm-out.dk{background:#1C1A22;color:#fff}
+.tm-wa{align-self:flex-end;font-size:.78rem;font-weight:800;color:#1F8A55}
+.tm-split{display:flex;align-items:center;gap:10px;width:100%}.tm-split .tm-list{flex:1}
+.tm-paper{flex:1;background:#FBF7EF;border-radius:6px;padding:8px 10px;box-shadow:0 6px 14px -8px rgba(0,0,0,.3);transform:rotate(-2deg)}
+.tm-paper i{display:block;font-family:"Bradley Hand","Segoe Print","Comic Sans MS",cursive;font-style:normal;font-size:.78rem;padding:5px 0;border-bottom:1px solid #DDE3EE;color:#2B3550}
+.tm-arrow{font-weight:800;color:#9A8F84}
+.tm-card{width:100%;max-width:280px;background:#1C1A22;color:#fff;border-radius:16px;padding:14px 16px;display:grid;gap:6px}.tm-card small{color:#BDB4C4;font-weight:700;font-size:.76rem}.tm-card b{font-size:1.05rem}
+.tm-stamps{display:grid;grid-template-columns:repeat(8,1fr);gap:5px;margin:4px 0}.tm-stamps i{aspect-ratio:1;border-radius:50%;border:1.5px dashed #5A5462}.tm-stamps i.on{border:0;background:#FF782E}
+.tm-net{width:100%;max-width:280px;height:auto}
+.tm-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;max-width:310px}.tm-stats div{background:#fff;border-radius:12px;padding:10px;border:1px solid #E5DDD3}.tm-stats b{display:block;font-size:1.4rem;letter-spacing:-.03em}.tm-stats small{font-size:.74rem;color:#7A7068;font-weight:600}
 .obchips{margin-top:14px}.obchips .pchip{padding:12px 15px;font-size:.95rem}
 .obtones{display:grid;gap:8px;margin-top:14px}.obtone{display:flex;flex-direction:column;align-items:flex-start;text-align:left;border:1.5px solid var(--line-2);background:var(--surface);border-radius:18px;padding:13px 16px;font:inherit;cursor:pointer;color:var(--ink)}
 .obtone b{font-size:1rem}.obtone small{color:var(--ink-3);font-weight:600;font-size:.84rem;margin-top:2px}.obtone.on{border-color:var(--o1);background:var(--o-soft)}
@@ -3264,15 +3280,28 @@ async function openParrain() {
    2. L'onboarding : profil, produits et ton, premiers clients.
    3. Les prospects, puis le réseau que ces contacts ouvrent. */
 const TOUR = [
-  ["📅", "Vos relances du jour", "Recharge calcule quand chaque produit arrive à sa fin et vous dit, chaque matin, qui relancer.", "Des rachats que vous auriez manqués : vos clients rachètent chez vous, pas ailleurs.", "Marie · crème de jour", "finie dans 2 jours"],
-  ["💬", "Le message déjà écrit", "Avec le prénom, le produit et votre ton. Vous l'envoyez sur WhatsApp ou par SMS en un appui.", "Du temps gagné, et plus la peur de déranger : le message tombe au bon moment.", "« Coucou Marie ! Ta crème doit bientôt être finie. Je t'en mets une de côté ? »", ""],
-  ["📸", "Vos clients en photo", "Une photo de votre carnet, une capture du back-office de votre marque, un fichier Excel ou une phrase dictée.", "Vous démarrez en quelques minutes, sans tout retaper.", "Julie a pris 2 thés détox hier", "ajouté à sa fiche"],
-  ["🤝", "Recommandations et prospects", "Recharge vous rappelle de demander des recommandations aux clients contents, et suit chaque prospect jusqu'à la vente.", "De nouveaux clients qui arrivent par la confiance, sans prospecter à froid.", "Sophie vous présente Inès", "nouvelle prospecte"],
-  ["💳", "La carte fidélité", "Une carte à tampons envoyée par simple lien, avec le cadeau que vous choisissez.", "Des clients qui reviennent plus souvent, et qui en parlent autour d'eux.", "Carte de Sophie", "5 tampons sur 8"],
-  ["🌐", "Votre réseau", "Tous vos contacts réunis : vos proches, les personnes recommandées, celles des réseaux sociaux.", "Vous voyez d'un coup d'œil où chercher vos prochains clients.", "Proches · Recommandés · Réseaux", ""],
-  ["✨", "Le coach IA", "Il trouve les mots face à une objection et vous propose un plan : marché chaud, tiède, puis froid.", "Vous vendez plus sereinement, avec un plan clair pour développer votre activité.", "« C'est un peu cher pour moi… »", "le coach propose une réponse"],
-  ["📊", "Vos chiffres", "Personnes contactées, recommandations, taux de transformation : chaque mois, en clair.", "Vous savez ce qui marche, et où mettre votre énergie.", "Relances par semaine", "en hausse"]
+  ["Vos relances du jour", "Recharge sait quand chaque produit arrive à sa fin. Chaque matin, vous voyez qui relancer, et les rachats ne vous échappent plus.", "today"],
+  ["Le message déjà écrit", "Il reprend le prénom de la cliente et son produit, avec votre façon d'écrire. Vous l'envoyez sur WhatsApp ou par SMS en un appui.", "msg"],
+  ["Vos clients en photo", "Photographiez votre carnet ou le back-office de votre marque. Recharge recopie la liste, vous vérifiez, et vous démarrez en quelques minutes.", "photo"],
+  ["Recommandations et prospects", "Quand une cliente est contente, Recharge vous propose de lui demander à qui elle pense. Chaque personne recommandée devient un prospect, avec une date pour la recontacter.", "reco"],
+  ["La carte fidélité", "Vous envoyez une carte à tampons par lien, avec le cadeau de votre choix. Vos clientes ont une raison de plus de revenir vers vous.", "card"],
+  ["Votre réseau", "Vos proches, les personnes recommandées et vos contacts des réseaux sociaux sont réunis au même endroit. Vous voyez où chercher vos prochains clients.", "net"],
+  ["Le coach", "Une cliente hésite ? Collez sa réponse et le coach vous propose quoi lui dire. Il vous aide aussi à prospecter, en commençant par les gens qui vous connaissent.", "coach"],
+  ["Vos chiffres", "Chaque mois, vous voyez combien de personnes vous avez contactées, combien vous ont recommandée et combien sont devenues clientes.", "stats"]
 ];
+/* Les aperçus de la visite : de petits morceaux de l'appli, avec des données d'exemple */
+function tourMock(k) {
+  const row = (ini, c, n, sub, tag, red) => `<div class="tm-row"><span class="tm-av" style="background:${c}">${ini}</span><span class="tm-tx"><b>${n}</b><small>${sub}</small></span>${tag ? `<em class="${red ? "r" : ""}">${tag}</em>` : ""}</div>`;
+  if (k === "today") return `<div class="tm-dark"><p>Aujourd'hui · 2 relances</p>${row("MD", "#F2774A", "Marie Dupont", "Crème de jour", "finie dans 2 j", 1)}${row("KB", "#3C6CF0", "Karim Benali", "Thé détox", "dans 5 j")}</div>`;
+  if (k === "msg") return `<div class="tm-chat"><p class="tm-out">Coucou Marie ! Ta crème de jour doit bientôt être finie. Je t'en mets une de côté ?</p><span class="tm-wa">Envoyer sur WhatsApp</span></div>`;
+  if (k === "photo") return `<div class="tm-split"><div class="tm-paper"><i>Marie D. · crème · 25/10</i><i>Karim · thé détox · 2/11</i><i>Julie B. · sérum · 5/11</i></div><span class="tm-arrow">→</span><div class="tm-list">${row("MD", "#F2774A", "Marie D.", "Crème de jour")}${row("KB", "#3C6CF0", "Karim", "Thé détox")}</div></div>`;
+  if (k === "reco") return `<div class="tm-list">${row("SL", "#2FAE74", "Sophie Laurent", "cliente contente")}${row("IR", "#8A5CF0", "Inès Roux", "recommandée par Sophie", "à appeler mardi")}</div>`;
+  if (k === "card") return `<div class="tm-card"><small>Carte fidélité</small><b>Sophie L.</b><div class="tm-stamps">${Array.from({ length: 8 }, (_, i) => `<i class="${i < 5 ? "on" : ""}"></i>`).join("")}</div><small>Un cadeau à la 8ᵉ commande</small></div>`;
+  if (k === "net") { const d = []; for (let i = 0; i < 26; i++) { const r = [42, 70, 96][i % 3], a = i * 2.4; d.push(`<circle cx="${(130 + Math.cos(a) * r * 1.25).toFixed(0)}" cy="${(105 + Math.sin(a) * r * .78).toFixed(0)}" r="${3 + (i % 4)}" fill="${["#FF782E", "#DB6578", "#7B83F6"][i % 3]}"/>`); }
+    return `<svg class="tm-net" viewBox="0 0 260 210">${d.join("")}<circle cx="130" cy="105" r="22" fill="#1C1A22"/><text x="130" y="110" text-anchor="middle" fill="#fff" font-size="13" font-weight="800">Vous</text></svg>`; }
+  if (k === "coach") return `<div class="tm-chat"><p class="tm-in">C'est un peu cher pour moi en ce moment…</p><p class="tm-out dk">Je comprends. Il existe un plus petit format pour essayer, tu veux que je te le garde ?</p></div>`;
+  return `<div class="tm-stats"><div><b>47</b><small>contactées</small></div><div><b>12</b><small>recommandations</small></div><div><b>9</b><small>nouvelles clientes</small></div></div>`;
+}
 function startOnboarding() { if (DEMO) return; if (!isPaidS()) { S.pwDue = 1; save(); } if (!S.tourDone) return openTour(0); openOnboarding(0); }
 /* Fin de l'onboarding 2 : le paywall, avec l'espace de la vendeuse déjà rempli */
 function obFinish() {
@@ -3284,16 +3313,12 @@ function obFinish() {
 function openTour(i = 0) {
   const n = TOUR.length; i = Math.max(0, Math.min(n, i));
   let body;
-  if (i === n) body = `<div class="tourv"><span class="tourico">🚀</span></div>
-    <h3 class="obq">À vous de jouer</h3><p class="lede">Votre espace est vide : c'est normal, il va se remplir avec <b>vos</b> clients. On commence par votre profil, puis vos clients, vos prospects et votre réseau.</p>
-    <ol class="toursteps"><li>Votre prénom et votre marque</li><li>Vos produits et le ton de vos messages</li><li>Vos premiers clients</li><li>Vos prospects</li><li>Votre réseau</li></ol>`;
-  else { const [ic, t, what, gain, ex1, ex2] = TOUR[i];
-    body = `<div class="tourv"><span class="tourico">${ic}</span><div class="tourex"><span class="tag">Exemple</span><b>${esc(ex1)}</b>${ex2 ? `<small>${esc(ex2)}</small>` : ""}</div></div>
-    <p class="tourk">Fonction ${i + 1} sur ${n}</p><h3 class="obq">${t}</h3><p class="lede">${what}</p>
-    <div class="tourgain"><b>Ce que ça vous apporte</b><span>${gain}</span></div>`; }
+  if (i === n) body = `<h3 class="obq">À vous maintenant</h3><p class="lede">Votre espace est vide pour l'instant. On commence par votre prénom et votre marque, puis on ajoute vos clients, vos prospects et votre réseau.</p>`;
+  else { const [t, what, k] = TOUR[i];
+    body = `<div class="tm">${tourMock(k)}<span class="tm-ex">exemple</span></div><h3 class="obq">${t}</h3><p class="lede">${what}</p>`; }
   const dots = `<div class="tourdots">${Array.from({ length: n + 1 }, (_, k) => `<i class="${k === i ? "on" : k < i ? "done" : ""}"></i>`).join("")}</div>`;
-  const html = `<div class="shead">${dots}${i < n ? `<button class="obskip" data-act="tourEnd">Passer la visite</button>` : ""}</div>${body}
-    <div class="obnav">${i > 0 ? `<button class="btn soft" data-act="tourGo" data-i="${i - 1}">Retour</button>` : ""}<button class="btn ${i === n ? "orange" : "primary"}" data-act="${i === n ? "tourEnd" : "tourGo"}" data-i="${i + 1}">${i === n ? "Créer mon espace" : i === 0 ? "Découvrir" : "Suivant"}</button></div>`;
+  const html = `<div class="shead">${dots}${i < n ? `<button class="obskip" data-act="tourEnd">Passer</button>` : ""}</div>${body}
+    <div class="obnav">${i > 0 ? `<button class="btn soft" data-act="tourGo" data-i="${i - 1}">Retour</button>` : ""}<button class="btn ${i === n ? "orange" : "primary"}" data-act="${i === n ? "tourEnd" : "tourGo"}" data-i="${i + 1}">${i === n ? "Créer mon espace" : "Suivant"}</button></div>`;
   if (i === 0) rcTrack("visite_debut");
   const cur = sheetEl.querySelector(".sheet.toursheet");
   if (cur) { cur.innerHTML = `<div class="grab"></div>` + html; cur.scrollTop = 0; }
@@ -3306,9 +3331,9 @@ function openObProspects(nClients) {
       <input class="input" id="opN${k}" placeholder="Prénom Nom">
       <div class="obrow2"><input class="input" id="opT${k}" type="tel" inputmode="tel" placeholder="Téléphone"><input class="input" id="opI${k}" list="opProds" placeholder="Intéressée par"></div></div></div>`).join("");
   openSheet(`<div class="shead"><div class="obbar"><span style="width:85%"></span></div></div>
-    <h3 class="obq">Vos prospects</h3><p class="lede">Les personnes intéressées qui ne sont pas encore clientes : une amie qui a goûté un échantillon, un contact donné par une cliente, quelqu'un rencontré à un salon.</p>
+    <h3 class="obq">Vos prospects</h3><p class="lede">Les personnes intéressées qui n'ont pas encore acheté. Par exemple une amie qui a goûté un échantillon, ou un contact donné par une cliente.</p>
     ${rows}<datalist id="opProds">${realProducts().map(x => `<option value="${esc(x.name)}">`).join("")}</datalist>
-    <p class="hint" style="margin-top:10px">Recharge vous dira quand les recontacter, avec le message prêt.</p>
+    <p class="hint" style="margin-top:10px">Recharge vous dira quand les recontacter.</p>
     <div class="obnav"><button class="btn soft" data-act="obProsSkip">Pas pour l'instant</button><button class="btn orange" data-act="obProsSave">Voir mon réseau</button></div>`);
   const sh = sheetEl.querySelector(".sheet"); sh.classList.add("obsheet"); sheetEl.querySelector(".sheet-bg").removeAttribute("data-act");
   setTimeout(() => { const f = document.getElementById("opN0"); if (f) f.focus(); }, 80);
@@ -3324,11 +3349,11 @@ function openPaidWelcome(r) {
   const end = r && r.trialEnd ? new Date(r.trialEnd) : null, days = end ? Math.max(1, Math.round((end - Date.now()) / 864e5)) : 14;
   const date = end ? end.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" }) : null;
   const tier = TIER_NAME[r && r.user && r.user.plan] || "";
-  openSheet(`<div class="shead"><span></span>${closeBtn}</div><div class="tourv"><span class="tourico">✅</span></div>
-    <h3 class="obq">Votre essai ${esc(tier)} est activé</h3>
-    <p class="lede">Tout Recharge est débloqué pendant <b>${days} jours</b>. ${date ? `Aucun prélèvement avant le <b>${date}</b>.` : "Aucun prélèvement avant la fin de l'essai."}</p>
-    <div class="tourgain"><b>Vous gardez la main</b><span>Vous pouvez résilier à tout moment, en un clic : Menu › Gérer mon abonnement.</span></div>
-    <button class="btn orange" style="margin-top:16px" data-act="paidGo">${S.profile ? "C'est parti" : "Découvrir Recharge"}</button>`);
+  openSheet(`<div class="shead"><span></span>${closeBtn}</div>
+    <h3 class="obq">Votre essai ${esc(tier)} a commencé</h3>
+    <p class="lede">Vous avez accès à tout pendant ${days} jours. ${date ? `Si vous continuez, le premier prélèvement aura lieu le ${date}.` : "Rien n'est prélevé avant la fin de l'essai."}</p>
+    <p class="lede">Pour arrêter, ouvrez le Menu puis « Gérer mon abonnement ».</p>
+    <button class="btn orange" style="margin-top:16px" data-act="paidGo">${S.profile ? "Continuer" : "Découvrir Recharge"}</button>`);
   sheetEl.querySelector(".sheet-bg").removeAttribute("data-act");
 }
 function openNetIntro(n) {
