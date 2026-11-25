@@ -59,7 +59,12 @@ while t < DUR - .05:
 n = int(2.2 * SR); rise = bp(rng.standard_normal(n), 800, 6000) * np.linspace(0, 1, n) ** 2
 add(rise, 9.05 - 2.2, .05, 0)
 
-# --- bruitages
+# --- bruitages synthétiques (désactivés avec MUSIQUE_SEULE=1 : on prend ceux d'ElevenLabs, voir mix-03.py)
+import os
+if os.environ.get('MUSIQUE_SEULE'):
+    L[:] = L; R[:] = R
+SFX = not os.environ.get('MUSIQUE_SEULE')
+# ---
 def whoosh(d=.45, lo=300, hi=2600):
     n = int(d * SR); v = rng.standard_normal(n); e = np.sin(np.linspace(0, np.pi, n)) ** 2.2
     # balayage : deux bandes enchaînées
@@ -76,32 +81,33 @@ def chime():
 def click():
     n = int(.03 * SR); return lp(rng.standard_normal(n) * np.exp(-np.arange(n) / (.004 * SR)), 4000)
 
-for j in range(7): add(glass(2300 + 180 * (j % 4)), .08 + j * .09, .05, (-.4, .4)[j % 2])
-add(whoosh(.7), 2.2, .16)                       # éparpillement
-add(whoosh(.5, 200, 1500), 3.0, .07)
-add(whoosh(.55, 250, 1800), 6.85, .10)          # retour des fiches
-add(whoosh(.6, 400, 3000), 7.35, .15)           # aspiration
-add(glass(1900), 7.6, .09)                      # carte unique
-add(glass(2900), 8.45, .06)                     # logo
-add(impact(), 9.05, .55)                        # reveal du logo
-add(chime(), 9.55, .06)
-add(whoosh(.5, 500, 4000), 10.78, .17)          # whip pan
-add(whoosh(.8, 200, 1600), 11.0, .12)           # dézoom
-add(glass(2500), 13.05, .07); add(glass(3100), 13.5, .05, .3)
-add(whoosh(.4, 600, 4500), 14.9, .17)           # punch-in
-add(glass(2700), 15.6, .06, -.3); add(glass(3300), 16.2, .06, .3)
-for q in range(3): add(tone(880, .25, .08), 16.65 + q * .9, .03)   # pulsation du badge
-add(whoosh(.5, 300, 2200), 16.95, .10)          # morphing vers la fiche
-add(glass(2200), 17.1, .06)
-add(whoosh(.45, 500, 4000), 18.78, .16)         # transition
-add(chime(), 19.3, .15)                         # message WhatsApp prêt
-add(glass(2800), 20.65, .05)
-add(click(), 21.55, .25); add(tone(1760, .4, .1) + .5 * tone(2637, .4, .08), 21.8, .07)  # envoyé
-add(whoosh(.45, 500, 4000), 22.78, .16)
-for j in range(3): add(glass(2400 + 300 * j), 23.05 + j * .1, .055, (-.5, 0, .5)[j])
-add(whoosh(.5, 300, 2400), 25.0, .12)           # cartes qui se rassemblent
-add(impact(), 25.42, .28); add(chime(), 25.45, .09)
-add(glass(3000), 25.9, .05)
+if SFX:
+    for j in range(7): add(glass(2300 + 180 * (j % 4)), .08 + j * .09, .05, (-.4, .4)[j % 2])
+    add(whoosh(.7), 2.2, .16)                       # éparpillement
+    add(whoosh(.5, 200, 1500), 3.0, .07)
+    add(whoosh(.55, 250, 1800), 6.85, .10)          # retour des fiches
+    add(whoosh(.6, 400, 3000), 7.35, .15)           # aspiration
+    add(glass(1900), 7.6, .09)                      # carte unique
+    add(glass(2900), 8.45, .06)                     # logo
+    add(impact(), 9.05, .55)                        # reveal du logo
+    add(chime(), 9.55, .06)
+    add(whoosh(.5, 500, 4000), 10.78, .17)          # whip pan
+    add(whoosh(.8, 200, 1600), 11.0, .12)           # dézoom
+    add(glass(2500), 13.05, .07); add(glass(3100), 13.5, .05, .3)
+    add(whoosh(.4, 600, 4500), 14.9, .17)           # punch-in
+    add(glass(2700), 15.6, .06, -.3); add(glass(3300), 16.2, .06, .3)
+    for q in range(3): add(tone(880, .25, .08), 16.65 + q * .9, .03)   # pulsation du badge
+    add(whoosh(.5, 300, 2200), 16.95, .10)          # morphing vers la fiche
+    add(glass(2200), 17.1, .06)
+    add(whoosh(.45, 500, 4000), 18.78, .16)         # transition
+    add(chime(), 19.3, .15)                         # message WhatsApp prêt
+    add(glass(2800), 20.65, .05)
+    add(click(), 21.55, .25); add(tone(1760, .4, .1) + .5 * tone(2637, .4, .08), 21.8, .07)  # envoyé
+    add(whoosh(.45, 500, 4000), 22.78, .16)
+    for j in range(3): add(glass(2400 + 300 * j), 23.05 + j * .1, .055, (-.5, 0, .5)[j])
+    add(whoosh(.5, 300, 2400), 25.0, .12)           # cartes qui se rassemblent
+    add(impact(), 25.42, .28); add(chime(), 25.45, .09)
+    add(glass(3000), 25.9, .05)
 
 mix = np.stack([L, R], 1)
 fade = np.ones(N); fo = int(1.0 * SR); fade[-fo:] = np.linspace(1, 0, fo) ** 1.5; fade[:int(.02 * SR)] = np.linspace(0, 1, int(.02 * SR))
