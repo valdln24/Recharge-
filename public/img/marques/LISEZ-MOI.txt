@@ -1,5 +1,5 @@
-Logos du bandeau des marques (page d'accueil).
-Déposez ici le logo officiel de chaque marque, en SVG (de préférence) ou en PNG à fond transparent,
-avec exactement ce nom de fichier :
-  lr.svg  farmasi.svg  chogan.svg  herbalife.svg  forever.svg  oriflame.svg  nuskin.svg  doterra.svg  youngliving.svg  juiceplus.svg  zinzino.svg  ringana.svg  amway.svg  partylite.svg  stanhome.svg  bodynature.svg  secretsdemiel.svg  jeunesse.svg  lifewave.svg
-Tant qu'un fichier manque, le site affiche le nom de la marque en texte.
+Logos de marques : CACHÉS (25 novembre 2026), pas supprimés.
+Afficher le logo d'une marque sans son accord est un risque au regard du droit des marques.
+La page d'accueil affiche désormais les noms en texte, ce qui est admis pour indiquer la compatibilité
+(référence nécessaire, article L713-6 du Code de la propriété intellectuelle), avec la mention d'indépendance.
+Ne réutiliser un logo ici qu'avec l'accord écrit de la marque.

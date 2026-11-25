@@ -852,3 +852,10 @@ header.nav.solid{background:rgba(244,239,232,.86)}
   .pbm-ben{margin:14px 0 16px;gap:7px}.pbm-ben li{font-size:.9rem}
 }
 @media (prefers-reduced-motion:reduce){.pbm-bg,.pbm-box{transition:none}.pbm.done .pbm-arc,.pbm.done .pbm-tick{animation:none;stroke-dashoffset:0}}
+/* Bandeau des marques : noms en texte (logos retirés, droit des marques), 2 rangées en sens opposés */
+.brandwall .marquee+.marquee{margin-top:-1px}
+.brandwall .mq-track{animation-duration:150s}
+.brandwall .mq-track.rev{animation-direction:reverse}
+.brandwall .mq{height:62px;min-width:0;padding:0 26px}
+.brandwall .mq b{font-size:1.12rem;font-weight:750;letter-spacing:-.025em;color:var(--ink-2)}
+.brandwall .bw-n b{color:var(--ink)}
