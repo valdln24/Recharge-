@@ -15,7 +15,7 @@ def air(d=.4):
     n = int(d * SR); v = rng.standard_normal(n); e = np.sin(np.linspace(0, np.pi, n)) ** 2; return bp(v, 400, 1400) * e
 def tick():
     n = int(.02 * SR); v = rng.standard_normal(n) * np.exp(-np.arange(n) / (.003 * SR)); return lp(v, 3500)
-def pop(fr): return tone(fr, .12, .03) + .35 * tone(fr * 2, .1, .018)
+def pop(fr): return tone(fr, .12, .03) + .35 * tone(fr * 2, .12, .018)
 def chime(): return tone(880, 1.4, .4) + .55 * tone(1318.5, 1.4, .32) + .3 * tone(1760, 1.4, .25)
 def ding(): return tone(1568, .5, .14) + .4 * tone(2093, .5, .1)
 for a in (.3, 3.05, 7.75, 11.9, 13.1, 15.15): add(air(), a, .05)
