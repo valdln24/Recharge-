@@ -109,6 +109,31 @@ svg{display:block}
 #hudtx div{position:absolute;left:0;top:0;white-space:nowrap;font-size:15.5px;font-weight:800;letter-spacing:-.02em;color:var(--ink)}
 #hudtx div small{font-weight:600;color:var(--ink3);margin-left:6px}
 #wave{display:flex;gap:3px;align-items:center;height:22px}#wave i{width:3px;border-radius:2px;background:var(--ink3)}
+/* réseau */
+#net{left:0;top:200px;width:540px;height:600px}
+#legend{width:540px;top:800px;display:flex;justify-content:center;gap:10px}
+#legend span{display:inline-flex;align-items:center;gap:7px;padding:7px 12px;border-radius:99px;background:rgba(255,255,255,.85);box-shadow:0 6px 16px -8px rgba(11,22,48,.25);font-size:13px;font-weight:800}
+#legend i{width:9px;height:9px;border-radius:50%}
+/* chiffres */
+#tiles{width:460px;left:40px;top:250px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.tile{padding:20px 18px;border-radius:26px}
+.tile b{display:block;font-size:44px;font-weight:800;letter-spacing:-.05em;line-height:1}
+.tile span{display:block;font-size:14px;font-weight:700;color:var(--ink2);margin-top:8px;line-height:1.25}
+#chart{width:460px;left:40px;top:560px;padding:18px 20px}
+#chart .lb{display:flex;justify-content:space-between;font-size:14px;font-weight:800}#chart .lb small{color:var(--green);font-weight:800}
+#bars{display:flex;align-items:flex-end;gap:14px;height:110px;margin-top:14px}
+#bars div{flex:1;border-radius:10px 10px 6px 6px;background:linear-gradient(180deg,#7C9BFF,#2F6BFF)}
+#bars div:last-child{background:linear-gradient(180deg,#F59A4A,#DB6578)}
+/* coach IA : marchés */
+#agent{width:460px;left:40px;top:250px;padding:18px}
+#agent .hd{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+#agent .hd .ic{width:34px;height:34px;border-radius:11px;background:var(--ink);display:grid;place-items:center}
+#agent .hd b{font-size:17px;font-weight:800;letter-spacing:-.02em}
+#agenttx{font-size:16.5px;font-weight:600;line-height:1.42;min-height:70px}
+.tier{width:460px;left:40px;padding:14px 16px;border-radius:24px;display:flex;align-items:center;gap:13px}
+.tier .dot{width:14px;height:14px;border-radius:50%;flex:none}
+.tier .tx{flex:1}.tier b{display:block;font-size:17px;font-weight:800;letter-spacing:-.02em}.tier span{display:block;font-size:13px;font-weight:600;color:var(--ink2);margin-top:1px}
+.tier em{font-style:normal;font-size:13px;font-weight:800;color:var(--ink);background:#F1F3F7;padding:6px 10px;border-radius:99px;white-space:nowrap}
 /* fin */
 #logo{width:300px;left:120px;top:356px}
 .end{width:540px;text-align:center;font-weight:800;letter-spacing:-.045em;line-height:1.05}
@@ -122,7 +147,7 @@ svg{display:block}
 <!-- titres -->
 <div id="t1" class="abs title"><span>Qui</span> <span>relancer</span> <span>aujourd'hui&nbsp;?</span></div>
 <div id="t2" class="abs title"><span>Le</span> <span>bon</span> <span>moment,</span> <span><i>déjà</i></span> <span><i>calculé.</i></span></div>
-<div id="t3" class="abs title"><span>Vos</span> <span>clientes</span> <span>vous</span> <span><i>recommandent.</i></span></div>
+<div id="t3" class="abs title"><span>Vos</span> <span>clients</span> <span>vous</span> <span><i>recommandent.</i></span></div>
 <div id="t4" class="abs title"><span>Le</span> <span>coach</span> <span>trouve</span> <span><i>les</i></span> <span><i>mots.</i></span></div>
 <div id="t5" class="abs title"><span>Votre</span> <span>réseau</span> <span><i>grandit.</i></span></div>
 
@@ -199,6 +224,23 @@ svg{display:block}
 <div id="nt2" class="abs nt bub glass"><div class="av c6">LO</div><div><b>Lou a rejoint l'équipe</b><span>avec votre code</span></div><em>maintenant</em></div>
 <div id="nt3" class="abs nt bub glass"><div class="av c1">MA</div><div><b>Manon a rejoint l'équipe</b><span>avec votre code</span></div><em>maintenant</em></div>
 
+<!-- réseau -->
+<div id="t7" class="abs title"><span>Tout</span> <span>votre</span> <span>réseau,</span> <span><i>autour</i></span> <span><i>de</i></span> <span><i>vous.</i></span></div>
+<svg id="net" class="abs" viewBox="0 200 540 600"></svg>
+<div id="legend" class="abs"><span id="lg1"><i style="background:#F59A4A"></i>Proches</span><span id="lg2"><i style="background:#DB6578"></i>Recommandés</span><span id="lg3"><i style="background:#7C7CF2"></i>Réseaux</span></div>
+
+<!-- chiffres -->
+<div id="t8" class="abs title"><span>Vos</span> <span>chiffres,</span> <span><i>en</i></span> <span><i>clair.</i></span></div>
+<div id="tiles" class="abs"><div class="tile bub" id="ti1"><b id="v1">0</b><span>personnes contactées</span></div><div class="tile bub" id="ti2"><b id="v2">0</b><span>recommandations</span></div><div class="tile bub" id="ti3"><b id="v3">0 %</b><span>taux de conversion</span></div><div class="tile bub" id="ti4"><b id="v4">0</b><span>nouveaux clients</span></div></div>
+<div id="chart" class="abs bub"><div class="lb">Relances par semaine<small id="trend">↗ en hausse</small></div><div id="bars"><div></div><div></div><div></div><div></div><div></div></div></div>
+
+<!-- coach IA : marchés -->
+<div id="t9" class="abs title"><span>Votre</span> <span>coach</span> <span>IA</span> <span><i>vous</i></span> <span><i>guide.</i></span></div>
+<div id="agent" class="abs bub"><div class="hd"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M12 2l1.9 5.6L19.5 9.5l-5.6 1.9L12 17l-1.9-5.6L4.5 9.5l5.6-1.9z"/><path d="M19 15l.9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9z"/></svg></div><b>Votre plan de prospection</b></div><div id="agenttx"></div></div>
+<div id="tw" class="abs tier bub"><i class="dot" style="background:#F59A4A"></i><div class="tx"><b>Marché chaud</b><span>Les gens qui vous connaissent</span></div><em>≈ 1 vente pour 7</em></div>
+<div id="tt" class="abs tier bub"><i class="dot" style="background:#DB6578"></i><div class="tx"><b>Marché tiède</b><span>Amis d'amis, réseaux, recommandations</span></div><em>≈ 1 pour 25</em></div>
+<div id="tf" class="abs tier bub"><i class="dot" style="background:#7C7CF2"></i><div class="tx"><b>Marché froid</b><span>Des inconnus, sur les réseaux ou en vrai</span></div><em>≈ 1 pour 75</em></div>
+
 <!-- fin -->
 <div id="logo" class="abs"></div>
 <div id="e1" class="abs end">Vos clients rachètent.</div>
@@ -246,14 +288,47 @@ function render(T) { const t = T;
   ["k1", "k2", "k3"].forEach((k, i) => { pop(k, t, 1.75 + i * .14, 3.2, { dy: 40, s0: .9 }); $(k).style.top = (560 + i * 72) + "px"; });
 
   /* fidélité (13,9 → 15,8) */
-  words("t6", t, 13.95, 15.75);
-  pop("card", t, 14.0, 15.75, { dy: 60, s0: .88 });
-  for (let i = 0; i < 8; i++) { const st = $("sp" + i), on = i < 5 ? 14.2 + i * .07 : i === 5 ? 14.75 : 99; st.className = t >= on ? "on" : ""; st.style.transform = `scale(${t >= on ? .6 + .4 * spr(t, on) : 1})`; }
-  pop("link", t, 15.0, 15.75, { dy: 40, s0: .92 });
+  words("t6", t, 17.0, 18.8);
+  pop("card", t, 17.05, 18.8, { dy: 60, s0: .88 });
+  for (let i = 0; i < 8; i++) { const st = $("sp" + i), on = i < 5 ? 17.25 + i * .07 : i === 5 ? 17.8 : 99; st.className = t >= on ? "on" : ""; st.style.transform = `scale(${t >= on ? .6 + .4 * spr(t, on) : 1})`; }
+  pop("link", t, 18.05, 18.8, { dy: 40, s0: .92 });
 
+  /* réseau (13,85 → 16,9) */
+  words("t7", t, 13.9, 16.85);
+  { const svg = $("net"), out = ease(lin(t, 16.85, .35)), cx = 270, cy = 500, R = [95, 160, 225], col = ["#F59A4A", "#DB6578", "#7C7CF2"];
+    let g = "";
+    R.forEach((r, k) => { const p = io(lin(t, 13.95 + k * .12, .6)); g += `<circle cx="${cx}" cy="${cy}" r="${(r * (.7 + .3 * p)).toFixed(1)}" fill="none" stroke="rgba(11,22,48,${(.08 * p).toFixed(3)})" stroke-width="1.2" stroke-dasharray="3 6"/>`; });
+    let dots = "", lines = "";
+    for (let i = 0; i < 46; i++) {
+      const k = i % 3, h = Math.sin(i * 91.7) * 43758.5, rnd = h - Math.floor(h), r = R[k] + (rnd - .5) * 34;
+      const a0 = i * 2.39996, sp = (k === 0 ? .55 : k === 1 ? -.38 : .26) * (1 + rnd * .3), ang = a0 + sp * (t - 13.9);
+      const born = 14.05 + i * .028, p = spr(t, born), vis = cl((t - born) / .15);
+      const x = cx + Math.cos(ang) * r * p, y = cy + Math.sin(ang) * r * .82 * p, sz = 4 + rnd * 5;
+      if (i % 4 === 0) lines += `<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="${col[k]}" stroke-opacity="${(.22 * vis).toFixed(3)}" stroke-width="1.2"/>`;
+      dots += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(sz * vis).toFixed(2)}" fill="${col[k]}" fill-opacity="${(.9 * vis).toFixed(3)}"/>`;
+      if (i % 9 === 4) dots += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(sz * 2.2 * vis).toFixed(2)}" fill="${col[k]}" fill-opacity="${(.15 * vis).toFixed(3)}"/>`;
+    }
+    const c = spr(t, 13.95), pulse = 1 + .05 * Math.sin(t * 5);
+    g += lines + dots + `<circle cx="${cx}" cy="${cy}" r="${(54 * c * pulse).toFixed(1)}" fill="url(#ng)" opacity=".25"/><circle cx="${cx}" cy="${cy}" r="${(38 * c).toFixed(1)}" fill="url(#ng)"/><text x="${cx}" y="${cy + 6}" text-anchor="middle" font-family="Manrope" font-weight="800" font-size="17" fill="#fff" opacity="${c.toFixed(2)}">Vous</text>`;
+    svg.innerHTML = `<defs><linearGradient id="ng" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F59A4A"/><stop offset=".5" stop-color="#DB6578"/><stop offset="1" stop-color="#7C7CF2"/></linearGradient></defs>` + g;
+    svg.style.opacity = (cl((t - 13.85) / .2) * (1 - out)).toFixed(3); svg.style.transform = `scale(${1 - .04 * out})`;
+    ["lg1", "lg2", "lg3"].forEach((l, i) => pop(l, t, 15.0 + i * .12, 16.85, { dy: 14, s0: .9 })); }
+
+  /* chiffres du mois (26,05 → 31,35) */
+  words("t8", t, 26.1, 31.3);
+  pop("chart", t, 26.25, 31.3, { dy: 60, s0: .92 });
+  [.45, .6, .52, .78, 1].forEach((h, i) => { $("bars").children[i].style.height = (110 * h * spr(t, 26.55 + i * .1)).toFixed(1) + "px"; });
+  pop("trend", t, 27.2, 0, { dy: 6, s0: .8 });
+  [[28.0, 47, ""], [29.2, 12, ""], [30.2, 26, " %"], [30.7, 9, ""]].forEach(([a, v, u], i) => { pop("ti" + (i + 1), t, a - .15, 31.3, { dy: 40, s0: .9 }); $("v" + (i + 1)).textContent = Math.round(v * ease(lin(t, a - .1, .8))) + u; });
+
+  /* coach IA : marchés chaud, tiède, froid (31,4 → 37,3) */
+  words("t9", t, 31.45, 37.25);
+  pop("agent", t, 31.55, 37.25, { dy: 50, s0: .92 });
+  type($("agenttx"), "Commencez par vos proches : c'est là que vous vendez le plus vite. Puis élargissez, étape par étape.", t, 31.9, 34.4);
+  [["tw", 35.0], ["tt", 35.6], ["tf", 36.6]].forEach(([id, a], i) => { pop(id, t, a - .1, 37.25, { dy: 40, s0: .92 }); $(id).style.top = (440 + i * 92) + "px"; });
   /* assistant : ce que fait Recharge, en direct */
-  { const H = [[.3, "Lecture de la photo…"], [1.8, "3 clientes importées"], [3.4, "3 relances aujourd'hui"], [6.0, "Fin de la crème dans 2 jours"], [7.6, "Message prêt", "à envoyer"], [9.5, "Cliente satisfaite"], [11.7, "+3 prospects"], [14.0, "Carte fidélité envoyée"], [16.0, "Lecture de la conversation…"], [17.3, "Réponse proposée"], [19.2, "Équipe Les Étoiles"], [20.6, "+3 filleules"]];
-    const ao = cl((t - .15) / .3), out = ease(lin(t, 22.9, .35)), a = spr(t, .15);
+  { const H = [[.3, "Lecture de la photo…"], [1.8, "3 clientes importées"], [3.4, "3 relances aujourd'hui"], [6.0, "Fin de la crème dans 2 jours"], [7.6, "Message prêt", "à envoyer"], [9.5, "Cliente satisfaite"], [11.7, "+3 prospects"], [14.1, "Votre réseau, en un coup d'œil"], [17.05, "Carte fidélité envoyée"], [19.1, "Lecture de la conversation…"], [20.4, "Réponse proposée"], [22.2, "Équipe Les Étoiles"], [23.6, "+3 filleules"], [26.2, "Bilan du mois"], [31.5, "Analyse de votre réseau…"], [33.2, "Plan de prospection prêt"]];
+    const ao = cl((t - .15) / .3), out = ease(lin(t, 37.0, .35)), a = spr(t, .15);
     put($("hud"), ao * (1 - out), 0, 30 * (1 - a) + 20 * out, .92 + .08 * a, (1 - ao) * 6);
     let k = 0; H.forEach((h, i) => { if (t >= h[0]) k = i; });
     $("hudtx").innerHTML = H.map((h, i) => { const p = i === k ? ease(lin(t, h[0], .25)) : i === k - 1 ? 1 - ease(lin(t, H[k][0], .2)) : 0; return p > 0 ? `<div style="opacity:${p.toFixed(3)};transform:translateY(${((1 - p) * (i === k ? 14 : -14)).toFixed(1)}px)">${h[1]}${h[2] ? "<small>" + h[2] + "</small>" : ""}</div>` : ""; }).join("");
@@ -303,7 +378,7 @@ function render(T) { const t = T;
   $("pcount").style.transform = `scale(${1 + .18 * bump})`;
 
   }
-  { const t = T - 4.1;
+  { const t = T - 7.15;
   /* 4 · 11,8 → 15,1 : le coach */
   words("t4", t, 11.8, 15.0);
   pop("inmsg", t, 11.95, 15.0, { dy: 30, dx: -30, s0: .9 });
@@ -312,7 +387,7 @@ function render(T) { const t = T;
   const cp = t > 14.55 && t < 14.9 ? Math.sin(lin(t, 14.55, .35) * Math.PI) : 0; put($("copy"), 1, 0, 0, 1 - .05 * cp, 0);
 
   }
-  { const t = T - 3.95;
+  { const t = T - 7.0;
   /* 5 · 15,1 → 19,1 : l'équipe grandit */
   words("t5", t, 15.15, 19.05);
   pop("team", t, 15.2, 19.05, { dy: 60, s0: .9 });
@@ -326,13 +401,13 @@ function render(T) { const t = T;
   $("tcount").textContent = (4 + joins.filter(j => t >= j + .35).length) + " membres";
 
   }
-  { const t = T - 4.0;
+  { const t = T - 18.25;
   /* 6 · 19,1 → 24 : signature */
   const la = spr(t, 19.15, .9), lao = cl((t - 19.15) / .25); put($("logo"), lao, 0, 24 * (1 - la), .9 + .1 * la, (1 - lao) * 8);
   pop("e1", t, 19.8, 0, { dy: 22, s0: 1 });
   pop("e2", t, 20.9, 0, { dy: 22, s0: 1 });
-  pop("url", t, 21.8, 0, { dy: 18, s0: .9 });
-  pop("trial", t, 22.1, 0, { dy: 12, s0: 1 });
+  pop("url", t, 21.25, 0, { dy: 18, s0: .9 });
+  pop("trial", t, 21.45, 0, { dy: 12, s0: 1 });
   }
 }
 window.render = render; window.warp = t => t;
