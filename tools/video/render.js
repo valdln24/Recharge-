@@ -3,7 +3,7 @@
 const { chromium } = require("playwright");
 const fs = require("fs"), path = require("path");
 (async () => {
-  const out = process.argv[2], list = process.argv[3], PAGE = process.env.PAGE || "pub01.html", DUR = +(process.env.DUR || 28.6), FPS = 30, W = +(process.env.W || 540), H = +(process.env.H || 960);
+  const out = process.argv[2], list = process.argv[3], PAGE = process.env.PAGE || "pub01.html", DUR = +(process.env.DUR || 28.6), FPS = +(process.env.FPS || 30), W = +(process.env.W || 540), H = +(process.env.H || 960);
   const pipe = out.endsWith(".mp4") && !list;
   let ff = null;
   if (pipe) ff = require("child_process").spawn("ffmpeg", ["-v", "error", "-y", "-f", "image2pipe", "-framerate", String(FPS), "-i", "-", "-vf", `scale=${W*2}:${H*2}`, "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "17", out], { stdio: ["pipe", "inherit", "inherit"] });

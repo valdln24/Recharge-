@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8">
+<link rel="stylesheet" href="font.css">
+<style>
+/* Pub 03 : vertical 9:16, « liquid glass », 27 s. Rendu : PAGE=pub03.html DUR=27 FPS=60 node render.js sortie.mp4 */
+:root{--o:#F59A4A;--p:#DB6578;--v:#7C7CF2;--ink:#2B1A47;--peach:#FCEBDD;--grad:linear-gradient(120deg,#F59A4A,#DB6578 52%,#7C7CF2)}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:540px;height:960px;overflow:hidden;background:var(--peach);font-family:Manrope,system-ui,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased}
+#v{position:absolute;inset:0;overflow:hidden;perspective:1400px}
+.blob{position:absolute;border-radius:50%;filter:blur(70px);opacity:.75;will-change:transform}
+#b1{width:520px;height:520px;background:#F7A35C}#b2{width:480px;height:480px;background:#E7748A}#b3{width:500px;height:500px;background:#9A92F5}
+#grain{position:absolute;inset:0;background:radial-gradient(120% 80% at 50% 0%,rgba(255,255,255,.55),rgba(255,255,255,0) 60%)}
+#stage{position:absolute;inset:0;transform-style:preserve-3d}
+.L{position:absolute;inset:0;transform-style:preserve-3d}
+.glass{position:absolute;border-radius:26px;background:linear-gradient(150deg,rgba(255,255,255,.62),rgba(255,255,255,.26) 55%,rgba(255,255,255,.38));
+  -webkit-backdrop-filter:blur(22px) saturate(170%);backdrop-filter:blur(22px) saturate(170%);
+  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.95),inset 0 -1px 0 rgba(255,255,255,.35),inset 1px 0 0 rgba(255,255,255,.5),0 28px 60px -22px rgba(219,101,120,.45),0 8px 20px -10px rgba(124,124,242,.25)}
+.glass::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1.2px;background:linear-gradient(140deg,rgba(255,255,255,.95),rgba(255,255,255,.1) 40%,rgba(245,154,74,.35) 70%,rgba(124,124,242,.55));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+.glass::after{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(115deg,rgba(255,255,255,0) 30%,rgba(255,255,255,.35) 42%,rgba(255,255,255,0) 52%);background-size:300% 100%;background-position:var(--sh,120%) 0;pointer-events:none}
+/* fiches clientes */
+.fc{width:236px;height:76px;display:flex;align-items:center;gap:12px;padding:0 16px;left:0;top:0;border-radius:22px}
+.fc i{flex:none;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-weight:800;font-size:15px;color:#fff;background:var(--grad)}
+.fc b{display:block;font-size:16px;font-weight:800;letter-spacing:-.01em}
+.fc span{display:block;font-size:12.5px;font-weight:600;color:rgba(43,26,71,.62);margin-top:2px}
+.fc .ring{position:absolute;right:14px;top:50%;width:30px;height:30px;margin-top:-15px}
+/* textes */
+.tx{position:absolute;left:0;right:0;text-align:center;font-weight:800;letter-spacing:-.035em;line-height:1.02;padding:0 34px}
+.tx .w{display:inline-block;margin:0 .12em;will-change:filter,transform,opacity}
+.tx.big{font-size:52px}.tx.mid{font-size:42px}
+.tx .g{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;padding-bottom:.08em}
+/* téléphone */
+.phone{position:absolute;width:300px;height:649px;left:120px;top:150px;border-radius:46px;padding:9px}
+.phone .scr{width:100%;height:100%;border-radius:38px;overflow:hidden;position:relative;background:#F6F0E9}
+.phone img{width:100%;display:block}
+.shot{position:absolute;overflow:hidden;border-radius:24px;padding:7px}
+.shot img{display:block;width:100%;border-radius:18px}
+.chip{position:absolute;padding:9px 16px;border-radius:999px;font-weight:800;font-size:15px;white-space:nowrap}
+.chip.dk{background:var(--ink);color:#fff;box-shadow:0 12px 30px -10px rgba(43,26,71,.5)}
+.badge{display:flex;align-items:center;gap:8px}
+.badge em{width:10px;height:10px;border-radius:50%;background:var(--grad);display:block;font-style:normal}
+/* jauge produit */
+.gauge{position:absolute;padding:16px 18px;border-radius:22px;width:300px}
+.gauge b{font-size:15px;font-weight:800}.gauge small{float:right;font-size:13px;font-weight:700;color:rgba(43,26,71,.6)}
+.gauge .bar{margin-top:10px;height:14px;border-radius:9px;background:rgba(43,26,71,.09);overflow:hidden}
+.gauge .bar i{display:block;height:100%;border-radius:9px;background:var(--grad)}
+/* bulle WhatsApp */
+.bub{position:absolute;width:420px;left:60px;border-radius:26px 26px 8px 26px;padding:20px 22px 16px}
+.bub .hd{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:800;color:rgba(43,26,71,.6);margin-bottom:10px}
+.bub .hd svg{width:18px;height:18px}
+.bub p{font-size:19px;line-height:1.38;font-weight:600;color:var(--ink)}
+.bub .ft{display:flex;justify-content:flex-end;align-items:center;gap:6px;margin-top:10px;font-size:12px;font-weight:700;color:rgba(43,26,71,.5)}
+.send{position:absolute;left:170px;width:200px;height:58px;border-radius:999px;background:var(--ink);color:#fff;font-weight:800;font-size:17px;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 18px 40px -14px rgba(43,26,71,.6)}
+.send svg{width:20px;height:20px}
+/* logo */
+#logoMark{position:absolute;width:150px;height:150px;left:195px;top:268px}
+#logoMark svg,#logoWord svg,#endWord svg{width:100%;height:100%;display:block}
+#logoWord{position:absolute;width:230px;left:155px;top:525px;height:62px;overflow:hidden}
+.batt{position:absolute;left:170px;width:200px;height:40px;border-radius:13px;border:3.5px solid var(--ink);padding:4px}
+.batt::after{content:"";position:absolute;right:-11px;top:9px;width:6px;height:15px;border-radius:0 4px 4px 0;background:var(--ink)}
+.batt i{display:block;height:100%;border-radius:7px;background:var(--grad)}
+.url{position:absolute;left:0;right:0;text-align:center;font-weight:800;font-size:22px;letter-spacing:-.01em}
+.url span{display:inline-block;padding:12px 24px;border-radius:999px}
+#flash{position:absolute;inset:0;background:radial-gradient(circle at 50% 42%,rgba(255,255,255,.9),rgba(255,255,255,0) 55%);opacity:0;pointer-events:none}
+</style></head><body>
+<div id="v">
+  <div class="blob" id="b1"></div><div class="blob" id="b2"></div><div class="blob" id="b3"></div><div id="grain"></div>
+  <div id="stage">
+    <div class="L" id="L1"></div>
+    <div class="tx big" id="t1" style="top:120px"></div>
+    <div class="tx mid" id="t2a" style="top:150px"></div>
+    <div class="tx mid" id="t2b" style="top:150px"></div>
+
+    <div class="L" id="L3">
+      <div class="glass" id="core" style="left:110px;top:230px;width:320px;height:410px;border-radius:46px"></div>
+      <div id="logoMark"></div>
+      <div class="batt" id="batt" style="top:470px"><i id="battFill"></i></div>
+      <div id="logoWord"></div>
+    </div>
+
+    <div class="L" id="L4">
+      <div class="glass phone" id="phone"><div class="scr"><img src="v03/app.png" alt=""></div></div>
+      <div class="glass shot" id="list" style="left:52px;top:330px;width:436px"><img src="v03/liste.png" alt=""></div>
+      <div class="chip dk" id="chipList" style="left:52px;top:290px">À relancer aujourd'hui</div>
+    </div>
+    <div class="tx mid" id="t4" style="top:84px"></div>
+
+    <div class="L" id="L5">
+      <div class="glass shot" id="fiche" style="left:60px;top:190px;width:420px"><img src="v03/fiche.png" alt=""></div>
+      <div class="glass shot" id="card" style="left:40px;top:330px;width:460px"><img src="v03/carte.png" alt=""></div>
+      <div class="glass gauge" id="gauge" style="left:120px;top:560px"><b>Crème visage</b><small id="gpct">62 %</small><div class="bar"><i id="gfill"></i></div></div>
+      <div class="chip dk badge" id="badge" style="left:132px;top:670px"><em></em>Fin estimée : dans 5 jours</div>
+    </div>
+
+    <div class="L" id="L6">
+      <div class="glass bub" id="bub" style="top:330px">
+        <div class="hd"><svg viewBox="0 0 24 24"><defs><linearGradient id="wg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F59A4A"/><stop offset=".5" stop-color="#DB6578"/><stop offset="1" stop-color="#7C7CF2"/></linearGradient></defs><path fill="url(#wg)" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.3 13.9c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .2-3.3-.7-2.8-1.1-4.5-3.9-4.7-4.1-.1-.2-1.1-1.5-1.1-2.9 0-1.4.7-2.1 1-2.4.3-.3.6-.3.8-.3h.6c.2 0 .4 0 .6.5l.9 2.1c.1.2.1.4 0 .6l-.4.6-.4.5c-.1.1-.3.3-.1.6.2.3.8 1.3 1.6 2.1 1.1 1 2 1.3 2.3 1.4.3.1.5.1.6-.1l.9-1c.2-.3.4-.2.7-.1l2 .9c.3.1.5.2.5.3.1.2.1.6-.1 1.2z"/></svg>Message prêt pour Martine</div>
+        <p>Martine ! ✨ Ça fait déjà un moment que tu as commencé : il est temps de penser à ta prochaine réserve de crème visage. Je te réserve ça ?</p>
+        <div class="ft" id="bubFt">Prêt à envoyer</div>
+      </div>
+      <div class="send" id="send" style="top:640px"><svg viewBox="0 0 24 24" fill="#fff"><path d="M3 20.5 21 12 3 3.5 3 10l12 2-12 2z"/></svg>Envoyer</div>
+    </div>
+    <div class="tx mid" id="t6" style="top:150px"></div>
+
+    <div class="L" id="L7">
+      <div class="glass shot" id="a1" style="width:164px"><img src="v03/app.png" alt=""></div>
+      <div class="glass shot" id="a2" style="width:176px"><img src="v03/fiche.png" alt=""></div>
+      <div class="glass shot" id="a3" style="width:164px"><img src="v03/liste.png" alt=""></div>
+    </div>
+    <div class="tx mid" id="t7a" style="top:150px"></div>
+    <div class="tx mid" id="t7b" style="top:205px"></div>
+    <div class="L" id="L8">
+      <div id="endWord" style="position:absolute;left:95px;width:350px;top:380px;height:72px"></div>
+      <div class="url" id="url" style="top:500px"><span class="glass" style="position:relative;display:inline-block">getrecharge.fr</span></div>
+    </div>
+  </div>
+  <div id="flash"></div>
+</div>
+<script>
+const $ = id => document.getElementById(id);
+const cl = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const k = (t, a, b) => cl((t - a) / (b - a));
+const eo = x => 1 - Math.pow(1 - x, 3);
+const ex = x => x === 1 ? 1 : 1 - Math.pow(2, -10 * x);
+const ei = x => x * x * x;
+const eio = x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+const back = (x, s = 1.9) => 1 + (s + 1) * Math.pow(x - 1, 3) + s * Math.pow(x - 1, 2);
+const lerp = (a, b, x) => a + (b - a) * x;
+const S = (el, o) => { const s = el.style; for (const kk in o) s[kk] = o[kk]; };
+
+/* Mots qui passent du flou au net */
+function words(el, html) { el.innerHTML = html.split(" ").map(w => `<span class="w">${w}</span>`).join(" "); return [...el.querySelectorAll(".w")]; }
+const T1 = words($("t1"), "Vos clients vous <span class='g'>échappent ?</span>".replace("<span class='g'>échappent ?</span>", "§"));
+$("t1").innerHTML = `<span class="w">Vos</span> <span class="w">clients</span> <span class="w">vous</span> <span class="w g">échappent&nbsp;?</span>`;
+const W = { t1: [...$("t1").querySelectorAll(".w")] };
+function setW(id, html) { $(id).innerHTML = html; W[id] = [...$(id).querySelectorAll(".w")]; }
+setW("t2a", `<span class="w">Martine</span> <span class="w">a</span> <span class="w">fini</span> <span class="w">sa</span> <span class="w">crème…</span>`);
+setW("t2b", `<span class="w">…elle</span> <span class="w">a</span> <span class="w">recommandé</span> <span class="w g">ailleurs.</span>`);
+setW("t4", `<span class="w">Votre</span> <span class="w g">coach</span> <span class="w">du</span> <span class="w">jour.</span>`);
+setW("t6", `<span class="w">Relancez</span> <span class="w">en</span> <span class="w g">un&nbsp;clic.</span>`);
+setW("t7a", `<span class="w">Moins</span> <span class="w">d'oublis.</span>`);
+setW("t7b", `<span class="w">Plus</span> <span class="w">de</span> <span class="w g">commandes.</span>`);
+function txt(id, t, tin, tout, step = .09) {
+  const ws = W[id];
+  ws.forEach((w, i) => {
+    const a = k(t, tin + i * step, tin + i * step + .32), o = tout == null ? 0 : k(t, tout, tout + .25);
+    const e = back(a, 1.4);
+    S(w, { opacity: a * (1 - o), filter: `blur(${(1 - eo(a)) * 14 + o * 12}px)`, transform: `translateY(${(1 - e) * 22 - o * 18}px) scale(${lerp(.92, 1, eo(a))})` });
+  });
+  $(id).style.visibility = t > tin - .05 && (tout == null || t < tout + .3) ? "visible" : "hidden";
+}
+
+/* Fiches clientes (données de la démo) */
+const FC = [["MD", "Marie Dupont", "Thé détox"], ["SM", "Sophie Martin", "Complément"], ["KB", "Karim Benali", "Crème visage"], ["JB", "Julie Bernard", "Thé détox"],
+  ["PM", "Paul Mercier", "Crème visage"], ["IL", "Inès Laurent", "Thé détox"], ["ML", "Martine Leroy", "Crème visage"]];
+const ringSvg = p => `<svg class="ring" viewBox="0 0 36 36"><circle cx="18" cy="18" r="14" fill="none" stroke="rgba(43,26,71,.1)" stroke-width="5"/><circle class="rg" cx="18" cy="18" r="14" fill="none" stroke="url(#rgd)" stroke-width="5" stroke-linecap="round" stroke-dasharray="${p * 88} 88" transform="rotate(-90 18 18)"/></svg>`;
+$("L1").innerHTML = `<svg width="0" height="0" style="position:absolute"><defs><linearGradient id="rgd" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F59A4A"/><stop offset=".5" stop-color="#DB6578"/><stop offset="1" stop-color="#7C7CF2"/></linearGradient></defs></svg>` +
+  FC.map(([i, n, p], j) => `<div class="glass fc" id="fc${j}"><i>${i}</i><div><b>${n}</b><span>${p}</span></div>${ringSvg(.25 + (j * .13) % .6)}</div>`).join("");
+const fcs = FC.map((_, j) => $("fc" + j));
+const HOME = [[-120, -175], [130, -105], [-140, -15], [120, 70], [-115, 155], [135, 240], [-10, 330]]; // décalage depuis le centre
+const SCAT = [[-520, -420], [560, -300], [-600, -40], [590, 120], [-540, 380], [520, 520], [0, 0]];
+
+function whip(t, T, dir = 1) { // whip pan flouté autour de T
+  if (t > T - .2 && t < T) { const e = ei(k(t, T - .2, T)); return { x: -dir * e * 300, b: e * 18 }; }
+  if (t >= T && t < T + .24) { const e = 1 - ex(k(t, T, T + .24)); return { x: dir * e * 300, b: e * 18 }; }
+  return { x: 0, b: 0 };
+}
+function vis(el, on) { el.style.visibility = on ? "visible" : "hidden"; }
+
+function render(t) {
+  // fond pêche vivant
+  S($("b1"), { transform: `translate(${-160 + Math.sin(t * .35) * 70}px,${-140 + Math.cos(t * .27) * 60}px)` });
+  S($("b2"), { transform: `translate(${260 + Math.cos(t * .31) * 80}px,${300 + Math.sin(t * .23) * 90}px)` });
+  S($("b3"), { transform: `translate(${-120 + Math.sin(t * .21 + 2) * 90}px,${620 + Math.cos(t * .33) * 70}px)` });
+
+  // caméra : whip pans aux grandes coupes
+  let w = { x: 0, b: 0 };
+  for (const T of [11, 19, 23]) { const r = whip(t, T); if (r.b) w = r; }
+  S($("stage"), { transform: `translateX(${w.x}px)`, filter: w.b ? `blur(${w.b}px)` : "none" });
+
+  /* 1 + 2 + 3a : fiches */
+  const onF = t < 8.3; vis($("L1"), onF);
+  if (onF) fcs.forEach((el, j) => {
+    const fl = Math.sin(t * 1.3 + j * 1.7) * 5, fr = Math.cos(t * 1.1 + j) * 2.5;
+    const a = back(k(t, .05 + j * .09, .55 + j * .09), 1.6);
+    let [hx, hy] = HOME[j]; let x = hx * a, y = hy * a, s = lerp(.4, 1, eo(k(t, .05 + j * .09, .5 + j * .09))), o = k(t, .05 + j * .09, .3 + j * .09), b = 0, gray = 0, rot = (1 - a) * 18 + fr;
+    // ça s'éparpille et se brouille
+    const sc = ei(k(t, 2.25, 3.0));
+    if (j < 6) { x = lerp(x, SCAT[j][0], sc); y = lerp(y, SCAT[j][1], sc); b = sc * 16; s *= lerp(1, .85, sc); rot += sc * (j % 2 ? 24 : -24); }
+    else { // Martine : reste, grandit, ralentit, perd ses couleurs
+      const m = eio(k(t, 2.3, 3.4)); x = lerp(x, 0, m); y = lerp(y, 60, m); s = lerp(s, 1.55, m);
+      const drift = k(t, 5.0, 7.0); x += eo(drift) * 40; y += eo(drift) * 14; rot += drift * 4;
+      gray = eo(k(t, 4.9, 6.4)); o *= lerp(1, .55, gray); b = gray * 2.5;
+      const rg = el.querySelector(".rg"); rg.setAttribute("stroke-dasharray", `${lerp(.62, .04, eio(k(t, 3.6, 6.2))) * 88} 88`);
+    }
+    if (j < 6 && t > 6.9) { // retour pour l'aspiration
+      const r = eo(k(t, 6.9, 7.45)); x = lerp(SCAT[j][0], HOME[j][0] * .7, r); y = lerp(SCAT[j][1], HOME[j][1] * .7, r); b = lerp(16, 2, r); o = r * .9; s = .85;
+    }
+    if (t > 7.4) { // aspirées dans une seule carte
+      const q = ei(k(t, 7.4 + (j % 7) * .04, 8.05 + (j % 7) * .04)); x = lerp(x, 0, q); y = lerp(y, -50, q); s = lerp(s, .15, q); rot += q * 90 * (j % 2 ? 1 : -1); o *= 1 - q * .9; b += q * 6;
+      if (j === 6) gray = lerp(gray, 0, k(t, 7.3, 7.7));
+    }
+    const px = 270 - 118 + x, py = 480 - 38 + y + fl;
+    S(el, { transform: `translate3d(${px}px,${py}px,0) rotate(${rot}deg) rotateY(${Math.sin(t * .8 + j) * 8}deg) scale(${s})`, opacity: o, filter: `blur(${b}px) grayscale(${gray})`, "--sh": `${120 - ((t * 40 + j * 30) % 260)}%` });
+  });
+  txt("t1", t, .35, 2.35);
+  txt("t2a", t, 3.15, 4.85, .1);
+  txt("t2b", t, 5.0, 6.85, .1);
+
+  /* 3 : une seule carte de verre, logo, jauge de batterie */
+  const on3 = t > 7.35 && t < 11.3; vis($("L3"), on3);
+  if (on3) {
+    const c = back(k(t, 7.55, 8.25), 1.5), out = ei(k(t, 10.55, 11.0));
+    S($("core"), { transform: `translateY(${Math.sin(t * 1.4) * 5}px) rotateX(${(1 - c) * 30}deg) scale(${lerp(.2, 1, c) * (1 + out * .4)})`, opacity: k(t, 7.4, 7.7) * (1 - out) });
+    const m = back(k(t, 8.4, 8.95), 2.2);
+    S($("logoMark"), { transform: `translateY(${Math.sin(t * 1.4) * 5}px) scale(${m * (1 + out * .5)})`, opacity: k(t, 8.4, 8.6) * (1 - out), filter: `blur(${(1 - eo(k(t, 8.4, 8.9))) * 10}px)` });
+    S($("batt"), { opacity: k(t, 8.6, 8.85) * (1 - out), transform: `translateY(${Math.sin(t * 1.4) * 5}px) scale(${lerp(.8, 1, eo(k(t, 8.6, 9.0)))})` });
+    S($("battFill"), { width: `${eio(k(t, 8.75, 9.75)) * 100}%` });
+    const wd = eo(k(t, 9.5, 10.0));
+    S($("logoWord"), { opacity: wd * (1 - out), transform: `translateY(${(1 - wd) * 16}px)`, filter: `blur(${(1 - wd) * 10}px)` });
+    $("batt").style.top = lerp(470, 452, eo(k(t, 9.5, 10.0))) + "px";
+  }
+  S($("flash"), { opacity: Math.max(0, 1 - Math.abs(t - 9.05) / .35) * .85 });
+
+  /* 4 : dézoom sur le tableau de bord */
+  const on4 = t > 10.8 && t < 15.35; vis($("L4"), on4);
+  if (on4) {
+    const z = back(k(t, 11.0, 12.0), 1.2), fl = Math.sin(t * 1.2) * 5;
+    const sc = lerp(2.6, 1, z), ty = lerp(380, -30, eo(k(t, 11.0, 12.0)));
+    const lp = k(t, 13.0, 13.6), pi = ei(k(t, 14.75, 15.1));
+    S($("phone"), { transform: `translateY(${ty + fl + 70}px) rotateX(${lerp(0, 8, eo(k(t, 11.6, 12.6)))}deg) rotateY(${Math.sin(t * .7) * 4}deg) scale(${sc * .92 * lerp(1, .9, eo(lp))})`, filter: `blur(${eo(lp) * 3}px)`, opacity: 1 - pi });
+    const l = back(lp, 1.3);
+    S($("list"), { opacity: k(t, 13.0, 13.25) * (1 - pi), transform: `translateY(${(1 - l) * 340 + Math.sin(t * 1.5) * 4}px) rotateX(${(1 - l) * 25}deg) scale(${1 + pi * .3})` });
+    S($("chipList"), { opacity: k(t, 13.45, 13.7) * (1 - pi), transform: `translateY(${(1 - back(k(t, 13.45, 13.85), 2)) * 20 + Math.sin(t * 1.5) * 4}px)` });
+  }
+  txt("t4", t, 11.55, 14.7);
+
+  /* 5 : punch-in sur Martine */
+  const on5 = t > 14.9 && t < 19.4; vis($("L5"), on5);
+  if (on5) {
+    const p = ex(k(t, 14.95, 15.45)), fl = Math.sin(t * 1.3) * 5;
+    const morph = eio(k(t, 17.0, 17.6));
+    S($("card"), { opacity: (1 - morph), transform: `translateY(${lerp(230, 0, p) + fl - morph * 120}px) scale(${lerp(.95, 1, p) * (1 + (1 - p) * 0) * lerp(1, .9, morph)})`, filter: `blur(${(1 - p) * 8 + morph * 8}px)` });
+    const g = back(k(t, 15.55, 16.0), 1.6);
+    S($("gauge"), { opacity: k(t, 15.55, 15.75), transform: `translateY(${(1 - g) * 40 + fl * .6 + morph * 200}px) rotate(${Math.sin(t) * 1}deg) scale(${lerp(1, .82, morph)})` });
+    const pct = lerp(62, 14, eio(k(t, 15.9, 17.2)));
+    $("gfill").style.width = pct + "%"; $("gpct").textContent = Math.round(pct) + " %";
+    const bd = back(k(t, 16.15, 16.55), 2.4), pulse = 1 + Math.max(0, Math.sin((t - 16.6) * 7)) * .05 * (t > 16.6 ? 1 : 0);
+    S($("badge"), { opacity: k(t, 16.15, 16.3), transform: `translateY(${morph * 195 + fl * .6}px) scale(${bd * pulse})` });
+    const f = back(morph, 1.1), fo = ei(k(t, 18.75, 19.0));
+    S($("fiche"), { opacity: k(t, 17.0, 17.3) * (1 - fo), transform: `translateY(${(1 - f) * 120 + fl - 30}px) rotateX(${(1 - f) * 20}deg) scale(${lerp(.75, .86, f)})`, filter: `blur(${(1 - eo(morph)) * 8 + fo * 12}px)` });
+  }
+
+  /* 6 : message WhatsApp prêt */
+  const on6 = t > 18.9 && t < 23.3; vis($("L6"), on6);
+  if (on6) {
+    const b = back(k(t, 19.25, 19.85), 1.5), fl = Math.sin(t * 1.3) * 5, sent = t > 21.75;
+    S($("bub"), { opacity: k(t, 19.25, 19.45), transform: `translateY(${(1 - b) * 300 + fl}px) rotate(${(1 - b) * -6}deg) scale(${lerp(.85, 1, eo(k(t, 19.25, 19.85)))})`, filter: `blur(${(1 - eo(k(t, 19.25, 19.7))) * 10}px)` });
+    $("bubFt").textContent = sent ? "Envoyé ✓✓" : "Prêt à envoyer";
+    const s = back(k(t, 20.6, 21.0), 2), press = t > 21.5 && t < 21.75 ? .9 : 1, gone = eo(k(t, 21.8, 22.2));
+    S($("send"), { opacity: k(t, 20.6, 20.8) * (1 - gone), transform: `translateY(${(1 - s) * 30 + fl * .5}px) scale(${s * press * lerp(1, .6, gone)})` });
+  }
+  txt("t6", t, 19.95, 22.75);
+
+  /* 7 : les cartes s'alignent */
+  const on7 = t > 22.8 && t < 25.6; vis($("L7"), on7);
+  if (on7) ["a1", "a2", "a3"].forEach((id, j) => {
+    const a = back(k(t, 23.0 + j * .1, 23.7 + j * .1), 1.4), fl = Math.sin(t * 1.4 + j * 2) * 6, col = ei(k(t, 25.05, 25.45));
+    const fx = [-172, 0, 172][j], fy = [40, -10, 40][j], sx = [-420, 0, 420][j], sy = [300, 500, 300][j];
+    const x = lerp(sx, fx, a) * (1 - col), y = lerp(sy, fy, a) * (1 - col) + fl;
+    S($(id), { left: (270 - 88) + "px", top: "380px", opacity: k(t, 23.0 + j * .1, 23.25 + j * .1) * (1 - col), transform: `translate(${x}px,${y}px) rotateY(${[18, 0, -18][j] * (1 - col)}deg) scale(${(j === 1 ? 1.12 : 1) * lerp(1, .3, col)})`, filter: `blur(${col * 10}px)` });
+  });
+  txt("t7a", t, 23.35, 25.0, .12);
+  txt("t7b", t, 23.85, 25.0, .12);
+
+  /* 8 : logo + site */
+  const on8 = t > 25.3; vis($("L8"), on8);
+  if (on8) {
+    const l = back(k(t, 25.4, 26.0), 1.6), fl = Math.sin(t * 1.3) * 3;
+    S($("endWord"), { opacity: k(t, 25.4, 25.6), transform: `translateY(${fl}px) scale(${lerp(.7, 1, l)})`, filter: `blur(${(1 - eo(k(t, 25.4, 25.9))) * 12}px)` });
+    const u = back(k(t, 25.85, 26.3), 1.8);
+    S($("url"), { opacity: k(t, 25.85, 26.0), transform: `translateY(${(1 - u) * 24 + fl}px)` });
+    $("url").querySelector(".glass").style.setProperty("--sh", `${120 - k(t, 26.1, 26.9) * 240}%`);
+  }
+}
+window.render = render; window.warp = t => t;
+fetch("logo-clair.svg").then(r => r.text()).then(s => {
+  const full = s.replace(/width="\d+" height="\d+"/, "").replace(/style="[^"]*"/, 'style="width:100%;height:100%;color:#2B1A47"');
+  $("endWord").innerHTML = full;
+  $("logoWord").innerHTML = full.replace('viewBox="10 40 620 125"', 'viewBox="180 40 450 125"');
+  $("logoMark").innerHTML = full.replace('viewBox="10 40 620 125"', 'viewBox="28 38 112 112"').replace(/id="rglogo"/g, 'id="rglogo2"').replace(/url\(#rglogo\)/g, "url(#rglogo2)");
+  return Promise.all([...document.images].map(i => i.decode().catch(() => {})));
+}).then(() => document.fonts.ready).then(() => { render(0); window.__ready = true; });
+</script>
+</body></html>
