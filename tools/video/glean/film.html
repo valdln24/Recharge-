@@ -602,14 +602,26 @@ const s16 = Scene(56.0, 60.01, "#F4EFE8",
   (sc, t) => { for (const r of sc.roots) { const e = r.querySelector(".tag"), x = eo5(k(t, 2.1, 2.7)); e.style.opacity = x; e.style.transform = `translateY(${(1 - x) * 12}px)`; } });
 
 /* ---------- rendu ---------- */
+/* Transitions « fouettées » entre les scènes : on accélère en sortie, on freine en entrée (rythme Glean) */
+const WHIP = { 9.0: [-1, 0], 13.0: [0, -1], 16.5: [1, 0], 23.0: [0, 1], 24.6: [-1, 0], 30.0: [1, 0], 35.0: [0, -1], 39.0: [-1, 0], 42.5: [1, 0], 45.5: [0, 1], 49.0: [-1, 0], 52.5: [0, 0] };
+const PAN = p => { const x = cl(p); return x < .5 ? 8 * x ** 4 : 1 - 8 * (1 - x) ** 4; };   // départ et arrivée très rapides
+function whip(sc, t) {
+  let x = 0, y = 0, s = 1, b = 0, o = 1;
+  const kb = +sc.b.toFixed(1), ka = +sc.a.toFixed(1), out = WHIP[kb], inn = WHIP[ka];
+  if (out && t >= kb - .14) { const p = PAN(k(t, kb - .14, kb + .26)); if (out[0] || out[1]) { x = -out[0] * 960 * p; y = -out[1] * 540 * p; } else { s = 1 + p * 1.2; o = 1 - p; } b = Math.sin(p * Math.PI) * 9; }
+  if (inn && t < ka + .26) { const p = PAN(k(t, ka - .14, ka + .26)); if (inn[0] || inn[1]) { x = inn[0] * 960 * (1 - p); y = inn[1] * 540 * (1 - p); } else { s = L(.85, 1, p); } b = Math.sin(p * Math.PI) * 9; }
+  sc.el.style.transform = `translate(${x}px,${y}px) scale(${s})`; sc.el.style.opacity = o;
+  sc.el.style.filter = b > .3 ? `blur(${b}px)` : "none";
+}
 function render(t) {
   for (const sc of SC) {
-    const on = t >= sc.a && t < sc.b;
+    const on = t >= sc.a && t < sc.b + (WHIP[+sc.b.toFixed(1)] ? .26 : 0);
     sc.el.style.display = on ? "block" : "none";
     if (!on) continue;
     const lt = t - sc.a;
     sc.bku && sc.bku(sc, lt);
     sc.upd && sc.upd(sc, lt);
+    whip(sc, t);
   }
 }
 window.render = render; window.warp = t => t;
