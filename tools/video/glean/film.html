@@ -1,0 +1,620 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../font.css">
+<!-- Film de lancement Recharge (60 s), construit sur le modèle du film Glean.
+     Rendu : PAGE=glean/film.html DUR=60 W=960 H=540 node render.js sortie.mp4 -->
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:960px;height:540px;overflow:hidden;background:#F4EFE8;font-family:Manrope,sans-serif;color:#1C1A22;-webkit-font-smoothing:antialiased}
+.sc{position:absolute;left:0;top:0;width:960px;height:540px;overflow:hidden;display:none}
+.cam{position:absolute;left:0;top:0;width:960px;height:540px;transform-origin:480px 270px}
+.bk{position:absolute;left:0;top:0;width:960px;height:540px;overflow:hidden}
+.fr{position:absolute;left:0;top:0;width:960px;height:540px}
+.ab{position:absolute;left:0;top:0}
+.H{font-weight:500;letter-spacing:-.045em;line-height:1.02;white-space:nowrap}
+.gt{background:linear-gradient(100deg,#F59A4A,#DB6578 50%,#7C7CF2);-webkit-background-clip:text;background-clip:text;color:transparent}
+.w{display:inline-block;will-change:transform}
+/* verre liquide */
+.gl{position:absolute;left:0;top:0;overflow:hidden;transform-origin:50% 50%;isolation:isolate}
+.gl .gi{position:absolute;left:0;top:0;width:100%;height:100%}
+.gl .gb{position:absolute;left:0;top:0;width:960px;height:540px;transform-origin:0 0}
+.gl .gt2{position:absolute;inset:0;border-radius:inherit}
+.gl .rim{position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  box-shadow:inset 0 0 0 .7px rgba(255,255,255,.75),inset 1.5px 2px 1.5px -1px rgba(255,255,255,.95),inset -1.5px -2px 2px -1px rgba(255,255,255,.55),inset 0 -10px 18px -14px rgba(255,255,255,.7)}
+.gl .spec{position:absolute;border-radius:50%;background:radial-gradient(closest-side,rgba(255,255,255,.75),rgba(255,255,255,0));pointer-events:none}
+.gl .ct{position:absolute;inset:0;border-radius:inherit}
+.shd{position:absolute;left:0;top:0;border-radius:999px;filter:blur(9px);background:rgba(40,30,60,.22)}
+/* cartes */
+.card{position:absolute;left:0;top:0;background:#FCFBF9;border-radius:12px;box-shadow:0 1px 0 rgba(255,255,255,.9) inset,0 10px 26px -12px rgba(40,30,60,.28),0 0 0 .5px rgba(28,26,34,.06)}
+.tile{display:flex;align-items:center;justify-content:center;border-radius:10px;background:linear-gradient(135deg,#FDE8EA,#E8E9FD)}
+.tile svg{width:60%;height:60%}
+.av{display:flex;align-items:center;justify-content:center;border-radius:50%;color:#fff;font-weight:800;font-size:10px;letter-spacing:-.02em;box-shadow:0 0 0 2px #fff,0 4px 10px -4px rgba(40,30,60,.4)}
+.lbl{font-size:7.5px;font-weight:700;color:#8A8390;letter-spacing:.02em}
+.cur{position:absolute;left:0;top:0;width:22px;height:22px;filter:drop-shadow(0 3px 4px rgba(28,26,34,.3));z-index:50}
+.dot{position:absolute;left:0;top:0;width:5px;height:5px;border-radius:50%;margin:-2.5px 0 0 -2.5px}
+</style></head><body>
+<svg width="0" height="0" style="position:absolute"><defs id="defs">
+  <linearGradient id="gA" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F59A4A"/><stop offset=".5" stop-color="#DB6578"/><stop offset="1" stop-color="#7C7CF2"/></linearGradient>
+</defs></svg>
+<div id="root"></div>
+<script>
+const $ = s => document.querySelector(s), R = document.getElementById("root");
+const cl = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x)), k = (t, a, b) => cl((t - a) / (b - a)), L = (a, b, x) => a + (b - a) * x;
+const eo = x => 1 - Math.pow(1 - cl(x), 3), eo5 = x => 1 - Math.pow(1 - cl(x), 5), ei = x => Math.pow(cl(x), 3), eio = x => { x = cl(x); return x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; };
+const sm = x => { x = cl(x); return x * x * (3 - 2 * x); };
+const spr = x => x <= 0 ? 0 : x >= 1 ? 1 : 1 - Math.exp(-6 * x) * Math.cos(10 * x);
+const punch = (lt, a = .22) => lt < 0 ? 1 : 1 + a * Math.exp(-lt * 9) * Math.cos(lt * 15);
+const rnd = s => { const x = Math.sin(s * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); };
+const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;");
+const h = (html) => { const d = document.createElement("div"); d.innerHTML = html.trim(); return d.firstChild; };
+const tf = (el, x, y, s = 1, r = 0, o = 1, extra = "") => { el.style.transform = `translate(${x}px,${y}px) rotate(${r}deg) scale(${s}) ${extra}`; el.style.opacity = o; };
+const typed = (str, x) => str.slice(0, Math.round(str.length * cl(x)));
+
+/* icônes maison (trait 2 px) */
+const IC = {
+  reassort: '<path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3"/><path d="M19.5 4.5v3.5H16"/><path d="M9.5 14.5v-2M12 14.5v-4M14.5 14.5V12"/>',
+  suivi: '<path d="M4.5 5.5h15v10h-9l-5 4v-4h-1z"/><path d="M9 10.5l2 2 4-4"/>',
+  prospect: '<circle cx="10" cy="8.5" r="3.2"/><path d="M4.5 19.5c.8-3.4 3-5.2 5.5-5.2s4.7 1.8 5.5 5.2"/><path d="M18.5 4.5l.6 1.5 1.5.6-1.5.6-.6 1.5-.6-1.5-1.5-.6 1.5-.6z"/>',
+  reseau: '<circle cx="12" cy="5.5" r="2.3"/><circle cx="5.5" cy="17.5" r="2.3"/><circle cx="18.5" cy="17.5" r="2.3"/><path d="M10.8 7.5l-4.2 8M13.2 7.5l4.2 8M7.8 17.5h8.4"/>',
+  fidelite: '<rect x="3.5" y="6" width="17" height="12" rx="3"/><circle cx="15.5" cy="12" r="2.6"/><path d="M6.5 10h4M6.5 13.5h3"/>',
+  coach: '<path d="M4.5 5.5h15v10h-9l-5 4v-4h-1z"/><path d="M12.8 7.5l-2.6 3.6h2.6l-1.2 2.6"/>',
+  reporter: '<circle cx="11" cy="12" r="7"/><path d="M11 8.5V12l2.5 1.5"/><path d="M19.5 5.5l1 2.5-2.5.8"/>',
+  ignorer: '<path d="M3.5 12s3-5.5 8.5-5.5S20.5 12 20.5 12s-3 5.5-8.5 5.5S3.5 12 3.5 12z"/><circle cx="12" cy="12" r="2.4"/><path d="M5 19L19 5"/>',
+  fiche: '<rect x="4" y="4.5" width="16" height="15" rx="3"/><circle cx="12" cy="10" r="2.5"/><path d="M8 16.5c.8-1.8 2.2-2.6 4-2.6s3.2.8 4 2.6"/>',
+  sat: '<circle cx="12" cy="12" r="8.5"/><circle cx="9" cy="10" r=".7"/><circle cx="15" cy="10" r=".7"/><path d="M8.5 14c1 1.4 2.2 2 3.5 2s2.5-.6 3.5-2"/>',
+  mit: '<circle cx="12" cy="12" r="8.5"/><circle cx="9" cy="10" r=".7"/><circle cx="15" cy="10" r=".7"/><path d="M8.8 15h6.4"/>',
+  pas: '<circle cx="12" cy="12" r="8.5"/><circle cx="9" cy="10" r=".7"/><circle cx="15" cy="10" r=".7"/><path d="M8.5 16c1-1.4 2.2-2 3.5-2s2.5.6 3.5 2"/>',
+  check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+  thermo: '<path d="M10 14.5V5a2 2 0 1 1 4 0v9.5a3.5 3.5 0 1 1-4 0z"/><path d="M12 16.5V9"/>',
+  import: '<rect x="4" y="3.5" width="16" height="17" rx="3"/><path d="M12 7.5v7M8.8 11.5L12 14.7l3.2-3.2"/>',
+  euro: '<path d="M17 6.5a6.5 6.5 0 1 0 0 11"/><path d="M5 10.5h8M5 13.5h8"/>',
+  wa: '<path d="M4.5 19.5l1.2-3.8A7.8 7.8 0 1 1 8.6 18.5z"/><path d="M9.3 9.2c.3 2.3 2.3 4.4 4.8 5"/>',
+  arrow: '<path d="M12 19V5M6 11l6-6 6 6"/>',
+  down: '<path d="M12 5v14M6 13l6 6 6-6"/>',
+  home: '<path d="M4.5 11L12 4.5l7.5 6.5v8.5h-5v-5h-5v5h-5z"/>',
+  play: '<path d="M8 5.5l11 6.5-11 6.5z"/>',
+  cal: '<rect x="4" y="5.5" width="16" height="14" rx="3"/><path d="M8 3.5v4M16 3.5v4M4 10h16"/>'
+};
+const ico = (k, col = "currentColor", sw = 2) => `<svg viewBox="0 0 24 24" fill="none" stroke="${col}" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round">${IC[k]}</svg>`;
+const MK = {
+  list: `<rect x="6" y="4" width="20" height="24" rx="6" fill="#DCDDFB"/><circle cx="11.5" cy="11" r="2" fill="#FF782E"/><rect x="15.5" y="10" width="6.5" height="2" rx="1" fill="#1C1A22"/><circle cx="11.5" cy="16.5" r="2" fill="#FF782E"/><rect x="15.5" y="15.5" width="6.5" height="2" rx="1" fill="#1C1A22"/><circle cx="11.5" cy="22" r="2" fill="#FF782E" opacity=".4"/><rect x="15.5" y="21" width="4.5" height="2" rx="1" fill="#1C1A22" opacity=".4"/>`,
+  hash: `<rect x="4" y="4" width="24" height="24" rx="7" fill="#DCDDFB"/><path d="M13 9l-2 14M21 9l-2 14M9.5 13.5h14M8.5 18.5h14" stroke="#1C1A22" stroke-width="2.2" stroke-linecap="round"/><circle cx="23" cy="9" r="3" fill="#FF782E"/>`,
+  pin: `<path d="M16 29.5s-9.5-8.4-9.5-15.6a9.5 9.5 0 0 1 19 0c0 7.2-9.5 15.6-9.5 15.6z" fill="#DCDDFB"/><circle cx="16" cy="14" r="4.4" fill="#FF782E"/><circle cx="16" cy="14" r="1.6" fill="#1C1A22"/>`,
+  venn: `<circle cx="12" cy="16" r="8.5" fill="#DCDDFB"/><circle cx="20" cy="16" r="8.5" fill="#FF782E" opacity=".92"/><path d="M16 8.6a8.5 8.5 0 0 1 0 14.8 8.5 8.5 0 0 1 0-14.8z" fill="#1C1A22"/>`
+};
+const MARK = (bolt = "#111", ring = "url(#gA)", arrow = "#7B83F6") => `<svg viewBox="38 41 122 122" style="width:100%;height:100%;display:block;overflow:visible"><path d="M122.4 66.9A44 44 0 1 1 81.4 65.1" fill="none" stroke="${ring}" stroke-width="17"/><path d="M66.5 47.5L101 52.5L80.5 80Z" fill="${arrow}" stroke="${arrow}" stroke-width="3" stroke-linejoin="round"/><path d="M109 76L84 111H99L91 136L118 99H103Z" fill="${bolt}" stroke="${bolt}" stroke-width="3" stroke-linejoin="round"/></svg>`;
+const CUR = `<svg viewBox="0 0 24 24"><path d="M4 2.5l15.5 8.6-7 1.7-3.6 6.7z" fill="#1C1A22" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg>`;
+const AVC = { MD: "#E58A6B", SM: "#B98AE0", KB: "#6FA8DC", JB: "#E0789A", LM: "#8FB873", IN: "#E8A94D", CL: "#7B83F6", AR: "#D9776A", NP: "#5FB5A8", EB: "#C98BB9" };
+const av = (ini, s = 22) => `<div class="av" style="width:${s}px;height:${s}px;font-size:${s * .4}px;background:linear-gradient(140deg,${AVC[ini] || "#7B83F6"},${AVC[ini] || "#7B83F6"}cc)">${ini}</div>`;
+
+/* ---------- verre liquide : carte de réfraction générée, puis feDisplacementMap ---------- */
+let FID = 0;
+function glassFilter(w, h, r, band, scale) {
+  const S = 2, W = Math.round(w * S), H = Math.round(h * S), c = document.createElement("canvas"); c.width = W; c.height = H;
+  const x = c.getContext("2d"), d = x.createImageData(W, H), hw = w / 2, hh = h / 2;
+  const sdf = (px, py) => { const qx = Math.abs(px - hw) - (hw - r), qy = Math.abs(py - hh) - (hh - r); return Math.hypot(Math.max(qx, 0), Math.max(qy, 0)) + Math.min(Math.max(qx, qy), 0) - r; };
+  for (let j = 0; j < H; j++) for (let i = 0; i < W; i++) {
+    const px = (i + .5) / S, py = (j + .5) / S, e = -sdf(px, py), p = (j * W + i) * 4;
+    let R = 128, G = 128;
+    if (e > -2 && e < band) {
+      let gx = sdf(px + .5, py) - sdf(px - .5, py), gy = sdf(px, py + .5) - sdf(px, py - .5); const n = Math.hypot(gx, gy) || 1; gx /= n; gy /= n;
+      const u = cl(1 - e / band), s = u * u * (3 - 2 * u);
+      R = 128 + gx * s * 127; G = 128 + gy * s * 127;
+    }
+    d.data[p] = R; d.data[p + 1] = G; d.data[p + 2] = 128; d.data[p + 3] = 255;
+  }
+  x.putImageData(d, 0, 0);
+  const id = "lg" + (FID++);
+  const f = document.createElementNS("http://www.w3.org/2000/svg", "filter");
+  f.setAttribute("id", id);
+  f.innerHTML = `<feImage href="${c.toDataURL()}" x="0" y="0" width="${w}" height="${h}" preserveAspectRatio="none" result="m"/><feDisplacementMap in="SourceGraphic" in2="m" scale="${scale}" xChannelSelector="R" yChannelSelector="G"/>`;
+  for (const [a, v] of [["x", -60], ["y", -60], ["width", w + 120], ["height", h + 120], ["filterUnits", "userSpaceOnUse"], ["primitiveUnits", "userSpaceOnUse"], ["color-interpolation-filters", "sRGB"]]) f.setAttribute(a, v);
+  document.getElementById("defs").appendChild(f);
+  return id;
+}
+/* Un objet en verre : il contient une copie du fond de sa scène, réfractée sur les bords. */
+function Glass(sc, o) {
+  const w = o.w, hh = o.h, r = o.r ?? Math.min(w, hh) / 2;
+  const id = glassFilter(w, hh, r, o.band ?? Math.min(26, Math.min(w, hh) * .32), o.scale ?? 34);
+  const el = h(`<div class="gl" style="width:${w}px;height:${hh}px;border-radius:${r}px;box-shadow:0 ${o.sh ?? 14}px ${(o.sh ?? 14) * 2.4}px -${(o.sh ?? 14) * .9}px rgba(40,30,60,${o.so ?? .28})"></div>`);
+  const gi = h(`<div class="gi" style="filter:url(#${id}) blur(${o.blur ?? .35}px) saturate(${o.sat ?? 1.45}) brightness(${o.br ?? 1.05})"></div>`);
+  el.appendChild(gi);
+  const gb = sc.bk.cloneNode(true); gb.className = "gb"; gi.appendChild(gb); sc.roots.push(gb);
+  el.appendChild(h(`<div class="gt2" style="background:${o.tint || "linear-gradient(160deg,rgba(255,255,255,.22),rgba(255,255,255,.06))"}"></div>`));
+  el.appendChild(h(`<div class="spec" style="left:${w * .08}px;top:${-hh * .25}px;width:${w * .7}px;height:${hh * .6}px;opacity:${o.spec ?? .55}"></div>`));
+  el.appendChild(h(`<div class="rim"></div>`));
+  const ct = h(`<div class="ct">${o.html || ""}</div>`); el.appendChild(ct);
+  (o.parent || sc.fr).appendChild(el);
+  const g = { el, gb, ct, w, h: hh, set(cx, cy, s = 1, rot = 0, op = 1) {
+    el.style.transform = `translate(${cx - w / 2}px,${cy - hh / 2}px) rotate(${rot}deg) scale(${s})`; el.style.opacity = op;
+    el.style.visibility = op <= .001 || s <= .001 ? "hidden" : "visible";
+    gb.style.transform = `translate(${w / 2}px,${hh / 2}px) rotate(${-rot}deg) scale(${1 / Math.max(s, .001)}) translate(${-cx}px,${-cy}px)`;
+  } };
+  return g;
+}
+
+/* ---------- scènes ---------- */
+const SC = [];
+function Scene(a, b, bg, back, init, upd, bku) {
+  const el = h(`<div class="sc"><div class="cam"><div class="bk" style="background:${bg}">${back || ""}</div><div class="fr"></div></div></div>`);
+  R.appendChild(el);
+  const sc = { a, b, el, cam: el.firstChild, bk: el.querySelector(".bk"), fr: el.querySelector(".fr"), roots: [], upd, bku };
+  sc.roots.push(sc.bk); init && init(sc); SC.push(sc); return sc;
+}
+const Q = (sc, sel) => sc.roots.map(r => r.querySelector(sel));         // un même élément du fond, dans le fond et dans chaque copie
+const QA = (sc, sel) => sc.roots.flatMap(r => [...r.querySelectorAll(sel)]);
+const camSet = (sc, s, x = 0, y = 0, r = 0, extra = "") => sc.cam.style.transform = `translate(${x}px,${y}px) rotate(${r}deg) scale(${s}) ${extra}`;
+const words = (str, cls = "") => str.split(" ").map(w => `<span class="w ${cls}">${w}</span>`).join(" ");
+const wordsIn = (els, t, t0, step = .07, dur = .45, dy = 16) => els.forEach((e, i) => { const x = eo5(k(t, t0 + i * step, t0 + i * step + dur)); e.style.transform = `translateY(${(1 - x) * dy}px)`; e.style.opacity = x; e.style.filter = `blur(${(1 - x) * 6}px)`; });
+const fade = (el, o) => { el.style.opacity = o; el.style.visibility = o > .001 ? "visible" : "hidden"; };
+
+/* ===== 1 · 0–3 s : formes en verre en orbite + titre ===== */
+const s1 = Scene(0, 3.05, "#F4EFE8",
+  `<div class="ab band" style="left:390px;top:-60px;width:180px;height:660px;background:linear-gradient(180deg,#F59A4A,#DB6578 50%,#7C7CF2);opacity:.9"></div>
+   <div class="ab ttl H" style="left:0;top:180px;width:960px;text-align:center;font-size:66px">${words("Fini les relances")}<br>${words("au hasard.")}</div>`,
+  sc => {
+    sc.shapes = [
+      { w: 92, h: 92, tint: "radial-gradient(circle at 35% 30%,rgba(160,165,255,.55),rgba(124,124,242,.85) 70%)", a: 0, rx: 330, ry: 150, z: 1.0, sp: .55 },
+      { w: 64, h: 64, tint: "radial-gradient(circle at 35% 30%,rgba(255,200,160,.5),rgba(245,154,74,.85) 70%)", a: 1.1, rx: 360, ry: 170, z: .8, sp: .55 },
+      { w: 110, h: 110, r: 26, tint: "linear-gradient(140deg,rgba(255,190,200,.55),rgba(219,101,120,.7))", a: 2.2, rx: 300, ry: 140, z: 1.15, sp: .55, rot: 1 },
+      { w: 74, h: 74, tint: "radial-gradient(circle at 35% 30%,rgba(255,255,255,.3),rgba(123,131,246,.6) 75%)", a: 3.3, rx: 340, ry: 160, z: .7, sp: .55 },
+      { w: 84, h: 84, r: 20, tint: "linear-gradient(140deg,rgba(255,214,170,.6),rgba(245,154,74,.65))", a: 4.3, rx: 320, ry: 150, z: .9, sp: .55, rot: 1 },
+      { w: 130, h: 130, tint: "radial-gradient(circle at 35% 30%,rgba(255,255,255,.18),rgba(255,255,255,.04) 70%)", a: 5.3, rx: 250, ry: 120, z: 1.3, sp: .55 },
+    ].map(o => Object.assign(Glass(sc, { ...o, scale: 40, spec: .7 }), o));
+  },
+  (sc, t) => {
+    camSet(sc, 1 + t * .035 + ei(k(t, 2.45, 3.05)) * 5.5, -ei(k(t, 2.45, 3.05)) * 520, ei(k(t, 2.45, 3.05)) * 120);
+    sc.shapes.forEach((g, i) => {
+      const a = g.a + t * g.sp, z = Math.sin(a), d = .78 + z * .3 * g.z;
+      const x = 480 + Math.cos(a) * g.rx, y = 270 + z * g.ry * .55 + Math.sin(t * 1.3 + i) * 8;
+      const sIn = spr(k(t, .05 + i * .07, .9 + i * .07));
+      g.set(x, y, d * sIn, g.rot ? t * 22 + i * 30 : 0, 1);
+      g.el.style.zIndex = z > 0 ? 5 : 1;
+    });
+  },
+  (sc, t) => {
+    QA(sc, ".band").forEach(b => b.style.transform = `translateX(${Math.sin(t * .9) * 30}px) skewX(${-8 + t * 2}deg) scaleY(${eo(k(t, 0, .7))})`);
+    for (const r of sc.roots) wordsIn([...r.querySelectorAll(".w")], t, .35, .09, .55, 22);
+  });
+
+/* ===== 2 · 3–4,6 s : on traverse l'orbe → disque du logo ===== */
+const s2 = Scene(3.05, 4.6, "#F4EFE8", "",
+  sc => {
+    sc.disc = h(`<div class="ab" style="width:200px;height:200px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#22336A,#08152E 70%);box-shadow:0 30px 60px -25px rgba(8,21,46,.6)"></div>`); sc.fr.appendChild(sc.disc);
+    sc.logo = h(`<div class="ab" style="width:120px;height:120px">${MARK("#FFFFFF")}</div>`); sc.fr.appendChild(sc.logo);
+    sc.bits = [0, 1, 2, 3].map(i => Glass(sc, { w: 60 + i * 14, h: 60 + i * 14, r: i % 2 ? 16 : undefined, tint: ["rgba(245,154,74,.6)", "rgba(219,101,120,.55)", "rgba(124,124,242,.6)", "rgba(255,255,255,.2)"][i], scale: 30 }));
+  },
+  (sc, t) => {
+    const g = eo5(k(t, 0, .55)), s = L(9, 1, g) * (1 + .05 * Math.sin(t * 3));
+    const p = spr(k(t, .45, 1.1));
+    tf(sc.disc, 380, 170, s * (1 + .06 * (1 - p)), 0);
+    tf(sc.logo, 420, 210, L(.2, 1, p), L(-40, 0, p), cl(p * 2));
+    camSet(sc, punch(t - .5, .12) * (1 + t * .03));
+    sc.bits.forEach((b, i) => { const x = k(t, .2 + i * .1, 1.4 + i * .1); const a = i * 1.7 + 1; b.set(480 + Math.cos(a) * (120 + x * 520), 270 + Math.sin(a) * (80 + x * 300), .6 + x * .9, x * 90, x > 0 && x < 1 ? 1 : 0); });
+    const out = eio(k(t, 1.15, 1.55)); // le disque monte et rétrécit vers la scène suivante
+    if (out > 0) { tf(sc.disc, L(380, 462, out), L(170, 69, out), L(1, .18, out)); tf(sc.logo, L(420, 462 + 6, out) , L(210, 69 + 6, out) , L(1, .2, out), 0, 1); sc.logo.style.transformOrigin = "0 0"; sc.disc.style.transformOrigin = "0 0"; }
+    else { sc.logo.style.transformOrigin = "50% 50%"; sc.disc.style.transformOrigin = "50% 50%"; }
+  });
+
+/* ---------- l'appli (vue large) ---------- */
+const CARTES = [
+  { ini: "MD", nom: "Marie Dupont", txt: "Crème visage · 2 j de retard", tag: "Réassort", col: "#DB6578" },
+  { ini: "SM", nom: "Sophie Martin", txt: "Gel douche · aujourd'hui", tag: "Réassort", col: "#F59A4A" },
+  { ini: "KB", nom: "Karim Benali", txt: "Shampoing · dans 2 jours", tag: "Réassort", col: "#7C7CF2" },
+  { ini: "JB", nom: "Julie Bernard", txt: "Suivi après achat", tag: "Suivi", col: "#7B83F6" },
+  { ini: "LM", nom: "Léa Moreau", txt: "Prospect · à recontacter", tag: "Prospect", col: "#5FB5A8" }
+];
+const NAV = [["home", "Aujourd'hui"], ["fiche", "Clients"], ["coach", "Coach"], ["prospect", "Prospection"], ["fidelite", "Fidélité"], ["reseau", "Réseau"]];
+function appHTML(expand) {
+  const rows = CARTES.map((c, i) => `<div class="row r${i}" style="position:relative;display:flex;align-items:center;gap:9px;padding:${expand && i === 0 ? "11px 12px 12px" : "8px 12px"};margin-bottom:6px;background:#fff;border-radius:11px;box-shadow:0 0 0 .5px rgba(28,26,34,.08),0 4px 10px -8px rgba(40,30,60,.3);flex-wrap:wrap">
+    ${av(c.ini, 24)}<div style="flex:1;min-width:0"><b style="font-size:10.5px;font-weight:800;letter-spacing:-.02em;display:block">${c.nom}</b><span style="font-size:8.5px;color:#57515C;font-weight:600">${c.txt}</span></div>
+    <span style="font-size:7.5px;font-weight:800;color:${c.col};background:${c.col}18;padding:3px 7px;border-radius:99px">${c.tag}</span>
+    ${expand && i === 0 ? `<div style="flex-basis:100%;margin:8px 0 0 33px;font-size:8.5px;color:#57515C;font-weight:600;line-height:1.45"><b style="color:#1C1A22">Pourquoi ?</b> Achat de crème visage il y a 43 jours · fin estimée dans 2 j</div>
+    <div style="flex-basis:100%;display:flex;gap:6px;margin:8px 0 0 33px;align-items:center">
+      <span class="waB" style="position:relative;display:inline-flex;align-items:center;gap:5px;font-size:9px;font-weight:800;color:#fff;background:linear-gradient(100deg,#F59A4A,#DB6578 55%,#7C7CF2);padding:6px 11px;border-radius:99px"><i style="width:11px;height:11px;display:inline-block">${ico("wa", "#fff")}</i><span class="waT">Envoyer sur WhatsApp</span></span>
+      ${["Reporter", "Ignorer", "Fiche"].map(x => `<span style="font-size:8.5px;font-weight:700;color:#57515C;padding:5px 9px;border-radius:99px;background:#F4EFE8">${x}</span>`).join("")}</div>` : ""}</div>`).join("");
+  return `<div style="position:absolute;inset:0;display:flex;background:#F4EFE8;font-family:Manrope">
+    <div style="width:132px;padding:14px 10px;background:#FCFBF9;border-right:.5px solid rgba(28,26,34,.08)">
+      <div style="display:flex;align-items:center;gap:6px;font-weight:800;font-size:12px;letter-spacing:-.03em;margin:0 0 16px 4px"><i style="width:16px;height:16px;display:inline-block">${MARK()}</i>recharge</div>
+      ${NAV.map(([ic, n], i) => `<div style="display:flex;align-items:center;gap:7px;font-size:9px;font-weight:700;padding:6px 7px;border-radius:9px;margin-bottom:2px;${i === 0 ? "background:#FDE8EA;color:#1C1A22" : "color:#57515C"}"><i style="width:12px;height:12px;display:inline-block">${ico(ic, i === 0 ? "#DB6578" : "#8A8390")}</i>${n}</div>`).join("")}
+      <div style="position:absolute;bottom:14px;left:20px;font-size:7.5px;color:#8A8390;font-weight:700">getrecharge.fr</div>
+    </div>
+    <div style="flex:1;padding:16px 18px;overflow:hidden">
+      <div style="display:flex;align-items:baseline;justify-content:space-between"><b style="font-size:17px;font-weight:800;letter-spacing:-.04em">Plan du jour</b><span style="font-size:8.5px;color:#57515C;font-weight:700">Mardi · 8 h 30</span></div>
+      <div style="display:flex;gap:10px;margin:10px 0 12px">
+        <div style="flex:1;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:13px;background:linear-gradient(120deg,#FDE8EA,#E8E9FD)">
+          <svg viewBox="0 0 40 40" width="34" height="34"><circle cx="20" cy="20" r="16" fill="none" stroke="rgba(28,26,34,.08)" stroke-width="4"/><circle class="ring" cx="20" cy="20" r="16" fill="none" stroke="url(#gA)" stroke-width="4" stroke-linecap="round" pathLength="1" stroke-dasharray=".3 1" transform="rotate(-90 20 20)"/></svg>
+          <div><b class="cnt" style="font-size:18px;font-weight:800;letter-spacing:-.04em">11</b> <span style="font-size:9px;font-weight:700">actions</span><div style="font-size:8px;color:#57515C;font-weight:600">30 min suffisent aujourd'hui</div></div></div>
+        <div style="width:150px;padding:10px 12px;border-radius:13px;background:#FCFBF9;box-shadow:0 0 0 .5px rgba(28,26,34,.08)"><span class="lbl">RAPPORTÉ CE MOIS-CI</span><div style="font-size:17px;font-weight:800;letter-spacing:-.04em" class="gt">258 €</div><div style="font-size:7px;color:#8A8390;font-weight:700">exemple de démonstration</div></div>
+      </div>
+      ${rows}
+    </div></div>`;
+}
+/* cadre dégradé (comme le cadre arc-en-ciel de Glean) */
+const frameHTML = (w, hh, inner) => `<div style="position:absolute;left:0;top:0;width:${w}px;height:${hh}px;border-radius:24px;padding:9px;background:conic-gradient(from 200deg,#F59A4A,#DB6578,#7C7CF2,#9FD4F5,#F59A4A);box-shadow:0 40px 80px -40px rgba(40,30,60,.55)">
+  <div style="position:absolute;inset:0;border-radius:24px;background:linear-gradient(180deg,rgba(255,255,255,.45),rgba(255,255,255,.1));"></div>
+  <div style="position:relative;width:100%;height:100%;border-radius:16px;overflow:hidden;box-shadow:0 0 0 .5px rgba(255,255,255,.8)">${inner}</div></div>`;
+
+/* ===== 3 · 4,6–9 s : « Voici Recharge » + l'appli qui monte ===== */
+const s3 = Scene(4.6, 9.0, "linear-gradient(180deg,#DCE3FA 0%,#F6E3EA 55%,#F4EFE8 100%)",
+  `<div class="ab" style="left:-200px;top:-200px;width:700px;height:500px;border-radius:50%;background:radial-gradient(closest-side,rgba(245,154,74,.35),rgba(245,154,74,0))" ></div>
+   <div class="ab" style="left:520px;top:-150px;width:700px;height:500px;border-radius:50%;background:radial-gradient(closest-side,rgba(124,124,242,.35),rgba(124,124,242,0))"></div>`,
+  sc => {
+    sc.logo = h(`<div class="ab" style="width:36px;height:36px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#22336A,#08152E 70%);padding:7px">${MARK("#fff")}</div>`); sc.fr.appendChild(sc.logo);
+    sc.ttl = h(`<div class="ab H" style="width:960px;text-align:center;font-size:40px">${words("Voici")} <span class="w gt" style="font-weight:600">Recharge,</span> ${words("le coach du VDI")}</div>`); sc.fr.appendChild(sc.ttl);
+    sc.persp = h(`<div class="ab" style="width:960px;height:540px;perspective:1100px;perspective-origin:480px 200px"></div>`); sc.fr.appendChild(sc.persp);
+    sc.app = h(`<div class="ab" style="width:640px;height:400px">${frameHTML(640, 400, appHTML(false))}</div>`); sc.persp.appendChild(sc.app);
+  },
+  (sc, t) => {
+    const lt = t;
+    tf(sc.logo, 462, 69, spr(k(lt, 0, .5)) * .9 + .1);
+    tf(sc.ttl, 0, 110);
+    wordsIn([...sc.ttl.querySelectorAll(".w")], lt, .25, .08, .5, 18);
+    const up = eo5(k(lt, .7, 1.9));
+    sc.app.style.transform = `translate(160px,${L(560, 185, up)}px) rotateX(${L(32, 6, up) - k(lt, 1.9, 4.4) * 6}deg) scale(${L(.9, 1, up)})`;
+    sc.app.style.transformOrigin = "50% 0";
+    // les lignes apparaissent l'une après l'autre
+    sc.app.querySelectorAll(".row").forEach((r, i) => { const x = eo(k(lt, 1.5 + i * .12, 1.9 + i * .12)); r.style.transform = `translateY(${(1 - x) * 12}px)`; r.style.opacity = x; });
+    sc.app.querySelector(".ring").setAttribute("stroke-dasharray", `${L(.05, .3, eo(k(lt, 1.6, 2.6)))} 1`);
+    // caméra : légère montée, puis on plonge vers l'appli
+    const dive = ei(k(lt, 3.6, 4.4));
+    camSet(sc, (1 + lt * .02) * (1 + dive * 1.6), 0, -dive * 260);
+  });
+
+/* ===== 4 · 9–13 s : le réseau de tâches autour du logo ===== */
+const TASKS = [
+  ["reassort", "Relancer Marie Dupont", "Crème visage · 2 j de retard", -300, -150],
+  ["reassort", "Sophie Martin", "Réassort aujourd'hui", 250, -165],
+  ["cal", "Karim Benali", "Shampoing · dans 2 jours", -330, 95],
+  ["suivi", "Julie Bernard", "Suivi après achat", 290, 70],
+  ["prospect", "Léa Moreau", "Prospect à recontacter", -40, 175],
+  ["fidelite", "Carte fidélité N° 0042", "8 tampons sur 10", 60, -205],
+  ["reseau", "Julie vous présente Inès", "Nouvelle recommandation", 330, 205],
+  ["coach", "Coach", "Une réponse prête", -360, 225]
+];
+const s4 = Scene(9.0, 13.0, "#F4EFE8",
+  `<div class="ab wedge" style="left:480px;top:270px;width:0;height:0"><div style="position:absolute;left:0;top:-700px;width:1400px;height:1400px;transform-origin:0 50%;clip-path:polygon(0 50%,100% 18%,100% 70%);background:linear-gradient(90deg,rgba(245,154,74,.85),rgba(219,101,120,.75) 45%,rgba(124,124,242,.55))"></div></div>
+   <svg class="ab net" width="960" height="540" style="overflow:visible"></svg>
+   ${Array.from({ length: 26 }, (_, i) => `<div class="dot dd" style="background:${["#F59A4A", "#DB6578", "#7C7CF2", "#7B83F6"][i % 4]}"></div>`).join("")}`,
+  sc => {
+    sc.roots.forEach(r => r.querySelector(".net").innerHTML = TASKS.map(() => `<line stroke="rgba(28,26,34,.12)" stroke-width=".8"/>`).join(""));
+    sc.hub = Glass(sc, { w: 64, h: 64, tint: "rgba(255,255,255,.25)", scale: 30, html: `<div style="position:absolute;inset:14px">${MARK()}</div>` });
+    sc.cards = TASKS.map(([ic, a, b]) => Glass(sc, { w: 196, h: 54, r: 14, tint: "linear-gradient(160deg,rgba(255,255,255,.72),rgba(255,255,255,.5))", scale: 26, sh: 12, so: .22,
+      html: `<div style="position:absolute;left:9px;top:9px;width:36px;height:36px" class="tile">${ico(ic, "url(#gA)", 2.2)}</div><div style="position:absolute;left:54px;top:12px;right:8px"><b style="font-size:10px;font-weight:800;letter-spacing:-.02em;white-space:nowrap">${a}</b><div style="font-size:8.5px;color:#57515C;font-weight:600;margin-top:2px;white-space:nowrap">${b}</div></div>` }));
+  },
+  (sc, t) => {
+    camSet(sc, punch(t, .2) * (1.06 - t * .02), -t * 10, t * 4, -1.2 + t * .5);
+    sc.hub.set(480, 270, spr(k(t, 0, .6)), 0, 1);
+    sc.cards.forEach((g, i) => { const [, , , dx, dy] = TASKS[i]; const p = spr(k(t, .15 + i * .14, .85 + i * .14)); const fl = Math.sin(t * 1.4 + i) * 4;
+      g.set(480 + dx * L(.4, 1, eo(k(t, .15 + i * .14, .8 + i * .14))), 270 + dy * L(.4, 1, eo(k(t, .15 + i * .14, .8 + i * .14))) + fl, p, 0, cl(p * 1.5)); });
+  },
+  (sc, t) => {
+    QA(sc, ".wedge > div").forEach(w => w.style.transform = `rotate(${-30 + t * 14}deg)`);
+    for (const r of sc.roots) {
+      [...r.querySelectorAll(".net line")].forEach((ln, i) => { const [, , , dx, dy] = TASKS[i]; const p = eo(k(t, .15 + i * .14, .8 + i * .14)); ln.setAttribute("x1", 480); ln.setAttribute("y1", 270); ln.setAttribute("x2", 480 + dx * p); ln.setAttribute("y2", 270 + dy * p + Math.sin(t * 1.4 + i) * 4); });
+      [...r.querySelectorAll(".dd")].forEach((d, i) => { const a = rnd(i) * 6.28 + t * (.15 + rnd(i + 9) * .25) * (i % 2 ? 1 : -1), rr = 120 + rnd(i + 3) * 330; d.style.transform = `translate(${480 + Math.cos(a) * rr}px,${270 + Math.sin(a) * rr * .6}px)`; d.style.opacity = cl(k(t, .2 + rnd(i) * .6, .6 + rnd(i) * .6)); });
+    }
+  });
+
+/* ===== 5 · 13–16,5 s : « Chaque cliente / au bon moment » + groupes ===== */
+const GROUPS = [
+  { n: "Réassort", x: 70, y: 240, w: 250, h: 150, avs: [["MD", 30, 40], ["SM", 120, 22], ["KB", 190, 70]], tiles: [["reassort", 70, 80]] },
+  { n: "Suivi", x: 340, y: 120, w: 140, h: 290, avs: [["JB", 30, 30], ["EB", 85, 150]], tiles: [["suivi", 40, 80], ["sat", 30, 210]] },
+  { n: "Fidélité", x: 500, y: 60, w: 210, h: 120, avs: [["CL", 30, 30], ["AR", 140, 60]], tiles: [["fidelite", 80, 20]] },
+  { n: "Prospection", x: 730, y: 110, w: 170, h: 210, avs: [["LM", 30, 40], ["NP", 110, 110]], tiles: [["prospect", 90, 40], ["reseau", 40, 120]] }
+];
+const s5 = Scene(13.0, 16.5, "linear-gradient(180deg,#E3E8FA,#F4EFE8 60%)",
+  GROUPS.map((g, i) => `<div class="ab grp g${i}" style="left:${g.x}px;top:${g.y}px;width:${g.w}px;height:${g.h}px;border-radius:16px;background:rgba(28,26,34,.05);box-shadow:inset 0 0 0 .5px rgba(28,26,34,.06)"><span style="position:absolute;left:12px;bottom:10px;font-size:10px;font-weight:700;color:#57515C">${g.n}</span>
+    ${g.avs.map(([ini, ax, ay]) => `<div class="ab gav" style="left:${ax}px;top:${ay}px">${av(ini, 26)}</div>`).join("")}</div>`).join("")
+  + `<div class="ab H l1" style="left:60px;top:50px;font-size:44px">${words("Chaque cliente")}</div><div class="ab H l2" style="left:560px;top:430px;font-size:44px">${words("au bon moment.")}</div>`,
+  sc => {
+    sc.tiles = GROUPS.flatMap((g, gi) => g.tiles.map(([ic, tx, ty]) => Object.assign(Glass(sc, { w: 46, h: 46, r: 13, tint: "linear-gradient(160deg,rgba(255,255,255,.75),rgba(255,255,255,.5))", scale: 22, sh: 10, html: `<div style="position:absolute;inset:11px">${ico(ic, "url(#gA)", 2.2)}</div>` }), { x: g.x + tx + 23, y: g.y + ty + 23, gi })));
+  },
+  (sc, t) => {
+    camSet(sc, punch(t, .18) * (1.04 + t * .015), 18 - t * 12, 0);
+    sc.tiles.forEach((g, i) => { const p = spr(k(t, .25 + i * .08, .9 + i * .08)); g.set(g.x, g.y + Math.sin(t * 1.6 + i) * 3, p, Math.sin(t + i) * 4, cl(p * 2)); });
+  },
+  (sc, t) => {
+    for (const r of sc.roots) {
+      [...r.querySelectorAll(".grp")].forEach((g, i) => { const p = eo5(k(t, .1 + i * .1, .7 + i * .1)); g.style.transform = `translateY(${(1 - p) * 30}px) scale(${L(.94, 1, p)})`; g.style.opacity = p; });
+      [...r.querySelectorAll(".gav")].forEach((g, i) => { const p = spr(k(t, .35 + i * .06, 1 + i * .06)); g.style.transform = `scale(${p}) translateY(${Math.sin(t * 2 + i) * 2}px)`; });
+      wordsIn([...r.querySelectorAll(".l1 .w")], t, .1, .09, .5); wordsIn([...r.querySelectorAll(".l2 .w")], t, .9, .09, .5);
+    }
+  });
+
+/* ===== 6 · 16,5–23 s : la boîte du coach (prompt) ===== */
+const Q1 = "Elle trouve ça un peu cher…";
+const A1 = "Je comprends. Il dure 2 mois, ça revient à moins de 50 centimes par jour.";
+const s6 = Scene(16.5, 23.0, "#F4EFE8",
+  `<div class="ab" style="left:180px;top:60px;width:600px;height:420px;border-radius:50%;background:radial-gradient(closest-side,rgba(232,233,253,.9),rgba(232,233,253,0))"></div>
+  ${[0, 1, 2].map(i => `<div class="ab ol" style="left:${270 - 30 - i * 32}px;top:${270 - 32 - 26 - i * 30}px;width:${420 + 60 + i * 64}px;height:${64 + 52 + i * 60}px;border-radius:${26 + i * 10}px;box-shadow:inset 0 0 0 .8px rgba(28,26,34,${.13 - i * .03})"></div>`).join("")}
+  ${Array.from({ length: 14 }, (_, i) => `<div class="dot od" style="background:${["#F59A4A", "#DB6578", "#7C7CF2", "#7B83F6"][i % 4]}"></div>`).join("")}
+  <div class="ab answ" style="left:250px;top:300px;width:460px;opacity:0"></div>`,
+  sc => {
+    sc.tiles = [["coach", 140, 120], ["reassort", 820, 110], ["suivi", 800, 420], ["fidelite", 150, 430], ["prospect", 60, 280], ["reseau", 900, 270]].map(([ic, x, y], i) =>
+      Object.assign(Glass(sc, { w: 70, h: 70, r: 18, tint: "linear-gradient(160deg,rgba(255,255,255,.7),rgba(255,255,255,.4))", scale: 28, sh: 16, html: `<div style="position:absolute;inset:18px">${ico(ic, "url(#gA)", 2.2)}</div>` }), { x, y }));
+    sc.box = Glass(sc, { w: 420, h: 64, r: 22, tint: "linear-gradient(180deg,rgba(255,255,255,.62),rgba(240,236,255,.55))", scale: 30, sh: 18, so: .25,
+      html: `<div class="ph" style="position:absolute;left:22px;top:22px;font-size:15px;font-weight:500;color:#8A8390;letter-spacing:-.02em;white-space:nowrap">Demandez au coach…</div>
+             <div class="tx" style="position:absolute;left:22px;top:22px;font-size:15px;font-weight:600;color:#1C1A22;letter-spacing:-.02em;white-space:nowrap"></div>
+             <div class="go" style="position:absolute;right:13px;top:13px;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center"><i style="width:18px;height:18px;display:block"></i></div>` });
+    sc.ans = Glass(sc, { w: 470, h: 92, r: 22, tint: "linear-gradient(180deg,rgba(255,255,255,.85),rgba(255,255,255,.7))", scale: 26, sh: 18,
+      html: `<div style="position:absolute;left:18px;top:14px;display:flex;align-items:center;gap:6px;font-size:9px;font-weight:800;color:#57515C;letter-spacing:.02em"><i style="width:14px;height:14px;display:block">${MARK()}</i>COACH RECHARGE</div>
+             <div class="at" style="position:absolute;left:18px;top:36px;right:18px;font-size:14px;font-weight:600;line-height:1.35;letter-spacing:-.02em"></div>` });
+    sc.cur = h(`<div class="cur">${CUR}</div>`); sc.fr.appendChild(sc.cur);
+  },
+  (sc, t) => {
+    const zoom = sm(k(t, .9, 1.8)) * .16 - sm(k(t, 4.0, 4.9)) * .12;
+    camSet(sc, punch(t, .2) * (1.02 + zoom), 0, -zoom * 120);
+    sc.tiles.forEach((g, i) => { const p = spr(k(t, .1 + i * .07, .8 + i * .07)); g.set(g.x + Math.sin(t * .9 + i) * 6, g.y + Math.cos(t * 1.1 + i * 2) * 7, p, Math.sin(t * .8 + i) * 8, cl(p * 2)); });
+    const up = eio(k(t, 4.0, 4.6));
+    const bs = spr(k(t, 0, .6)) * (1 - .04 * Math.exp(-Math.max(0, t - 3.75) * 10) * (t > 3.75 ? 1 : 0));
+    sc.box.set(480, L(270, 205, up), bs, 0, 1);
+    const q = typed(Q1, k(t, 1.6, 3.2));
+    sc.box.ct.querySelector(".tx").textContent = q;
+    sc.box.ct.querySelector(".ph").style.opacity = q ? 0 : 1;
+    const go = sc.box.ct.querySelector(".go"), on = t > 3.25;
+    go.style.background = on ? "linear-gradient(135deg,#F59A4A,#DB6578 50%,#7C7CF2)" : "rgba(28,26,34,.06)";
+    go.firstChild.innerHTML = ico("arrow", on ? "#fff" : "#8A8390", 2.4);
+    go.style.transform = `scale(${t > 3.7 && t < 3.9 ? .88 : 1})`;
+    // curseur
+    const P = [[1000, 600, 0], [600, 330, .9], [540, 275, 1.35], [540, 275, 3.3], [672, 275, 3.7], [690, 330, 4.3], [760, 600, 5.4]];
+    let cx = P[0][0], cy = P[0][1];
+    for (let i = 0; i < P.length - 1; i++) if (t >= P[i][2]) { const x = eio(k(t, P[i][2], P[i + 1][2])); cx = L(P[i][0], P[i + 1][0], x); cy = L(P[i][1], P[i + 1][1], x); }
+    const click = (t > 1.35 && t < 1.5) || (t > 3.7 && t < 3.85);
+    tf(sc.cur, cx, cy + (up * -65) * (t > 3.7 && t < 4.6 ? 1 : 0), click ? .85 : 1);
+    // réponse
+    const ap = spr(k(t, 4.35, 5.0));
+    sc.ans.set(480, 318, ap, 0, cl(ap * 2));
+    sc.ans.ct.querySelector(".at").textContent = typed(A1, k(t, 4.6, 6.0));
+  },
+  (sc, t) => {
+    for (const r of sc.roots) {
+      const up = eio(k(t, 4.0, 4.6));
+      [...r.querySelectorAll(".ol")].forEach((o, i) => { const p = eo5(k(t, .2 + i * .1, .9 + i * .1)); o.style.opacity = p * (1 - up * .7); o.style.transform = `translateY(${-up * 65}px) scale(${L(.9, 1, p)})`; });
+      [...r.querySelectorAll(".od")].forEach((d, i) => { // points qui tournent sur les contours
+        const ring = i % 3, W = 480 + ring * 64, Hh = 116 + ring * 60, per = 2 * (W + Hh), s = ((rnd(i) * per + t * (40 + ring * 12) * (i % 2 ? 1 : -1)) % per + per) % per;
+        let x, y; if (s < W) { x = s; y = 0; } else if (s < W + Hh) { x = W; y = s - W; } else if (s < 2 * W + Hh) { x = W - (s - W - Hh); y = Hh; } else { x = 0; y = Hh - (s - 2 * W - Hh); }
+        d.style.transform = `translate(${480 - W / 2 + x}px,${270 - Hh / 2 + y - up * 65}px)`; d.style.opacity = cl(k(t, .5, 1)) * (1 - up * .6);
+      });
+    }
+  });
+
+/* ===== 7 · 23–24,6 s : dégradé + « Pour chaque cliente, le bon message » ===== */
+const GBG = "linear-gradient(115deg,#F7A35C 0%,#E7768A 40%,#9A7CEB 75%,#7C7CF2 100%)";
+const s7 = Scene(23.0, 24.6, GBG,
+  `<div class="ab vb" style="left:330px;top:0;width:300px;height:540px;background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.16),rgba(255,255,255,0))"></div>
+   <div class="ab H tt" style="left:0;top:205px;width:960px;text-align:center;font-size:52px;color:#fff">${words("Pour chaque cliente,")}<br>${words("le bon message.")}</div>`,
+  null,
+  (sc, t) => camSet(sc, punch(t, .25) * (1 + t * .04)),
+  (sc, t) => { for (const r of sc.roots) { wordsIn([...r.querySelectorAll(".w")], t, .1, .07, .45, 20); r.querySelector(".vb").style.transform = `translateX(${Math.sin(t * 2) * 40}px) scaleX(${1 + t * .3})`; } });
+
+/* ===== 8 · 24,6–30 s : START → le parcours d'une relance ===== */
+const FLOW = [
+  ["play", "Déclencheur", "Crème visage achetée il y a 43 jours"],
+  ["reporter", "Prévision", "Fin estimée dans 2 jours"],
+  ["wa", "Message prêt", "Envoyer sur WhatsApp à Marie Dupont"],
+  ["check", "Plan du jour", "30 min · 11 actions"]
+];
+const s8 = Scene(24.6, 30.0, GBG,
+  `<div class="ab" style="left:-100px;top:-100px;width:600px;height:600px;border-radius:50%;background:radial-gradient(closest-side,rgba(255,220,190,.45),rgba(255,220,190,0))"></div>`,
+  sc => {
+    sc.col = h(`<div class="ab" style="width:960px;height:540px"></div>`); sc.fr.appendChild(sc.col);
+    sc.start = Glass(sc, { w: 132, h: 40, r: 12, tint: "rgba(255,255,255,.82)", scale: 20, sh: 10, parent: sc.col, html: `<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;letter-spacing:.12em;color:#DB6578">START</div>` });
+    sc.fc = FLOW.map(([ic, a, b]) => Glass(sc, { w: 420, h: 110, r: 22, tint: "rgba(255,255,255,.9)", scale: 26, sh: 20, so: .25, parent: sc.col,
+      html: `<div style="position:absolute;left:26px;top:22px;display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:#8A8390"><i style="width:22px;height:22px;display:block;border-radius:7px;background:#FDE8EA;padding:4px">${ico(ic, "#DB6578", 2.4)}</i>${a}</div>
+             <div style="position:absolute;left:26px;top:58px;right:22px;font-size:19px;font-weight:600;letter-spacing:-.03em">${b}</div>` }));
+    sc.arr = FLOW.map(() => { const e = h(`<div class="ab" style="width:22px;height:22px">${ico("down", "rgba(255,255,255,.9)", 2)}</div>`); sc.col.appendChild(e); return e; });
+  },
+  (sc, t) => {
+    // gros plan sur START + 1re carte, puis on recule et la colonne défile
+    const back = eio(k(t, 1.5, 2.4)), scroll = eio(k(t, 2.0, 5.2));
+    camSet(sc, punch(t, .2) * L(1.3, 1, back), 0, L(110, 0, back));
+    const z = L(1, .72, back), Y = y => 270 + (y - 270) * z;
+    const Y0 = 120, gap = 165, sy = -scroll * 500;
+    sc.start.set(480, Y(Y0 + sy), spr(k(t, 0, .45)) * z, 0, 1);
+    sc.fc.forEach((g, i) => { const ti = i === 0 ? .25 : 2.0 + i * .7; const p = spr(k(t, ti, ti + .6)); g.set(480, Y(Y0 + 112 + i * gap + sy), L(.85, 1, p) * z, 0, cl(p * 2)); });
+    sc.arr.forEach((a, i) => { const ti = i === 0 ? .5 : 2.2 + i * .7; tf(a, 469, Y(Y0 + 112 + 72 + i * gap + sy) - 11 + Math.sin(t * 5 + i) * 2, z, 0, eo(k(t, ti, ti + .3)) * (i < FLOW.length - 1 ? 1 : 0)); });
+  });
+
+/* ===== 9 · 30–35 s : l'appli, la carte de Marie, on envoie ===== */
+const s9 = Scene(30.0, 35.0, "linear-gradient(100deg,#E7768A 0%,#B27BD9 45%,#7C7CF2 70%,#6E79F0 100%)",
+  `<div class="ab" style="left:560px;top:-80px;width:620px;height:760px;background:#6B74EE;transform:skewX(-14deg)"></div>`,
+  sc => {
+    sc.app = h(`<div class="ab" style="width:660px;height:420px;transform-origin:0 0">${frameHTML(660, 420, appHTML(true))}</div>`); sc.fr.appendChild(sc.app);
+    sc.cur = h(`<div class="cur">${CUR}</div>`); sc.fr.appendChild(sc.cur);
+    sc.chk = h(`<div class="ab" style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#F59A4A,#DB6578 50%,#7C7CF2);padding:15px;box-shadow:0 16px 30px -12px rgba(219,101,120,.7)">${ico("check", "#fff", 3)}</div>`); sc.fr.appendChild(sc.chk);
+  },
+  (sc, t) => {
+    const inA = eo5(k(t, 0, .8));
+    tf(sc.app, 150, L(380, 60, inA), 1, L(4, 0, inA));
+    // gros plan sur la carte de Marie, clic sur WhatsApp
+    if (!sc.btn) { camSet(sc, 1); tf(sc.app, 150, 60); const a = sc.app.getBoundingClientRect(), b = sc.app.querySelector(".waB").getBoundingClientRect(); sc.btn = [150 + b.left - a.left + b.width / 2, 60 + b.top - a.top + b.height / 2]; tf(sc.app, 150, L(380, 60, inA), 1, L(4, 0, inA)); }
+    const btn = sc.btn;       // centre du bouton dans la scène
+    const push = eio(k(t, .9, 1.9)) - eio(k(t, 3.6, 4.5)), Z = 1.85;
+    camSet(sc, punch(t, .16) * L(1, Z, push), L(0, (480 - btn[0] - 40) * Z, push), L(0, (270 - btn[1] + 30) * Z, push));
+    const P = [[900, 620, 0], [900, 620, 1.2], [btn[0] - 4, btn[1] - 8, 2.3], [btn[0] - 4, btn[1] - 8, 2.7], [800, 560, 3.8]];
+    let cx = P[0][0], cy = P[0][1];
+    for (let i = 0; i < P.length - 1; i++) if (t >= P[i][2]) { const x = eio(k(t, P[i][2], P[i + 1][2])); cx = L(P[i][0], P[i + 1][0], x); cy = L(P[i][1], P[i + 1][1], x); }
+    tf(sc.cur, cx, cy, (t > 2.4 && t < 2.55) ? .8 : .75);
+    const sent = t > 2.5;
+    const b = sc.app.querySelector(".waB"); b.style.transform = `scale(${t > 2.4 && t < 2.6 ? .92 : 1 + (sent ? .06 * Math.exp(-(t - 2.5) * 6) : 0)})`;
+    sc.app.querySelector(".waT").textContent = sent ? "Envoyé" : "Envoyer sur WhatsApp";
+    b.querySelector("i").innerHTML = ico(sent ? "check" : "wa", "#fff", 2.4);
+    sc.app.querySelector(".cnt").textContent = sent ? "10" : "11";
+    sc.app.querySelector(".ring").setAttribute("stroke-dasharray", `${L(.3, .42, eo(k(t, 2.5, 3.2)))} 1`);
+    const cp = spr(k(t, 2.55, 3.1)) * (1 - eo(k(t, 3.4, 3.7)));
+    tf(sc.chk, btn[0] - 30, btn[1] - 30, cp * .5, 0, 0);
+  });
+
+/* ===== 10 · 35–39 s : le suivi qui crée des recommandations ===== */
+const s10 = Scene(35.0, 39.0, "#F4EFE8",
+  `<div class="ab wd2" style="left:-200px;top:-200px;width:1400px;height:940px;clip-path:polygon(30% 0,100% 0,100% 100%,62% 100%);background:linear-gradient(120deg,rgba(245,154,74,.75),rgba(219,101,120,.6) 50%,rgba(124,124,242,.55))"></div>
+   ${Array.from({ length: 16 }, (_, i) => `<div class="dot d2" style="background:${["#F59A4A", "#DB6578", "#7C7CF2", "#7B83F6"][i % 4]}"></div>`).join("")}
+   <div class="ab H tt" style="left:0;top:222px;width:960px;text-align:center;font-size:42px">${words("Un suivi qui crée")}<br>${words("des recommandations.")}</div>`,
+  sc => {
+    sc.q = Glass(sc, { w: 300, h: 104, r: 20, tint: "rgba(255,255,255,.8)", scale: 24, sh: 16,
+      html: `<div style="position:absolute;left:14px;top:13px;display:flex;align-items:center;gap:8px">${av("JB", 24)}<div><b style="font-size:10.5px;font-weight:800">Julie Bernard</b><div style="font-size:8.5px;color:#57515C;font-weight:600">Votre crème vous plaît ?</div></div></div>
+      <div style="position:absolute;left:14px;top:60px;display:flex;gap:6px">${[["sat", "Satisfaite"], ["mit", "Mitigée"], ["pas", "Pas satisfaite"]].map(([ic, n], i) => `<span class="ch c${i}" style="display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:800;padding:6px 9px;border-radius:99px;background:#F4EFE8;color:#57515C"><i style="width:12px;height:12px;display:block">${ico(ic, i ? "#8A8390" : "#DB6578")}</i>${n}</span>`).join("")}</div>` });
+    sc.reco = Glass(sc, { w: 250, h: 70, r: 18, tint: "rgba(255,255,255,.8)", scale: 24, sh: 16,
+      html: `<div style="position:absolute;left:14px;top:15px;display:flex">${av("JB", 30)}<div style="margin-left:-8px">${av("IN", 30)}</div></div><div style="position:absolute;left:84px;top:17px"><b style="font-size:11px;font-weight:800;letter-spacing:-.02em">Julie vous présente Inès</b><div style="font-size:8.5px;color:#57515C;font-weight:600;margin-top:2px">Nouvelle cliente à contacter</div></div>` });
+    sc.mini = [["suivi", "Suivi J+7", 170, 440], ["sat", "Avis reçu", 790, 130], ["reseau", "Parrainage", 110, 300]].map(([ic, n, x, y]) => Object.assign(Glass(sc, { w: 130, h: 44, r: 14, tint: "rgba(255,255,255,.7)", scale: 20, sh: 10, html: `<div style="position:absolute;left:8px;top:8px;width:28px;height:28px" class="tile">${ico(ic, "url(#gA)", 2.2)}</div><b style="position:absolute;left:44px;top:15px;font-size:10px;font-weight:800">${n}</b>` }), { x, y }));
+  },
+  (sc, t) => {
+    camSet(sc, punch(t, .2) * (1.02 + t * .02), -t * 8, -t * 3, .8 - t * .3);
+    const p1 = spr(k(t, .3, .9)), p2 = spr(k(t, 1.4, 2.0));
+    sc.q.set(230, 120 + Math.sin(t * 1.3) * 4, p1, -2, cl(p1 * 2));
+    sc.reco.set(700, 448 + Math.cos(t * 1.2) * 4, p2, 2, cl(p2 * 2));
+    sc.mini.forEach((g, i) => { const p = spr(k(t, .6 + i * .3, 1.2 + i * .3)); g.set(g.x, g.y + Math.sin(t * 1.5 + i) * 4, p, (i - 1) * 3, cl(p * 2)); });
+    const c0 = sc.q.ct.querySelector(".c0"), on = t > 1.1;
+    c0.style.background = on ? "#FDE8EA" : "#F4EFE8"; c0.style.color = on ? "#DB6578" : "#57515C"; c0.style.boxShadow = on ? "0 0 0 1.2px #DB6578" : "none";
+    c0.style.transform = `scale(${on ? 1 + .12 * Math.exp(-(t - 1.1) * 7) : 1})`;
+  },
+  (sc, t) => { for (const r of sc.roots) {
+    r.querySelector(".wd2").style.transform = `translateX(${-t * 25}px)`;
+    wordsIn([...r.querySelectorAll(".tt .w")], t, .1, .07, .5);
+    [...r.querySelectorAll(".d2")].forEach((d, i) => { d.style.transform = `translate(${(rnd(i) * 1000 + t * 30 * (rnd(i + 5) - .5)) % 960}px,${rnd(i + 2) * 540 + Math.sin(t + i) * 10}px)`; });
+  } });
+
+/* ===== 11 · 39–42,5 s : la carte fidélité ===== */
+const s11 = Scene(39.0, 42.5, "linear-gradient(180deg,#D9ECF6 0%,#ECEEF8 55%,#F4EFE8 100%)",
+  `<div class="ab zz" style="left:520px;top:-40px;width:520px;height:620px;clip-path:polygon(18% 0,55% 0,40% 38%,82% 38%,30% 100%,48% 52%,8% 52%);background:linear-gradient(160deg,#9A8CF5,#7C7CF2 60%,#6E79F0)"></div>
+   ${Array.from({ length: 9 }, (_, i) => `<div class="ab stk" style="height:3px;border-radius:3px;background:linear-gradient(90deg,rgba(124,124,242,0),${["#7C7CF2", "#DB6578", "#F59A4A"][i % 3]})"><i style="position:absolute;right:-3px;top:-2.5px;width:8px;height:8px;border-radius:50%;background:${["#7C7CF2", "#DB6578", "#F59A4A"][i % 3]}"></i></div>`).join("")}
+   <div class="ab H tt" style="left:70px;top:210px;font-size:44px">${words("Une carte fidélité")}<br>${words("qui fait revenir.")}</div>`,
+  sc => {
+    sc.card = Glass(sc, { w: 290, h: 180, r: 22, tint: "linear-gradient(140deg,rgba(245,154,74,.55),rgba(219,101,120,.5) 50%,rgba(124,124,242,.55))", scale: 36, band: 30, sh: 26, so: .3,
+      html: `<div style="position:absolute;left:20px;top:18px;display:flex;align-items:center;gap:7px;font-size:12px;font-weight:800;letter-spacing:-.02em;color:#fff;text-shadow:0 1px 6px rgba(40,30,90,.35)"><i style="width:18px;height:18px;display:block">${MARK("#fff", "#fff", "#fff")}</i>Carte fidélité</div>
+             <div style="position:absolute;right:20px;top:20px;font-size:11px;font-weight:800;color:#fff;letter-spacing:.06em;text-shadow:0 1px 6px rgba(40,30,90,.35)">N° 0042</div>
+             <div style="position:absolute;left:22px;bottom:22px;display:grid;grid-template-columns:repeat(5,34px);gap:10px 13px">${Array.from({ length: 10 }, (_, i) => `<div class="stp" style="width:34px;height:34px;border-radius:50%;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.85);padding:8px"></div>`).join("")}</div>` });
+  },
+  (sc, t) => {
+    camSet(sc, punch(t, .2) * (1.03 + t * .02), -t * 6, 0);
+    const p = spr(k(t, .3, 1.0));
+    sc.card.set(L(900, 690, eo(k(t, .3, 1.0))), 275 + Math.sin(t * 1.2) * 6, p, L(14, -6, eo(k(t, .3, 1.0))) + Math.sin(t) * 2, 1);
+    sc.card.ct.querySelectorAll(".stp").forEach((s, i) => { const on = i < 8 && t > 1.0 + i * .16; const x = on ? spr(k(t, 1.0 + i * .16, 1.4 + i * .16)) : 0;
+      s.style.background = on ? "rgba(255,255,255,.95)" : "transparent"; s.innerHTML = on ? `<div style="transform:scale(${x})">${ico("check", "#DB6578", 3)}</div>` : ""; });
+  },
+  (sc, t) => { for (const r of sc.roots) {
+    wordsIn([...r.querySelectorAll(".tt .w")], t, .1, .07, .5);
+    r.querySelector(".zz").style.transform = `translateX(${-t * 10}px)`;
+    [...r.querySelectorAll(".stk")].forEach((s, i) => { const len = 40 + rnd(i) * 90, sp = 160 + rnd(i + 1) * 220, x = ((rnd(i + 2) * 1200 + t * sp) % 1300) - 200; s.style.width = len + "px"; s.style.transform = `translate(${x}px,${40 + rnd(i + 4) * 460}px)`; });
+  } });
+
+/* ===== 12 · 42,5–45,5 s : « Vos clientes & de nouvelles clientes » ===== */
+const s12 = Scene(42.5, 45.5, "linear-gradient(90deg,#F4EFE8 35%,#DCD9F7 75%,#B9B4F5 100%)",
+  `<div class="ab track" style="left:300px;top:232px;width:330px;height:76px;border-radius:99px;background:linear-gradient(90deg,rgba(255,255,255,.6),rgba(255,255,255,.2));box-shadow:inset 0 1px 3px rgba(28,26,34,.12)"></div>
+   <div class="ab tk" style="left:316px;top:248px;width:44px;height:44px">${ico("fiche", "#57515C", 1.8)}</div>
+   <div class="ab tk" style="left:570px;top:248px;width:44px;height:44px">${ico("prospect", "#7C7CF2", 1.8)}</div>
+   <div class="ab H t1" style="left:60px;top:248px;font-size:38px">${words("Vos clientes")}</div>
+   <div class="ab H amp" style="left:448px;top:248px;font-size:38px">&amp;</div>
+   <div class="ab H t2" style="left:655px;top:230px;font-size:38px;color:#6E66E8;line-height:1.05">${words("de nouvelles")}<br>${words("clientes")}</div>`,
+  sc => { sc.knob = Glass(sc, { w: 84, h: 84, tint: "rgba(255,255,255,.18)", scale: 44, band: 30, sh: 16 }); },
+  (sc, t) => {
+    camSet(sc, punch(t, .2) * (1.02 + t * .025));
+    const m = eio(k(t, 1.0, 1.7)); const p = spr(k(t, .2, .8));
+    sc.knob.set(L(338, 592, m), 270, p * (1 + .12 * Math.sin(m * Math.PI)), 0, cl(p * 2));
+  },
+  (sc, t) => { for (const r of sc.roots) {
+    wordsIn([...r.querySelectorAll(".t1 .w")], t, .05, .07, .45); wordsIn([...r.querySelectorAll(".t2 .w")], t, 1.2, .07, .45);
+    const a = r.querySelector(".amp"), x = eo5(k(t, .7, 1.1)); a.style.opacity = x;
+    const tr = r.querySelector(".track"), y = eo5(k(t, 0, .5)); tr.style.opacity = y; tr.style.transform = `scaleX(${L(.6, 1, y)})`;
+    [...r.querySelectorAll(".tk")].forEach((e, i) => e.style.opacity = eo(k(t, .2 + i * 1.0, .6 + i * 1.0)));
+  } });
+
+/* ===== 13 · 45,5–49 s : trouver de nouveaux clients ===== */
+const PROS = [["list", "Ma liste de noms", "12 noms"], ["hash", "Hashtags de ma ville", "#lyon #lyonbeauté"], ["pin", "Lieux pour un événement", "3 idées"], ["venn", "Comptes à suivre", "8 comptes"]];
+const s13 = Scene(45.5, 49.0, "linear-gradient(160deg,#F4EFE8 30%,#FBE3E7 70%,#F7D9C6)",
+  `<div class="ab H tt" style="left:60px;top:70px;font-size:40px">${words("Trouver de")}<br>${words("nouvelles clientes.")}</div>
+   ${Array.from({ length: 12 }, (_, i) => `<div class="dot d3" style="background:${["#F59A4A", "#DB6578", "#7C7CF2"][i % 3]}"></div>`).join("")}`,
+  sc => {
+    sc.rows = PROS.map(([m, a, b]) => Glass(sc, { w: 330, h: 58, r: 18, tint: "rgba(255,255,255,.78)", scale: 22, sh: 12,
+      html: `<div style="position:absolute;left:12px;top:11px;width:36px;height:36px"><svg viewBox="0 0 32 32" width="36" height="36">${MK[m]}</svg></div><b style="position:absolute;left:60px;top:13px;font-size:12.5px;font-weight:800;letter-spacing:-.02em">${a}</b><span style="position:absolute;left:60px;top:31px;font-size:9.5px;color:#57515C;font-weight:600">${b}</span>
+             <i style="position:absolute;right:16px;top:20px;width:18px;height:18px;display:block;transform:rotate(90deg)">${ico("arrow", "#8A8390")}</i>` }));
+    sc.temp = Glass(sc, { w: 330, h: 50, r: 16, tint: "rgba(255,255,255,.78)", scale: 22, sh: 12,
+      html: `<div style="position:absolute;left:14px;top:14px;width:22px;height:22px">${ico("thermo", "#DB6578")}</div><div style="position:absolute;left:48px;top:13px;display:flex;gap:6px">${[["Marché chaud", "#DB6578"], ["tiède", "#F59A4A"], ["froid", "#7C7CF2"]].map(([n, c]) => `<span style="font-size:9.5px;font-weight:800;color:${c};background:${c}1c;padding:6px 10px;border-radius:99px">${n}</span>`).join("")}</div>` });
+    sc.imp = Glass(sc, { w: 170, h: 120, r: 20, tint: "rgba(255,255,255,.7)", scale: 26, sh: 16,
+      html: `<div style="position:absolute;left:16px;top:16px;width:38px;height:38px" class="tile">${ico("import", "url(#gA)", 2.2)}</div><b style="position:absolute;left:16px;top:66px;font-size:11.5px;font-weight:800;letter-spacing:-.02em">Importer une capture</b><span style="position:absolute;left:16px;top:84px;font-size:9px;color:#57515C;font-weight:600">Vos contacts, en 1 photo</span>` });
+  },
+  (sc, t) => {
+    camSet(sc, punch(t, .2) * (1.03 + t * .02), -t * 10, -t * 4);
+    sc.rows.forEach((g, i) => { const p = spr(k(t, .3 + i * .18, .95 + i * .18)); g.set(620 + (1 - eo(k(t, .3 + i * .18, .95 + i * .18))) * 80, 150 + i * 68, L(.9, 1, p), 0, cl(p * 2)); });
+    const tp = spr(k(t, 1.2, 1.8)); sc.temp.set(620, 150 + 4 * 68 + 2, L(.9, 1, tp), 0, cl(tp * 2));
+    const ip = spr(k(t, 1.6, 2.3)); sc.imp.set(200, 380 + Math.sin(t * 1.4) * 5, ip, -4, cl(ip * 2));
+  },
+  (sc, t) => { for (const r of sc.roots) { wordsIn([...r.querySelectorAll(".tt .w")], t, .05, .07, .5);
+    [...r.querySelectorAll(".d3")].forEach((d, i) => d.style.transform = `translate(${rnd(i) * 960 + Math.sin(t + i) * 20}px,${(rnd(i + 3) * 540 - t * 25 * (1 + rnd(i))) % 540 + 540 * (rnd(i + 3) * 540 - t * 25 * (1 + rnd(i)) < 0)}px)`); } });
+
+/* ===== 14 · 49–52,5 s : ce que Recharge rapporte ===== */
+const s14 = Scene(49.0, 52.5, "linear-gradient(180deg,#E3E1FA,#F6E3EA 60%,#F4EFE8)",
+  `<div class="ab" style="left:200px;top:40px;width:560px;height:460px;border-radius:50%;background:radial-gradient(closest-side,rgba(219,101,120,.28),rgba(219,101,120,0))"></div>
+   <div class="ab H tt" style="left:0;top:58px;width:960px;text-align:center;font-size:34px">${words("Vos ventes,")} <span class="w gt" style="font-weight:600">enfin visibles.</span></div>`,
+  sc => {
+    sc.c = Glass(sc, { w: 440, h: 250, r: 26, tint: "linear-gradient(170deg,rgba(255,255,255,.7),rgba(255,255,255,.45))", scale: 34, band: 30, sh: 30, so: .3,
+      html: `<div style="position:absolute;left:28px;top:26px" class="lbl"><span style="font-size:10px">RAPPORTÉ CE MOIS-CI</span></div>
+             <div class="num gt" style="position:absolute;left:26px;top:44px;font-size:68px;font-weight:700;letter-spacing:-.05em">0 €</div>
+             <div style="position:absolute;left:28px;top:128px;font-size:9px;color:#8A8390;font-weight:700">Exemple de démonstration</div>
+             <div style="position:absolute;right:28px;bottom:28px;left:250px;height:150px;display:flex;align-items:flex-end;gap:8px">${[30, 42, 38, 55, 50, 68, 80, 100].map((v, i) => `<i class="bar" data-v="${v}" style="flex:1;border-radius:6px 6px 3px 3px;background:linear-gradient(180deg,${i === 7 ? "#DB6578" : "#E7C9D8"},${i === 7 ? "#F59A4A" : "#EFE1E8"})"></i>`).join("")}</div>
+             <div style="position:absolute;left:28px;bottom:28px;display:flex;gap:16px;font-size:9.5px;font-weight:700;color:#57515C"><span><b style="font-size:16px;color:#1C1A22;font-weight:800">9</b> réachats</span><span><b style="font-size:16px;color:#1C1A22;font-weight:800">3</b> nouvelles</span></div>` });
+  },
+  (sc, t) => {
+    camSet(sc, punch(t, .2) * (1 + t * .035), 0, -t * 6);
+    const p = spr(k(t, .2, .9)); sc.c.set(480, 300, L(.85, 1, p), 0, cl(p * 2));
+    sc.c.ct.querySelector(".num").textContent = Math.round(258 * eo(k(t, .6, 2.2))) + " €";
+    sc.c.ct.querySelectorAll(".bar").forEach((b, i) => b.style.height = (+b.dataset.v * eo5(k(t, .6 + i * .08, 1.3 + i * .08))) + "%");
+  },
+  (sc, t) => { for (const r of sc.roots) wordsIn([...r.querySelectorAll(".tt .w")], t, .05, .08, .5); });
+
+/* ===== 15 · 52,5–56 s : le mur de cartes + la promesse ===== */
+const WALL = [["reassort", "Relancer Marie Dupont"], ["suivi", "Suivi Julie Bernard"], ["fidelite", "Carte N° 0042"], ["prospect", "Léa Moreau"], ["cal", "Karim · dans 2 j"], ["reseau", "Inès, via Julie"], ["coach", "Réponse du coach"], ["wa", "Message prêt"], ["sat", "Satisfaite"], ["euro", "258 € ce mois-ci"], ["import", "Capture importée"], ["reporter", "Sophie · aujourd'hui"]];
+const s15 = Scene(52.5, 56.0, "#F1ECE4",
+  `<div class="ab wall" style="width:1500px;height:900px">${Array.from({ length: 8 * 11 }, (_, i) => { const [ic, n] = WALL[(i * 5 + Math.floor(i / 11)) % WALL.length]; const c = i % 11, r = Math.floor(i / 11);
+     return `<div class="ab wc" style="left:${c * 136 + (r % 2) * 68}px;top:${r * 92}px;width:124px;height:76px;border-radius:12px;background:#FCFBF9;box-shadow:0 8px 18px -12px rgba(40,30,60,.35),0 0 0 .5px rgba(28,26,34,.06)"><div class="tile" style="position:absolute;left:10px;top:10px;width:26px;height:26px;border-radius:8px">${ico(ic, "url(#gA)", 2.2)}</div><b style="position:absolute;left:10px;top:44px;right:8px;font-size:8.5px;font-weight:800;letter-spacing:-.01em;line-height:1.2">${n}</b></div>`; }).join("")}</div>`,
+  sc => {
+    sc.slab = Glass(sc, { w: 600, h: 190, r: 34, tint: "linear-gradient(180deg,rgba(244,239,232,.62),rgba(244,239,232,.5))", scale: 46, band: 40, blur: 2.2, sh: 30, so: .3,
+      html: `<div class="H" style="position:absolute;left:0;right:0;top:44px;text-align:center;font-size:44px"><span class="sw">${words("Vos clients rachètent.")}</span><br><span class="sw2" style="font-weight:600">${words("Au bon moment.", "gt")}</span></div>` });
+  },
+  (sc, t) => {
+    camSet(sc, punch(t, .18) * (1.12 - t * .03));
+    const p = spr(k(t, .2, .9)); sc.slab.set(480, 270, L(.9, 1, p), 0, cl(p * 2));
+    wordsIn([...sc.slab.ct.querySelectorAll(".sw .w")], t, .45, .08, .5); wordsIn([...sc.slab.ct.querySelectorAll(".sw2 .w")], t, 1.2, .1, .55);
+  },
+  (sc, t) => { for (const r of sc.roots) {
+    r.querySelector(".wall").style.transform = `translate(${-260 - t * 22}px,${-200 - t * 12}px)`;
+    [...r.querySelectorAll(".wc")].forEach((c, i) => { const d = rnd(i) * .6; const x = eo5(k(t, d, d + .6)); c.style.opacity = x; c.style.transform = `translateY(${(1 - x) * 30}px) scale(${L(.9, 1, x)})`; });
+  } });
+
+/* ===== 16 · 56–60 s : losange + logo ===== */
+const s16 = Scene(56.0, 60.01, "#F4EFE8",
+  `<div class="ab" style="left:180px;top:20px;width:600px;height:500px;border-radius:50%;background:radial-gradient(closest-side,rgba(232,233,253,.95),rgba(232,233,253,0))"></div>
+   <div class="ab H tag" style="left:0;top:388px;width:960px;text-align:center;font-size:20px;font-weight:600;color:#57515C;letter-spacing:-.02em">Le coach du VDI <span style="opacity:.5">·</span> <span class="gt" style="font-weight:800">getrecharge.fr</span></div>`,
+  sc => {
+    sc.dia = Glass(sc, { w: 190, h: 190, r: 48, tint: "linear-gradient(135deg,rgba(245,154,74,.92),rgba(219,101,120,.9) 50%,rgba(124,124,242,.92))", scale: 40, band: 34, sh: 34, so: .35, spec: .8 });
+    sc.mk = h(`<div class="ab" style="width:120px;height:120px">${MARK("#fff", "#fff", "#fff")}</div>`); sc.fr.appendChild(sc.mk);
+    sc.word = h(`<div class="ab" style="width:330px;height:68px"></div>`); sc.fr.appendChild(sc.word);
+  },
+  (sc, t) => {
+    camSet(sc, punch(t, .3) * (1 + t * .012));
+    const p = spr(k(t, 0, .9)), mv = eio(k(t, 1.3, 2.0));
+    const dx = L(480, 300, mv), ds = L(1, .62, mv) * p;
+    sc.dia.set(dx, 260, ds, 45 + L(-180, 0, eo5(k(t, 0, 1.1))), 1);
+    tf(sc.mk, dx - 60, 260 - 60, ds * .85 * spr(k(t, .25, .9)), L(-90, 0, eo5(k(t, .25, 1.1))), 1);
+    const w = eo5(k(t, 1.55, 2.3)); tf(sc.word, 375 + (1 - w) * 30, 226, 1, 0, w); sc.word.style.filter = `blur(${(1 - w) * 8}px)`;
+  },
+  (sc, t) => { for (const r of sc.roots) { const e = r.querySelector(".tag"), x = eo5(k(t, 2.1, 2.7)); e.style.opacity = x; e.style.transform = `translateY(${(1 - x) * 12}px)`; } });
+
+/* ---------- rendu ---------- */
+function render(t) {
+  for (const sc of SC) {
+    const on = t >= sc.a && t < sc.b;
+    sc.el.style.display = on ? "block" : "none";
+    if (!on) continue;
+    const lt = t - sc.a;
+    sc.bku && sc.bku(sc, lt);
+    sc.upd && sc.upd(sc, lt);
+  }
+}
+window.render = render; window.warp = t => t;
+fetch("../logo.svg").then(r => r.text()).then(s => {
+  const w = s.replace(/<g class="rmark">[\s\S]*?<\/g>/, "").replace(/class="logo-svg" viewBox="10 40 620 125" style="[^"]*"/, 'viewBox="205 55 425 105" style="width:100%;height:100%"').replace(/fill="#111111"/g, 'fill="#1C1A22"');
+  s16.word.innerHTML = w;
+}).then(() => document.fonts.ready).then(() => new Promise(r => setTimeout(r, 400))).then(() => { render(0); window.__ready = true; });
+</script></body></html>
