@@ -271,6 +271,9 @@ button.cbtn{font:inherit;cursor:pointer}
 .lc-perk{font-size:2rem;font-weight:800;letter-spacing:-.04em;line-height:1.1;background:linear-gradient(90deg,#FF8A4C,#FFB18A);-webkit-background-clip:text;background-clip:text;color:transparent}.lc-perk small{font-size:.9rem;font-weight:650;letter-spacing:0;color:#d8dbda;-webkit-text-fill-color:#d8dbda}
 .lc-stamps{display:flex;gap:8px;margin-top:14px}.lc-stamps i{flex:1;max-width:38px;aspect-ratio:1;border-radius:50%;border:2px dashed rgba(255,255,255,.35);display:grid;place-items:center;font-style:normal;font-size:.9rem}.lc-stamps i.on{border:0;background:linear-gradient(135deg,#FF8A4C,#FF5A1F)}
 .lc-foot{margin-top:10px;font-size:.84rem;font-weight:650;color:#fff}.lc-since{margin-top:4px;font-size:.74rem;color:#a9aead}
+.legalchk{display:flex;gap:10px;align-items:flex-start;margin-top:14px;font-size:.86rem;line-height:1.4;color:var(--ink-2);cursor:pointer}
+.legalchk input{flex:none;width:22px;height:22px;margin:0;accent-color:var(--o1)}
+.legalchk a{color:var(--ink);text-decoration:underline}
 .linkbtn{display:block;margin:12px auto 0;background:none;border:0;color:var(--ink-3);font:inherit;font-size:.84rem;text-decoration:underline;cursor:pointer}
 .tsum{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}.tsum div{background:var(--surface-2);border-radius:14px;padding:10px 6px;text-align:center}.tsum b{display:block;font-size:1.05rem}.tsum span{font-size:.7rem;color:var(--ink-3);font-weight:600}
 .obbar{flex:1;height:6px;border-radius:9px;background:var(--surface-2);overflow:hidden;margin-right:12px}.obbar span{display:block;height:100%;background:var(--grad);border-radius:9px;transition:width .4s}
@@ -829,6 +832,8 @@ const I = {
 // Mode démo (?demo) : utilisé par le téléphone du site, il ne touche jamais aux vraies données
 const DEMO = new URLSearchParams(location.search).has("demo");
 const KEY = DEMO ? "recharge.demo" : "recharge.v1";
+// Version des CGV/CGU affichées (à changer quand les textes changent) : envoyée avec le paiement comme preuve d'acceptation
+const LEGAL_VERSION = "2026-11-25";
 if (DEMO) { try { localStorage.removeItem(KEY); } catch (e) {} document.documentElement.classList.add("demo"); }
 const DEFAULT_PRODUCTS = [
   { id: "p1", name: "Gel aloe vera", days: 30, price: 35 },
@@ -1044,6 +1049,7 @@ async function openUpgrade(tier) {
     <div class="seg oftog"><button type="button" class="${upPeriod === "year" ? "on" : ""}" data-act="upPeriod" data-p="year">À l'année <em>−25 %</em></button><button type="button" class="${upPeriod === "month" ? "on" : ""}" data-act="upPeriod" data-p="month">Au mois</button></div>
     <div class="ofrs">${["starter", "pro", "equipe"].map(card).join("")}</div>
     ${team}
+    <label class="legalchk"><input type="checkbox" id="upCgv"><span>J'ai lu et j'accepte les <a href="/cgv/" target="_blank" rel="noopener">conditions de vente</a> et les <a href="/cgu/" target="_blank" rel="noopener">conditions d'utilisation</a>.</span></label>
     <button class="btn orange" style="margin-top:14px" data-act="upGo">${join ? "Rejoindre l'équipe · 14 jours gratuits" : "Commencer mes 14 jours gratuits"}</button>
     <div class="pwpay" aria-label="Moyens de paiement"><span>Apple Pay</span><span>Google Pay</span><span>Carte bancaire</span></div>
     <p class="hint" style="text-align:center">Paiement sécurisé par Stripe : Recharge ne voit jamais votre carte. Aucun prélèvement avant la fin de l'essai.${BILLING_OK ? "" : " Le paiement en ligne s'ouvre très bientôt."}</p>
@@ -1103,6 +1109,7 @@ function openAccountForm(mode) {
     <ul class="perks"><li>☁️ <b>Sauvegarde automatique</b> de vos clients, prospects et relances</li><li>📱 Vous les retrouvez sur un <b>nouveau téléphone</b></li><li>♾️ <b>Clients illimités</b> (la version gratuite va jusqu'à 10)</li><li>🔒 Vos données restent les vôtres, jamais revendues</li></ul>
     <p class="hint" style="margin-top:6px">${hasRealData(S) ? "Vos données de ce téléphone seront envoyées sur votre compte, sans rien perdre." : ""}</p>`}
     <form id="accForm" autocomplete="on"><label class="field"><span>Votre email</span><input class="input" id="accEmail" type="email" inputmode="email" autocomplete="email" required placeholder="vous@exemple.fr" value="${esc(loginEmail || "")}"></label>
+    ${mode === "login" ? "" : `<label class="legalchk"><input type="checkbox" id="accCgu"><span>J'accepte les <a href="/cgu/" target="_blank" rel="noopener">conditions d'utilisation</a>. Mes données sont traitées comme expliqué dans la <a href="/confidentialite/" target="_blank" rel="noopener">politique de confidentialité</a>.</span></label>`}
     <button class="btn primary" style="margin-top:14px" type="submit">Recevoir mon lien de connexion</button></form>
     ${mode === "login" ? "" : `<button class="linkbtn" data-act="accLogin">J'ai déjà un compte</button>`}`);
 }
@@ -2802,7 +2809,7 @@ function viewSettings() {
   if (S.clients.some(c => c.example) || S.prospects.some(x => x.example)) {
     h += section("Exemples") + `<button class="btn danger" data-act="clearExamples">Effacer les clients d'exemple</button>`;
   }
-  h += `<p class="hint" style="text-align:center;margin-top:30px">Recharge · données 100 % locales · <a href="../confidentialite/" style="color:inherit;text-decoration:underline">Confidentialité</a></p>`;
+  h += `<p class="hint" style="text-align:center;margin-top:30px">Recharge · ${session ? "données sauvegardées sur votre compte" : "données dans ce téléphone"}<br><a href="../mentions-legales/" style="color:inherit;text-decoration:underline">Mentions légales</a> · <a href="../cgv/" style="color:inherit;text-decoration:underline">CGV</a> · <a href="../cgu/" style="color:inherit;text-decoration:underline">CGU</a> · <a href="../confidentialite/" style="color:inherit;text-decoration:underline">Confidentialité</a></p>`;
   return h;
 }
 
@@ -4790,9 +4797,11 @@ const actions = {
     const joining = upTier === "equipe" && upTeam.mode === "join";
     if (joining && !upTeam.code) { toast("Tapez le code de votre équipe."); return document.getElementById("upTeamCode").focus(); }
     if (upTier === "equipe" && upTeam.mode !== "join" && upTeam.name.length < 2) { toast("Donnez un nom à votre équipe."); return document.getElementById("upTeamName").focus(); }
+    const cgvBox = document.getElementById("upCgv");
+    if (cgvBox && !cgvBox.checked) { toast("Cochez la case pour accepter les conditions de vente."); cgvBox.focus(); return; }
     if (!BILLING_OK) return toast("Le paiement en ligne s'ouvre très bientôt. Votre choix est noté : revenez ici dans quelques jours.");
     el.disabled = true; el.textContent = "Ouverture du paiement sécurisé…"; if (pwFlow) rcTrack("paywall_paiement");
-    try { const r = await api("POST", "billing/checkout", { tier: upTier, period: upPeriod, teamName: joining ? "" : upTeam.name, teamCode: joining ? upTeam.code : "" }); location.href = r.url; }
+    try { const r = await api("POST", "billing/checkout", { tier: upTier, period: upPeriod, teamName: joining ? "" : upTeam.name, teamCode: joining ? upTeam.code : "", cgv: LEGAL_VERSION }); location.href = r.url; }
     catch (e) { toast(e.message); el.disabled = false; el.textContent = "Commencer mes 14 jours gratuits"; }
   },
   teamOpen: () => openTeam(),
@@ -5067,7 +5076,7 @@ document.addEventListener("click", ev => {
 });
 document.addEventListener("submit", ev => {
   if (ev.target.id === "saleForm") { ev.preventDefault(); submitSale(); }
-  if (ev.target.id === "accForm") { ev.preventDefault(); loginEmail = document.getElementById("accEmail").value.trim(); return sendLink(); }
+  if (ev.target.id === "accForm") { ev.preventDefault(); const cgu = document.getElementById("accCgu"); if (cgu && !cgu.checked) { toast("Cochez la case pour accepter les conditions d'utilisation."); return cgu.focus(); } loginEmail = document.getElementById("accEmail").value.trim(); return sendLink(); }
   if (ev.target.id === "codeForm") { ev.preventDefault(); const c = document.getElementById("accCode").value.replace(/\D/g, ""); if (c.length !== 6) return toast("Le code a 6 chiffres."); return verifyCode(c); }
   if (ev.target.id === "promoForm") {
     ev.preventDefault();

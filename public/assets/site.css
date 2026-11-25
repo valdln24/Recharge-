@@ -590,9 +590,13 @@ body.menu-on .mcta{display:none!important}
 .legal h2{font-size:1.3rem;margin:34px 0 8px;letter-spacing:-.025em}
 .legal p,.legal li{color:var(--ink-2);font-size:1rem;line-height:1.65}
 .legal ul{padding-left:20px}
+.legal p a,.legal li a{color:var(--ink);text-decoration:underline;text-underline-offset:2px}
 .legal .box{background:var(--surface);border:1px solid var(--line);border-radius:24px;padding:20px 22px;box-shadow:var(--shadow);margin-top:20px}
 .legal .box b{color:var(--ink)}
-footer .flinks{display:flex;gap:18px}
+.ltable{width:100%;border-collapse:collapse;margin:14px 0;font-size:.88rem;min-width:520px}
+.ltable th,.ltable td{text-align:left;vertical-align:top;padding:10px 8px;border-bottom:1px solid var(--line);color:var(--ink-2);line-height:1.45}
+.ltable th{color:var(--ink);font-weight:700;background:var(--surface-2)}
+footer .flinks{display:flex;flex-wrap:wrap;gap:8px 18px}
 footer .flinks a{color:var(--ink-3)}footer .flinks a:hover{color:var(--ink)}
 
 /* ---------- Potentiel interactif ---------- */

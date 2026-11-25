@@ -395,7 +395,9 @@ async function billingCheckout(request, env, url) {
   } else if (tier === "equipe" && teamName.length < 2) throw new HttpError(400, "Donnez un nom à votre équipe.");
   if (u && u.team_id && tier !== "equipe") throw new HttpError(400, "Vous faites partie d'une équipe : choisissez l'offre Équipe pour payer votre part.");
   const founder = (await founderLeft(env)) > 0;
-  const offer = { tier, period: body.period === "year" ? "year" : "month", teamName, teamCode: tier === "equipe" ? teamCode : "", founder };
+  // Version des CGV/CGU acceptée (case cochée dans l'appli juste avant le paiement), gardée comme preuve dans Stripe
+  const cgv = String(body.cgv || "").replace(/[^0-9a-z.-]/gi, "").slice(0, 20);
+  const offer = { tier, period: body.period === "year" ? "year" : "month", teamName, teamCode: tier === "equipe" ? teamCode : "", founder, cgv };
   return json({ url: await checkout(env, sameOrigin(env, url), offer, u, { invited, refMonths }) });
 }
 /* Prix fondateur : les 50 premiers comptes abonnés (un abonnement arrêté libère la place) */

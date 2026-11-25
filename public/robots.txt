@@ -1,0 +1,10 @@
+# Recharge · getrecharge.fr
+# Les moteurs de recherche et les agents IA sont les bienvenus sur les pages publiques.
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /stats/
+Disallow: /api/
+Disallow: /playbook/
+
+Sitemap: https://getrecharge.fr/sitemap.xml

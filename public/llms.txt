@@ -1,0 +1,42 @@
+# Recharge
+
+> Recharge est une appli web française (getrecharge.fr) pour les vendeuses et vendeurs indépendants en vente directe (VDI). Elle calcule quand chaque client arrive au bout de son produit et prépare le message de relance, que la personne envoie elle-même depuis son WhatsApp.
+
+Recharge n'est liée à aucune marque de vente directe. Elle ne demande jamais les identifiants du back-office d'une marque. Elle n'envoie aucun message à la place de l'utilisateur.
+
+## Ce que fait l'appli
+
+- Suivi des clients et des ventes, avec la date estimée de fin de chaque produit.
+- Liste du jour : qui relancer, pourquoi, et un message prêt à envoyer sur WhatsApp.
+- Suivi des prospects, des recommandations (contacts donnés par les clients), carte de fidélité envoyée par lien.
+- Coach IA : idées de messages et d'organisation, y compris à partir d'une capture de conversation.
+- Import des clients depuis une photo (cahier, liste, capture de back-office).
+- Équipes : une tête de réseau invite ses filleuls ; elle ne voit jamais leurs clients.
+
+## Offres (prix au 25 novembre 2026)
+
+- Gratuit : jusqu'à 10 clients, 3 échanges par mois avec le coach, sans compte, données dans le téléphone.
+- Starter : 9,90 € par mois ou 89 € par an. Jusqu'à 50 clients, 3 imports photo par mois.
+- Pro : 19,90 € par mois ou 179 € par an. Clients illimités, imports illimités, coach IA, prospection, promos, recommandations.
+- Équipe : 9,90 € par mois ou 89 € par an et par personne, à partir de 5 personnes. Tout Pro pour chaque membre.
+- 14 jours d'essai sans paiement. Sans engagement pour le mensuel. Paiement par Stripe.
+- Prix fondateur réduit pour les 50 premiers comptes abonnés.
+
+## Pages
+
+- [Accueil](https://getrecharge.fr/): présentation de Recharge.
+- [Analyse gratuite](https://getrecharge.fr/analyse/): 4 questions pour estimer ce que des relances au bon moment peuvent changer.
+- [Coach](https://getrecharge.fr/coach/): le coach IA de la vente directe.
+- [Clients](https://getrecharge.fr/clients/): suivi des clients et relances.
+- [Prospects](https://getrecharge.fr/prospects/): suivi des prospects.
+- [Recommandations](https://getrecharge.fr/recommandations/): contacts recommandés par les clients.
+- [Fidélité](https://getrecharge.fr/fidelite/): carte de fidélité par lien.
+- [Équipe](https://getrecharge.fr/equipe/): l'offre pour les réseaux.
+- [Appli](https://getrecharge.fr/app/): l'application elle-même.
+
+## Informations légales
+
+- [Mentions légales](https://getrecharge.fr/mentions-legales/)
+- [Conditions générales de vente](https://getrecharge.fr/cgv/)
+- [Conditions générales d'utilisation](https://getrecharge.fr/cgu/)
+- [Confidentialité](https://getrecharge.fr/confidentialite/): données, prestataires, absence de cookies.

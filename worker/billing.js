@@ -59,7 +59,7 @@ export async function checkout(env, origin, offer, user, ref = {}) {
   const label = `Recharge ${t.name}${team}${offer.founder ? " · prix fondateur" : ""}`;
   const items = { 0: { quantity: 1, price_data: { currency: "eur", unit_amount: amount, recurring: { interval: period }, product_data: { name: label } } } };
   // team_code : l'équipe à rejoindre (filleul) ; team_name seul : l'équipe à créer (tête de réseau)
-  const meta = { tier: offer.tier, founder: offer.founder ? 1 : 0, team_name: offer.teamName || "", team_code: offer.teamCode || "" };
+  const meta = { tier: offer.tier, founder: offer.founder ? 1 : 0, team_name: offer.teamName || "", team_code: offer.teamCode || "", cgv_version: offer.cgv || "", cgv_accepted_at: offer.cgv ? new Date().toISOString() : "" };
   // Parrainage : +30 jours d'essai pour une invitée, +30 jours par mois gagné en tant que marraine
   const bonus = (ref.invited ? 30 : 0) + 30 * (ref.refMonths || 0);
   const s = await stripe(env, "POST", "checkout/sessions", {

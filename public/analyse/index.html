@@ -28,7 +28,7 @@
 <link rel="icon" href="/favicon.ico?v=3" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=3">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 200%22%3E%3Crect width=%22200%22 height=%22200%22 rx=%2246%22 fill=%22%23FF7A33%22/%3E%3Cg transform=%22translate%280 -5%29%22%3E%3Cpath d=%22M122.4 66.9A44 44 0 1 1 81.4 65.1%22 fill=%22none%22 stroke=%22%23ffffff%22 stroke-width=%2217%22/%3E%3Cpath d=%22M66.5 47.5L101 52.5L80.5 80Z%22 fill=%22%23ffffff%22 stroke=%22%23ffffff%22 stroke-width=%223%22 stroke-linejoin=%22round%22/%3E%3Cpath d=%22M109 76L84 111H99L91 136L118 99H103Z%22 fill=%22%23ffffff%22 stroke=%22%23ffffff%22 stroke-width=%223%22 stroke-linejoin=%22round%22/%3E%3C/g%3E%3C/svg%3E">
-<link rel="stylesheet" href="/assets/site.css?v=9">
+<link rel="stylesheet" href="/assets/site.css?v=10">
 
 <style>
 body{background:var(--bg)}
@@ -226,7 +226,7 @@ body{background:var(--bg)}
     var forList = keys.slice(0, 4).map(function (k) { return "<li><i>" + CHECK + "</i><span>" + FOR[k] + "</span></li>"; }).join("");
     var save = '<div class="rsave" id="rsave"><h3>Gardez votre analyse</h3><p>Recevez un lien d’accès par email : vous retrouvez vos résultats dans Recharge, sur n’importe quel téléphone.</p>' +
       '<form id="saveForm" novalidate><input type="email" id="saveEmail" inputmode="email" autocomplete="email" placeholder="vous@exemple.fr" required aria-label="Votre email"><button class="btn dark" type="submit">Recevoir mon lien</button></form>' +
-      '<label class="ck"><input type="checkbox" id="saveNews"> Je veux aussi recevoir des conseils de vente par email (1 à 2 par mois, désinscription en 1 clic).</label><div id="saveMsg"></div></div>';
+      '<label class="ck"><input type="checkbox" id="saveNews"> Je veux aussi recevoir des conseils de vente par email (1 à 2 par mois, désinscription en 1 clic).</label><p class="small" style="margin:10px 0 0;font-size:.78rem;line-height:1.4;opacity:.8">Votre email sert à vous envoyer votre analyse et votre lien d\'accès. Il n\'est ni vendu ni partagé. <a href="/confidentialite/" style="color:inherit;text-decoration:underline">Vos données et vos droits</a> · <a href="/mentions-legales/" style="color:inherit;text-decoration:underline">Mentions légales</a></p><div id="saveMsg"></div></div>';
     var tabs = '<div class="rtabs" role="tablist"><button type="button" class="on" data-tab="0" role="tab">Vos clients</button><button type="button" data-tab="1" role="tab">Votre réseau</button><button type="button" data-tab="2" role="tab">Plan du coach</button></div>';
     var pane0 = '<div class="rpane" data-pane="0">' + stats + bars + week + hyp + "</div>";
     var pane1 = '<div class="rpane" data-pane="1" hidden><div class="rnet"><h3>Votre micro-marché</h3><p class="lede2">Vos clients connaissent des proches, des collègues, des voisins qui pourraient avoir besoin de vos produits.</p>' +
