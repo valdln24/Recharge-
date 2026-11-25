@@ -877,5 +877,5 @@ header.nav.solid{background:rgba(244,239,232,.86)}
 .tel-n a{color:inherit;font-weight:700}
 @media (min-width:860px){.tel{grid-template-columns:1fr 1fr;padding:40px;align-items:center}}
 .navlog .short{display:none}
-@media (max-width:460px){.navlog .full{display:none}.navlog .short{display:inline}.nav .logo-svg{height:24px!important}.navr{gap:6px}.navlog{font-size:.84rem;padding:8px 2px}.nav .btn{padding:0 13px}.nav .btn svg{display:none}}
+@media (max-width:460px){.navlog .full{display:none}.navlog .short{display:inline}.nav .logo-svg{height:24px!important}.navr{gap:4px}.navlog{font-size:.84rem;padding:8px 2px}.nav .btn{padding:0 11px;font-size:.86rem}.nav .btn svg{display:none}}
 @media (max-width:350px){.navlog{display:none}}
