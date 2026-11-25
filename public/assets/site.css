@@ -862,3 +862,20 @@ header.nav.solid{background:rgba(244,239,232,.86)}
 .brandwall .mq{height:62px;min-width:0;padding:0 26px}
 .brandwall .mq b{font-size:1.12rem;font-weight:750;letter-spacing:-.025em;color:var(--ink-2)}
 .brandwall .bw-n b{color:var(--ink)}
+
+/* Connexion + écran d'accueil */
+.navlog{font-weight:700;font-size:.92rem;color:inherit;text-decoration:none;padding:10px 4px;white-space:nowrap}
+.navlog:hover{text-decoration:underline}
+.menu-log{display:block;text-align:center;margin-top:14px;color:inherit;font-size:1rem}
+.tel{background:#fff;border-radius:24px;padding:28px 22px;display:grid;gap:22px;box-shadow:0 1px 0 rgba(0,0,0,.04)}
+.tel h2{font-size:clamp(1.5rem,4.5vw,2.1rem);line-height:1.15;margin:0 0 10px}
+.tel-t p{margin:0 0 18px;color:#555;line-height:1.5}
+.tel-s{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.tel-s li{display:flex;gap:12px;align-items:flex-start;background:#f6f1ea;border-radius:16px;padding:12px 14px;line-height:1.4}
+.tel-s li>b{flex:none;width:26px;height:26px;border-radius:50%;background:#111;color:#fff;display:grid;place-items:center;font-size:.85rem}
+.tel-n{grid-column:1/-1;margin:0;font-size:.92rem;color:#666}
+.tel-n a{color:inherit;font-weight:700}
+@media (min-width:860px){.tel{grid-template-columns:1fr 1fr;padding:40px;align-items:center}}
+.navlog .short{display:none}
+@media (max-width:460px){.navlog .full{display:none}.navlog .short{display:inline}.nav .logo-svg{height:24px!important}.navr{gap:6px}.navlog{font-size:.84rem;padding:8px 2px}.nav .btn{padding:0 13px}.nav .btn svg{display:none}}
+@media (max-width:350px){.navlog{display:none}}

@@ -1207,16 +1207,16 @@ function maybeHomeScreen() {
   const show = () => document.querySelector(".sheet") ? setTimeout(show, 1500) : openHomeScreen();
   setTimeout(show, 1200);
 }
-function openHomeScreen() {
+function openHomeScreen(generic) {
   const ios = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
   const step = (n, t) => `<li><span>${n}</span><p>${t}</p></li>`;
   const IOS = `<h4>📱 Sur iPhone ou iPad (Safari)</h4><ol class="hsteps">${step(1, "Touchez le bouton <b>Partager</b> <span class=\"hsi\">⬆️</span> en bas de l'écran (en haut sur iPad).")}${step(2, "Faites défiler et touchez <b>« Sur l'écran d'accueil »</b>.")}${step(3, "Touchez <b>Ajouter</b> : l'icône Recharge apparaît avec vos autres applis.")}</ol>`;
   const AND = `<h4>🤖 Sur Android (Chrome)</h4><ol class="hsteps">${step(1, "Touchez les <b>3 petits points</b> ⋮ en haut à droite.")}${step(2, "Touchez <b>« Ajouter à l'écran d'accueil »</b> ou <b>« Installer l'application »</b>.")}${step(3, "Confirmez : l'icône Recharge apparaît avec vos autres applis.")}</ol>`;
-  openSheet(`<div class="shead"><h3>🎉 Votre premier client est enregistré !</h3>${closeBtn}</div>
-    <p class="lede" style="margin-top:8px">Pour retrouver Recharge en un geste et <b>protéger vos clients</b>, ajoutez l'appli à l'écran d'accueil de votre téléphone. C'est gratuit et ça prend 10 secondes.</p>
+  openSheet(`<div class="shead"><h3>${generic ? "Recharge sur votre écran d'accueil" : "🎉 Votre premier client est enregistré !"}</h3>${closeBtn}</div>
+    <p class="lede" style="margin-top:8px">${generic ? "Pour ouvrir Recharge en un geste, comme une appli," : "Pour retrouver Recharge en un geste et <b>protéger vos clients</b>,"} ajoutez l'appli à l'écran d'accueil de votre téléphone. C'est gratuit et ça prend 10 secondes.</p>
     ${ios ? IOS + AND : AND + IOS}
     <p class="hint">💡 Pensez aussi à sauvegarder vos clients de temps en temps : Menu › Sauvegarder mes clients.</p>
-    <button class="btn primary" style="margin-top:12px" data-act="close">C'est noté</button>`);
+    <button class="btn primary" style="margin-top:12px" data-act="${generic ? "homeDone" : "close"}">${generic ? "Continuer" : "C'est noté"}</button>`);
 }
 /* Dernière sauvegarde connue : fichier exporté, ou sauvegarde en ligne du compte */
 function lastBackupDate() {
@@ -3316,7 +3316,7 @@ function openTour(i = 0) {
     body = `<div class="tm">${tourMock(k)}<span class="tm-ex">exemple</span></div><h3 class="obq">${t}</h3><p class="lede">${what}</p>`; }
   const dots = `<div class="tourdots">${Array.from({ length: n + 1 }, (_, k) => `<i class="${k === i ? "on" : k < i ? "done" : ""}"></i>`).join("")}</div>`;
   const html = `<div class="shead">${dots}${i < n ? `<button class="obskip" data-act="tourEnd">Passer</button>` : ""}</div>${body}
-    <div class="obnav">${i > 0 ? `<button class="btn soft" data-act="tourGo" data-i="${i - 1}">Retour</button>` : ""}<button class="btn ${i === n ? "orange" : "primary"}" data-act="${i === n ? "tourEnd" : "tourGo"}" data-i="${i + 1}">${i === n ? "Créer mon espace" : "Suivant"}</button></div>`;
+    <div class="obnav">${i > 0 ? `<button class="btn soft" data-act="tourGo" data-i="${i - 1}">Retour</button>` : ""}<button class="btn ${i === n ? "orange" : "primary"}" data-act="${i === n ? "tourEnd" : "tourGo"}" data-i="${i + 1}">${i === n ? "Créer mon espace" : "Suivant"}</button></div>${i === 0 ? `<button class="linkbtn" data-act="accLogin">Déjà un compte ? Me connecter</button>` : ""}`;
   if (i === 0) rcTrack("visite_debut");
   const cur = sheetEl.querySelector(".sheet.toursheet");
   if (cur) { cur.innerHTML = `<div class="grab"></div>` + html; cur.scrollTop = 0; }
@@ -4922,6 +4922,7 @@ const actions = {
   teamRemove: async el => { if (!confirm(`Retirer ${el.dataset.e} de l'équipe ? Sa part s'arrête aussi.`)) return; try { await api("POST", "team/remove", { email: el.dataset.e }); openTeam(); toast("Membre retiré : sa part est arrêtée."); } catch (e) { toast(e.message); } },
   accPortal: async () => { try { const r = await api("POST", "billing/portal"); location.href = r.url; } catch (e) { toast(e.message); } },
   accLogin: () => openAccountForm("login"),
+  homeDone: () => { closeSheet(); if (!S.profile && !session) setTimeout(startOnboarding, 250); },
   accResend: () => sendLink(),
   accSyncNow: async () => { if (!session.canSync) return toast("La sauvegarde est incluse dans la version complète."); sync.dirty = true; await pushNow(); render(); toast(sync.dirty ? "Pas de connexion internet : on réessaiera tout seul." : "Sauvegardé ✅"); },
   accLogout: async () => {
@@ -5371,12 +5372,14 @@ if (paidParam) {
 addEventListener("online", () => { if (sync.dirty) pushNow(); });
 document.addEventListener("visibilitychange", () => { if (document.hidden && sync.dirty) pushNow(); });
 if (!DEMO && location.hash === "#equipe") { upTier = "equipe"; history.replaceState(null, "", location.pathname + "#abonnement"); }
+const HASH_GO = DEMO ? "" : location.hash;
+if (HASH_GO === "#connexion" || HASH_GO === "#installer") { history.replaceState(null, "", location.pathname); setTimeout(() => { if (HASH_GO === "#connexion") { if (session) toast("Vous êtes déjà connecté ✅"); else openAccountForm("login"); } else if (isInstalled()) { if (!S.profile && !session) startOnboarding(); } else openHomeScreen(true); }, 400); }
 if (!DEMO && location.hash === "#abonnement") { history.replaceState(null, "", location.pathname); setTimeout(() => { if (BILLING_OK || API_OK) openUpgrade(); else setTimeout(openUpgrade, 1200); }, 400); }
 if (!DEMO) {
   rcTrack("app_ouverte");
   if (FROM_ANALYSE) { rcTrack("app_depuis_analyse"); history.replaceState(null, "", location.pathname); const an = readAnalyse(); if (an && !S.analyse) { S.analyse = an; save(); } }
 }
-if (!DEMO && !MOVE_IN && !S.profile && !obSkipFlag && !navigator.webdriver && !teamNotice && !loginParam && !paidParam && !session && location.hash !== "#abonnement") setTimeout(() => {
+if (!DEMO && !MOVE_IN && !S.profile && !obSkipFlag && !navigator.webdriver && !teamNotice && !loginParam && !paidParam && !session && location.hash !== "#abonnement" && HASH_GO !== "#connexion" && HASH_GO !== "#installer") setTimeout(() => {
   // Arrivée depuis l'analyse : d'abord ce que Recharge rend, puis le paywall ; l'onboarding 2 suit (payé ou « plus tard »)
   let seen = null; try { seen = localStorage.getItem(PW_KEY); } catch (e) {}
   const an = S.analyse || readAnalyse();
