@@ -2742,7 +2742,7 @@ function viewSettings() {
   const pf = prof(), catL = cats().map(k => ((OB_CATS.find(x => x[0] === k) || [])[1] || "").replace(/^\S+\s/, "")).filter(Boolean).join(", ") || "Non renseigné";
   h += section("Mon profil") + `<div class="card pad">
     <label class="field" style="margin-top:0"><span>Mon prénom</span><input class="input" id="setMyName" value="${esc(myName())}" placeholder="ex. : Valentin" autocomplete="given-name"></label>
-    <label class="field"><span>Ma marque ou mon entreprise</span><input class="input" id="setBrand" value="${esc(pf.brand || "")}" placeholder="ex. : LR Health & Beauty"></label>
+    <label class="field"><span>Ma marque ou mon entreprise</span><input class="input" id="setBrand" value="${esc(pf.brand || "")}" placeholder="Le nom de votre marque"></label>
     <label class="field"><span>Ma ville <i>· pour les hashtags, lieux et comptes locaux</i></span><input class="input" id="setCity" value="${esc(myCity())}" placeholder="ex. : Lyon" autocomplete="address-level2"></label>
     <div class="field"><span>Ce que je vends</span><b style="display:block;margin-top:4px">${esc(catL)}</b></div>
     <button class="btn soft" style="margin-top:12px" data-act="obOpen">Modifier ce que je vends</button></div>`;
