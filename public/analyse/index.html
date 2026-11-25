@@ -227,7 +227,8 @@ body{background:var(--bg)}
     var prods = PRODS[CATS[st.cat || 0][0]] || [];
     draw(head(S) + '<h1 class="aq">Essayez avec une vraie cliente</h1><p class="asub">Donnez son prénom, ce qu’elle a pris et quand. Recharge calcule le moment de la relancer et écrit le message.</p>' +
       '<div class="tform"><input id="tName" placeholder="Prénom de votre cliente (ex. : Marie)" autocomplete="off" value="' + esc(tr.name) + '">' +
-      '<input id="tProd" list="tProds" placeholder="Ce qu’elle a pris (ex. : ' + esc(prods[0] || "Crème de jour") + ')" autocomplete="off" value="' + esc(tr.prod) + '"><datalist id="tProds">' + prods.map(function (x) { return '<option value="' + esc(x) + '">'; }).join("") + "</datalist>" +
+      '<input id="tProd" placeholder="Ce qu’elle a pris (ex. : ' + esc(prods[0] || "Crème de jour") + ')" autocomplete="off" value="' + esc(tr.prod) + '">' +
+      (prods.length > 1 ? '<div class="tchips" data-k="prod">' + prods.map(function (x) { return '<button type="button" data-v="' + esc(x) + '">' + esc(x) + "</button>"; }).join("") + "</div>" : "") +
       '<div class="tlab">Acheté il y a</div><div class="tchips" data-k="ago">' + AGO.map(function (a) { return '<button type="button" data-v="' + a[0] + '" class="' + (tr.ago === a[0] ? "on" : "") + '">' + a[1] + "</button>"; }).join("") + "</div>" +
       '<div class="tlab">Le ton de vos messages</div><div class="tchips" data-k="tone">' + TONES.map(function (a) { return '<button type="button" data-v="' + a[0] + '" class="' + (tr.tone === a[0] ? "on" : "") + '">' + a[1] + "</button>"; }).join("") + "</div></div>" +
       '<div class="tcard" id="tprev"></div>' +
@@ -385,6 +386,7 @@ body{background:var(--bg)}
       return;
     }
     var ch = e.target.closest(".tchips button");
+    if (ch && ch.parentNode.dataset.k === "prod") { tr.prod = ch.dataset.v; document.getElementById("tProd").value = tr.prod; tr.sent = false; preview(); return; }
     if (ch) { var kk = ch.parentNode.dataset.k; tr[kk] = kk === "ago" ? +ch.dataset.v : ch.dataset.v; tr.sent = false;
       ch.parentNode.querySelectorAll("button").forEach(function (b) { b.classList.toggle("on", b === ch); }); preview(); return; }
     var o = e.target.closest(".aopt"), a = e.target.closest("[data-a]");

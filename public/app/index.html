@@ -3203,8 +3203,7 @@ function openOnboarding(step = 0, profileOnly) {
   let body = "";
   if (ob.i === 0) body = `<h3 class="obq">${ob.profileOnly ? "Mon profil" : "Bienvenue sur Recharge 👋"}</h3><p class="lede">${ob.profileOnly ? "Ces infos rendent vos messages plus personnels." : ob.an && ob.an.totalAn ? `Votre analyse est prête : jusqu'à <b>~${ob.an.totalAn.toLocaleString("fr-FR")} € par an</b> à aller chercher. Créons votre espace : 3 étapes, moins de 2 minutes.` : ob.an && ob.an.renouv ? `Votre analyse est prête : environ <b>${ob.an.renouv} renouvellements</b> possibles chaque mois. Créons votre espace : 3 étapes, moins de 2 minutes.` : "3 étapes, moins de 2 minutes. Ensuite, Recharge vous dit qui relancer aujourd'hui."}</p>
     <label class="field"><span>Votre prénom</span><input class="input" id="obName" value="${esc(ob.name)}" placeholder="ex. : Laura" autocomplete="given-name"></label>
-    <label class="field"><span>Votre marque</span><input class="input" id="obBrand" list="obBrands" value="${esc(ob.brand)}" placeholder="Écrivez le nom de votre marque"></label>
-    <datalist id="obBrands">${OB_BRANDS.map(b => `<option value="${esc(b)}">`).join("")}</datalist>`;
+    <label class="field"><span>Votre marque</span><input class="input" id="obBrand" value="${esc(ob.brand)}" placeholder="Le nom de votre marque" autocomplete="off" autocapitalize="words"></label>`;
   if (ob.i === 1) body = `<h3 class="obq">Vos produits et votre ton</h3><p class="lede">Deux appuis, pour des messages qui vous ressemblent.</p>
     <div class="field"><span>Que vendez-vous ? <i>· plusieurs choix possibles</i></span></div>${chips(OB_CATS.filter(([k]) => k !== "mode" || ob.cats.includes("mode")), "cats", true)}
     <div class="field"><span>Le ton de vos messages</span></div>
@@ -3221,10 +3220,9 @@ function openOnboarding(step = 0, profileOnly) {
   if (ob.i === 2 && ob.mode === "type") body = `<h3 class="obq">Vos 3 premiers clients</h3><p class="lede">Juste le nom, le produit et quand ils l'ont acheté. Recharge calcule le bon moment pour les relancer.</p>
     ${ob.rows.map((r, n) => `<div class="obrow"><b>${n + 1}</b><div>
       <input class="input" id="obN${n}" value="${esc(r.name || "")}" placeholder="Prénom Nom">
-      <div class="obrow2"><input class="input" id="obP${n}" list="obProds" value="${esc(r.prod || "")}" placeholder="Produit">
+      <div class="obrow2"><input class="input" id="obP${n}" value="${esc(r.prod || "")}" placeholder="Produit">
         <select class="input" id="obA${n}">${OB_AGO.map(([d, l]) => `<option value="${d}" ${(r.ago || 30) == d ? "selected" : ""}>il y a ${l}</option>`).join("")}</select></div>
       <input class="input" id="obT${n}" type="tel" inputmode="tel" value="${esc(r.phone || "")}" placeholder="Téléphone (facultatif)"></div></div>`).join("")}
-    <datalist id="obProds">${realProducts().map(x => `<option value="${esc(x.name)}">`).join("")}</datalist>
     <button type="button" class="linkbtn" style="margin-top:12px" data-act="obMode" data-m="">Plutôt une photo de mon carnet ou une capture</button>`;
   const cur = sheetEl.querySelector(".sheet.obsheet");
   const nextLabel = ob.i === last ? (ob.profileOnly ? "Enregistrer" : "Voir mes relances du jour") : "Suivant";
@@ -3329,10 +3327,10 @@ function openObProspects(nClients) {
   obProsN = nClients || 0;
   const rows = [0, 1, 2].map(k => `<div class="obrow"><b>${k + 1}</b><div>
       <input class="input" id="opN${k}" placeholder="Prénom Nom">
-      <div class="obrow2"><input class="input" id="opT${k}" type="tel" inputmode="tel" placeholder="Téléphone"><input class="input" id="opI${k}" list="opProds" placeholder="Intéressée par"></div></div></div>`).join("");
+      <div class="obrow2"><input class="input" id="opT${k}" type="tel" inputmode="tel" placeholder="Téléphone"><input class="input" id="opI${k}" placeholder="Intéressée par"></div></div></div>`).join("");
   openSheet(`<div class="shead"><div class="obbar"><span style="width:85%"></span></div></div>
     <h3 class="obq">Vos prospects</h3><p class="lede">Les personnes intéressées qui n'ont pas encore acheté. Par exemple une amie qui a goûté un échantillon, ou un contact donné par une cliente.</p>
-    ${rows}<datalist id="opProds">${realProducts().map(x => `<option value="${esc(x.name)}">`).join("")}</datalist>
+    ${rows}
     <p class="hint" style="margin-top:10px">Recharge vous dira quand les recontacter.</p>
     <div class="obnav"><button class="btn soft" data-act="obProsSkip">Pas pour l'instant</button><button class="btn orange" data-act="obProsSave">Voir mon réseau</button></div>`);
   const sh = sheetEl.querySelector(".sheet"); sh.classList.add("obsheet"); sheetEl.querySelector(".sheet-bg").removeAttribute("data-act");
