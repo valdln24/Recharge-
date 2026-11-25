@@ -1025,10 +1025,11 @@ function openValue() {
       <div class="pwrow"><b class="n num">~${an.dorm}</b><span>clients endormis à réveiller<small>Un message personnel pour chacun, en un appui.</small></span></div>
       <div class="pwrow"><b class="n num">${remb}</b><span>commande${remb > 1 ? "s" : ""} récupérée${remb > 1 ? "s" : ""} dans l'année<small>et Recharge Pro est remboursé (panier d'environ ${an.panier || 30} €).</small></span></div>
     </div>
-    <div class="pwvs"><div class="no">Ventes à aller chercher<b class="num">~${an.totalAn.toLocaleString("fr-FR")} €</b>par an, d'après vos réponses</div><div class="yes">Avec Recharge Pro<b class="num">${eur(pro)} / an</b>soit ${eur(Math.round(pro / 12))} par mois</div></div>
+    <div class="pwvs"><div class="no">Ne rien changer<b class="num">0 €</b>et jusqu'à ~${an.totalAn.toLocaleString("fr-FR")} € de ventes par an qui risquent de partir ailleurs</div><div class="yes">Avec Recharge Pro<b class="num">${eur(pro)} / an</b>soit ${eur(Math.round(pro / 12))} par mois, pour aller les chercher</div></div>
     <p class="hint">Estimation calculée à partir de vos réponses (nombre de clients, panier moyen, fréquence de rachat), pas une promesse : le résultat dépend de vos relances.</p>
-    <button class="btn orange" style="margin-top:10px" data-act="pwGo">Récupérer mes ventes</button>
-    <button class="linkbtn" data-act="pwLater">Continuer en version gratuite</button></div>`);
+    <button class="btn orange" style="margin-top:10px" data-act="pwGo">Commencer mes 14 jours offerts</button>
+    <p class="hint" style="text-align:center;margin-top:6px">On installe d'abord votre espace avec vos clients. Sans engagement.</p>
+    <button class="linkbtn" data-act="pwLater">Découvrir l'application d'abord</button></div>`);
   sheetEl.querySelector(".sheet-bg").removeAttribute("data-act");
 }
 const founderNow = () => { const l = offersInfo && Number.isFinite(offersInfo.founderLeft) ? offersInfo.founderLeft : null; return l === null || l > 0; };
@@ -1052,7 +1053,9 @@ async function openUpgrade(tier) {
       : `<p class="hint" style="margin:12px 0 0">Votre tête de réseau vous a donné un code ou un lien. Vous payez votre part, et Recharge vous rattache à son équipe.</p>
         <label class="field"><span>Code de l'équipe</span><input class="input" id="upTeamCode" value="${esc(upTeam.code)}" placeholder="ex. : K7M2QX9A" autocapitalize="characters" maxlength="12"></label>`}</div>`;
   const join = upTier === "equipe" && upTeam.mode === "join";
-  const html = `<div class="shead"><h3>Choisir mon offre</h3>${closeBtn}</div>
+  const nC = S.clients.filter(c => !c.example).length, nP = (S.prospects || []).filter(x => !x.example).length;
+  const ready = pwFlow && nC + nP ? `<p class="lede" style="margin-top:8px">Votre espace est prêt : <b>${plural(nC, "client", "clients")}</b>${nP ? ` et <b>${plural(nP, "prospect", "prospects")}</b>` : ""}. Activez l'essai pour que Recharge vous prévienne au bon moment, avec le message prêt.</p>` : "";
+  const html = `<div class="shead"><h3>${pwFlow ? "Activez vos 14 jours offerts" : "Choisir mon offre"}</h3>${closeBtn}</div>${ready}
     ${(() => { const an = S.analyse || readAnalyse(); return an && an.totalAn && !join ? `<p class="devnet" style="margin-top:8px">${myName() ? esc(myName()) + ", votre" : "Votre"} estimation : jusqu'à <b>~${an.totalAn.toLocaleString("fr-FR")} € par an</b> à aller chercher.${an.team && upTier === "equipe" ? ` Avec vos filleuls : ${eur(founder ? OFFERS.equipe.fm : OFFERS.equipe.m)} par mois chacun.` : ""}</p>` : ""; })()}
     <p class="lede" style="margin-top:8px"><b>14 jours gratuits</b>, puis sans engagement : vous résiliez en un clic.</p>
     ${founder ? `<div class="ofound"><svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="15" class="trk"/><circle cx="18" cy="18" r="15" class="arc" stroke-dasharray="${left === null ? 0 : (RC * left / total).toFixed(1)} ${RC.toFixed(1)}" transform="rotate(-90 18 18)"/></svg>
@@ -3270,7 +3273,14 @@ const TOUR = [
   ["✨", "Le coach IA", "Il trouve les mots face à une objection et vous propose un plan : marché chaud, tiède, puis froid.", "Vous vendez plus sereinement, avec un plan clair pour développer votre activité.", "« C'est un peu cher pour moi… »", "le coach propose une réponse"],
   ["📊", "Vos chiffres", "Personnes contactées, recommandations, taux de transformation : chaque mois, en clair.", "Vous savez ce qui marche, et où mettre votre énergie.", "Relances par semaine", "en hausse"]
 ];
-function startOnboarding() { if (DEMO) return; if (!S.tourDone) return openTour(0); openOnboarding(0); }
+function startOnboarding() { if (DEMO) return; if (!isPaidS()) { S.pwDue = 1; save(); } if (!S.tourDone) return openTour(0); openOnboarding(0); }
+/* Fin de l'onboarding 2 : le paywall, avec l'espace de la vendeuse déjà rempli */
+function obFinish() {
+  if (!S.pwDue || isPaidS() || (!BILLING_OK && !API_OK)) return false;
+  S.pwDue = 0; save();
+  const an = S.analyse || readAnalyse(); upTier = an && an.team === 2 ? "equipe" : "pro"; upPeriod = "year"; pwFlow = true; rcTrack("paywall_vu");
+  setTimeout(() => openUpgrade(), 400); return true;
+}
 function openTour(i = 0) {
   const n = TOUR.length; i = Math.max(0, Math.min(n, i));
   let body;
@@ -3307,7 +3317,7 @@ let obProsN = 0, paidPlan = null;
 function obProsDone(m) {
   const n = obProsN; obProsN = 0; closeSheet(); render();
   if (n + m > 0) { setTimeout(() => openNetIntro(n + m), 380); return; }
-  tab = "today"; render(); window.scrollTo(0, 0); toast("C'est parti ! Ajoutez vos clients quand vous voulez avec le bouton +");
+  tab = "today"; render(); window.scrollTo(0, 0); if (obFinish()) return; toast("C'est parti ! Ajoutez vos clients quand vous voulez avec le bouton +");
 }
 /* Retour du paiement : l'essai est activé, avec la vraie date du premier prélèvement */
 function openPaidWelcome(r) {
@@ -4647,8 +4657,10 @@ const actions = {
   newSaleFor: el => { closeSheet(); openNewSale(el.dataset.id); },
   close: () => { closeSheet(); pwAfter(); },
   closeBg: (el, ev) => { if (ev.target === el) { closeSheet(); pwAfter(); } },
-  pwGo: () => { const an = S.analyse || readAnalyse(); upTier = an && an.team === 2 ? "equipe" : "pro"; upPeriod = "year"; rcTrack("paywall_vu"); openUpgrade(); },
-  pwLater: () => { rcTrack("paywall_plus_tard"); closeSheet(); pwAfter(); },
+  pwGo: () => { rcTrack("valeur_cta"); pwFlow = false; closeSheet(); setTimeout(startOnboarding, 250); },
+  pwLater: () => { rcTrack(sheetEl.querySelector(".offsheet") ? "paywall_plus_tard" : "valeur_plus_tard"); const end = !!sheetEl.querySelector(".offsheet") && pwFlow; closeSheet();
+    if (end) { pwFlow = false; tab = "today"; render(); window.scrollTo(0, 0); toast("Version gratuite : vous pouvez activer l'essai à tout moment dans Menu"); return; }
+    pwFlow = false; if (!S.profile) setTimeout(startOnboarding, 250); },
   fiche: el => openFiche(el.dataset.id),
   pick: el => { form.pid = el.dataset.id; drawChips(); updateEnd(); },
   qty: el => { form.qty = Math.max(1, Math.min(99, form.qty + Number(el.dataset.d))); updateEnd(); },
@@ -4985,7 +4997,7 @@ const actions = {
     if (m) { save(); rcTrack("premiers_prospects"); }
     obProsDone(m);
   },
-  niGo: () => { closeSheet(); tab = "today"; render(); window.scrollTo(0, 0); toast("Voici vos relances du jour"); },
+  niGo: () => { closeSheet(); tab = "today"; render(); window.scrollTo(0, 0); if (obFinish()) return; toast("Voici vos relances du jour"); },
   obBack: () => { obRead(); if (ob.i === 2 && ob.mode) { ob.mode = ""; return openOnboarding(2); } openOnboarding(ob.i - 1); },
   impEdit: el => { const row = el.closest(".improw"), r = importRows[+row.dataset.i];
     if (row.classList.toggle("edit")) return;
