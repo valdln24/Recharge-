@@ -3,13 +3,13 @@
 const { chromium } = require("playwright");
 const fs = require("fs"), path = require("path");
 (async () => {
-  const out = process.argv[2], list = process.argv[3], PAGE = process.env.PAGE || "pub01.html", DUR = +(process.env.DUR || 28.6), FPS = 30;
+  const out = process.argv[2], list = process.argv[3], PAGE = process.env.PAGE || "pub01.html", DUR = +(process.env.DUR || 28.6), FPS = 30, W = +(process.env.W || 540), H = +(process.env.H || 960);
   const pipe = out.endsWith(".mp4") && !list;
   let ff = null;
-  if (pipe) ff = require("child_process").spawn("ffmpeg", ["-v", "error", "-y", "-f", "image2pipe", "-framerate", String(FPS), "-i", "-", "-vf", "scale=1080:1920", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "17", out], { stdio: ["pipe", "inherit", "inherit"] });
+  if (pipe) ff = require("child_process").spawn("ffmpeg", ["-v", "error", "-y", "-f", "image2pipe", "-framerate", String(FPS), "-i", "-", "-vf", `scale=${W*2}:${H*2}`, "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "17", out], { stdio: ["pipe", "inherit", "inherit"] });
   else fs.mkdirSync(out, { recursive: true });
   const br = await chromium.launch();
-  const p = await br.newPage({ viewport: { width: 540, height: 960 }, deviceScaleFactor: 2 });
+  const p = await br.newPage({ viewport: { width: W, height: H }, deviceScaleFactor: 2 });
   await p.goto("http://127.0.0.1:8833/" + PAGE);
   await p.waitForFunction(() => window.__ready && document.fonts.check("800 20px Manrope"));
   const ts = list ? list.split(",").map(Number) : Array.from({ length: DUR * FPS }, (_, i) => i / FPS);
