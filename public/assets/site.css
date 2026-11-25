@@ -719,6 +719,9 @@ mark.todo{display:inline-block;background:#fff3a6;color:#6b5600;border:1px dashe
   .vframe video{aspect-ratio:9/16}
   .vplay{inset:8px;border-radius:20px}
 }
+.vframe.vert{max-width:360px;padding:8px;border-radius:26px}
+.vframe.vert video{aspect-ratio:9/16}
+.vframe.vert .vplay{inset:8px;border-radius:20px}
 
 /* =====================================================================
    Identité « Fusion » : la clarté du Recharge d'origine + la profondeur du bleu nuit.
