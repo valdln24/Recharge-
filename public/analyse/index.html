@@ -100,6 +100,9 @@ body{background:var(--bg)}
 .rc small{display:block;font-size:.76rem;line-height:1.4;font-weight:600;margin-top:auto}
 .rc-no{background:#fff;border:1.5px solid #E6DDD2}.rc-no .rc-k{color:#C2362B}.rc-no b{color:#C2362B;white-space:nowrap}.rc-no small{color:var(--ink-3)}
 .rc-yes{background:#fff;border:2px solid var(--orange);box-shadow:0 14px 30px -18px rgba(255,120,46,.6)}.rc-yes .rc-k{color:var(--o-text)}.rc-yes b{color:var(--o-text);white-space:nowrap}.rc-yes small{color:var(--ink-3);margin-top:10px}
+.rc-try{grid-column:1/-1;background:#fff;border:1.5px solid var(--navy)}.rc-try .rc-k{color:var(--ink-2)}.rc-try b{white-space:nowrap}.rc-try small{color:var(--ink-3);margin-top:10px}
+.rc-goal{list-style:none;margin:4px 0 12px;padding:0;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.rc-goal li{background:#F6F1EA;border-radius:14px;padding:10px 8px;text-align:center}.rc-goal b{display:block;font-size:1.25rem;letter-spacing:-.03em;color:var(--o-text)}.rc-goal span{display:block;font-size:.72rem;font-weight:650;line-height:1.3;color:var(--ink-2);margin-top:2px}
 .rc-go{width:100%;justify-content:center;margin-top:4px}
 @media (max-width:560px){.rchoice{grid-template-columns:1fr}}
 .rtabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:4px;border-radius:16px;background:#EDE5DB;margin:22px 0 4px}
@@ -302,6 +305,12 @@ body{background:var(--bg)}
       '<div class="rc rc-yes"><div class="rc-k">Avec Recharge Pro, à l’année</div><p class="rc-v"><b>119 €</b> maintenant, ' + (a.fois >= 2 ? 'Recharge vous rend <b id="rgFois">' + a.fois + ' fois</b> son prix.' : 'remboursé dès la <b>' + a.cmdRemb + (a.cmdRemb > 1 ? "e" : "re") + ' commande récupérée</b>.') + '</p>' +
       '<a class="btn orange rc-go" id="rcGo" href="/app/?from=analyse#abonnement">Je m’abonne à l’année' + ARROW + '</a>' +
       '<small>14 jours gratuits, puis 119 € pour l’année (9,92 € par mois). Résiliable à tout moment. Prix fondateur, réservé aux 50 premiers abonnés.</small></div></div>';
+    // 3e case : essayer 14 jours avec ses vrais clients, avec un objectif chiffré pour ces 14 jours (estimation)
+    var q14 = Math.max(1, a.semaine * 2), c14 = Math.max(1, Math.round(q14 * .6)), e14 = c14 * a.panier;
+    roi += '<div class="rc rc-try"><div class="rc-k">Pas encore décidée ?</div><p class="rc-v">Essayez <b>14 jours</b> avec vos vrais clients.</p>' +
+      '<ul class="rc-goal"><li><b>' + q14 + '</b><span>clients à relancer au bon moment</span></li><li><b>~' + c14 + '</b><span>commandes à récupérer</span></li><li><b>~' + fmt(e14) + ' €</b><span>de ventes en 14 jours</span></li></ul>' +
+      '<a class="btn dark rc-go" id="rcTry" href="/app/?from=analyse">J’essaie 14 jours' + ARROW + '</a>' +
+      '<small>L’objectif de vos 14 jours, estimé avec vos réponses (6 clients sur 10 qui rachètent). Gratuit, sans carte bancaire. Au bout de 14 jours, vous voyez ce que Recharge vous a rapporté et vous décidez.</small></div>';
     var stats = '<div class="rstats"><div class="rs"><b>' + a.renouv + '</b><span>renouvellements possibles par mois</span></div>' +
       '<div class="rs"><b>~' + a.dorm + '</b><span>clients endormis depuis 3 mois</span></div>' +
       '<div class="rs hl"><b>~' + fmt(a.valClient) + ' €</b><span>par an pour un client fidèle</span></div></div>';
@@ -340,7 +349,7 @@ body{background:var(--bg)}
       '<p class="n">Des estimations pour vous donner un ordre de grandeur, pas des résultats garantis. Dans l’appli, le coach s’appuie sur vos vrais clients.</p></div></div>';
     draw('<div class="abar"><span style="width:100%"></span></div><div class="rk">Votre analyse</div><h1 class="rh">' + head + '</h1><p class="rsub">' + sub + "</p>" + gain + roi + tabs + pane0 + pane1 + pane2 +
       '<div class="rfor"><h2>Ce que Recharge fait pour vous</h2><ul>' + forList + "</ul></div>" +
-      '<div class="rtry"><h2>Passez de l’estimation à vos vrais clients</h2><p>Ajoutez vos 3 premiers clients : Recharge vous dit qui relancer cette semaine, avec le message prêt. Gratuit, sans compte, vos données restent dans votre téléphone.</p>' +
+      '<div class="rtry" hidden><h2>Passez de l’estimation à vos vrais clients</h2><p>Ajoutez vos 3 premiers clients : Recharge vous dit qui relancer cette semaine, avec le message prêt. Gratuit, sans compte, vos données restent dans votre téléphone.</p>' +
       '<a class="btn orange" id="tryGo" href="/app/?from=analyse">Essayer avec mes clients' + ARROW + "</a><small>2 minutes · Toutes marques</small></div>" +
       (accounts ? save : save.replace('class="rsave"', 'class="rsave" hidden')) +
       '<button type="button" class="again" data-a="again">Refaire l’analyse</button>');
@@ -350,6 +359,7 @@ body{background:var(--bg)}
     if (f) f.addEventListener("submit", submitSave);
     if (accounts) { var b = document.getElementById("rsave"); if (b) b.hidden = false; }
     document.getElementById("tryGo").addEventListener("click", function () { track("analyse_essai"); });
+    var rt = document.getElementById("rcTry"); if (rt) rt.addEventListener("click", function () { track("analyse_choix_essai"); });
     document.getElementById("rcGo").addEventListener("click", function () { track("analyse_choix_annuel"); });
   }
   function submitSave(ev) {
