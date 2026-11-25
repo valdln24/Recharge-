@@ -116,6 +116,29 @@ body{background:var(--bg)}
 .rcoach p.n{margin:12px 2px 0;font-size:.78rem;color:#A69EAE}
 .again{display:block;margin:22px auto 0;background:none;border:0;font:inherit;font-weight:700;color:var(--ink-3);text-decoration:underline;cursor:pointer}
 .fade{animation:afade .35s cubic-bezier(.2,.8,.2,1) both}@keyframes afade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+/* étapes « essayez » : comme dans l'appli */
+.tform{display:grid;gap:10px;margin-top:18px}
+.tform input{font:inherit;font-size:1rem;padding:14px 16px;border-radius:16px;border:1.5px solid var(--line);background:#fff;color:var(--ink);width:100%}
+.tform input:focus{outline:none;border-color:var(--orange)}
+.tlab{font-size:.8rem;font-weight:800;color:var(--ink-3);letter-spacing:.03em;text-transform:uppercase;margin:6px 2px 0}
+.tchips{display:flex;flex-wrap:wrap;gap:8px}
+.tchips button{font:inherit;font-weight:700;font-size:.9rem;padding:9px 13px;border-radius:99px;border:1.5px solid var(--line);background:#fff;color:var(--ink);cursor:pointer}
+.tchips button.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.tcard{margin-top:18px;border-radius:24px;padding:16px;background:#fff;border:1px solid var(--line);box-shadow:0 24px 50px -30px rgba(28,26,34,.35)}
+.tcard .tk{font-size:.74rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--orange);margin-bottom:10px}
+.tfiche{display:flex;align-items:center;gap:12px}
+.tav{width:46px;height:46px;border-radius:50%;flex:none;display:grid;place-items:center;font-weight:800;color:#fff;background:linear-gradient(145deg,#FFB38A,#F2774A)}
+.tfiche .tx{flex:1;min-width:0}.tfiche b{display:block;font-size:1.05rem}.tfiche small{color:var(--ink-3);font-weight:600}
+.tring{position:relative;width:58px;height:58px;flex:none}.tring svg{width:58px;height:58px;transform:rotate(-90deg)}
+.tring .n{position:absolute;inset:0;display:grid;place-items:center;text-align:center;line-height:1;font-weight:800;font-size:1.05rem}.tring .n small{display:block;font-size:.6rem;color:var(--ink-3);margin-top:2px}
+.tpill{display:inline-block;margin-top:10px;padding:6px 11px;border-radius:99px;font-size:.8rem;font-weight:800;background:#EEF1FF;color:#3C5BD6}.tpill.r{background:#FDECEC;color:#C93B40}
+.tmsg{margin-top:12px;background:#F1EEF4;border-radius:20px 20px 20px 6px;padding:13px 15px;font-weight:600;line-height:1.45;min-height:70px}
+.tsend{margin-top:10px;width:100%;border:0;border-radius:99px;padding:14px;font:inherit;font-weight:800;color:#fff;background:#1FA463;cursor:pointer;display:flex;gap:8px;align-items:center;justify-content:center}
+.tnote{margin:10px 2px 0;font-size:.85rem;color:var(--ink-3);font-weight:600}
+.tnote.ok{color:#1F8A55}
+.treco{margin-top:12px;display:flex;flex-wrap:wrap;gap:8px}
+.treco span{display:inline-flex;align-items:center;gap:7px;padding:8px 12px;border-radius:99px;background:#FFF1E8;font-weight:800;font-size:.88rem;animation:afade .4s both}
+.treco span i{width:9px;height:9px;border-radius:50%;background:var(--orange)}
 @media (max-width:520px){.rstats{grid-template-columns:1fr 1fr}.rstats .rs.hl{grid-column:1/-1}.rsave .btn{width:100%}}
 @media (max-width:360px){.aopts{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:reduce){.fade{animation:none}}
@@ -148,6 +171,12 @@ body{background:var(--bg)}
   };
   var CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l4.5 4.5L19.5 6.5"/></svg>';
   var ARROW = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+  // Étapes « essayez » : la vendeuse fait comme dans l'appli, avec une vraie cliente
+  var PRODS = { bien: ["Thé détox", "Complément vitalité", "Collagène"], soin: ["Crème de jour", "Sérum", "Shampoing"], maison: ["Lessive", "Liquide vaisselle", "Nettoyant multi-usage"],
+    cuisine: ["Épices", "Huile d'olive", "Robot pâtissier"], parfum: ["Bougie parfumée", "Parfum", "Diffuseur"], autre: ["Mon produit"] };
+  var AGO = [[7, "1 semaine"], [14, "2 semaines"], [21, "3 semaines"], [30, "1 mois"], [60, "2 mois"]];
+  var TONES = [["chaleureux", "😊 Chaleureux"], ["pro", "🤝 Pro"], ["simple", "💬 Simple"]];
+  var tr = { name: "", prod: "", ago: 30, tone: "chaleureux", sent: false, reco: 0 };
   var el = document.getElementById("an");
   var st = { i: 0, clients: null, cat: null, dorm: null, team: null, pains: [] };
   var track = function (e) { try { var b = JSON.stringify({ e: e }); if (navigator.sendBeacon) navigator.sendBeacon("/api/event", new Blob([b], { type: "application/json" })); else fetch("/api/event", { method: "POST", headers: { "Content-Type": "application/json" }, body: b, keepalive: true }); } catch (x) {} };
@@ -164,20 +193,66 @@ body{background:var(--bg)}
     return [
       { k: "clients", t: "Combien de clients suivez-vous ?", s: "Les personnes qui vous achètent régulièrement, même de temps en temps.", o: CLIENTS.map(function (x, n) { return [n, x[0], ""]; }) },
       { k: "cat", t: "Que vendez-vous surtout ?", s: "Recharge connaît la durée habituelle de chaque type de produit.", o: CATS.map(function (x, n) { return [n, x[1], x[2]]; }) },
+      { k: "try", custom: true },
       { k: "dorm", t: "Combien de clients n’ont rien commandé depuis plus de 3 mois ?", s: "Une estimation suffit. Tout le monde en a : ce sont des ventes à récupérer.", o: DORM.map(function (x, n) { return [n, x[0], ""]; }) },
       { k: "team", t: "Avez-vous des filleuls ?", s: "Les personnes que vous avez recrutées et que vous accompagnez.", o: [[0, "Non, je vends seule", ""], [1, "Oui, moins de 5", ""], [2, "Oui, 5 ou plus", "Recharge a une offre pour toute l’équipe"]] },
+      { k: "reco", custom: true },
       { k: "pains", multi: true, t: "Qu'est-ce qui vous freine aujourd'hui ?", s: "Plusieurs réponses possibles.", o: PAINS.map(function (x) { return [x[0], x[1], x[2]]; }) }
     ];
   }
   function draw(html) { el.innerHTML = '<div class="fade">' + html + "</div>"; window.scrollTo(0, 0); }
+  function head(S) { return '<div class="abar"><span style="width:' + Math.round((st.i + 1) / (S.length + 1) * 100) + '%"></span></div><div class="astep">Étape ' + (st.i + 1) + " sur " + S.length + "</div>"; }
+  var low = function (x) { return String(x || "").trim().toLowerCase(); };
+  function first() { return (tr.name.trim().split(/\s+/)[0] || "Marie"); }
+  function prodName() { return tr.prod.trim() || (PRODS[CATS[st.cat || 0][0]] || ["votre produit"])[0]; }
+  function daysLeft() { return CATS[st.cat || 0][3] - tr.ago; }
+  function msgText() {
+    var p = first(), pr = low(prodName()), done = daysLeft() <= 0;
+    if (tr.tone === "pro") return "Bonjour " + p + ", votre réserve de " + pr + (done ? " doit être terminée." : " arrive bientôt à sa fin.") + " Voulez-vous que je vous en mette de côté ? 🙂";
+    if (tr.tone === "simple") return "Salut " + p + ", ta réserve de " + pr + (done ? " doit être finie." : " doit bientôt être finie.") + " Je t'en garde ?";
+    return "Coucou " + p + " ! 😊 Ta réserve de " + pr + (done ? " doit être finie." : " doit bientôt être finie.") + " Je t'en mets de côté ?";
+  }
+  function preview() {
+    var box = document.getElementById("tprev"); if (!box) return;
+    var d = daysLeft(), dur = CATS[st.cat || 0][3], frac = Math.max(0, Math.min(1, d / dur)), C = 2 * Math.PI * 24;
+    var pill = d <= 0 ? '<span class="tpill r">À relancer aujourd’hui</span>' : d <= 7 ? '<span class="tpill r">Finie dans ' + d + " j · à relancer cette semaine</span>" : '<span class="tpill">Recharge vous préviendra dans ' + (d - 3) + " jours</span>";
+    var ini = first().slice(0, 1).toUpperCase() + ((tr.name.trim().split(/\s+/)[1] || "").slice(0, 1).toUpperCase());
+    box.innerHTML = '<div class="tk">Dans Recharge</div><div class="tfiche"><span class="tav">' + esc(ini) + '</span><div class="tx"><b>' + esc(tr.name.trim() || "Marie") + "</b><small>" + esc(prodName()) + " · acheté il y a " + esc(AGO.filter(function (a) { return a[0] === tr.ago; })[0][1]) + "</small></div>" +
+      '<div class="tring"><svg viewBox="0 0 58 58"><circle cx="29" cy="29" r="24" fill="none" stroke="#EDE5DB" stroke-width="6"/><circle cx="29" cy="29" r="24" fill="none" stroke="' + (d <= 7 ? "#E5484D" : "#FF782E") + '" stroke-width="6" stroke-linecap="round" stroke-dasharray="' + (C * frac).toFixed(1) + " " + C.toFixed(1) + '"/></svg><div class="n"><div>' + Math.max(0, d) + "<small>JOURS</small></div></div></div></div>" + pill +
+      '<div class="tmsg">' + esc(msgText()) + "</div>" +
+      '<button type="button" class="tsend" data-a="send">Envoyer sur WhatsApp</button>' +
+      (tr.sent ? '<p class="tnote ok">✓ Dans l’appli, WhatsApp s’ouvre avec ce message, prêt à partir. Ici c’est un essai : rien n’a été envoyé.</p>' : '<p class="tnote">Changez le produit, la date ou le ton : tout se met à jour.</p>');
+  }
+  function tryStep(S) {
+    var prods = PRODS[CATS[st.cat || 0][0]] || [];
+    draw(head(S) + '<h1 class="aq">Essayez avec une vraie cliente</h1><p class="asub">Comme dans l’appli : son prénom, ce qu’elle a pris et quand. Recharge calcule le bon moment et écrit le message.</p>' +
+      '<div class="tform"><input id="tName" placeholder="Prénom de votre cliente (ex. : Marie)" autocomplete="off" value="' + esc(tr.name) + '">' +
+      '<input id="tProd" list="tProds" placeholder="Ce qu’elle a pris (ex. : ' + esc(prods[0] || "Crème de jour") + ')" autocomplete="off" value="' + esc(tr.prod) + '"><datalist id="tProds">' + prods.map(function (x) { return '<option value="' + esc(x) + '">'; }).join("") + "</datalist>" +
+      '<div class="tlab">Acheté il y a</div><div class="tchips" data-k="ago">' + AGO.map(function (a) { return '<button type="button" data-v="' + a[0] + '" class="' + (tr.ago === a[0] ? "on" : "") + '">' + a[1] + "</button>"; }).join("") + "</div>" +
+      '<div class="tlab">Le ton de vos messages</div><div class="tchips" data-k="tone">' + TONES.map(function (a) { return '<button type="button" data-v="' + a[0] + '" class="' + (tr.tone === a[0] ? "on" : "") + '">' + a[1] + "</button>"; }).join("") + "</div></div>" +
+      '<div class="tcard" id="tprev"></div>' +
+      '<div class="anav"><button type="button" class="back" data-a="back">← Retour</button><button type="button" class="btn orange" data-a="tnext">Continuer' + ARROW + "</button></div>");
+    preview(); track("analyse_essai_cliente");
+    ["tName", "tProd"].forEach(function (id) { document.getElementById(id).addEventListener("input", function (e) { tr[id === "tName" ? "name" : "prod"] = e.target.value; tr.sent = false; preview(); }); });
+  }
+  function recoStep(S) {
+    var p = first();
+    var who = [["Sa sœur", "à qui elle a parlé de vous"], ["Une collègue", "qui cherche la même chose"], ["Sa voisine", "qui a vu le produit chez elle"]];
+    draw(head(S) + '<h1 class="aq">' + esc(p) + " est contente. Et ensuite ?</h1>" + '<p class="asub">C’est le meilleur moment pour demander une recommandation. Recharge vous le rappelle et écrit la demande pour vous.</p>' +
+      '<div class="tcard"><div class="tk">Dans Recharge</div><div class="tmsg">' + esc(tr.tone === "pro" ? "Je suis ravie que le produit vous plaise, " + p + " ! Pensez-vous à quelqu’un de votre entourage à qui il pourrait plaire aussi ? 🙂" : "Trop contente que ça te plaise, " + p + " ! Tu penses à quelqu’un autour de toi à qui ça pourrait plaire aussi ?" + (tr.tone === "simple" ? "" : " 😊")) + "</div>" +
+      (tr.reco ? '<p class="tnote ok">✓ ' + esc(p) + " vous présente " + tr.reco + " personnes. Elles arrivent dans vos prospects, avec la date pour les contacter.</p>" + '<div class="treco">' + who.slice(0, tr.reco).map(function (w, i) { return '<span style="animation-delay:' + (i * .15) + 's"><i></i>' + esc(w[0]) + " de " + esc(p) + "</span>"; }).join("") + "</div>"
+        : '<button type="button" class="tsend" data-a="reco" style="background:var(--navy)">Demander une recommandation à ' + esc(p) + "</button>") + "</div>" +
+      '<div class="anav"><button type="button" class="back" data-a="back">← Retour</button><button type="button" class="btn orange" data-a="tnext">Continuer' + ARROW + "</button></div>");
+  }
   function question() {
     var S = steps(), q = S[st.i], val = st[q.k];
+    if (q.k === "try") return tryStep(S);
+    if (q.k === "reco") return recoStep(S);
     var opts = q.o.map(function (o) {
       var on = q.multi ? st.pains.indexOf(o[0]) >= 0 : val === o[0];
       return '<button type="button" class="aopt' + (on ? " on" : "") + '" data-v="' + o[0] + '"><b>' + esc(o[1]) + "</b>" + (o[2] ? "<small>" + esc(o[2]) + "</small>" : "") + "</button>";
     }).join("");
-    draw('<div class="abar"><span style="width:' + Math.round((st.i + 1) / (S.length + 1) * 100) + '%"></span></div>' +
-      '<div class="astep">Question ' + (st.i + 1) + " sur " + S.length + "</div>" +
+    draw(head(S) +
       '<h1 class="aq">' + q.t + '</h1><p class="asub">' + q.s + "</p>" +
       '<div class="aopts' + (q.o.length < 5 && !q.multi ? "" : "") + '">' + opts + "</div>" +
       '<div class="anav">' + (st.i > 0 ? '<button type="button" class="back" data-a="back">← Retour</button>' : "<span></span>") +
@@ -196,7 +271,7 @@ body{background:var(--bg)}
     var prio = n <= 25 ? "croissance" : dorm >= n * .2 ? "reveil" : "rachats";
     return { clients: n, cat: c[0], catLabel: c[1], dorm: dorm, pains: st.pains.slice(), renouv: renouv, panier: c[4], duree: c[3], semaine: semaine,
       valClient: valClient, revenus: revenus, reveilAn: reveilAn, nouveaux: nouveaux, resAn: resAn, totalAn: totalAn, prio: prio,
-      team: st.team, fois: Math.floor(totalAn / 89), cmdRemb: Math.max(1, Math.ceil(89 / c[4])), at: new Date().toISOString().slice(0, 10) };
+      team: st.team, first: tr.name.trim() ? { name: tr.name.trim(), prod: prodName(), ago: tr.ago } : null, tone: tr.tone, fois: Math.floor(totalAn / 89), cmdRemb: Math.max(1, Math.ceil(89 / c[4])), at: new Date().toISOString().slice(0, 10) };
   }
   function result() {
     var a = compute();
@@ -309,6 +384,9 @@ body{background:var(--bg)}
       if (n === "1") { showNet(); track("analyse_reseau"); } if (n === "2") track("analyse_coach");
       return;
     }
+    var ch = e.target.closest(".tchips button");
+    if (ch) { var kk = ch.parentNode.dataset.k; tr[kk] = kk === "ago" ? +ch.dataset.v : ch.dataset.v; tr.sent = false;
+      ch.parentNode.querySelectorAll("button").forEach(function (b) { b.classList.toggle("on", b === ch); }); preview(); return; }
     var o = e.target.closest(".aopt"), a = e.target.closest("[data-a]");
     if (o) {
       var q = steps()[st.i], v = o.dataset.v;
@@ -318,8 +396,11 @@ body{background:var(--bg)}
     }
     if (!a) return;
     if (a.dataset.a === "back") { st.i = Math.max(0, st.i - 1); question(); }
+    if (a.dataset.a === "send") { tr.sent = true; preview(); track("analyse_essai_envoi"); }
+    if (a.dataset.a === "reco") { tr.reco = 3; track("analyse_essai_reco"); var y = window.scrollY; question(); window.scrollTo(0, y); }
+    if (a.dataset.a === "tnext") { st.i++; question(); }
     if (a.dataset.a === "next") { track("analyse_q4"); result(); }
-    if (a.dataset.a === "again") { st = { i: 0, clients: null, cat: null, dorm: null, team: null, pains: [] }; question(); }
+    if (a.dataset.a === "again") { st = { i: 0, clients: null, cat: null, dorm: null, team: null, pains: [] }; tr = { name: "", prod: "", ago: 30, tone: "chaleureux", sent: false, reco: 0 }; question(); }
   });
   question();
 })();
