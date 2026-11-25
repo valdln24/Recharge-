@@ -86,3 +86,48 @@ Chaque skill a ses goûts. Quand l'un d'eux contredit ces règles, **ce sont ces
 ### Skill étudié mais non installé
 
 - **webapp-testing** (anthropics/skills) : il demande Playwright en Python, alors que le projet utilise Playwright pour Node.
+
+---
+
+# Skills marketing, acquisition et qualité (ajoutés le 25 nov. 2026)
+
+Les skills marketing commencent par lire `.claude/product-marketing.md`. Ce fichier rassemble les faits réels de Recharge (prix, parcours, cible, règles de ton), sans aucun chiffre inventé. Il faut le tenir à jour.
+
+| Skill | Source | Rôle pour Recharge |
+|---|---|---|
+| **copywriting** | coreyhaines31/marketingskills | Textes des pages : accueil, tarifs, équipe. Refuse les affirmations sans preuve |
+| **cro** | coreyhaines31/marketingskills | Faire mieux convertir une page ou un formulaire (accueil, tarifs, /analyse) |
+| **onboarding** | coreyhaines31/marketingskills | Premier usage de l'appli, « moment clé », écrans vides |
+| **paywalls** | coreyhaines31/marketingskills | L'écran d'abonnement et le moment où on propose de payer |
+| **pricing** | coreyhaines31/marketingskills | Prix, formules, essai, offre fondateur, Équipe au siège |
+| **referrals** | coreyhaines31/marketingskills | Parrainage et bouche-à-oreille : le cœur du réseau en vente directe |
+| **emails** | coreyhaines31/marketingskills | Séquences d'e-mails : bienvenue, fin d'essai, relance |
+| **launch** | coreyhaines31/marketingskills | Préparer le lancement et l'accès anticipé |
+| **seo-audit** | coreyhaines31/marketingskills | Référencement Google du site |
+| **ai-seo** | coreyhaines31/marketingskills | Être cité par ChatGPT, Perplexity et les autres IA (avec le point 10 de la conformité : llms.txt) |
+| **stop-slop** | hardikpandya/stop-slop | Retirer les tics d'écriture « IA » des textes. Il est pensé pour l'anglais : appliquer l'esprit en français |
+| **verification-before-completion** | obra/superpowers | Interdit d'annoncer « c'est fait » sans preuve vérifiée : une règle de Recharge |
+
+**Pour combiner :**
+- **Une page :** `copywriting`, puis `stop-slop`, puis `cro`, puis `web-design-guidelines`.
+- **Le parcours d'achat :** `onboarding`, puis `paywalls`, puis `pricing`.
+- **Croissance :** `referrals` et `launch`.
+- **Visibilité :** `seo-audit` et `ai-seo`.
+
+**Conflits à surveiller :**
+- Ces skills sont écrits pour des SaaS anglophones B2B : adapter au public français de la vente directe, au vouvoiement et au mobile.
+- `paywalls` et `cro` poussent parfois l'urgence et la rareté. Chez Recharge, ce n'est permis qu'avec un compteur réel (les places fondateur), jamais avec un faux minuteur.
+- Les recommandations de tests A/B demandent du trafic que Recharge n'a pas encore : les garder pour plus tard.
+
+## Étudiés et non retenus (pour l'instant)
+
+| Skill | Raison |
+|---|---|
+| ui-ux-pro-max via `uipro-cli` | Déjà installé (via `npx skills`) : ce serait un doublon |
+| remotion-dev/skills | Les vidéos Recharge ont leur propre outil (HTML + Playwright + ffmpeg). Passer à Remotion obligerait à tout réécrire |
+| Context Engineering (muratcankoylan) | Sert à concevoir des agents IA, pas le produit ni le marketing |
+| sleek-design-mobile-apps | Pensé pour des applis natives iOS et Android. Recharge est une appli web, et impeccable, emil-design-eng et ui-ux-pro-max couvrent déjà le mobile |
+| extract-design-system | Doublon d'impeccable, qui tient déjà un DESIGN.md |
+| test-driven-development, playwright-best-practices, playwright-cli | Utiles pour les tests, mais hors du thème marketing. À ajouter si on monte une vraie suite de tests |
+| polish, critique, bolder, delight, distill, quieter | Ce sont des commandes d'impeccable, déjà installé |
+| autres skills de marketingskills (ads, cold-email, sms, influencer…) | Pas prioritaires sans budget publicitaire. Ils s'installent en une commande si besoin : `npx skills add coreyhaines31/marketingskills -s <nom> -a claude-code --copy -y` |
