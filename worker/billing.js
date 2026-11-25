@@ -88,7 +88,7 @@ export async function confirm(env, id) {
   if (!email) throw new BillingError(400, "Email introuvable sur ce paiement.");
   const md = sub.metadata || {}, tier = TIERS[md.tier] ? md.tier : "pro";
   return { email, customer: typeof s.customer === "string" ? s.customer : s.customer && s.customer.id, sub: sub.id, userId: s.client_reference_id || null, refMonths: Math.max(0, +(md.ref_months || 0)),
-    tier, founder: md.founder === "1" || md.founder === 1, teamName: String(md.team_name || "").slice(0, 60), teamCode: String(md.team_code || "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 12) };
+    trialEnd: sub.trial_end ? sub.trial_end * 1000 : null, tier, founder: md.founder === "1" || md.founder === 1, teamName: String(md.team_name || "").slice(0, 60), teamCode: String(md.team_code || "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 12) };
 }
 
 /* 3. L'espace client Stripe : carte, factures, résiliation */

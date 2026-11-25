@@ -498,7 +498,7 @@ async function billingConfirm(request, env) {
     if (t) { teamId = t.id; await env.DB.prepare("UPDATE users SET team_id = ? WHERE id = ?").bind(t.id, user.id).run(); }
   } else if (c.tier === "equipe") teamId = await createTeam(env, user.id, c.teamName);
   user = { ...user, plan: c.tier, stripe_customer: c.customer, founder: c.founder, team_id: teamId };
-  return json(await openSession(env, user, isNew));
+  return json({ ...(await openSession(env, user, isNew)), trialEnd: c.trialEnd });
 }
 async function billingPortal(request, env, url) {
   const u = await auth(request, env);

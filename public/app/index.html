@@ -279,6 +279,14 @@ button.cbtn{font:inherit;cursor:pointer}
 .obbar{flex:1;height:6px;border-radius:9px;background:var(--surface-2);overflow:hidden;margin-right:12px}.obbar span{display:block;height:100%;background:var(--grad);border-radius:9px;transition:width .4s}
 .obskip{background:none;border:0;color:var(--ink-3);font:inherit;font-weight:650;font-size:.88rem;cursor:pointer;padding:8px}
 .obq{font-size:1.45rem;letter-spacing:-.03em;margin:14px 0 4px;line-height:1.2}
+/* visite guidée */
+.tourdots{display:flex;gap:6px;flex:1}.tourdots i{height:5px;flex:1;max-width:34px;border-radius:9px;background:var(--line,#E5DDD3)}.tourdots i.done{background:#FFB98C}.tourdots i.on{background:#FF782E}
+.tourv{position:relative;margin:14px 0 4px;padding:26px 18px 18px;border-radius:26px;background:radial-gradient(120% 120% at 0% 0%,#EEF1FF 0%,#FFF1E8 100%);display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center}
+.tourico{width:74px;height:74px;border-radius:24px;display:grid;place-items:center;font-size:2.2rem;background:#fff;box-shadow:0 18px 36px -18px rgba(28,26,34,.35)}
+.tourex{background:#fff;border-radius:18px;padding:12px 14px;box-shadow:0 12px 30px -18px rgba(28,26,34,.3);max-width:290px;display:flex;flex-direction:column;gap:4px;align-items:center}.tourex b{font-size:.95rem;line-height:1.3}.tourex small{color:#8A93A6;font-weight:700;font-size:.8rem}.tourex .tag{margin:0}
+.tourk{margin:12px 0 0;font-size:.78rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:#FF782E}.tourk+.obq{margin-top:4px}
+.tourgain{margin-top:12px;padding:13px 15px;border-radius:18px;background:#F4EFE8;display:flex;flex-direction:column;gap:3px}.tourgain b{font-size:.8rem;letter-spacing:.03em;text-transform:uppercase;color:#1C1A22}.tourgain span{font-weight:600;line-height:1.4}
+.toursteps{margin:12px 0 0;padding-left:22px;display:grid;gap:6px;font-weight:650}
 .obchips{margin-top:14px}.obchips .pchip{padding:12px 15px;font-size:.95rem}
 .obtones{display:grid;gap:8px;margin-top:14px}.obtone{display:flex;flex-direction:column;align-items:flex-start;text-align:left;border:1.5px solid var(--line-2);background:var(--surface);border-radius:18px;padding:13px 16px;font:inherit;cursor:pointer;color:var(--ink)}
 .obtone b{font-size:1rem}.obtone small{color:var(--ink-3);font-weight:600;font-size:.84rem;margin-top:2px}.obtone.on{border-color:var(--o1);background:var(--o-soft)}
@@ -836,7 +844,7 @@ const KEY = DEMO ? "recharge.demo" : "recharge.v1";
 const LEGAL_VERSION = "2026-11-25";
 if (DEMO) { try { localStorage.removeItem(KEY); } catch (e) {} document.documentElement.classList.add("demo"); }
 const DEFAULT_PRODUCTS = [
-  { id: "p1", name: "Gel aloe vera", days: 30, price: 35 },
+  { id: "p1", name: "Thé détox", days: 30, price: 25 },
   { id: "p2", name: "Complément alimentaire", days: 30, price: 30 },
   { id: "p3", name: "Crème visage", days: 45, price: 28 },
   { id: "p4", name: "Shampoing", days: 60, price: 15 }
@@ -847,6 +855,9 @@ let storageOk = true;
 function seed() {
   const t = today();
   const s = { v: 1, products: DEFAULT_PRODUCTS.map(p => ({ ...p })), clients: [], sales: [], events: [], tone: "tu", lastExport: null, seeded: true };
+  // Un vrai compte commence vide : la visite guidée montre les fonctions, puis la vendeuse ajoute ses propres contacts.
+  // Les fiches d'exemple ne servent plus qu'à la démo du site (?demo).
+  if (!DEMO) { s.prospects = []; return s; }
   const ex = [
     ["Marie Dupont", "06 00 00 00 01", "p1", 1, -32],  // fini depuis 2 jours
     ["Sophie Martin", "", "p2", 1, -30],               // se termine aujourd'hui
@@ -861,7 +872,7 @@ function seed() {
   }
   s.clients[3].referredBy = s.clients[0].id; // Julie a été recommandée par Marie
   // Un prospect d'exemple : un contact donné par Marie
-  s.prospects = [{ id: uid(), name: "Léa Moreau", phone: "06 00 00 00 05", interest: "Gel aloe vera", referredBy: s.clients[0].id,
+  s.prospects = [{ id: uid(), name: "Léa Moreau", phone: "06 00 00 00 05", interest: "Thé détox", referredBy: s.clients[0].id,
     note: "Cherche quelque chose pour la digestion", next: t, contacts: 0, status: "open", createdAt: t, msg: 0, example: true, kind: "client" },
     { id: uid(), name: "Thomas Girard", phone: "06 00 00 00 07", interest: "Crème visage", note: "A goûté l'échantillon, peau sèche", next: t, contacts: 0,
       status: "open", createdAt: addDays(t, -3), msg: 0, example: true, kind: "client", where: "salon" }];
@@ -1001,27 +1012,27 @@ function offerPrice(k, founder) {
 /* Entre l'analyse (onboarding 1) et l'onboarding 2 : ce que Recharge vous rend, à partir des réponses de la vendeuse */
 const PW_KEY = "recharge.pw";
 function openValue() {
-  const an = S.analyse || readAnalyse(); if (!an || !an.totalAn) return openOnboarding(0);
+  const an = S.analyse || readAnalyse(); if (!an || !an.totalAn) return startOnboarding();
   pwFlow = true; try { localStorage.setItem(PW_KEY, today()); } catch (e) {}
   rcTrack("valeur_vue");
   const mois = Math.max(10, Math.round(an.totalAn / 12 / 10) * 10), pro = founderNow() ? OFFERS.pro.fy : OFFERS.pro.y;
   const remb = Math.max(1, Math.ceil(pro / 100 / (an.panier || 30)));
   openSheet(`<div class="pwv"><div class="shead"><span class="k">Votre analyse</span><button class="obskip" data-act="pwLater">Plus tard</button></div>
-    <h3>Chaque mois sans relance, <em>~${mois.toLocaleString("fr-FR")} €</em> partent ailleurs.</h3>
+    <h3>Sans relance, jusqu'à <em>~${mois.toLocaleString("fr-FR")} €</em> par mois peuvent partir ailleurs.</h3>
     <p class="lede">Vos clients ne vous oublient pas. Quand leur produit est fini et que personne ne les relance, ils rachètent là où c'est le plus rapide. Souvent chez quelqu'un d'autre.</p>
     <div class="pwrows">
       <div class="pwrow"><b class="n num">~${an.semaine}</b><span>clients arrivent au bout de leur produit cette semaine<small>Recharge vous dit qui, et quand, avec le message prêt.</small></span></div>
       <div class="pwrow"><b class="n num">~${an.dorm}</b><span>clients endormis à réveiller<small>Un message personnel pour chacun, en un appui.</small></span></div>
       <div class="pwrow"><b class="n num">${remb}</b><span>commande${remb > 1 ? "s" : ""} récupérée${remb > 1 ? "s" : ""} dans l'année<small>et Recharge Pro est remboursé (panier d'environ ${an.panier || 30} €).</small></span></div>
     </div>
-    <div class="pwvs"><div class="no">Ne rien changer<b class="num">0 €</b>et ~${an.totalAn.toLocaleString("fr-FR")} € par an laissés à d'autres</div><div class="yes">Avec Recharge Pro<b class="num">${eur(Math.round(pro / 12))} / mois</b>pour aller les chercher</div></div>
-    <p class="hint">Estimation à partir de vos réponses, pas une promesse.</p>
+    <div class="pwvs"><div class="no">Ventes à aller chercher<b class="num">~${an.totalAn.toLocaleString("fr-FR")} €</b>par an, d'après vos réponses</div><div class="yes">Avec Recharge Pro<b class="num">${eur(pro)} / an</b>soit ${eur(Math.round(pro / 12))} par mois</div></div>
+    <p class="hint">Estimation calculée à partir de vos réponses (nombre de clients, panier moyen, fréquence de rachat), pas une promesse : le résultat dépend de vos relances.</p>
     <button class="btn orange" style="margin-top:10px" data-act="pwGo">Récupérer mes ventes</button>
     <button class="linkbtn" data-act="pwLater">Continuer en version gratuite</button></div>`);
   sheetEl.querySelector(".sheet-bg").removeAttribute("data-act");
 }
 const founderNow = () => { const l = offersInfo && Number.isFinite(offersInfo.founderLeft) ? offersInfo.founderLeft : null; return l === null || l > 0; };
-function pwAfter() { if (!pwFlow) return; pwFlow = false; if (!S.profile) setTimeout(() => openOnboarding(0), 250); }
+function pwAfter() { if (!pwFlow) return; pwFlow = false; if (!S.profile) setTimeout(startOnboarding, 250); }
 async function openUpgrade(tier) {
   if (tier) upTier = tier;
   if (!BILLING_OK && !API_OK) return toast("Le paiement en ligne arrive très bientôt.");
@@ -1031,8 +1042,8 @@ async function openUpgrade(tier) {
   const card = k => { const o = OFFERS[k], pr = offerPrice(k, founder), on = upTier === k;
     return `<button type="button" class="ofr ${on ? "on" : ""} t-${k}" data-act="upTier" data-t="${k}" aria-pressed="${on}">
       <span class="ofh"><b>${o.n}</b>${k === "pro" ? `<i>Le plus choisi</i>` : ""}<span class="ofdot"></span></span>
-      <span class="ofp"><b class="num">${eur(pr.perMonth)}</b><span>/ mois${o.pp ? " / pers." : ""}</span>${founder ? `<s class="num">${eur(pr.perMonthNormal)}</s>` : ""}</span>
-      <small>${upPeriod === "year" ? `Facturé ${eur(pr.total)} par an${founder ? ` au lieu de ${eur(pr.totalNormal)}` : ""}` : `Sans engagement${founder ? ` · au lieu de ${eur(pr.totalNormal)}` : ""}`}</small>
+      <span class="ofp"><b class="num">${eur(pr.total)}</b><span>${upPeriod === "year" ? "/ an" : "/ mois"}${o.pp ? " / pers." : ""}</span>${founder ? `<s class="num">${eur(pr.totalNormal)}</s>` : ""}</span>
+      <small>${upPeriod === "year" ? `Soit ${eur(pr.perMonth)} par mois${founder ? " · prix fondateur" : ""}` : `Sans engagement${founder ? " · prix fondateur" : ""}`}</small>
       ${on ? `<ul class="ofl">${o.perks.map(x => `<li>${x}</li>`).join("")}</ul>` : `<small class="ofpitch">${o.pitch}</small>`}</button>`; };
   const team = upTier !== "equipe" ? "" : `<div class="ofteam">
       <div class="seg" style="margin:0"><button type="button" class="${upTeam.mode === "new" ? "on" : ""}" data-act="upTeamMode" data-m="new">Je crée mon équipe</button><button type="button" class="${upTeam.mode === "join" ? "on" : ""}" data-act="upTeamMode" data-m="join">J'ai déjà une équipe</button></div>
@@ -2798,7 +2809,7 @@ function viewSettings() {
     <button class="${S.tone === "tu" ? "on" : ""}" data-act="tone" data-t="tu">Tutoiement</button>
     <button class="${S.tone === "vous" ? "on" : ""}" data-act="tone" data-t="vous">Vouvoiement</button></div>
     <label class="field" style="display:flex;align-items:center;justify-content:space-between;gap:12px"><span style="margin:0">Emojis dans les messages 😊</span><input type="checkbox" id="setEmoji" ${S.emoji === false ? "" : "checked"} style="width:22px;height:22px;accent-color:var(--o1)"></label>
-    <div class="card pad" style="margin-top:10px"><span class="small">Exemple de message</span><p style="margin:6px 0 0;font-size:.92rem">${esc(msg("relance", "Marie Dupont", 0, { de: "de gel aloe vera", depuis: "il y a 4 semaines" }))}</p></div>`;
+    <div class="card pad" style="margin-top:10px"><span class="small">Exemple de message</span><p style="margin:6px 0 0;font-size:.92rem">${esc(msg("relance", "Marie Dupont", 0, { de: "de crème de jour", depuis: "il y a 4 semaines" }))}</p></div>`;
 
   h += section("Sauvegarder mes clients", S.lastExport ? "Dernière : " + fmt(S.lastExport) : "Jamais faite") + `<div class="card pad">
     <div style="font-size:.9rem;color:var(--ink-2)">${session ? "Votre compte sauvegarde déjà vos données. Vous pouvez aussi en garder une copie dans un fichier." : "Vos données restent uniquement dans ce téléphone."} Exportez-les régulièrement (par exemple en vous envoyant le fichier par e-mail) pour ne rien perdre.</div>
@@ -2832,7 +2843,7 @@ function openNewSale(clientId, fromProspect) {
   const names = S.clients.map(x => `<option value="${esc(x.name)}">`).join("");
   const refNames = S.clients.concat(S.prospects.filter(y => y.status === "open")).map(x => `<option value="${esc(x.name)}">`).join("");
   openSheet(`<div class="shead"><h3>Nouvelle vente</h3>${closeBtn}</div>
-    ${!c && !pr ? `<button type="button" class="sx-short" data-act="voice">✨ <b>Plus rapide : dites-le en une phrase</b><span>« Julie a pris 2 gels aloe vera hier »</span></button>` : ""}
+    ${!c && !pr ? `<button type="button" class="sx-short" data-act="voice">✨ <b>Plus rapide : dites-le en une phrase</b><span>« Julie a pris 2 thés détox hier »</span></button>` : ""}
     ${!c && !pr ? `<div class="seg" style="margin:12px 0 0"><button type="button" class="on">Une vente</button><button type="button" data-act="toRencontre">Une rencontre</button></div>` : ""}
     <form id="saleForm" autocomplete="off">
       <label class="field"><span>Client</span><input class="input" id="fName" list="clientNames" required placeholder="Prénom Nom" value="${c ? esc(c.name) : pr ? esc(pr.name) : ""}" enterkeyhint="next"></label>
@@ -2841,7 +2852,7 @@ function openNewSale(clientId, fromProspect) {
       <label class="field ${c ? "hidden" : ""}" id="fRefWrap"><span>Recommandé par <i>· facultatif, si quelqu'un vous l'a amené</i></span><input class="input" id="fRef" list="refNames" placeholder="Client ou prospect qui vous l'a présenté" value="${pr ? esc(refNameOf(pr)) : ""}"></label>
       <div class="field"><span>Produit</span><div class="pchips" id="chips"></div></div>
       <div id="newProd" class="subform hidden">
-        <label class="field"><span>Nom du produit</span><input class="input" id="npName" placeholder="ex. : Dentifrice aloe vera"></label>
+        <label class="field"><span>Nom du produit</span><input class="input" id="npName" placeholder="ex. : Crème de jour"></label>
         <p class="hint" id="npEst" style="margin:6px 0 0"></p>
         <div class="field"><span>Durée du produit</span>${dayScroller('id="npDays"', 30)}</div>
         <label class="field"><span>Prix (€)</span><input class="input" id="npPrice" inputmode="decimal" placeholder="0"></label>
@@ -3091,7 +3102,7 @@ function openProspectForm(id, opts = {}) {
       <label class="field"><span>Ville <i>· lieu de vie, facultatif</i></span><input class="input" id="pCity" list="cityList-p" data-city="1" value="${x ? esc(cityLabel(x.city)) : esc(opts.city || "")}" placeholder="ex. : Lyon" autocomplete="off"></label><datalist id="cityList-p"></datalist>
       <div class="field"><span>Vous connaissez cette personne ? <i>· pour vos statistiques</i></span><div class="pchips" id="mktChips"></div></div>
       <div class="field"><span>Lieu de la rencontre <i>· facultatif</i></span><div class="pchips" id="whereChips"></div></div>
-      <label class="field"><span>Intéressé par <i>· facultatif, sert aux promos ciblées</i></span><input class="input" id="pInterest" list="prodNames" placeholder="ex. : Gel aloe vera" value="${x ? esc(x.interest) : esc(opts.interest || "")}"></label>
+      <label class="field"><span>Intéressé par <i>· facultatif, sert aux promos ciblées</i></span><input class="input" id="pInterest" list="prodNames" placeholder="ex. : Crème de jour" value="${x ? esc(x.interest) : esc(opts.interest || "")}"></label>
       <datalist id="prodNames">${prods}</datalist>
       <label class="field"><span>Recommandé par <i>· facultatif</i></span><input class="input" id="pRef" list="pClientNames" placeholder="Client ou prospect qui vous l'a présenté" value="${esc(ref)}"></label>
       <datalist id="pClientNames">${names}</datalist>
@@ -3245,6 +3256,71 @@ async function openParrain() {
   fitAreas(sheetEl);
 }
 /* Fin du 2e onboarding : le réseau que ces premiers clients ouvrent, et le plan du coach */
+/* ---------- Premier lancement d'un compte vide : la visite guidée, puis les vrais contacts ----------
+   1. La visite : chaque fonction, une par une, avec ce qu'elle apporte (sans chiffre inventé).
+   2. L'onboarding : profil, produits et ton, premiers clients.
+   3. Les prospects, puis le réseau que ces contacts ouvrent. */
+const TOUR = [
+  ["📅", "Vos relances du jour", "Recharge calcule quand chaque produit arrive à sa fin et vous dit, chaque matin, qui relancer.", "Des rachats que vous auriez manqués : vos clients rachètent chez vous, pas ailleurs.", "Marie · crème de jour", "finie dans 2 jours"],
+  ["💬", "Le message déjà écrit", "Avec le prénom, le produit et votre ton. Vous l'envoyez sur WhatsApp ou par SMS en un appui.", "Du temps gagné, et plus la peur de déranger : le message tombe au bon moment.", "« Coucou Marie ! Ta crème doit bientôt être finie. Je t'en mets une de côté ? »", ""],
+  ["📸", "Vos clients en photo", "Une photo de votre carnet, une capture du back-office de votre marque, un fichier Excel ou une phrase dictée.", "Vous démarrez en quelques minutes, sans tout retaper.", "Julie a pris 2 thés détox hier", "ajouté à sa fiche"],
+  ["🤝", "Recommandations et prospects", "Recharge vous rappelle de demander des recommandations aux clients contents, et suit chaque prospect jusqu'à la vente.", "De nouveaux clients qui arrivent par la confiance, sans prospecter à froid.", "Sophie vous présente Inès", "nouvelle prospecte"],
+  ["💳", "La carte fidélité", "Une carte à tampons envoyée par simple lien, avec le cadeau que vous choisissez.", "Des clients qui reviennent plus souvent, et qui en parlent autour d'eux.", "Carte de Sophie", "5 tampons sur 8"],
+  ["🌐", "Votre réseau", "Tous vos contacts réunis : vos proches, les personnes recommandées, celles des réseaux sociaux.", "Vous voyez d'un coup d'œil où chercher vos prochains clients.", "Proches · Recommandés · Réseaux", ""],
+  ["✨", "Le coach IA", "Il trouve les mots face à une objection et vous propose un plan : marché chaud, tiède, puis froid.", "Vous vendez plus sereinement, avec un plan clair pour développer votre activité.", "« C'est un peu cher pour moi… »", "le coach propose une réponse"],
+  ["📊", "Vos chiffres", "Personnes contactées, recommandations, taux de transformation : chaque mois, en clair.", "Vous savez ce qui marche, et où mettre votre énergie.", "Relances par semaine", "en hausse"]
+];
+function startOnboarding() { if (DEMO) return; if (!S.tourDone) return openTour(0); openOnboarding(0); }
+function openTour(i = 0) {
+  const n = TOUR.length; i = Math.max(0, Math.min(n, i));
+  let body;
+  if (i === n) body = `<div class="tourv"><span class="tourico">🚀</span></div>
+    <h3 class="obq">À vous de jouer</h3><p class="lede">Votre espace est vide : c'est normal, il va se remplir avec <b>vos</b> clients. On commence par votre profil, puis vos clients, vos prospects et votre réseau.</p>
+    <ol class="toursteps"><li>Votre prénom et votre marque</li><li>Vos produits et le ton de vos messages</li><li>Vos premiers clients</li><li>Vos prospects</li><li>Votre réseau</li></ol>`;
+  else { const [ic, t, what, gain, ex1, ex2] = TOUR[i];
+    body = `<div class="tourv"><span class="tourico">${ic}</span><div class="tourex"><span class="tag">Exemple</span><b>${esc(ex1)}</b>${ex2 ? `<small>${esc(ex2)}</small>` : ""}</div></div>
+    <p class="tourk">Fonction ${i + 1} sur ${n}</p><h3 class="obq">${t}</h3><p class="lede">${what}</p>
+    <div class="tourgain"><b>Ce que ça vous apporte</b><span>${gain}</span></div>`; }
+  const dots = `<div class="tourdots">${Array.from({ length: n + 1 }, (_, k) => `<i class="${k === i ? "on" : k < i ? "done" : ""}"></i>`).join("")}</div>`;
+  const html = `<div class="shead">${dots}${i < n ? `<button class="obskip" data-act="tourEnd">Passer la visite</button>` : ""}</div>${body}
+    <div class="obnav">${i > 0 ? `<button class="btn soft" data-act="tourGo" data-i="${i - 1}">Retour</button>` : ""}<button class="btn ${i === n ? "orange" : "primary"}" data-act="${i === n ? "tourEnd" : "tourGo"}" data-i="${i + 1}">${i === n ? "Créer mon espace" : i === 0 ? "Découvrir" : "Suivant"}</button></div>`;
+  if (i === 0) rcTrack("visite_debut");
+  const cur = sheetEl.querySelector(".sheet.toursheet");
+  if (cur) { cur.innerHTML = `<div class="grab"></div>` + html; cur.scrollTop = 0; }
+  else { openSheet(html); const sh = sheetEl.querySelector(".sheet"); sh.classList.add("obsheet", "toursheet"); sheetEl.querySelector(".sheet-bg").removeAttribute("data-act"); }
+}
+/* Après les premiers clients : les prospects, puis le réseau */
+function openObProspects(nClients) {
+  obProsN = nClients || 0;
+  const rows = [0, 1, 2].map(k => `<div class="obrow"><b>${k + 1}</b><div>
+      <input class="input" id="opN${k}" placeholder="Prénom Nom">
+      <div class="obrow2"><input class="input" id="opT${k}" type="tel" inputmode="tel" placeholder="Téléphone"><input class="input" id="opI${k}" list="opProds" placeholder="Intéressée par"></div></div></div>`).join("");
+  openSheet(`<div class="shead"><div class="obbar"><span style="width:85%"></span></div></div>
+    <h3 class="obq">Vos prospects</h3><p class="lede">Les personnes intéressées qui ne sont pas encore clientes : une amie qui a goûté un échantillon, un contact donné par une cliente, quelqu'un rencontré à un salon.</p>
+    ${rows}<datalist id="opProds">${realProducts().map(x => `<option value="${esc(x.name)}">`).join("")}</datalist>
+    <p class="hint" style="margin-top:10px">Recharge vous dira quand les recontacter, avec le message prêt.</p>
+    <div class="obnav"><button class="btn soft" data-act="obProsSkip">Pas pour l'instant</button><button class="btn orange" data-act="obProsSave">Voir mon réseau</button></div>`);
+  const sh = sheetEl.querySelector(".sheet"); sh.classList.add("obsheet"); sheetEl.querySelector(".sheet-bg").removeAttribute("data-act");
+  setTimeout(() => { const f = document.getElementById("opN0"); if (f) f.focus(); }, 80);
+}
+let obProsN = 0, paidPlan = null;
+function obProsDone(m) {
+  const n = obProsN; obProsN = 0; closeSheet(); render();
+  if (n + m > 0) { setTimeout(() => openNetIntro(n + m), 380); return; }
+  tab = "today"; render(); window.scrollTo(0, 0); toast("C'est parti ! Ajoutez vos clients quand vous voulez avec le bouton +");
+}
+/* Retour du paiement : l'essai est activé, avec la vraie date du premier prélèvement */
+function openPaidWelcome(r) {
+  const end = r && r.trialEnd ? new Date(r.trialEnd) : null, days = end ? Math.max(1, Math.round((end - Date.now()) / 864e5)) : 14;
+  const date = end ? end.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" }) : null;
+  const tier = TIER_NAME[r && r.user && r.user.plan] || "";
+  openSheet(`<div class="shead"><span></span>${closeBtn}</div><div class="tourv"><span class="tourico">✅</span></div>
+    <h3 class="obq">Votre essai ${esc(tier)} est activé</h3>
+    <p class="lede">Tout Recharge est débloqué pendant <b>${days} jours</b>. ${date ? `Aucun prélèvement avant le <b>${date}</b>.` : "Aucun prélèvement avant la fin de l'essai."}</p>
+    <div class="tourgain"><b>Vous gardez la main</b><span>Vous pouvez résilier à tout moment, en un clic : Menu › Gérer mon abonnement.</span></div>
+    <button class="btn orange" style="margin-top:16px" data-act="paidGo">${S.profile ? "C'est parti" : "Découvrir Recharge"}</button>`);
+  sheetEl.querySelector(".sheet-bg").removeAttribute("data-act");
+}
 function openNetIntro(n) {
   const an = S.analyse || readAnalyse(), K = S.settings.netC || 5, first = S.clients.find(c => !c.example);
   openSheet(`<div class="shead"><h3>Votre réseau commence ici</h3>${closeBtn}</div>
@@ -4098,8 +4174,8 @@ function saisiePreview(text) {
 function openVoice() {
   openSheet(`<div class="shead"><h3>Saisie en une phrase ✨</h3>${closeBtn}</div>
     <p class="lede" style="margin-top:8px">Dites ou écrivez la vente comme vous la raconteriez. Recharge s'occupe du reste.</p>
-    <div class="sx-ex">${["Julie a pris 2 gels aloe vera hier", "Karim : une crème visage et un shampoing", "Marie un gel ; puis Inès deux crèmes"].map(t => `<button type="button" data-act="saisieEx">${esc(t)}</button>`).join("")}</div>
-    <div class="sx-in"><textarea class="input" id="voiceText" rows="3" placeholder="ex. : Julie a pris 2 gels aloe vera hier" aria-label="La vente, en une phrase"></textarea>
+    <div class="sx-ex">${["Julie a pris 2 thés détox hier", "Karim : une crème visage et un shampoing", "Marie un gel ; puis Inès deux crèmes"].map(t => `<button type="button" data-act="saisieEx">${esc(t)}</button>`).join("")}</div>
+    <div class="sx-in"><textarea class="input" id="voiceText" rows="3" placeholder="ex. : Julie a pris 2 thés détox hier" aria-label="La vente, en une phrase"></textarea>
       ${SR ? `<button class="sx-mic" data-act="voiceStart" id="voiceGo" aria-label="Dicter"><svg class="vox" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="9" width="3" height="6" rx="1.5" fill="#7B83F6"/><rect x="8" y="5" width="3" height="14" rx="1.5" fill="var(--orange)"/><rect x="13" y="7.5" width="3" height="9" rx="1.5" fill="var(--orange)"/><rect x="18" y="10" width="3" height="4" rx="1.5" fill="#7B83F6"/></svg></button>` : ""}</div>
     ${SR ? "" : `<p class="hint" style="margin:6px 0 0">Astuce : le micro 🎙️ de votre clavier marche très bien.</p>`}
     <div class="sx-prev" id="saisiePrev"><p class="hint" style="margin:0">Ce que Recharge comprend s'affiche ici, pendant que vous parlez.</p></div>
@@ -4442,7 +4518,7 @@ function openImportReview(rows, note) {
 const impSummary = r => { const pn = r.p ? r.p.name : r.product;
   return pn || r.date ? `${esc(pn || "Sans produit précis")}${r.qty > 1 ? ` × ${r.qty}` : ""} · ${r.date ? fmt(r.date) : "date à préciser"}` : "Juste le contact"; };
 function applyImport() {
-  const snap = snapshot(), newStatus = document.getElementById("impStatusNew").value;
+  const snap = snapshot(), newStatus = document.getElementById("impStatusNew").value, fromOb = obImporting;
   if (obImporting) { clearExampleData(); obImporting = false; }
   let added = 0, skipped = 0, newC = 0, capHit = false; const created = [];
   document.querySelectorAll(".improw").forEach(row => {
@@ -4463,6 +4539,7 @@ function applyImport() {
   });
   save(); closeSheet(); tab = "today"; render();
   toast(`${plural(added, "commande importée", "commandes importées")}${newC ? ` · ${plural(newC, "nouveau contact", "nouveaux contacts")}` : ""}${skipped ? ` · ${skipped} déjà connue${skipped > 1 ? "s" : ""}` : ""}`, snap);
+  if (fromOb) setTimeout(() => openObProspects(newC || added), 1200);
   if (created.length) setTimeout(() => openDurations(created), 450);
   else if (capHit) setTimeout(() => proOnly(`L'offre Starter va jusqu'à ${STARTER_MAX} clients. Les clients illimités`), 900);
 }
@@ -4883,16 +4960,31 @@ const actions = {
     if (ob.i < last) { if (ob.i === 1) obApply(); openOnboarding(ob.i + 1); return; }
     obApply();
     const n = ob.profileOnly ? 0 : obSaveContacts();
-    if (!ob.profileOnly && !n && ob.mode !== "none" && !confirm("Aucun client ajouté. Continuer avec les fiches d'exemple ?")) return;
+    if (!ob.profileOnly && !n && ob.mode !== "none" && !confirm("Aucun client ajouté pour l'instant. Continuer quand même ?")) return;
     if (!ob.profileOnly) { rcTrack("onboarding_fin"); if (n) rcTrack("premiers_clients"); }
     const po = ob.profileOnly; ob = null; save(); closeSheet(); tab = po ? "settings" : "today"; render(); window.scrollTo(0, 0);
-    if (!po && n) { setTimeout(() => openNetIntro(n), 380); return; }
+    if (!po) { obProsN = n; setTimeout(() => openObProspects(n), 380); return; }
     toast(po ? "Profil enregistré" : "C'est parti !");
   },
   openParrain: () => { openParrain(); },
   parrainAccount: () => { loginEmail = ""; openAccountForm("parrain"); },
   parrainShare: el => { rcTrack("parrainage_partage"); const t = document.getElementById("msg-parrain"); if (t) el.href = "https://wa.me/?text=" + encodeURIComponent(t.value); return true; },
   parrainCopy: async el => { rcTrack("parrainage_partage"); const ok = await copyText(el.dataset.l); toast(ok ? "Lien copié : collez-le dans votre message." : "Impossible de copier : sélectionnez le lien à la main."); },
+  tourGo: el => openTour(+el.dataset.i),
+  tourEnd: () => { S.tourDone = today(); save(); rcTrack("visite_fin"); openOnboarding(0); },
+  paidGo: () => { closeSheet(); if (!S.profile) setTimeout(startOnboarding, 250); else if (paidPlan === "equipe") setTimeout(() => openTeam(), 300); },
+  obProsSkip: () => obProsDone(0),
+  obProsSave: () => {
+    let m = 0;
+    for (const k of [0, 1, 2]) {
+      const name = (document.getElementById("opN" + k).value || "").trim(); if (!name) continue;
+      S.prospects.push({ id: uid(), name, phone: document.getElementById("opT" + k).value.trim(), interest: document.getElementById("opI" + k).value.trim(), contacts: 0, status: "open",
+        createdAt: today(), next: today(), msg: Math.floor(Math.random() * 2), example: false, kind: "client" });
+      m++;
+    }
+    if (m) { save(); rcTrack("premiers_prospects"); }
+    obProsDone(m);
+  },
   niGo: () => { closeSheet(); tab = "today"; render(); window.scrollTo(0, 0); toast("Voici vos relances du jour"); },
   obBack: () => { obRead(); if (ob.i === 2 && ob.mode) { ob.mode = ""; return openOnboarding(2); } openOnboarding(ob.i - 1); },
   impEdit: el => { const row = el.closest(".improw"), r = importRows[+row.dataset.i];
@@ -5227,7 +5319,7 @@ const joinParam = DEMO ? null : new URLSearchParams(location.search).get("rejoin
 if (joinParam) { history.replaceState(null, "", location.pathname); try { localStorage.setItem(TEAM_KEY, joinParam.toUpperCase().replace(/[^A-Z0-9]/g, "")); } catch (e) {} setTimeout(() => joinTeam(), 700); }
 if (paidParam) {
   history.replaceState(null, "", location.pathname);
-  api("POST", "billing/confirm", { id: paidParam }).then(async r => { await afterLogin(r); toast(`Bienvenue dans Recharge ${TIER_NAME[r.user.plan] || ""} ! Vos 14 jours gratuits commencent.`); if (!S.profile) setTimeout(() => openOnboarding(0), 1400); else if (r.user.plan === "equipe") setTimeout(() => openTeam(), 1600); }).catch(e => toast(e.message));
+  api("POST", "billing/confirm", { id: paidParam }).then(async r => { await afterLogin(r); paidPlan = r.user.plan; setTimeout(() => openPaidWelcome(r), 300); }).catch(e => toast(e.message));
 } else if (loginParam) {
   history.replaceState(null, "", location.pathname);
   api("POST", "auth/verify", { token: loginParam, ref: readRef() }).then(afterLogin).catch(e => toast(e.message));
@@ -5254,7 +5346,7 @@ if (!DEMO && !MOVE_IN && !S.profile && !obSkipFlag && !navigator.webdriver && !t
   let seen = null; try { seen = localStorage.getItem(PW_KEY); } catch (e) {}
   const an = S.analyse || readAnalyse();
   if (an && an.totalAn && !seen) { if (!offersInfo) api("GET", "offers").then(o => { offersInfo = o; }).catch(() => {}); openValue(); }
-  else openOnboarding(0);
+  else startOnboarding();
 }, 350);
 if (!DEMO && !navigator.webdriver && S.profile && S.lastBilan !== today().slice(0, 7)) {
   const pm = prevMonth(today().slice(0, 7)), b = bilan(pm);
