@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8">
+<!-- Recharge · Pub 02 (v4) · fond blanc, cartes « bulles » façon Apple · 540×960 CSS px rendus en 1080×1920, 30 i/s, 24 s.
+     Voix : Claire (audio/voix-claire-02c.mp3), placée à 0,4 s. Aucun emoji. render(t) place chaque élément pour l'instant t. -->
+<link rel="stylesheet" href="font.css">
+<style>
+:root{--ink:#0B1630;--ink2:#4A5468;--ink3:#8A93A6;--line:rgba(11,22,48,.07);--blue:#2F6BFF;--bsoft:#EAF1FF;
+  --red:#E5484D;--rsoft:#FDECEC;--green:#1FA463;--gsoft:#E6F6EE;--o:#FF5A1F}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:540px;height:960px;overflow:hidden;background:#F5F5F7}
+body{font-family:Manrope,system-ui,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased}
+#stage{position:absolute;inset:0;overflow:hidden;background:radial-gradient(120% 70% at 50% 30%,#FFFFFF 0%,#F5F5F7 70%)}
+.blob{position:absolute;border-radius:50%;filter:blur(80px);opacity:.6}
+#b1{width:360px;height:360px;background:#DCE6FF;left:-120px;top:160px}
+#b2{width:320px;height:320px;background:#FFE6DA;right:-130px;top:520px}
+.abs{position:absolute;left:0;top:0;will-change:transform,opacity,filter}
+svg{display:block}
+/* titres */
+.title{width:540px;padding:0 36px;text-align:center;font-weight:800;font-size:38px;letter-spacing:-.045em;line-height:1.06;top:96px}
+.title span{display:inline-block;will-change:transform,opacity}
+.title i{font-style:normal;color:var(--ink3)}
+/* bulles */
+.bub{background:rgba(255,255,255,.92);border-radius:30px;box-shadow:0 1px 0 rgba(255,255,255,.9) inset,0 24px 60px -18px rgba(11,22,48,.22),0 2px 8px rgba(11,22,48,.05);border:1px solid var(--line)}
+.glass{background:rgba(255,255,255,.72);backdrop-filter:blur(18px) saturate(1.6);-webkit-backdrop-filter:blur(18px) saturate(1.6)}
+.av{flex:none;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:15px;color:#fff;letter-spacing:-.02em}
+.c1{background:linear-gradient(145deg,#7AA2FF,#3C6CF0)}.c2{background:linear-gradient(145deg,#FFB38A,#F2774A)}.c3{background:linear-gradient(145deg,#8FD8B5,#2FAE74)}
+.c4{background:linear-gradient(145deg,#C9A6FF,#8A5CF0)}.c5{background:linear-gradient(145deg,#FF9FB5,#E5537A)}.c6{background:linear-gradient(145deg,#9AD7F0,#3A9CCB)}
+.pill{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:99px;font-size:12px;font-weight:800;letter-spacing:-.01em}
+.pr{background:var(--rsoft);color:var(--red)}.pb{background:var(--bsoft);color:var(--blue)}.pg{background:var(--gsoft);color:var(--green)}
+.lbl{font-size:12.5px;font-weight:800;color:var(--ink3);letter-spacing:.02em;text-transform:uppercase}
+/* scène 1 : liste du jour */
+#today{width:460px;left:40px;top:262px;padding:22px 18px 12px}
+#today .hd{display:flex;justify-content:space-between;align-items:center;padding:0 4px 12px}
+#today .hd b{font-size:24px;font-weight:800;letter-spacing:-.03em}
+.row{display:flex;align-items:center;gap:13px;padding:17px 12px;border-radius:20px;margin-bottom:8px;background:#fff;border:1px solid var(--line)}
+.row .tx{flex:1;min-width:0}.row b{display:block;font-size:18.5px;font-weight:800;letter-spacing:-.02em}.row small{display:block;font-size:14.5px;color:var(--ink2);font-weight:600;margin-top:1px}
+/* scène 2 : fiche + message */
+#fiche{width:452px;left:44px;top:236px;padding:20px}
+#fiche .top{display:flex;align-items:center;gap:14px}
+#fiche .top b{display:block;font-size:22px;font-weight:800;letter-spacing:-.03em}#fiche .top small{font-size:13.5px;color:var(--ink2);font-weight:600}
+#fiche .mid{display:flex;align-items:center;gap:18px;margin-top:18px;padding:14px;border-radius:22px;background:#F6F7FA}
+#ring{position:relative;width:92px;height:92px;flex:none}
+#ring .n{position:absolute;inset:0;display:grid;place-items:center;text-align:center;line-height:1}
+#ring .n b{font-size:26px;font-weight:800;letter-spacing:-.04em;display:block}#ring .n small{font-size:10.5px;font-weight:800;color:var(--ink3);display:block;margin-top:2px}
+#fiche .mid .k b{display:block;font-size:16px;font-weight:800;letter-spacing:-.02em}#fiche .mid .k span{display:block;font-size:13px;color:var(--ink2);font-weight:600;margin-top:3px}
+#msg{width:452px;left:44px;top:556px;padding:16px}
+.chat{background:#F1F3F7;border-radius:22px 22px 22px 8px;padding:14px 16px;font-size:16px;font-weight:600;line-height:1.4;color:var(--ink);min-height:94px}
+.caret{display:inline-block;width:2px;height:18px;background:var(--blue);vertical-align:-3px;margin-left:1px}
+#send{margin-top:12px;height:52px;border-radius:99px;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;gap:9px;font-size:16.5px;font-weight:800;letter-spacing:-.02em}
+/* scène 3 : recommandations */
+#happy{width:452px;left:44px;top:252px;padding:18px;display:flex;align-items:center;gap:14px}
+#happy b{display:block;font-size:20px;font-weight:800;letter-spacing:-.03em}
+#happy .stars{display:flex;gap:3px;margin-top:5px}
+.mini{position:absolute;left:0;top:0;width:58px;height:58px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:16px;color:#fff;box-shadow:0 12px 26px -8px rgba(11,22,48,.35);border:3px solid #fff}
+.tag{position:absolute;left:0;top:0;padding:6px 11px;border-radius:99px;background:#fff;font-size:12.5px;font-weight:800;box-shadow:0 8px 20px -8px rgba(11,22,48,.3);white-space:nowrap}
+#pros{width:452px;left:44px;top:640px;padding:20px 22px;display:flex;align-items:center;justify-content:space-between}
+#pros .l b{display:block;font-size:20px;font-weight:800;letter-spacing:-.03em}#pros .l small{font-size:13px;font-weight:600;color:var(--ink2)}
+#pcount{font-size:52px;font-weight:800;letter-spacing:-.05em;color:var(--blue);min-width:80px;text-align:right}
+/* scène 4 : coach */
+#inmsg{left:44px;top:262px;max-width:380px;background:#fff;border-radius:24px 24px 24px 8px;padding:15px 18px;font-size:17px;font-weight:600;line-height:1.38}
+#inmsg small{display:block;font-size:12px;font-weight:800;color:var(--ink3);margin-bottom:5px}
+#coach{width:452px;left:44px;top:420px;padding:18px}
+#coach .hd{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+#coach .hd .ic{width:34px;height:34px;border-radius:11px;background:var(--ink);display:grid;place-items:center}
+#coach .hd b{font-size:17px;font-weight:800;letter-spacing:-.02em}
+#coach .out{background:var(--ink);color:#fff;border-radius:22px 22px 8px 22px;padding:15px 17px;font-size:16.5px;font-weight:600;line-height:1.4;min-height:118px}
+#coach .out .caret{background:#fff}
+#copy{margin-top:12px;height:48px;border-radius:99px;background:#F1F3F7;display:flex;align-items:center;justify-content:center;gap:8px;font-size:15.5px;font-weight:800}
+/* scène 5 : équipe */
+#team{width:452px;left:44px;top:250px;padding:20px}
+#team .hd{display:flex;justify-content:space-between;align-items:flex-start}
+#team .hd b{display:block;font-size:21px;font-weight:800;letter-spacing:-.03em}#team .hd small{font-size:13px;font-weight:600;color:var(--ink2)}
+#code{margin-top:14px;display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-radius:18px;background:#F6F7FA}
+#code span{font-size:12px;font-weight:800;color:var(--ink3);letter-spacing:.04em}
+#code b{font-size:21px;font-weight:800;letter-spacing:.12em;font-variant-numeric:tabular-nums}
+#grid{margin-top:16px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px;justify-items:center}
+#grid .m{text-align:center}#grid .m small{display:block;font-size:12px;font-weight:700;color:var(--ink2);margin-top:5px}
+#grid .av{width:56px;height:56px;font-size:17px}
+.nt{width:452px;left:44px;padding:12px 14px;border-radius:24px;display:flex;align-items:center;gap:12px}
+.nt .av{width:40px;height:40px;font-size:14px}
+.nt b{display:block;font-size:15px;font-weight:800;letter-spacing:-.02em}.nt span{display:block;font-size:13px;font-weight:600;color:var(--ink2)}
+.nt em{margin-left:auto;font-style:normal;font-size:12px;font-weight:700;color:var(--ink3);align-self:flex-start}
+/* fin */
+#logo{width:300px;left:120px;top:356px}
+.end{width:540px;text-align:center;font-weight:800;letter-spacing:-.045em;line-height:1.05}
+#e1{top:470px;font-size:36px}#e2{top:512px;font-size:36px;color:var(--ink3)}
+#url{left:170px;top:600px;width:200px;height:48px;border-radius:99px;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;letter-spacing:-.02em;color:var(--ink)}
+#trial{width:540px;top:664px;text-align:center;font-size:14.5px;font-weight:700;color:var(--ink2)}
+</style></head>
+<body><div id="stage">
+<div id="b1" class="blob"></div><div id="b2" class="blob"></div>
+
+<!-- titres -->
+<div id="t1" class="abs title"><span>Qui</span> <span>relancer</span> <span>aujourd'hui&nbsp;?</span></div>
+<div id="t2" class="abs title"><span>Le</span> <span>bon</span> <span>moment,</span> <span><i>déjà</i></span> <span><i>calculé.</i></span></div>
+<div id="t3" class="abs title"><span>Vos</span> <span>clientes</span> <span>vous</span> <span><i>recommandent.</i></span></div>
+<div id="t4" class="abs title"><span>Le</span> <span>coach</span> <span>trouve</span> <span><i>les</i></span> <span><i>mots.</i></span></div>
+<div id="t5" class="abs title"><span>Votre</span> <span>réseau</span> <span><i>grandit.</i></span></div>
+
+<!-- 1 · liste du jour -->
+<div id="today" class="abs bub">
+  <div class="hd"><b>Aujourd'hui</b><span class="pill pb">3 relances</span></div>
+  <div class="row" id="r1"><div class="av c2">MD</div><div class="tx"><b>Marie Dupont</b><small>Gel aloe vera</small></div><span class="pill pr">Fini dans 2 j</span></div>
+  <div class="row" id="r2"><div class="av c1">SL</div><div class="tx"><b>Sophie Laurent</b><small>Crème de nuit</small></div><span class="pill pb">Dans 5 j</span></div>
+  <div class="row" id="r3"><div class="av c3">JB</div><div class="tx"><b>Julie Bernard</b><small>Thé détox</small></div><span class="pill pb">Dans 6 j</span></div>
+</div>
+
+<!-- 2 · fiche + message -->
+<div id="fiche" class="abs bub">
+  <div class="top"><div class="av c2" style="width:54px;height:54px;font-size:18px">MD</div><div><b>Marie Dupont</b><small>Cliente depuis mars · 6 commandes</small></div></div>
+  <div class="mid">
+    <div id="ring"><svg viewBox="0 0 92 92" width="92" height="92"><circle cx="46" cy="46" r="38" fill="none" stroke="#E6E9F0" stroke-width="9"/><circle id="arc" cx="46" cy="46" r="38" fill="none" stroke="#E5484D" stroke-width="9" stroke-linecap="round" stroke-dasharray="238.8" stroke-dashoffset="238.8" transform="rotate(-90 46 46)"/></svg>
+      <div class="n"><div><b id="days">30</b><small>JOURS</small></div></div></div>
+    <div class="k"><b>Gel aloe vera</b><span>Acheté le 25 octobre</span><span style="color:var(--red);font-weight:800">Bientôt terminé</span></div>
+  </div>
+</div>
+<div id="msg" class="abs bub">
+  <div class="chat" id="msgtx"></div>
+  <div id="send"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg>Envoyer sur WhatsApp</div>
+</div>
+
+<!-- 3 · recommandations -->
+<div id="happy" class="abs bub">
+  <div class="av c1" style="width:56px;height:56px;font-size:18px">SL</div>
+  <div style="flex:1"><b>Sophie Laurent</b><div class="stars" id="stars"></div></div>
+  <span class="pill pg" id="hp"><svg width="13" height="13" viewBox="0 0 24 24" fill="#1FA463"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3.2 4.5 7 4.5c2.1 0 3.6 1.1 5 3 1.4-1.9 2.9-3 5-3 3.8 0 6.1 3.9 4.6 7.3C19.5 16.4 12 21 12 21z"/></svg>Contente</span>
+</div>
+<div id="m1" class="mini c4">LA</div><div id="m2" class="mini c5">IN</div><div id="m3" class="mini c6">CH</div>
+<div id="g1" class="tag">Léa</div><div id="g2" class="tag">Inès</div><div id="g3" class="tag">Chloé</div>
+<div id="pros" class="abs bub"><div class="l"><b>Prospects</b><small>Recommandées par Sophie</small></div><div id="pcount">12</div></div>
+
+<!-- 4 · coach -->
+<div id="inmsg" class="abs bub"><small>JULIE · WHATSAPP</small>C'est un peu cher pour moi en ce moment…</div>
+<div id="coach" class="abs bub">
+  <div class="hd"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M12 2l1.9 5.6L19.5 9.5l-5.6 1.9L12 17l-1.9-5.6L4.5 9.5l5.6-1.9z"/><path d="M19 15l.9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9z"/></svg></div><b>Le coach vous propose</b></div>
+  <div class="out" id="coachtx"></div>
+  <div id="copy"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#0B1630" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="3"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>Copier le message</div>
+</div>
+
+<!-- 5 · équipe -->
+<div id="team" class="abs bub">
+  <div class="hd"><div><b>Les Étoiles</b><small>Mon équipe</small></div><span class="pill pb" id="tcount">4 membres</span></div>
+  <div id="code"><span>CODE D'ÉQUIPE</span><b>K7M2QX9A</b></div>
+  <div id="grid">
+    <div class="m"><div class="av c2">VD</div><small>Vous</small></div>
+    <div class="m"><div class="av c1">AM</div><small>Amandine</small></div>
+    <div class="m"><div class="av c3">NB</div><small>Nadia</small></div>
+    <div class="m"><div class="av c4">EL</div><small>Élodie</small></div>
+    <div class="m" id="n1"><div class="av c5">CA</div><small>Camille</small></div>
+    <div class="m" id="n2"><div class="av c6">LO</div><small>Lou</small></div>
+    <div class="m" id="n3"><div class="av c1">MA</div><small>Manon</small></div>
+  </div>
+</div>
+<div id="nt1" class="abs nt bub glass"><div class="av c5">CA</div><div><b>Camille a rejoint l'équipe</b><span>avec votre code</span></div><em>maintenant</em></div>
+<div id="nt2" class="abs nt bub glass"><div class="av c6">LO</div><div><b>Lou a rejoint l'équipe</b><span>avec votre code</span></div><em>maintenant</em></div>
+<div id="nt3" class="abs nt bub glass"><div class="av c1">MA</div><div><b>Manon a rejoint l'équipe</b><span>avec votre code</span></div><em>maintenant</em></div>
+
+<!-- fin -->
+<div id="logo" class="abs"></div>
+<div id="e1" class="abs end">Vos clients rachètent.</div>
+<div id="e2" class="abs end">Au bon moment.</div>
+<div id="url" class="abs bub">getrecharge.fr</div>
+<div id="trial" class="abs">14 jours d'essai gratuits</div>
+</div>
+<script>
+const $ = id => document.getElementById(id);
+const cl = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+const lin = (t, a, d) => cl((t - a) / d);
+const ease = p => 1 - Math.pow(1 - p, 3);
+const io = p => p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+// ressort amorti (léger dépassement, comme les animations iOS)
+const spr = (t, a, k = 1) => { const x = (t - a) * k; if (x <= 0) return 0; return 1 - Math.exp(-9 * x) * (Math.cos(12 * x) + .75 * Math.sin(12 * x)); };
+function put(el, o, x, y, s, b) { el.style.opacity = o.toFixed(3); el.style.transform = `translate(${x.toFixed(2)}px,${y.toFixed(2)}px) scale(${s.toFixed(4)})`; el.style.filter = b > .05 ? `blur(${b.toFixed(2)}px)` : "none"; }
+// apparition en ressort à tIn, disparition à tOut (vers le haut, flou)
+function pop(id, t, tIn, tOut, o = {}) {
+  const el = typeof id === "string" ? $(id) : id, dy = o.dy ?? 26, s0 = o.s0 ?? .94, dx = o.dx ?? 0;
+  const a = spr(t, tIn), ao = cl((t - tIn) / .22);
+  const out = tOut ? ease(lin(t, tOut, .32)) : 0;
+  put(el, ao * (1 - out), dx * (1 - a), dy * (1 - a) - out * 30, (s0 + (1 - s0) * a) * (1 - out * .05), (1 - ao) * 8 + out * 8);
+}
+function words(id, t, tIn, tOut) {
+  const el = $(id), sp = el.querySelectorAll("span"), out = ease(lin(t, tOut, .3));
+  el.style.opacity = t < tIn - .05 || t > tOut + .35 ? 0 : 1;
+  sp.forEach((s, i) => { const a = spr(t, tIn + i * .07), ao = cl((t - tIn - i * .07) / .2); put(s, ao * (1 - out), 0, 22 * (1 - a) - out * 18, 1, (1 - ao) * 6 + out * 6); });
+}
+function type(el, txt, t, a, b) { const n = Math.round(txt.length * lin(t, a, b - a)); el.innerHTML = txt.slice(0, n).replace(/\n/g, "<br>") + (t > a - .3 && t < b + .6 && Math.floor(t * 2.4) % 2 === 0 ? '<span class="caret"></span>' : ""); }
+const MSG = "Coucou Marie ! Ton gel aloe vera doit bientôt être terminé. Je t'en mets un de côté ?";
+const CO = "Je comprends ! Il existe un format plus petit pour essayer. Tu veux que je te le garde ?";
+// étoiles
+$("stars").innerHTML = Array.from({ length: 5 }, (_, i) => `<svg id="st${i}" width="16" height="16" viewBox="0 0 24 24" fill="#FFB020"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6L2.5 9.4l6.6-.8z"/></svg>`).join("");
+
+function render(t) {
+  // fond : légère dérive
+  $("b1").style.transform = `translate(${30 * Math.sin(t * .25)}px,${40 * Math.sin(t * .18)}px)`;
+  $("b2").style.transform = `translate(${-30 * Math.sin(t * .2)}px,${-30 * Math.cos(t * .22)}px)`;
+
+  /* 1 · 0,4 → 3,0 : qui relancer */
+  words("t1", t, .25, 2.95);
+  pop("today", t, .35, 2.95, { dy: 60, s0: .9 });
+  ["r1", "r2", "r3"].forEach((r, i) => { const a = spr(t, .6 + i * .12), ao = cl((t - .6 - i * .12) / .2); put($(r), ao, 0, 18 * (1 - a), 1, 0); });
+  const sel = io(lin(t, 2.35, .35)); $("r1").style.boxShadow = `0 0 0 ${2 * sel}px rgba(229,72,77,${.6 * sel}), 0 14px 30px -14px rgba(11,22,48,${.35 * sel})`;
+  $("r1").style.transform += ` scale(${1 + .025 * sel})`;
+
+  /* 2 · 3,0 → 7,7 : fiche, jours restants, message prêt */
+  words("t2", t, 3.05, 7.6);
+  pop("fiche", t, 3.1, 7.6, { dy: 50, s0: .9 });
+  const r = io(lin(t, 3.5, 1.6)); $("arc").setAttribute("stroke-dashoffset", (238.8 * (1 - .93 * r)).toFixed(1));
+  $("days").textContent = Math.max(2, Math.round(30 - 28 * r));
+  pop("msg", t, 5.55, 7.6, { dy: 60, s0: .92 });
+  type($("msgtx"), MSG, t, 5.8, 6.95);
+  const pr = t > 7.05 && t < 7.45 ? Math.sin(lin(t, 7.05, .4) * Math.PI) : 0;
+  put($("send"), 1, 0, 0, 1 - .05 * pr, 0); $("send").style.filter = `brightness(${1 - .12 * pr})`;
+
+  /* 3 · 7,7 → 11,8 : recommandations → prospects */
+  words("t3", t, 7.75, 11.7);
+  pop("happy", t, 7.8, 11.7, { dy: 50, s0: .9 });
+  for (let i = 0; i < 5; i++) { const a = spr(t, 8.05 + i * .06); $("st" + i).style.transform = `scale(${a})`; }
+  pop("hp", t, 8.35, 0, { dy: 0, s0: .6 });
+  pop("pros", t, 8.9, 11.7, { dy: 50, s0: .92 });
+  const land = [10.0, 10.35, 10.7];
+  ["m1", "m2", "m3"].forEach((m, i) => {
+    const t0 = 9.05 + i * .35, sx = 100 + i * 120, sy = 350, ex = 410, ey = 668;
+    const ap = spr(t, t0), fly = io(lin(t, t0 + .35, land[i] - t0 - .35));
+    const x = sx + (ex - sx) * fly, y = sy + (ey - sy) * fly - Math.sin(fly * Math.PI) * 60;
+    const gone = lin(t, land[i] - .08, .1), out = ease(lin(t, 11.7, .3));
+    put($(m), cl((t - t0) / .15) * (1 - gone) * (1 - out), x, y + 20 * (1 - ap), (.5 + .5 * ap) * (1 - .4 * fly), 0);
+    const tg = $("g" + (i + 1)); put(tg, cl((t - t0 - .1) / .15) * (1 - cl(fly * 4)) * (1 - out), sx - 4, sy + 64 + 10 * (1 - spr(t, t0 + .1)), 1, 0);
+  });
+  const n = 12 + land.filter(l => t >= l).length; $("pcount").textContent = n;
+  const bump = Math.max(...land.map(l => t >= l && t < l + .35 ? Math.sin(lin(t, l, .35) * Math.PI) : 0));
+  $("pcount").style.transform = `scale(${1 + .18 * bump})`;
+
+  /* 4 · 11,8 → 15,1 : le coach */
+  words("t4", t, 11.8, 15.0);
+  pop("inmsg", t, 11.95, 15.0, { dy: 30, dx: -30, s0: .9 });
+  pop("coach", t, 13.15, 15.0, { dy: 60, s0: .9 });
+  type($("coachtx"), CO, t, 13.4, 14.45);
+  const cp = t > 14.55 && t < 14.9 ? Math.sin(lin(t, 14.55, .35) * Math.PI) : 0; put($("copy"), 1, 0, 0, 1 - .05 * cp, 0);
+
+  /* 5 · 15,1 → 19,1 : l'équipe grandit */
+  words("t5", t, 15.15, 19.05);
+  pop("team", t, 15.2, 19.05, { dy: 60, s0: .9 });
+  const code = $("code"); const cs = spr(t, 15.55); put(code, cl((t - 15.55) / .2), 0, 10 * (1 - cs), 1, 0);
+  const joins = [16.5, 17.2, 17.9];
+  joins.forEach((j, i) => {
+    const nt = $("nt" + (i + 1)), a = spr(t, j), ao = cl((t - j) / .18), out = ease(lin(t, 19.05, .32));
+    put(nt, ao * (1 - out), 0, 612 + i * 76 + 34 * (1 - a) - out * 30, .96 + .04 * a, (1 - ao) * 6 + out * 8);
+    const m = $("n" + (i + 1)), ma = spr(t, j + .35); put(m, cl((t - j - .35) / .15), 0, 0, ma, 0);
+  });
+  $("tcount").textContent = (4 + joins.filter(j => t >= j + .35).length) + " membres";
+
+  /* 6 · 19,1 → 24 : signature */
+  const la = spr(t, 19.15, .9), lao = cl((t - 19.15) / .25); put($("logo"), lao, 0, 24 * (1 - la), .9 + .1 * la, (1 - lao) * 8);
+  pop("e1", t, 19.8, 0, { dy: 22, s0: 1 });
+  pop("e2", t, 20.9, 0, { dy: 22, s0: 1 });
+  pop("url", t, 21.8, 0, { dy: 18, s0: .9 });
+  pop("trial", t, 22.1, 0, { dy: 12, s0: 1 });
+}
+window.render = render; window.warp = t => t;
+fetch("logo-clair.svg").then(r => r.text()).then(s => { $("logo").innerHTML = s.replace(/width="636" height="200"/, 'width="100%"'); document.fonts.ready.then(() => { window.__ready = true; }); });
+</script>
+</body></html>
