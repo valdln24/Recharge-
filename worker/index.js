@@ -10,7 +10,7 @@ import { importDocs, ImportError } from "./importer.js";
 import { playbookSignup, playbookDownload, playbookUnsubscribe, adminProspects, PlaybookError } from "./playbook.js";
 import { Store, storeDb } from "./store.js";
 import { sameKey } from "./util.js";
-import { trialReminders } from "./reminders.js";
+import { trialReminders, welcomeEmail } from "./reminders.js";
 import { morningDigest, digestOff } from "./digest.js";
 import { adminRoute, isAdmin } from "./admin.js";
 import { checkout, confirm, portal, refreshPlan, cancelSub, pauseSub, BillingError } from "./billing.js";
@@ -534,6 +534,14 @@ async function billingConfirm(request, env) {
     if (t) { teamId = t.id; await env.DB.prepare("UPDATE users SET team_id = ? WHERE id = ?").bind(t.id, user.id).run(); }
   } else if (c.tier === "equipe") teamId = await createTeam(env, user.id, c.teamName);
   user = { ...user, plan: c.tier, stripe_customer: c.customer, founder: c.founder, team_id: teamId };
+  if (env.RESEND_API_KEY) {
+    try {
+      const mail = welcomeEmail({ endMs: c.trialEnd, amount: c.amount, interval: c.interval, tierName: (TIERS[c.tier] || {}).name || "Pro", origin: sameOrigin(env, new URL(request.url)) });
+      const r = await fetch("https://api.resend.com/emails", { method: "POST", headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ from: env.EMAIL_FROM, to: [user.email], reply_to: env.EMAIL_REPLY_TO || undefined, subject: mail.subject, html: mail.html, text: mail.text }) });
+      if (!r.ok) console.error("bienvenue : Resend", r.status);
+    } catch (e) { console.error("bienvenue", e && e.message); }
+  }
   return json({ ...(await openSession(env, user, isNew)), trialEnd: c.trialEnd });
 }
 async function billingPause(request, env) {

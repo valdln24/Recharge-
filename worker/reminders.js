@@ -31,6 +31,22 @@ export function recap(data, sinceMs) {
   return { clients, relances, ventes: sales.length, ca: Math.round(ca) };
 }
 
+/* Confirmation d'abonnement, envoyée une seule fois au retour du paiement (support durable : offre, prix, date, annulation) */
+export function welcomeEmail({ endMs, amount, interval, tierName, origin }) {
+  const per = interval === "year" ? "pour l'année" : "par mois", price = amount ? eur(amount) : "";
+  const when = endMs && endMs > Date.now() ? day(endMs) : "";
+  const subject = "Bienvenue sur Recharge : votre abonnement est confirmé";
+  const html = `<div style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;max-width:520px;margin:0 auto;padding:24px;color:#1c1a22;background:#f7f5f2">
+    <p style="font-size:20px;font-weight:bold;margin:0 0 14px">Bienvenue sur Recharge 🎉</p>
+    <p style="font-size:15px;line-height:1.5;margin:0 0 14px">Votre abonnement <b>${esc(tierName)}</b> est confirmé${price ? ` : <b>${esc(price)} ${per}</b>` : ""}.</p>
+    ${when ? `<p style="font-size:15px;line-height:1.5;margin:0 0 14px">Votre essai gratuit court jusqu'au <b>${esc(when)}</b>. Aucun prélèvement avant cette date, et nous vous prévenons par email la veille.</p>` : ""}
+    <p style="font-size:15px;line-height:1.5;margin:0 0 20px">Chaque matin, ouvrez votre plan du jour : Recharge vous dit qui relancer, avec le message prêt.</p>
+    <p style="margin:0 0 22px"><a href="${origin}/app/" style="display:inline-block;background:#1c1a22;color:#fff;text-decoration:none;font-weight:bold;padding:12px 20px;border-radius:12px">Ouvrir mon plan du jour</a></p>
+    <p style="font-size:13px;color:#6b706e;line-height:1.5;margin:0">Sans engagement : annulez à tout moment en 1 clic depuis l'appli (Menu › Mon abonnement) ou ici : ${origin}/app/#gerer. Si vous avez souscrit en tant que particulier, vous disposez d'un droit de rétractation de 14 jours. Conditions de vente : ${origin}/cgv/</p></div>`;
+  const text = `Bienvenue sur Recharge !\n\nVotre abonnement ${tierName} est confirmé${price ? ` : ${price} ${per}` : ""}.\n${when ? `Votre essai gratuit court jusqu'au ${when}. Aucun prélèvement avant cette date, et nous vous prévenons par email la veille.\n` : ""}\nOuvrir mon plan du jour : ${origin}/app/\n\nSans engagement : annulez à tout moment en 1 clic depuis l'appli (Menu › Mon abonnement) ou ici : ${origin}/app/#gerer. Si vous avez souscrit en tant que particulier, vous disposez d'un droit de rétractation de 14 jours. Conditions de vente : ${origin}/cgv/`;
+  return { subject, html, text };
+}
+
 export function reminderEmail({ name, endMs, amount, interval, origin, r }) {
   const when = day(endMs), price = eur(amount), per = interval === "year" ? "pour l'année" : "par mois";
   const manage = `${origin}/app/#gerer`;
