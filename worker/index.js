@@ -11,8 +11,9 @@ import { playbookSignup, playbookDownload, playbookUnsubscribe, adminProspects, 
 import { Store, storeDb } from "./store.js";
 import { sameKey } from "./util.js";
 import { trialReminders } from "./reminders.js";
+import { morningDigest, digestOff } from "./digest.js";
 import { adminRoute, isAdmin } from "./admin.js";
-import { checkout, confirm, portal, refreshPlan, cancelSub, BillingError } from "./billing.js";
+import { checkout, confirm, portal, refreshPlan, cancelSub, pauseSub, BillingError } from "./billing.js";
 export { Quota, Store };
 
 const LOGIN_TTL = 15 * 60 * 1000;              // un lien de connexion vaut 15 minutes
@@ -49,6 +50,7 @@ export default {
   async scheduled(event, env, ctx) {
     if (!env.DB && env.STORE) env = { ...env, DB: storeDb(env) };
     ctx.waitUntil(trialReminders(env).then(r => console.log("rappel J-1", JSON.stringify(r))).catch(e => console.error("rappel J-1", e && e.message)));
+    ctx.waitUntil(morningDigest(env).then(r => r.sent && console.log("email du matin", JSON.stringify(r))).catch(e => console.error("email du matin", e && e.message)));
   }
 };
 
@@ -101,6 +103,9 @@ async function route(request, env, url, ctx) {
   if (p === "/api/team/remove" && m === "POST") return teamRemove(request, env);
   if (p === "/api/billing/confirm" && m === "POST") return billingConfirm(request, env);
   if (p === "/api/billing/portal" && m === "POST") return billingPortal(request, env, url);
+  if (p === "/api/billing/pause" && m === "POST") return billingPause(request, env);
+  if (p === "/api/digest/off" && (m === "GET" || m === "POST")) return digestOff(request, env, url, sameKey);
+  if (p === "/api/digest" && (m === "GET" || m === "POST")) return digestPref(request, env, m);
   throw new HttpError(404, "Introuvable.");
 }
 
@@ -306,7 +311,7 @@ async function referral(request, env, url) {
    Un compteur par jour et par étape. Aucun cookie, aucune adresse IP, aucun identifiant : on sait combien de
    personnes passent chaque étape, jamais qui. Les noms d'étapes sont limités à une liste connue. */
 const EVENTS = new Set(["site_visite", "analyse_cta", "analyse_debut", "analyse_q1", "analyse_q2", "analyse_q3", "analyse_q4", "analyse_equipe", "analyse_resultat", "valeur_vue", "paywall_vu", "paywall_paiement", "paywall_plus_tard",
-  "analyse_reseau", "analyse_coach", "analyse_email", "analyse_essai", "parrain_visite", "parrainage_ouvert", "parrainage_partage", "app_ouverte", "app_depuis_analyse", "onboarding_fin", "premiere_commande", "guide_debut", "guide_fin", "guide_passe", "onboarding_prenoms", "onboarding_contacts", "premiers_clients", "premiere_relance", "compte_cree", "saisie_phrase", "playbook_vue", "playbook_ouvert", "playbook_ferme", "playbook_inscrit", "playbook_telecharge",
+  "analyse_reseau", "analyse_coach", "analyse_email", "analyse_essai", "parrain_visite", "parrainage_ouvert", "parrainage_partage", "app_ouverte", "app_depuis_analyse", "onboarding_fin", "premiere_commande", "abonnement_pause", "guide_debut", "guide_fin", "guide_passe", "onboarding_prenoms", "onboarding_contacts", "premiers_clients", "premiere_relance", "compte_cree", "saisie_phrase", "playbook_vue", "playbook_ouvert", "playbook_ferme", "playbook_inscrit", "playbook_telecharge",
   "analyse_prenom", "analyse_reglage", "analyse_plan", "analyse_offre", "analyse_choix_annuel", "analyse_choix_essai", "analyse_essai_cliente", "analyse_essai_envoi", "analyse_essai_reco"]);
 async function trackEvent(request, env) {
   const body = await readJson(request, 1024);
@@ -528,6 +533,21 @@ async function billingConfirm(request, env) {
   } else if (c.tier === "equipe") teamId = await createTeam(env, user.id, c.teamName);
   user = { ...user, plan: c.tier, stripe_customer: c.customer, founder: c.founder, team_id: teamId };
   return json({ ...(await openSession(env, user, isNew)), trialEnd: c.trialEnd });
+}
+async function billingPause(request, env) {
+  const u = await auth(request, env), body = await readJson(request);
+  if (body.confirm !== true) throw new HttpError(400, "Confirmation manquante.");
+  const row = await env.DB.prepare("SELECT paused_until FROM users WHERE id = ?").bind(u.id).first();
+  const until = await pauseSub(env, u, row && row.paused_until ? row.paused_until - 30 * 864e5 : 0);
+  await env.DB.prepare("UPDATE users SET paused_until = ? WHERE id = ?").bind(until, u.id).run();
+  return json({ ok: true, until });
+}
+/* L'email du matin : le compte connecté le coupe ou le remet (il est actif par défaut pour les abonnés) */
+async function digestPref(request, env, m) {
+  const u = await auth(request, env);
+  if (m === "POST") { const body = await readJson(request); await env.DB.prepare("UPDATE users SET digest_off = ? WHERE id = ?").bind(body.on ? null : 1, u.id).run(); }
+  const r = await env.DB.prepare("SELECT digest_off FROM users WHERE id = ?").bind(u.id).first();
+  return json({ on: !(r && r.digest_off) });
 }
 async function billingPortal(request, env, url) {
   const u = await auth(request, env);

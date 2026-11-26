@@ -56,4 +56,6 @@ Seul appel externe depuis le navigateur : `geo.api.gouv.fr` (gratuit, public, sa
 | Quitter une équipe / retirer un membre (arrête un abonnement) | Confirmation dans l'appli **et** `confirm: true` exigé par le serveur. |
 | Supprimer un client, un achat, un prospect, un produit | Confirmation dans l'appli, annulation possible juste après. |
 | Importer une liste (photo, Excel) | Liste affichée pour vérification avant l'import. |
+| Mettre l'abonnement en pause | Confirmation dans l'appli **et** `confirm: true` exigé par le serveur (abonnement mensuel, une fois tous les 6 mois). |
+| Couper l'email du matin sans être connecté | Lien personnel (jeton aléatoire par compte, comparé en temps constant) ; la page demande un clic de confirmation (POST), pour qu'un antivirus de messagerie ne le coupe pas tout seul. |
 | Remplacer les données (restauration, transfert) | Confirmation dans l'appli, conflit détecté si un autre téléphone a sauvegardé. |

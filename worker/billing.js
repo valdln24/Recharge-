@@ -140,6 +140,22 @@ async function rewardReferral(env, db, userId) {
   } catch (e) { console.error("parrainage", e && e.message); }
 }
 
+/* Pause d'un mois (abonnement mensuel, une fois tous les 6 mois) : aucun prélèvement pendant 30 jours,
+   l'accès et les données restent, puis l'abonnement reprend tout seul. Plutôt que de perdre une abonnée. */
+export async function pauseSub(env, u, pausedBefore) {
+  if (!u.stripe_sub || !env.STRIPE_SECRET_KEY) throw new BillingError(400, "Aucun abonnement sur ce compte.");
+  if (pausedBefore && Date.now() - pausedBefore < 180 * 864e5) throw new BillingError(409, "Vous avez déjà fait une pause ces 6 derniers mois.");
+  const sub = await stripe(env, "GET", `subscriptions/${u.stripe_sub}`);
+  if (sub.status === "trialing") throw new BillingError(400, "Pendant l'essai, rien n'est prélevé : pas besoin de pause.");
+  if (sub.status !== "active") throw new BillingError(400, "Cet abonnement ne peut pas être mis en pause.");
+  if (sub.pause_collection) throw new BillingError(409, "Votre abonnement est déjà en pause.");
+  const price = sub.items && sub.items.data && sub.items.data[0] && sub.items.data[0].price;
+  if (!price || !price.recurring || price.recurring.interval !== "month") throw new BillingError(400, "La pause concerne l'abonnement mensuel. Votre abonnement annuel est déjà payé jusqu'à sa date anniversaire.");
+  const until = Date.now() + 30 * 864e5;
+  await stripe(env, "POST", `subscriptions/${u.stripe_sub}`, { pause_collection: { behavior: "void", resumes_at: Math.floor(until / 1000) } });
+  return until;
+}
+
 /* 5. Suppression du compte : l'abonnement s'arrête aussi, pour ne plus rien payer */
 export async function cancelSub(env, u) {
   if (!u.stripe_sub || !env.STRIPE_SECRET_KEY) return;

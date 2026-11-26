@@ -313,6 +313,8 @@ button.cbtn{font:inherit;cursor:pointer}
 .mod{display:flex;flex-direction:column;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px 4px 12px;font:inherit;color:var(--ink);cursor:pointer;box-shadow:var(--shadow)}
 .mod span{font-size:1.5rem;line-height:1}.mod b{font-size:.72rem;font-weight:700;line-height:1.2;text-align:center;overflow-wrap:anywhere;hyphens:auto}
 @media (max-width:360px){.mods{grid-template-columns:repeat(3,1fr)}}
+.mfold{margin-top:16px}.mfold>summary{cursor:pointer;list-style:none;font-weight:800;font-size:1rem;padding:10px 2px;color:var(--ink)}.mfold>summary::-webkit-details-marker{display:none}
+.mfold>summary::after{content:" ⌄";color:var(--ink-3)}.mfold[open]>summary::after{content:" ⌃"}
 .bilan{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}.bilan div{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px}
 .bilan div.hl{grid-column:1/-1;background:var(--o-soft);border-color:transparent}.bilan b{display:block;font-size:1.7rem;letter-spacing:-.04em}.bilan .hl b{color:var(--o-text)}.bilan span{font-size:.82rem;color:var(--ink-2);font-weight:600}
 .lc-perk.lc-gift{font-size:1.45rem;line-height:1.2;margin-top:2px}
@@ -1198,7 +1200,7 @@ function accountSection() {
     <b style="display:block">☁️ Compte : ${esc(session.email)}</b>
     <p class="plan-line">${session.plan === "offert" ? "Accès offert · toute l'appli, sans paiement" : session.paid ? `Offre ${TIER_NAME[session.plan] || "Recharge"} active${session.founder ? " · prix fondateur" : ""}` : "Essai gratuit"}</p>
     ${session.team || session.plan === "equipe" ? `<button class="btn soft" style="margin-bottom:8px" data-act="teamOpen">Mon équipe</button>` : ""}
-    ${session.billing ? `<button class="btn soft" style="margin-bottom:8px" data-act="accPortal">💳 Gérer mon abonnement · factures, carte, résiliation</button>` : ""}
+    ${session.billing ? `<button class="btn soft" style="margin-bottom:8px" data-act="accManage">💳 Gérer mon abonnement · factures, carte, résiliation</button>` : ""}
     ${!session.paid ? `<button class="btn orange" style="margin-bottom:8px" data-act="accUpgrade">Choisir mon offre · 7 jours gratuits</button>` : session.plan === "starter" ? `<button class="btn soft" style="margin-bottom:8px" data-act="upPro">Passer à Pro</button>` : ""}
     <p class="hint" id="syncState" style="margin:4px 0 12px">${syncLabel()}</p>
     <button class="btn soft" data-act="accSyncNow">Sauvegarder maintenant</button>
@@ -2143,7 +2145,7 @@ function planSort(list) {
 /* Le plan de la journée : créé au premier affichage, complété si du temps se libère */
 function dayPlan(full) {
   const t = today();
-  if (!S.day || S.day.d !== t) S.day = { d: t, min: S.lastMin || 30, asked: S.settings.askDaily === false, keys: [], durs: {} };
+  if (!S.day || S.day.d !== t) S.day = { d: t, min: S.lastMin || 30, asked: S.settings.askDaily !== true, keys: [], durs: {} };
   const P = S.day, inList = new Map(full.map(x => [x.k, x])), touched = id => ideaState(id) === t || lastTouch(id) === t || S.sales.some(sl => sl.clientId === id && sl.date === t);
   const state = k => inList.has(k) ? "todo" : touched(P.who && P.who[k]) ? "done" : "skip";
   P.who = P.who || {};
@@ -2778,16 +2780,17 @@ function viewResults() {
 const tog = (id, label, on) => `<label class="field" style="display:flex;align-items:center;justify-content:space-between;gap:12px"><span style="margin:0">${label}</span><input type="checkbox" id="${id}" ${on ? "checked" : ""} style="width:22px;height:22px;accent-color:var(--o1);flex:none"></label>`;
 const SET_INDEX = ["Mon profil", "Mon plan du jour", "Coach IA", "Mes relances", "Mes produits", "Carte fidélité", "Promo du moment", "Message régulier", "Ton des messages", "Mon équipe", "Mon compte", "Sauvegarder mes clients", "Actions reportées", "Rappels et appli"];
 function viewSettings() {
-  const MODS = [["👋", "Prospects", "goto", "clients", "prospects"], ["🛍️", "Clients", "goto", "clients", "clients"], ["🧭", "Mon coach", "goto", "coach", ""],
-    ["📸", "Importer", "openImport", "", ""], ["💾", "Sauvegarder", "goto", "settings", "Sauvegarder mes clients"], ["📂", "Restaurer", "import", "", ""]];
+  const MODS = [["🛍️", "Clients", "goto", "clients", "clients"], ["👋", "Prospects", "goto", "clients", "prospects"], ["📸", "Importer", "openImport", "", ""], ["🧭", "Mon coach", "goto", "coach", ""]];
+  const GROW = [["💳", "Fidélité", "goto", "settings", "Carte fidélité"], ["📣", "Promo", "newPromo", "", ""], ["🌱", "Développer", "goto", "dev", ""], ["🎁", "Parrainage", "openParrain", "", ""]];
   /* Plus de fonctionnalités : le coach les propose dans le plan au bon moment, on peut aussi les gérer ici */
-  const MORE = [["💳", "Fidélité", "goto", "settings", "Carte fidélité"], ["📣", "Promo", "newPromo", "", ""], ["👥", "Équipe", "goto", "settings", "Mon équipe"],
-    ["🌱", "Développer", "goto", "dev", ""], ["📊", "Bilan du mois", "openBilan", "", ""], ["🗺️", "Carte", "goto", "map", ""], ["🎁", "Parrainage", "openParrain", "", ""], ["✨", "Revoir le guide", "spotStart", "", ""]];
+  const MORE = [["📊", "Bilan du mois", "openBilan", "", ""], ["👥", "Équipe", "goto", "settings", "Mon équipe"], ["🗺️", "Carte", "goto", "map", ""], ["✨", "Revoir le guide", "spotStart", "", ""],
+    ["💾", "Sauvegarder", "goto", "settings", "Sauvegarder mes clients"], ["📂", "Restaurer", "import", "", ""]];
+  const modsHTML = L => `<div class="mods">${L.map(([e, l, a, t2, c2]) => `<button class="mod" data-act="${a}" data-t="${t2}" data-c="${esc(c2)}"><span>${e}</span><b>${l}</b></button>`).join("")}</div>`;
   let h = `<h1 class="title">Menu</h1><p class="lede">Tous les modules de Recharge, et vos réglages.</p>
-    <div class="mods">${MODS.map(([e, l, a, t2, c2]) => `<button class="mod" data-act="${a}" data-t="${t2}" data-c="${esc(c2)}"><span>${e}</span><b>${l}</b></button>`).join("")}</div>
-    <div class="section"><h2>Plus de fonctionnalités</h2></div>
-    <div class="mods">${MORE.map(([e, l, a, t2, c2]) => `<button class="mod" data-act="${a}" data-t="${t2}" data-c="${esc(c2)}"><span>${e}</span><b>${l}</b></button>`).join("")}</div>
-    <div class="section"><h2>Réglages</h2></div><div class="setidx">${SET_INDEX.map(t2 => `<button data-act="goto" data-t="settings" data-c="${t2}">${t2}</button>`).join("")}</div>`;
+    <div class="section"><h2>L'essentiel</h2></div>${modsHTML(MODS)}
+    <div class="section"><h2>Fidéliser et développer</h2></div>${modsHTML(GROW)}
+    <details class="mfold"><summary>Plus d'outils</summary>${modsHTML(MORE)}</details>
+    <details class="mfold"><summary>Tous les réglages</summary><div class="setidx">${SET_INDEX.map(t2 => `<button data-act="goto" data-t="settings" data-c="${t2}">${t2}</button>`).join("")}</div></details>`;
   h += accountSection();
   const pf = prof(), catL = cats().map(k => ((OB_CATS.find(x => x[0] === k) || [])[1] || "").replace(/^\S+\s/, "")).filter(Boolean).join(", ") || "Non renseigné";
   h += section("Mon profil") + `<div class="card pad">
@@ -2800,7 +2803,7 @@ function viewSettings() {
   h += section("Mon plan du jour") + `<div class="card pad">
     <div class="field" style="margin-top:0"><span>Temps par défaut chaque jour</span></div>
     ${timeChips(S.lastMin || 30, "setDefMin")}
-    ${tog("setAskDaily", "Me demander mon temps chaque matin", S.settings.askDaily !== false)}
+    ${tog("setAskDaily", "Me demander mon temps chaque matin", S.settings.askDaily === true)}
     ${tog("setShowFind", "Afficher « Trouver de nouveaux clients » sous le plan", S.settings.showFind !== false)}
     ${tog("setIdeas", "Compléter mon plan avec des idées pour trouver des clients", S.settings.ideas !== false)}
     <div class="field"><span>Temps estimé par action <i>· en minutes</i></span></div>
@@ -2817,6 +2820,7 @@ function viewSettings() {
   h += section("Actions reportées ou ignorées", muted.length || null) + (muted.length ? `<div class="card"><ul class="hist">${muted.map(m => `<li><span><b>${esc(m.name)}</b><br><small>${m.ign ? "Ignorée" : "Reportée"} jusqu'au ${fmt(m.d)}</small></span><button class="btn sm soft" data-act="unmute" data-k="${esc(m.k)}">Rétablir</button></li>`).join("")}</ul></div>`
     : `<p class="hint" style="margin-top:0">Aucune action reportée ou ignorée.</p>`);
   h += section("Rappels et appli") + `<div class="card pad">
+    ${session && session.paid ? `${tog("setDigest", "Recevoir mon plan du jour par email le matin, quand il y a des clients à relancer", S.digestOn !== false)}` : ""}
     ${tog("setBkReminder", "Me rappeler de sauvegarder après 7 jours", S.settings.bkReminder !== false)}
     <button class="btn soft" style="margin-top:12px" data-act="homeHelp">📲 Installer l'appli sur l'écran d'accueil</button>
     <button class="btn soft" style="margin-top:8px" data-act="obOpen">👋 Revoir l'accueil de démarrage</button></div>`;
@@ -5055,6 +5059,19 @@ const actions = {
   teamPay: el => { closeSheet(); upTier = "equipe"; upTeam = { ...upTeam, mode: "join", code: el.dataset.c }; openUpgrade(); },
   teamLeave: async () => { if (!confirm("Quitter l'équipe ? Votre part s'arrête aussi : vous ne payez plus rien et vous repassez en version gratuite.")) return; try { await api("POST", "team/leave", { confirm: true }); session = { ...session, team: false, plan: "free", paid: false }; writeLS(SESSION_KEY, session); closeSheet(); render(); toast("Vous avez quitté l'équipe."); } catch (e) { toast(e.message); } },
   teamRemove: async el => { if (!confirm(`Retirer ${el.dataset.e} de l'équipe ? Sa part s'arrête aussi.`)) return; try { await api("POST", "team/remove", { email: el.dataset.e, confirm: true }); openTeam(); toast("Membre retiré : sa part est arrêtée."); } catch (e) { toast(e.message); } },
+  accManage: () => {
+    const w = worth("0000"), nC = S.clients.filter(c => !c.example).length, nR = S.events.filter(e => !e.example && OUT_TYPES.includes(e.type)).length;
+    openSheet(`<div class="shead"><h3>Mon abonnement</h3>${closeBtn}</div>
+      <div class="kstats" style="margin-top:12px"><div><b class="num">${w.total ? euro(w.total) : "0 €"}</b><span>rapportés par vos relances</span></div><div><b class="num">${nC}</b><span>clients suivis</span></div><div><b class="num">${nR}</b><span>messages envoyés</span></div></div>
+      <button class="btn primary" style="margin-top:14px" data-act="accPortal">Carte, factures ou résiliation</button>
+      <div class="ltip" style="margin-top:14px"><b>Besoin de souffler ?</b><p>Mettez votre abonnement mensuel en pause 1 mois : rien n'est prélevé, vos clients et vos relances restent là, et tout reprend tout seul.</p>
+        <button class="btn sm soft tipgo" style="margin-top:8px;background:#fff" data-act="accPause">Mettre en pause 1 mois</button></div>`);
+  },
+  accPause: async () => {
+    if (!confirm("Mettre votre abonnement en pause 1 mois ? Rien ne sera prélevé pendant 30 jours.")) return;
+    try { const r = await api("POST", "billing/pause", { confirm: true }); closeSheet(); toast(`Pause activée jusqu'au ${new Date(r.until).toLocaleDateString("fr-FR", { day: "numeric", month: "long" })}. Vos clients restent là.`); rcTrack("abonnement_pause"); }
+    catch (e) { toast(e.message); }
+  },
   accPortal: async () => { try { const r = await api("POST", "billing/portal"); location.href = r.url; } catch (e) { toast(e.message); } },
   accLogin: () => openAccountForm("login"),
   homeDone: () => { closeSheet(); if (!S.profile && !session) setTimeout(startOnboarding, 250); },
@@ -5488,6 +5505,7 @@ document.addEventListener("change", ev => {
   else if (id === "setShowFind") S.settings.showFind = t.checked;
   else if (id === "setIdeas") S.settings.ideas = t.checked;
   else if (id === "setBkReminder") S.settings.bkReminder = t.checked;
+  else if (id === "setDigest") { S.digestOn = t.checked; api("POST", "digest", { on: t.checked }).catch(e => toast(e.message)); }
   else if (t.dataset && t.dataset.dur) { const v = Math.max(1, Math.min(60, parseInt(t.value, 10) || DUR_DEF[t.dataset.dur])); S.settings.dur = { ...(S.settings.dur || {}), [t.dataset.dur]: v }; t.value = v; }
   else return;
   save(); toast("Réglage enregistré ✅");
