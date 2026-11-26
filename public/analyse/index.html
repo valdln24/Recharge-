@@ -457,13 +457,13 @@ body{background:var(--bg)}
   }
   function compute() {
     var n = CLIENTS[st.clients][1], c = CATS[st.cat], d = DORM[st.dorm][1];
-    var rate = 0.6, renouv = Math.max(1, Math.round(n * 30 / c[3] * rate)), semaine = Math.max(1, Math.round(n * 7 / c[3] * rate));
+    var rate = 0.6, renouv = Math.max(1, Math.round(n * 30 / c[3] * rate)), semaine = Math.max(1, Math.round(n * 7 / c[3]));
     var dorm = d < 0 ? Math.max(1, Math.round(n * .25)) : Math.min(d, n);
     var r10 = function (v) { return Math.round(v / 10) * 10; };
     // Un client fidèle sur un an : panier × nombre de rachats possibles × 6 sur 10
     var valClient = Math.round(c[4] * 365 / c[3] * rate);
     var revenus = Math.max(1, Math.round(dorm / 3)), reveilAn = r10(dorm / 3 * valClient);       // 1 client endormi sur 3 revient après un message
-    var nouveaux = Math.round(n * 5 / 10), resAn = r10(nouveaux * valClient);                     // 5 personnes présentées par client, 1 sur 10 achète
+    var nouveaux = Math.round(n * 5 / 10), resAn = r10(nouveaux * valClient / 2);                 // 5 personnes présentées par client, 1 sur 10 achète, arrivées au fil de l'année : 6 mois de rachats en moyenne
     var totalAn = reveilAn + resAn;
     var prio = n <= 25 ? "croissance" : dorm >= n * .2 ? "reveil" : "rachats";
     return { clients: n, cat: c[0], catLabel: c[1], dorm: dorm, pains: st.pains.slice(), renouv: renouv, panier: c[4], duree: c[3], semaine: semaine,
@@ -489,8 +489,8 @@ body{background:var(--bg)}
       '<div class="rc rc-yes"><div class="rc-k">Avec Recharge Pro, à l’année</div><p class="rc-v"><b>119 €</b> maintenant, ' + (a.fois >= 2 ? 'Recharge vous rend <b id="rgFois">' + a.fois + ' fois</b> son prix.' : 'remboursé dès la <b>' + a.cmdRemb + (a.cmdRemb > 1 ? "e" : "re") + ' commande récupérée</b>.') + '</p>' +
       '<a class="btn orange rc-go" id="rcGo" href="/app/?from=analyse#abonnement">Je m’abonne à l’année' + ARROW + '</a>' +
       '<small>7 jours gratuits, puis 119 € pour l’année (9,92 € par mois). Résiliable à tout moment. Prix fondateur, réservé aux 50 premiers abonnés.</small></div></div>';
-    // 3e case : essayer 7 jours avec ses vrais clients, avec un objectif chiffré pour ces 14 jours (estimation)
-    var q14 = Math.max(1, a.semaine * 2), c14 = Math.max(1, Math.round(q14 * .6)), e14 = c14 * a.panier;
+    // 3e case : essayer 7 jours avec ses vrais clients, avec un objectif chiffré pour ces 7 jours (estimation)
+    var q14 = Math.max(1, st.speed || a.semaine), c14 = Math.max(1, Math.round(q14 * .6)), e14 = c14 * a.panier;
     roi += '<div class="rc rc-try"><div class="rc-k">Envie de tester d’abord ?</div><p class="rc-v">Essayez <b>7 jours</b> avec vos vrais clients.</p>' +
       '<ul class="rc-goal"><li><b>' + q14 + '</b><span>clients à relancer au bon moment</span></li><li><b>~' + c14 + '</b><span>commandes à récupérer</span></li><li><b>~' + fmt(e14) + ' €</b><span>de ventes en 7 jours</span></li></ul>' +
       '<a class="btn dark rc-go" id="rcTry" href="/app/?from=analyse">J’essaie 7 jours' + ARROW + '</a>' +
@@ -501,7 +501,7 @@ body{background:var(--bg)}
     var bars = '<div class="rbars"><div class="rbar"><small><span>Clients actifs</span><span>~' + (a.clients - a.dorm) + '</span></small><i><span style="width:' + Math.round((a.clients - a.dorm) / max * 100) + '%"></span></i></div>' +
       '<div class="rbar o"><small><span>Clients endormis, à réveiller</span><span>~' + a.dorm + '</span></small><i><span style="width:' + Math.round(a.dorm / max * 100) + '%"></span></i></div></div>';
     var week = '<div class="rweek">Cette semaine, environ ' + a.semaine + " de vos clients arrivent au bout de leur produit. C’est le bon moment pour leur écrire.</div>";
-    var hyp = '<p class="rhyp">Estimation, pas une promesse : produit racheté ' + esc(CATS[st.cat][2]) + ", 6 clients sur 10 qui rachètent, panier moyen d’environ " + a.panier + " €, soit environ " + fmt(a.valClient) + " € par an pour un client fidèle. 1 client endormi sur 3 qui revient après un message. Côté réseau : 5 personnes présentées par client, dont 1 sur 10 devient cliente. Avec vos vrais clients, Recharge calcule tout précisément.</p>";
+    var hyp = '<p class="rhyp">Estimation, pas une promesse : produit racheté ' + esc(CATS[st.cat][2]) + ", 6 clients sur 10 qui rachètent, panier moyen d’environ " + a.panier + " €, soit environ " + fmt(a.valClient) + " € par an pour un client fidèle. 1 client endormi sur 3 qui revient après un message. Côté réseau : 5 personnes présentées par client, dont 1 sur 10 devient cliente, arrivées au fil de l’année (6 mois de rachats en moyenne). Avec vos vrais clients, Recharge calcule tout précisément.</p>";
     var keys = a.pains.length ? a.pains : ["oubli", "quoi", "temps"];
     var forList = keys.slice(0, 4).map(function (k) { return "<li><i>" + CHECK + "</i><span>" + FOR[k] + "</span></li>"; }).join("");
     var save = '<div class="rsave" id="rsave"><h3>Gardez votre analyse</h3><p>Recevez un lien d’accès par email : vous retrouvez vos résultats dans Recharge, sur n’importe quel téléphone.</p>' +
@@ -569,7 +569,7 @@ body{background:var(--bg)}
       var kv = +k.value; document.getElementById("anKOut").textContent = kv; k.style.setProperty("--p", ((kv - 1) / 14 * 100) + "%");
       var r = netUpd(netA.clients, 0, kv, 0, false), nw = Math.round(r.net / 10);
       document.getElementById("anNet").textContent = fmt(r.net); document.getElementById("anNew").textContent = "+" + fmt(nw);
-      var an = Math.round(nw * netA.valClient / 10) * 10;
+      var an = Math.round(nw * netA.valClient / 2 / 10) * 10;
       document.getElementById("anCA").textContent = "≈ " + fmt(an) + " €";
       document.getElementById("rgNew").textContent = nw; document.getElementById("rgRes").textContent = fmt(an);
       document.getElementById("rgTotal").textContent = fmt(netA.reveilAn + an);
