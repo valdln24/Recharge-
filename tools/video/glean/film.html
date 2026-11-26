@@ -314,7 +314,7 @@ const s5 = Scene(-7, -6,   // caché : remplacé par le coach « aujourd'hui »
  "linear-gradient(180deg,#E3E8FA,#F4EFE8 60%)",
   GROUPS.map((g, i) => `<div class="ab grp g${i}" style="left:${g.x}px;top:${g.y}px;width:${g.w}px;height:${g.h}px;border-radius:16px;background:rgba(28,26,34,.05);box-shadow:inset 0 0 0 .5px rgba(28,26,34,.06)"><span style="position:absolute;left:12px;bottom:10px;font-size:10px;font-weight:700;color:#57515C">${g.n}</span>
     ${g.avs.map(([ini, ax, ay]) => `<div class="ab gav" style="left:${ax}px;top:${ay}px">${av(ini, 26)}</div>`).join("")}</div>`).join("")
-  + `<div class="ab H l1" style="left:60px;top:50px;font-size:44px">${words("Chaque cliente")}</div><div class="ab H l2" style="left:560px;top:430px;font-size:44px">${words("au bon moment.")}</div>`,
+  + `<div class="ab H l1" style="left:60px;top:50px;font-size:44px">${words("Chaque client")}</div><div class="ab H l2" style="left:560px;top:430px;font-size:44px">${words("au bon moment.")}</div>`,
   sc => {
     sc.tiles = GROUPS.flatMap((g, gi) => g.tiles.map(([ic, tx, ty]) => Object.assign(Glass(sc, { w: 46, h: 46, r: 13, tint: "linear-gradient(160deg,rgba(255,255,255,.75),rgba(255,255,255,.5))", scale: 22, sh: 10, html: `<div style="position:absolute;inset:11px">${ico(ic, "url(#gA)", 2.2)}</div>` }), { x: g.x + tx + 23, y: g.y + ty + 23, gi })));
   },
@@ -449,8 +449,8 @@ const sQ = Scene(9.0, 16.5, "#F4EFE8",
   });
 
 /* ===== 6bis · 20–23 s : les opportunités autour de vous (prospection) ===== */
-const PINS = [["pin", "Salon bien-être", "samedi · à 1,2 km", 300, 190], ["pin", "Marché de Noël", "à côté de chez vous", 650, 150], ["venn", "Nouvelle salle de sport", "à 800 m", 700, 360], ["hash", "Groupe des mamans du quartier", "à rejoindre", 250, 390]];
-const PROSP = [["LM", "Léa Moreau", "Prospect chaud · à recontacter"], ["IN", "Inès", "Recommandée par Julie"]];
+const PINS = [["pin", "Salon bien-être", "samedi · à 1,2 km", 300, 190], ["pin", "Marché de Noël", "à côté de chez vous", 650, 150], ["venn", "Nouvelle salle de sport", "à 800 m", 700, 360], ["hash", "Groupe des parents du quartier", "à rejoindre", 250, 390]];
+const PROSP = [["LM", "Léa Moreau", "Prospect chaud · à recontacter"], ["IN", "Inès", "Recommandé par Julie"]];
 const sO = Scene(20.4, 23.0, "#F2EEE6",
   `<svg class="ab" width="960" height="540" viewBox="0 0 960 540" style="opacity:.9">
      <path d="M-20 140 C200 120 300 220 520 200 S860 120 990 160" stroke="#E4DDD2" stroke-width="18" fill="none"/>
@@ -486,7 +486,7 @@ const sO = Scene(20.4, 23.0, "#F2EEE6",
 const GBG = "linear-gradient(115deg,#F7A35C 0%,#E7768A 40%,#9A7CEB 75%,#7C7CF2 100%)";
 const s7 = Scene(23.0, 24.6, GBG,
   `<div class="ab vb" style="left:330px;top:0;width:300px;height:540px;background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.16),rgba(255,255,255,0))"></div>
-   <div class="ab H tt" style="left:0;top:205px;width:960px;text-align:center;font-size:52px;color:#fff">${words("Pour chaque cliente,")}<br>${words("le bon message.")}</div>`,
+   <div class="ab H tt" style="left:0;top:205px;width:960px;text-align:center;font-size:52px;color:#fff">${words("Pour chaque client,")}<br>${words("le bon message.")}</div>`,
   null,
   (sc, t) => camSet(sc, punch(t, .25) * (1 + t * .04)),
   (sc, t) => { for (const r of sc.roots) { wordsIn([...r.querySelectorAll(".w")], t, .1, .07, .45, 20); r.querySelector(".vb").style.transform = `translateX(${Math.sin(t * 2) * 40}px) scaleX(${1 + t * .3})`; } });
@@ -559,7 +559,7 @@ const s10 = Scene(35.0, 39.0, "#F4EFE8",
       html: `<div style="position:absolute;left:14px;top:13px;display:flex;align-items:center;gap:8px">${av("JB", 24)}<div><b style="font-size:10.5px;font-weight:800">Julie Bernard</b><div style="font-size:8.5px;color:#57515C;font-weight:600">Votre crème vous plaît ?</div></div></div>
       <div style="position:absolute;left:14px;top:60px;display:flex;gap:6px">${[["sat", "Satisfaite"], ["mit", "Mitigée"], ["pas", "Pas satisfaite"]].map(([ic, n], i) => `<span class="ch c${i}" style="display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:800;padding:6px 9px;border-radius:99px;background:#F4EFE8;color:#57515C"><i style="width:12px;height:12px;display:block">${ico(ic, i ? "#8A8390" : "#DB6578")}</i>${n}</span>`).join("")}</div>` });
     sc.reco = Glass(sc, { w: 250, h: 70, r: 18, tint: "rgba(255,255,255,.8)", scale: 24, sh: 16,
-      html: `<div style="position:absolute;left:14px;top:15px;display:flex">${av("JB", 30)}<div style="margin-left:-8px">${av("IN", 30)}</div></div><div style="position:absolute;left:84px;top:17px"><b style="font-size:11px;font-weight:800;letter-spacing:-.02em">Julie vous présente Inès</b><div style="font-size:8.5px;color:#57515C;font-weight:600;margin-top:2px">Nouvelle cliente à contacter</div></div>` });
+      html: `<div style="position:absolute;left:14px;top:15px;display:flex">${av("JB", 30)}<div style="margin-left:-8px">${av("IN", 30)}</div></div><div style="position:absolute;left:84px;top:17px"><b style="font-size:11px;font-weight:800;letter-spacing:-.02em">Julie vous présente Inès</b><div style="font-size:8.5px;color:#57515C;font-weight:600;margin-top:2px">Nouveau client à contacter</div></div>` });
     sc.mini = [["suivi", "Suivi J+7", 170, 440], ["sat", "Avis reçu", 790, 130], ["reseau", "Parrainage", 110, 300]].map(([ic, n, x, y]) => Object.assign(Glass(sc, { w: 130, h: 44, r: 14, tint: "rgba(255,255,255,.7)", scale: 20, sh: 10, html: `<div style="position:absolute;left:8px;top:8px;width:28px;height:28px" class="tile">${ico(ic, "url(#gA)", 2.2)}</div><b style="position:absolute;left:44px;top:15px;font-size:10px;font-weight:800">${n}</b>` }), { x, y }));
   },
   (sc, t) => {
@@ -607,9 +607,9 @@ const s12 = Scene(42.5, 45.5, "linear-gradient(90deg,#F4EFE8 35%,#DCD9F7 75%,#B9
   `<div class="ab track" style="left:300px;top:232px;width:330px;height:76px;border-radius:99px;background:linear-gradient(90deg,rgba(255,255,255,.6),rgba(255,255,255,.2));box-shadow:inset 0 1px 3px rgba(28,26,34,.12)"></div>
    <div class="ab tk" style="left:316px;top:248px;width:44px;height:44px">${ico("fiche", "#57515C", 1.8)}</div>
    <div class="ab tk" style="left:570px;top:248px;width:44px;height:44px">${ico("prospect", "#7C7CF2", 1.8)}</div>
-   <div class="ab H t1" style="left:60px;top:248px;font-size:38px">${words("Vos clientes")}</div>
+   <div class="ab H t1" style="left:60px;top:248px;font-size:38px">${words("Vos clients")}</div>
    <div class="ab H amp" style="left:448px;top:248px;font-size:38px">&amp;</div>
-   <div class="ab H t2" style="left:655px;top:230px;font-size:38px;color:#6E66E8;line-height:1.05">${words("de nouvelles")}<br>${words("clientes")}</div>`,
+   <div class="ab H t2" style="left:655px;top:230px;font-size:38px;color:#6E66E8;line-height:1.05">${words("de nouveaux")}<br>${words("clients")}</div>`,
   sc => { sc.knob = Glass(sc, { w: 84, h: 84, tint: "rgba(255,255,255,.18)", scale: 44, band: 30, sh: 16 }); },
   (sc, t) => {
     camSet(sc, punch(t, .2) * (1.02 + t * .025));
@@ -626,7 +626,7 @@ const s12 = Scene(42.5, 45.5, "linear-gradient(90deg,#F4EFE8 35%,#DCD9F7 75%,#B9
 /* ===== 13 · 45,5–49 s : trouver de nouveaux clients ===== */
 const PROS = [["list", "Ma liste de noms", "12 noms"], ["hash", "Hashtags de ma ville", "#lyon #lyonbeauté"], ["pin", "Lieux pour un événement", "3 idées"], ["venn", "Comptes à suivre", "8 comptes"]];
 const s13 = Scene(45.5, 49.0, "linear-gradient(160deg,#F4EFE8 30%,#FBE3E7 70%,#F7D9C6)",
-  `<div class="ab H tt" style="left:60px;top:70px;font-size:40px">${words("Trouver de")}<br>${words("nouvelles clientes.")}</div>
+  `<div class="ab H tt" style="left:60px;top:70px;font-size:40px">${words("Trouver de")}<br>${words("nouveaux clients.")}</div>
    ${Array.from({ length: 12 }, (_, i) => `<div class="dot d3" style="background:${["#F59A4A", "#DB6578", "#7C7CF2"][i % 3]}"></div>`).join("")}`,
   sc => {
     sc.rows = PROS.map(([m, a, b]) => Glass(sc, { w: 330, h: 58, r: 18, tint: "rgba(255,255,255,.78)", scale: 22, sh: 12,
@@ -656,7 +656,7 @@ const s14 = Scene(49.0, 52.5, "linear-gradient(180deg,#E3E1FA,#F6E3EA 60%,#F4EFE
              <div class="num gt" style="position:absolute;left:26px;top:44px;font-size:68px;font-weight:700;letter-spacing:-.05em">0 €</div>
              <div style="position:absolute;left:28px;top:128px;font-size:9px;color:#8A8390;font-weight:700">Exemple de démonstration</div>
              <div style="position:absolute;right:28px;bottom:28px;left:250px;height:150px;display:flex;align-items:flex-end;gap:8px">${[30, 42, 38, 55, 50, 68, 80, 100].map((v, i) => `<i class="bar" data-v="${v}" style="flex:1;border-radius:6px 6px 3px 3px;background:linear-gradient(180deg,${i === 7 ? "#DB6578" : "#E7C9D8"},${i === 7 ? "#F59A4A" : "#EFE1E8"})"></i>`).join("")}</div>
-             <div style="position:absolute;left:28px;bottom:28px;display:flex;gap:16px;font-size:9.5px;font-weight:700;color:#57515C"><span><b style="font-size:16px;color:#1C1A22;font-weight:800">9</b> réachats</span><span><b style="font-size:16px;color:#1C1A22;font-weight:800">3</b> nouvelles</span></div>` });
+             <div style="position:absolute;left:28px;bottom:28px;display:flex;gap:16px;font-size:9.5px;font-weight:700;color:#57515C"><span><b style="font-size:16px;color:#1C1A22;font-weight:800">9</b> réachats</span><span><b style="font-size:16px;color:#1C1A22;font-weight:800">3</b> nouveaux</span></div>` });
   },
   (sc, t) => {
     camSet(sc, punch(t, .2) * (1 + t * .035), 0, -t * 6);
