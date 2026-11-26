@@ -2563,6 +2563,9 @@ function viewToday() {
     <p class="cline hl-line">${left ? (plan.done.length ? planCheer(pct, left) : "Commencez par la première : le message est prêt.") : line}</p>
     ${(() => { const w = worth(today().slice(0, 8) + "01"); return w.total > 0 ? `<button class="cworth" data-act="goto" data-t="results" data-c="">Ce mois-ci, Recharge vous a rapporté <b>${euro(w.total)}</b> ›</button>` : ""; })()}
     </section>`;
+  /* Mise en avant de l'installation : c'est l'icône sur l'écran d'accueil qui fait revenir (une fois masqué, il ne revient pas) */
+  if (!DEMO && !isInstalled() && !S.installHide && S.clients.some(c => !c.example))
+    h += `<div class="notice" style="margin-top:12px"><span>📲 <b>Recharge sur votre écran d'accueil</b> : ouverte en un geste, comme une appli.</span><button class="btn sm orange" data-act="homeHelp">Installer</button><button class="linkbtn" style="margin:0 0 0 4px;width:auto" data-act="installHide" aria-label="Masquer">${I.x}</button></div>`;
   if (!S.day.asked) h += `<div class="askt"><b>Combien de temps aujourd'hui ?</b>${timeChips(S.day.min, "planTime")}</div>`;
   h += durTipCard();
   if (!SIMPLE_HOME) h += `<div class="dtiles">${Object.entries(DOMAINS).map(([d, [ic, lb]]) => { const n = dn(d); return `<button class="dtile ${n ? "" : "zero"} ${coachF === d ? "on" : ""}" data-act="coachF" data-d="${d}"><span class="di">${ic}</span><b>${n}</b><small>${lb}</small></button>`; }).join("")}</div>`;
@@ -5030,7 +5033,8 @@ const actions = {
   coachF: el => { coachF = coachF === el.dataset.d ? null : el.dataset.d; render(); },
   setDefMin: el => { actions.planTime(el); toast(`Temps par défaut : ${fmtMin(+el.dataset.m)}`); },
   unmute: el => { const snap = snapshot(); delete S.mute[el.dataset.k]; save(); render(); toast("Action rétablie dans votre plan", snap); },
-  homeHelp: () => openHomeScreen(),
+  homeHelp: () => openHomeScreen(true),   // depuis le bandeau ou le Menu : titre « Recharge sur votre écran d'accueil »
+  installHide: () => { S.installHide = today(); save(); render(); },
   findOpen: el => isStarter() ? proOnly("Les outils de prospection") : openFind(el.dataset.w),
   tagsCopy: async () => { const ok = await copyText(cityTags(myCity()).join(" ")); toast(ok ? "Hashtags copiés" : "Impossible de copier."); },
   namesAdd: () => {

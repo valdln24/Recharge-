@@ -1,13 +1,14 @@
 // Recharge · l'email du matin : « aujourd'hui, 3 clients à relancer »
 // Recharge est un site (pas d'appli installée) : l'email est le rappel quotidien qui marche partout.
 // Lancé chaque heure par Cloudflare ; ne part qu'entre 8 h et 9 h (heure de Paris), au plus une fois par jour,
-// seulement aux comptes abonnés (ou accès offert) qui ont vraiment quelque chose à faire ce jour-là.
+// aux comptes abonnés, à accès offert et aux comptes gratuits (sauvegarde de 10 clients), seulement les jours où il y a vraiment quelque chose à faire.
 // Rythme doux : tous les jours si la personne est venue ces 14 derniers jours, sinon le lundi seulement,
 // et plus rien après 60 jours sans visite. Lien « ne plus recevoir » dans chaque email (et réglage dans l'appli).
 // Aucun secret ici : RESEND_API_KEY est un secret Cloudflare.
 const DAY = 864e5;
 const esc = s => String(s).replace(/[&<>"']/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]));
 const PAID = ["recharge", "fondatrice", "equipe", "starter", "pro", "offert"];
+const PLANS = [...PAID, "free"];   // le compte gratuit reçoit aussi son plan du jour : c'est ce qui fait revenir
 
 function parisNow() {
   const p = Object.fromEntries(new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Paris", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", weekday: "short", hourCycle: "h23" })
@@ -35,18 +36,19 @@ export function morningList(data, t) {
   return { name, relances, answers: [...new Set(answers)] };
 }
 
-export function morningEmail({ name, relances, answers }, appUrl, offUrl) {
+export function morningEmail({ name, relances, answers }, appUrl, offUrl, free) {
   const nR = relances.length, nA = answers.length;
   const subject = nR ? `Aujourd'hui : ${nR} client${nR > 1 ? "s" : ""} à relancer` : `${nA} réponse${nA > 1 ? "s" : ""} à noter dans Recharge`;
   const items = relances.slice(0, 5).map(x => `<li><b>${esc(x.n)}</b>${x.p ? ` · ${esc(x.p)}` : ""}${x.late ? " (déjà fini)" : ""}</li>`).join("") + (nR > 5 ? `<li>et ${nR - 5} autre${nR - 5 > 1 ? "s" : ""}</li>` : "");
   const html = `<!doctype html><html lang="fr"><body style="margin:0;background:#f7f5f2;font-family:Arial,Helvetica,sans-serif;color:#101312">
   <div style="max-width:480px;margin:0 auto;padding:28px 20px">
     <p style="font-size:16px;margin:0 0 10px">${name ? `Bonjour ${esc(name)},` : "Bonjour,"}</p>
-    ${nR ? `<p style="font-size:21px;font-weight:bold;line-height:1.3;margin:0 0 12px">${nR > 1 ? `${nR} clients arrivent` : "Un client arrive"} à la fin de leur produit.</p>
+    ${nR ? `<p style="font-size:21px;font-weight:bold;line-height:1.3;margin:0 0 12px">${nR > 1 ? `${nR} clients arrivent à la fin de leur produit.` : "Un client arrive à la fin de son produit."}</p>
     <ul style="margin:0 0 14px;padding-left:18px;font-size:16px;line-height:1.7">${items}</ul>
     <p style="font-size:15px;line-height:1.5;margin:0 0 18px">Les messages sont déjà écrits : 2 minutes chacun.</p>` : ""}
     ${nA ? `<p style="font-size:15px;line-height:1.5;margin:0 0 18px">${nR ? "Et " : ""}${nA > 1 ? `${nA} personnes relancées attendent` : `${esc(answers[0])} attend`} votre réponse : ${nA > 1 ? "ont-elles" : "a-t-elle"} recommandé ? Un appui suffit, Recharge compte ce que vos relances rapportent.</p>` : ""}
-    <p style="margin:0 0 26px"><a href="${appUrl}" style="display:inline-block;background:#ff5e1f;color:#fff;text-decoration:none;font-weight:bold;font-size:17px;padding:14px 26px;border-radius:999px">Ouvrir mon plan du jour</a></p>
+    <p style="margin:0 0 ${free ? 14 : 26}px"><a href="${appUrl}" style="display:inline-block;background:#ff5e1f;color:#fff;text-decoration:none;font-weight:bold;font-size:17px;padding:14px 26px;border-radius:999px">Ouvrir mon plan du jour</a></p>
+    ${free ? `<p style="font-size:14px;color:#3d4240;line-height:1.5;margin:0 0 26px">Version gratuite : 10 clients. Avec l'essai de 7 jours, suivez tous vos clients et profitez du coach IA.</p>` : ""}
     <p style="font-size:12px;color:#6b706e;line-height:1.5;margin:0">Vous recevez cet email les jours où Recharge a quelque chose pour vous. <a href="${offUrl}" style="color:#6b706e">Ne plus recevoir cet email</a></p>
   </div></body></html>`;
   const text = `${name ? `Bonjour ${name},` : "Bonjour,"}\n\n${nR ? `À relancer aujourd'hui : ${relances.slice(0, 5).map(x => x.n + (x.p ? ` (${x.p})` : "")).join(", ")}${nR > 5 ? "…" : ""}.\n` : ""}${nA ? `Réponses à noter : ${answers.slice(0, 5).join(", ")}.\n` : ""}\nOuvrir mon plan du jour : ${appUrl}\n\nNe plus recevoir cet email : ${offUrl}`;
@@ -60,9 +62,9 @@ export async function morningDigest(env, force) {
   const P = parisNow(); if (!force && env.DIGEST_ANY_HOUR !== "true" && P.hour !== 8) return { sent: 0, skipped: "pas l'heure" };
   const t0 = Date.now(), origin = env.APP_ORIGIN || "https://getrecharge.fr";
   const rows = (await env.DB.prepare(
-    `SELECT u.id, u.email, u.last_seen_at, u.digest_key, b.data FROM users u JOIN backups b ON b.user_id = u.id
-     WHERE u.plan IN (${PAID.map(() => "?").join(",")}) AND u.digest_off IS NULL AND (u.digest_at IS NULL OR u.digest_at < ?)
-       AND u.last_seen_at > ? LIMIT 300`).bind(...PAID, t0 - 20 * 3600e3, t0 - 60 * DAY).all()).results || [];
+    `SELECT u.id, u.email, u.plan, u.last_seen_at, u.digest_key, b.data FROM users u JOIN backups b ON b.user_id = u.id
+     WHERE u.plan IN (${PLANS.map(() => "?").join(",")}) AND u.digest_off IS NULL AND (u.digest_at IS NULL OR u.digest_at < ?)
+       AND u.last_seen_at > ? ORDER BY u.last_seen_at DESC LIMIT 300`).bind(...PLANS, t0 - 20 * 3600e3, t0 - 60 * DAY).all()).results || [];
   let sent = 0;
   for (const u of rows) {
     try {
@@ -72,7 +74,7 @@ export async function morningDigest(env, force) {
       const list = morningList(JSON.parse(await gunzip(new Uint8Array(u.data))), P.date);
       if (!list || (!list.relances.length && !list.answers.length)) continue;   // rien à faire : pas d'email
       let key = u.digest_key; if (!key) { key = randomKey(); await env.DB.prepare("UPDATE users SET digest_key = ? WHERE id = ?").bind(key, u.id).run(); }
-      const mail = morningEmail(list, `${origin}/app/`, `${origin}/api/digest/off?u=${encodeURIComponent(u.id)}&k=${encodeURIComponent(key)}`);
+      const mail = morningEmail(list, `${origin}/app/`, `${origin}/api/digest/off?u=${encodeURIComponent(u.id)}&k=${encodeURIComponent(key)}`, !PAID.includes(u.plan));
       const r = await fetch("https://api.resend.com/emails", { method: "POST", headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, "Content-Type": "application/json" },
         body: JSON.stringify({ from: env.EMAIL_FROM, to: [u.email], reply_to: env.EMAIL_REPLY_TO || undefined, subject: mail.subject, html: mail.html, text: mail.text,
           headers: { "List-Unsubscribe": `<${origin}/api/digest/off?u=${encodeURIComponent(u.id)}&k=${encodeURIComponent(key)}>`, "List-Unsubscribe-Post": "List-Unsubscribe=One-Click" } }) });
