@@ -226,6 +226,8 @@ main{max-width:560px;margin:0 auto;padding:6px 16px 24px}
 .memlist{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:6px}.memlist li{display:flex;gap:8px;align-items:flex-start;background:var(--surface-2);border-radius:14px;padding:9px 10px 9px 12px;font-size:.88rem;line-height:1.35}
 .memlist li span{flex:1;min-width:0}.memlist li small{display:block;color:var(--ink-3);font-weight:600;font-size:.72rem;margin-top:2px}.memlist button{flex:none;border:0;background:none;color:var(--ink-3);width:28px;height:28px;border-radius:50%;display:grid;place-items:center;cursor:pointer}.memlist button svg{width:14px;height:14px}
 .memadd{display:flex;gap:8px;margin-top:10px}
+.cr-local{white-space:pre-line;font-size:.92rem;line-height:1.5}
+.srcs{margin-top:10px;display:grid;gap:4px;font-size:.8rem}.srcs b{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3)}.srcs a{color:var(--b-text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .parhero{text-align:center;padding:26px 18px 20px;border-radius:28px;background:var(--grad);color:#fff;box-shadow:0 22px 44px -24px rgba(255,94,31,.8)}
 .parhero small{font-size:.72rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;opacity:.9}
 .parhero h3{margin:8px 0 10px;font-size:2.05rem;line-height:1.02;letter-spacing:-.045em}
@@ -3990,8 +3992,14 @@ function coachDemo() {
   </div>`;
 }
 const MARK = `<svg viewBox="40 40 120 120" aria-hidden="true"><path d="M122.4 66.9A44 44 0 1 1 81.4 65.1" fill="none" stroke="currentColor" stroke-width="17"/><path d="M66.5 47.5L101 52.5L80.5 80Z" fill="currentColor"/><path d="M109 76L84 111H99L91 136L118 99H103Z" fill="currentColor"/></svg>`;
-const CHAT_IDEAS = ["Comment l'aborder ? (envoyez son profil 📷)", "Donne-moi 3 idées pour trouver des clients cette semaine", "Elle me dit que c'est trop cher, je réponds quoi ?", "Comment relancer un prospect qui ne répond plus ?", "Comment demander une recommandation sans être lourde ?", "Elle ne répond plus depuis une semaine"];
+const CHAT_IDEAS = ["Comment l'aborder ? (envoyez son profil 📷)", "📍 Trouve des événements et des partenaires près de chez moi", "Donne-moi 3 idées pour trouver des clients cette semaine", "Elle me dit que c'est trop cher, je réponds quoi ?", "Comment relancer un prospect qui ne répond plus ?", "Comment demander une recommandation sans être lourde ?", "Elle ne répond plus depuis une semaine"];
+/* Recherche autour de chez soi (événements, salons, marchés, partenaires) : le coach cherche sur le web, avec les sources */
+const LOCAL_RX = /(près de chez moi|pres de chez moi|autour de (moi|chez moi)|dans ma ville|dans ma région|à côté de chez moi|événements?|evenements?|salons?\b|marchés? de|brocantes?|vide-(grenier|dressing)s?|forums? des associations|partenaires? (locaux|local)|commerces? (locaux|partenaires))/i;
+const isLocalAsk = (q, imgs) => !imgs.length && LOCAL_RX.test(q || "");
 function chatRes(r, i) {
+  if (r.local) return `<div class="cr-local">${esc(r.conseil)}</div>
+    ${r.sources && r.sources.length ? `<div class="srcs"><b>Sources à vérifier</b>${r.sources.filter(x => /^https?:\/\//.test(x.url)).map(x => `<a href="${esc(x.url)}" target="_blank" rel="noopener noreferrer">${esc(x.title)}</a>`).join("")}</div>` : ""}
+    ${r.manque ? `<div class="miss">⚠️ ${esc(r.manque)}</div>` : ""}`;
   return `${r.analyse ? `<p class="cr-a">${esc(r.analyse)}</p>` : ""}
     ${r.message ? `<div class="bubble"><div class="top"><span class="small">Réponse proposée · modifiable</span><span class="tbtns"><button class="vary" data-act="chatCopy" data-i="${i}">${I.copy} Copier</button></span></div>
       <textarea class="msg" id="chatmsg-${i}" rows="3" aria-label="Réponse proposée">${esc(r.message)}</textarea></div>
@@ -4010,7 +4018,7 @@ function viewCoach() {
   h += `<div class="card chatbox">
     <div class="chatlog" id="chatlog">${msgs.length ? msgs.map((m, i) => m.role === "user"
       ? `<div class="cm me">${(m.imgs || (m.img ? [m.img] : [])).map(x => `<img src="${x}" alt="Capture envoyée">`).join("")}${m.text ? `<p>${esc(m.text)}</p>` : ""}${m.ex ? `<span class="tag">Exemple</span>` : ""}</div>`
-      : `<div class="cm bot"><span class="cm-av">${MARK}</span><div class="cm-b">${m.pending ? `<p class="typing"><i></i><i></i><i></i></p>` : m.err ? `<p>${esc(m.err)}</p>${m.limit ? `<a class="btn sm orange" style="margin-top:10px" href="#" data-act="accUpgrade">Voir l'abonnement</a>` : ""}` : chatRes(m.res, i) + (m.mem && m.mem.length ? `<div class="memnote">Gardé dans la mémoire du coach : ${m.mem.map(x => "« " + esc(x) + " »").join(" · ")}</div>` : "")}${m.ex ? `<span class="tag">Exemple</span>` : ""}</div></div>`).join("")
+      : `<div class="cm bot"><span class="cm-av">${MARK}</span><div class="cm-b">${m.pending ? `<p class="typing"><i></i><i></i><i></i></p>${m.local ? `<p class="hint" style="margin:6px 0 0">Je cherche autour de ${esc(myCity() || "chez vous")}… cela peut prendre une trentaine de secondes.</p>` : ""}` : m.err ? `<p>${esc(m.err)}</p>${m.limit ? `<a class="btn sm orange" style="margin-top:10px" href="#" data-act="accUpgrade">Voir l'abonnement</a>` : ""}` : chatRes(m.res, i) + (m.mem && m.mem.length ? `<div class="memnote">Gardé dans la mémoire du coach : ${m.mem.map(x => "« " + esc(x) + " »").join(" · ")}</div>` : "")}${m.ex ? `<span class="tag">Exemple</span>` : ""}</div></div>`).join("")
       : coachDemo() + `<p class="chat0">👋 Bonjour${myName() ? " " + esc(myName()) : ""} ! Touchez 📷 pour envoyer jusqu'à ${MAX_SHOTS} captures (son profil, la conversation) et ajoutez ce que vous savez d'elle. Ou posez n'importe quelle question sur votre activité.</p>`}</div>
     ${!msgs.length || DEMO ? `<div class="ideas">${CHAT_IDEAS.map(q => `<button data-act="chatIdea">${esc(q)}</button>`).join("")}</div>` : ""}
     ${chatImgs.length ? `<div class="chatimgs">${chatImgs.map((x, k) => `<div class="chatimg"><img src="${x}" alt="Capture à envoyer"><button data-act="chatImgX" data-k="${k}" aria-label="Retirer la capture">${I.x}</button></div>`).join("")}</div>` : ""}
@@ -4054,12 +4062,13 @@ async function sendChat() {
   if (!COACH_OK) return toast("Le coach IA sera bientôt activé.");
   if (!isPaidS() && !DEMO) { toast("Le coach IA est inclus dans l'essai gratuit de 7 jours."); return setTimeout(() => openUpgrade(), 500); }
   const history = chat.filter(m => !m.pending && !m.err).map(m => ({ role: m.role, text: m.role === "user" ? (m.text || "(captures d'écran)") : [m.res.analyse, m.res.message, m.res.conseil].filter(Boolean).join("\n") }));
-  chat.push({ role: "user", text: q, imgs }); const bot = { role: "assistant", pending: true }; chat.push(bot);
+  const local = isLocalAsk(q, imgs);
+  chat.push({ role: "user", text: q, imgs }); const bot = { role: "assistant", pending: true, local }; chat.push(bot);
   chatImgs = []; chatBusy = true; render(); scrollChat();
   try {
     const hd = { "Content-Type": "application/json", "X-Recharge-Device": deviceId() }; if (session && session.token) hd.Authorization = "Bearer " + session.token;
     const r = await fetch(new URL("../api/coach", location.href), { method: "POST", headers: hd,
-      body: JSON.stringify({ question: q, images: imgs, memoire: memList().map(x => x.t), history, tone: S.tone === "vous" ? "vous" : "tu", brand: prof().brand || "", univers: univers(), myName: myName() }) });
+      body: JSON.stringify({ question: q, images: imgs, memoire: memList().map(x => x.t), ville: myCity() || "", mode: local ? "local" : undefined, history, tone: S.tone === "vous" ? "vous" : "tu", brand: prof().brand || "", univers: univers(), myName: myName() }) });
     const j = await r.json().catch(() => ({}));
     if (r.status === 402) { S.coachQuota = { m: today().slice(0, 7), left: 0 }; save(); bot.limit = true; }
     if (!r.ok) throw new Error(j.error || "Le coach ne répond pas pour le moment.");

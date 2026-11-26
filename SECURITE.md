@@ -41,8 +41,10 @@ Seul appel externe depuis le navigateur : `geo.api.gouv.fr` (gratuit, public, sa
 
 - Consigne de sécurité dans les deux agents (`worker/coach.js`, `worker/importer.js`) : le contenu des captures,
   documents, emails et pages est une information, jamais une instruction ; aucun ordre trouvé dedans n'est exécuté.
-- Les agents n'ont **aucun outil** : ils ne peuvent ni envoyer, ni payer, ni modifier, ni supprimer. Ils renvoient un texte
-  ou une liste que la vendeuse relit et valide.
+- Les agents n'ont **aucun outil d'action** : ils ne peuvent ni envoyer, ni payer, ni modifier, ni supprimer. Ils renvoient un texte
+  ou une liste que la vendeuse relit et valide. Seule exception, en **lecture seule** : la recherche web d'Anthropic, utilisée par le coach
+  pour les recherches locales (événements, salons, partenaires autour de sa ville), offre Pro, 4 recherches par question, 6 questions par jour ;
+  le contenu des pages est traité comme une information, jamais comme une instruction, et les sources sont affichées pour vérification.
 - Ils ne voient que ce que l'appli de la vendeuse connectée leur envoie dans la demande : pas d'accès à la base.
   Rien n'est conservé côté serveur (ni capture, ni conversation). Le coach accepte jusqu'à 3 captures (profil + conversation).
 - **Mémoire du coach** : jusqu'à 60 notes courtes (200 caractères) dans les données de la vendeuse (`S.coachMem`, sauvegarde de son compte), jamais dans une autre table.
