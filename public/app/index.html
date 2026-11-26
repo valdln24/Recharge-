@@ -759,6 +759,11 @@ nav.tabs .tab.on svg{background:var(--navy);color:#fff;box-shadow:0 8px 18px -8p
 .obopt.hot{background:var(--ink);color:#fff;border-color:var(--ink);--mk-b:rgba(255,255,255,.2);--mk-c:#fff}.obopt.hot small{color:#C9CBD6}
 .obopt.ghost{grid-template-columns:1fr;background:none;border-style:dashed}
 .obopt.dim{opacity:.4;pointer-events:none}
+/* « A recommandé ? » : la réponse en un appui */
+.ansc{padding:16px 18px;border:2px solid var(--orange);border-radius:28px}
+.ans-h{display:flex;gap:12px;align-items:center}.ans-h .name{font-size:1.06rem}.ans-h small{display:block;color:var(--ink-2);font-size:.86rem;font-weight:600}
+.ans-q{margin:12px 0 10px;font-size:1.2rem;font-weight:800;letter-spacing:-.01em}
+.ans-b{display:grid;grid-template-columns:1fr 1fr;gap:8px}.ans-b .btn{margin:0}
 /* Premiers pas : la fonction mise en lumière sur le vrai écran */
 .spot-block{position:fixed;inset:0;z-index:90}
 .spot-hole{position:fixed;z-index:91;border-radius:22px;box-shadow:0 0 0 200vmax rgba(16,19,18,.72),0 0 0 3px var(--orange);pointer-events:none;transition:all .35s cubic-bezier(.2,.8,.2,1)}
@@ -1852,6 +1857,9 @@ function coachMeta(it) {
   } else if (it.type === "suivi") {
     dom = "suivi"; action = "Prendre des nouvelles après l'achat et donner un conseil d'utilisation";
     facts.push(`Achat ${deProd(it.s.product)} ${ago(it.s.date)}`); facts.push("pas encore de suivi");
+  } else if (it.type === "answer") {
+    dom = "reassort"; action = "Noter sa réponse : Recharge compte ce que vos relances rapportent";
+    facts.push(`relancé ${ago(it.s.relancedAt)} pour ${deProd(it.s.product).replace(/^d[eu] |^de l'|^des /, "")}`);
   } else if (it.type === "prospect") {
     const x = it.x; dom = "prospect";
     action = x.status === "lost" || (x.contacts || 0) >= 3 ? "Reprendre contact avec une nouveauté, sans pression" : x.contacts ? "Relancer en douceur, sans insister" : "Envoyer un premier message tant que la rencontre est fraîche";
@@ -1896,6 +1904,18 @@ function todayList() {
   for (const x of dueProspects()) items.push({ k: "p:" + x.id, type: "prospect", x, who: x.id, score: 62 + diff(t, x.next) * 2 });
   for (const c of dueGifts()) items.push({ k: "g:" + c.id, type: "gift", c, who: c.id, score: 70 });
   for (const sl of dueSuivis()) items.push({ k: "su:" + sl.id, type: "suivi", s: sl, who: sl.clientId, score: 55 });
+  for (const sl of dueAnswers()) items.push({ k: "an:" + sl.id, type: "answer", s: sl, who: sl.clientId, score: 120 });
+  /* 1. Premier jour : une relance prête tout de suite, même si aucun produit n'est encore à sa fin
+     (le client dont le produit finit le plus tôt, s'il finit dans les 3 semaines) */
+  if (!items.some(it => it.type === "sale") && !S.events.some(e => e.type === "relance" && !e.example)) {
+    const first = S.sales.filter(sl => sl.status === "open" && !sl.example && (!sl.snooze || sl.snooze <= t) && diff(sl.end, t) <= 21).sort((a, b) => a.end.localeCompare(b.end))[0];
+    if (first) items.push({ k: "s:" + first.id, type: "sale", s: first, who: first.clientId, score: 110, early: true });
+    /* sinon, prendre des nouvelles du dernier achat : un vrai premier message, utile et sans vendre */
+    else if (!items.some(it => it.type === "suivi")) {
+      const last = S.sales.filter(sl => sl.status === "open" && !sl.example && !sl.suiviDone && diff(t, sl.date) >= 2).sort((a, b) => b.date.localeCompare(a.date))[0];
+      if (last) items.push({ k: "su:" + last.id, type: "suivi", s: last, who: last.clientId, score: 110 });
+    }
+  }
   for (const sl of dueSat()) items.push({ k: "sa:" + sl.id, type: "sat", s: sl, who: sl.clientId, score: 50 });
   for (const c of dueCare()) items.push({ k: "ca:" + c.id + ":" + lastSat(c).date, type: "care", x: c, who: c.id, score: 62 });
   for (const c of dueRecoC()) items.push({ k: "rc:" + c.id, type: "reco", pk: "c", x: c, who: c.id, score: 39 });
@@ -1939,6 +1959,12 @@ function dueSales() {
   const t = today();
   return S.sales.filter(s => s.status === "open" && diff(s.end, t) <= (S.settings.relanceDays || 5) && (!s.snooze || s.snooze <= t))
     .sort((a, b) => a.end.localeCompare(b.end));
+}
+/* Les relances envoyées il y a 2 jours ou plus, sans réponse notée : on pose la question (« Pas encore » la repose dans 3 jours) */
+function dueAnswers() {
+  const t = today();
+  return S.sales.filter(s => s.status === "relance" && !s.example && s.relancedAt && diff(t, s.relancedAt) >= 2 && diff(t, s.relancedAt) <= 45 && (!s.ansNext || s.ansNext <= t))
+    .sort((a, b) => a.relancedAt.localeCompare(b.relancedAt));
 }
 function waitingSales() {
   return S.sales.filter(s => s.status === "relance").sort((a, b) => a.relancedAt.localeCompare(b.relancedAt));
@@ -2096,7 +2122,7 @@ const SIMPLE_HOME = true;   // accueil épuré : compteurs et montant gagné cac
 /* ---------- Le plan du jour : le coach remplit le temps disponible, par ordre de priorité ----------
    1) relances : réassorts et suivis après achat  2) prospects  3) recommandations  4) fidélité, s'il reste du temps
    Durées estimées : 2 min pour une relance, un suivi ou la fidélité (message prêt) ; 3 min pour un prospect ou une demande de recommandation (plus personnel). */
-const PLAN_CAT = { idea: [6, 5], sale: [1, 2], suivi: [1, 2], sat: [1, 2], care: [1, 2], prospect: [2, 3], reco: [3, 3], hint: [4, 2], gift: [4, 2], wake: [4, 2], promo: [5, 2], news: [5, 2] };
+const PLAN_CAT = { idea: [6, 5], answer: [0, 1], sale: [1, 2], suivi: [1, 2], sat: [1, 2], care: [1, 2], prospect: [2, 3], reco: [3, 3], hint: [4, 2], gift: [4, 2], wake: [4, 2], promo: [5, 2], news: [5, 2] };
 const TIME_OPTS = [[15, "15 min"], [30, "30 min"], [45, "45 min"], [60, "1 h"]];
 const T_MAX = 300;   // « 4 h et + »
 /* Les choix rapides + « Autre » (curseur de 5 min à 4 h et +) */
@@ -2125,7 +2151,12 @@ function dayPlan(full) {
   for (const it of planSort(full)) {
     if (P.keys.includes(it.k)) continue;
     const d = durOf(it);
-    if (budget + d > P.min && P.keys.some(k => state(k) !== "skip")) continue;
+    if (budget + d > P.min && P.keys.some(k => state(k) !== "skip")) {
+      if (it.type === "idea") continue;
+      // une vraie personne à recontacter passe avant une idée de prospection pas encore faite
+      for (let i = P.keys.length - 1; i >= 0 && budget + d > P.min; i--) { const k = P.keys[i], x = inList.get(k); if (x && x.type === "idea" && state(k) === "todo") { budget -= P.durs[k] || 2; P.keys.splice(i, 1); } }
+      if (budget + d > P.min) continue;
+    }
     P.keys.push(it.k); P.durs[it.k] = d; P.who[it.k] = it.who; budget += d;
   }
   const todo = P.keys.filter(k => state(k) === "todo").map(k => inList.get(k));
@@ -2400,7 +2431,7 @@ function viewToday() {
   let h = `<section class="coach hello"><div class="ctop"><span class="chi">${hi}${who ? " " + esc(who) : ""}</span><button class="cpill" data-act="planAsk">${fmtMin(S.day.min)} · changer</button></div>
     <div class="cbig"><div class="cring"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="42" class="trk"/><circle cx="50" cy="50" r="42" class="arc" stroke-dasharray="${(RC * Math.max(donePct, .001)).toFixed(1)} ${RC.toFixed(1)}" transform="rotate(-90 50 50)"/></svg><b class="num">${left || (plan.done.length ? "✓" : "0")}</b></div><span>${left > 1 ? "actions dans<br>votre plan du jour" : left ? "action dans<br>votre plan du jour" : plan.done.length ? "plan du jour<br>terminé" : "rien d'urgent<br>aujourd'hui"}</span></div>
     <p class="cline hl-line">${line}</p>
-    ${(() => { const w = worth(today().slice(0, 8) + "01"); return w.total > 0 && !SIMPLE_HOME ? `<button class="cworth" data-act="goto" data-t="results" data-c="">Ce mois-ci, le coach vous a rapporté <b>${euro(w.total)}</b> ›</button>` : ""; })()}
+    ${(() => { const w = worth(today().slice(0, 8) + "01"); return w.total > 0 ? `<button class="cworth" data-act="goto" data-t="results" data-c="">Ce mois-ci, Recharge vous a rapporté <b>${euro(w.total)}</b> ›</button>` : ""; })()}
     ${total ? `<div class="hl-count"><span><b class="num">${plan.done.length}</b> / ${total} fait${plan.done.length > 1 ? "s" : ""}</span><span><b class="num">${plan.used}</b> / ${plan.planned} min</span></div><p class="pcheer">${planCheer(pct, left)}</p>` : ""}</section>`;
   if (!S.day.asked) h += `<div class="askt"><b>Combien de temps aujourd'hui ?</b>${timeChips(S.day.min, "planTime")}</div>`;
   h += durTipCard();
@@ -2480,6 +2511,14 @@ let CUR = null;
 const expCards = new Set();   // fiches du plan dont le détail est ouvert
 function todayCard(it) {
   CUR = it;
+  if (it.type === "answer") {
+    const sl = it.s, c = client(sl.clientId) || { name: "?" }, d = diff(today(), sl.relancedAt);
+    return `<article class="card ansc"><div class="ans-h"><span class="avatar">${esc(initials(c.name))}</span><div><button class="name" data-act="fiche" data-id="${c.id}">${esc(c.name)}</button>
+        <small>Relancé il y a ${plural(d, "jour", "jours")} · ${esc(sl.product)}</small></div></div>
+      <p class="ans-q">${esc(firstName(c.name))} a recommandé ?</p>
+      <div class="ans-b"><button class="btn orange" data-act="reco" data-id="${sl.id}">Oui 🎉</button><button class="btn soft" data-act="ansLater" data-id="${sl.id}">Pas encore</button></div>
+      <button class="linkbtn" style="margin-top:6px" data-act="noFollow" data-id="${sl.id}">Non, sans suite</button></article>`;
+  }
   if (it.type === "sale") {
     const sl = it.s, c = client(sl.clientId) || { name: "?" }, tm = timing(sl), pct = Math.round(progress(sl) * 100);
     const left = diff(sl.end, today());
@@ -3087,6 +3126,21 @@ function duration(d) {
 }
 /* Bouche-à-oreille : le meilleur moment pour demander, c'est juste après une recommande */
 let refK = 0;
+/* Une commande récupérée : on la fête, avec ce que Recharge a rapporté ce mois-ci (calcul de worth(), rien d'estimé) */
+function celebrateWin(amount) {
+  const m = worth(today().slice(0, 8) + "01").total;
+  bravo(amount > 0 ? `+${euro(amount)} récupérés grâce à Recharge${m > amount ? ` · ${euro(m)} ce mois-ci` : ""}` : "Commande récupérée grâce à votre relance !");
+  if (!S.firstWin) { S.firstWin = today(); save(); rcTrack("premiere_commande"); }
+}
+function openWinPrice(oldId, newId) {
+  const n = sale(newId), c = client(n.clientId) || { name: "" };
+  openSheet(`<div class="shead"><h3>Bravo, ${esc(firstName(c.name))} a recommandé !</h3>${closeBtn}</div>
+    <p class="lede" style="margin-top:8px">Combien a coûté sa commande ? Recharge additionne ce que vos relances vous rapportent.</p>
+    <label class="field"><span>Montant de la commande</span><div class="unit"><input class="input num" id="winAmt" inputmode="decimal" placeholder="ex. : 35"><b>€</b></div></label>
+    <button class="btn orange" style="margin-top:14px" data-act="winSave" data-o="${oldId}" data-n="${newId}">Enregistrer</button>
+    <button class="linkbtn" data-act="winSkip" data-o="${oldId}">Je ne sais pas</button>`);
+  setTimeout(() => { const i = document.getElementById("winAmt"); if (i) i.focus(); }, 120);
+}
 function openReferral(saleId) {
   const s = sale(saleId), c = client(s.clientId);
   refK = Math.floor(Math.random() * 3);
@@ -4801,8 +4855,10 @@ const actions = {
     applyRhythm(n, s.clientId, p);
     S.sales.push(n);
     logEvent("recommande", s, { amount: p.price * s.qty, newSaleId: n.id });
-    save(); render(); toast(`Bravo ! Nouvelle vente créée pour ${firstName(client(s.clientId).name)}`, snap);
-    openReferral(s.id);
+    save(); render();
+    if (!(p.price > 0) && !s.example) return openWinPrice(s.id, n.id);
+    toast(`Nouvelle vente créée pour ${firstName(client(s.clientId).name)}`, snap);
+    celebrateWin((p.price || 0) * s.qty); setTimeout(() => openReferral(s.id), 1600);
   },
   nextRef: el => { refK++; const ta = document.getElementById("msg-ref"); ta.value = refMessage(sale(el.dataset.id), refK); fitAreas(ta.parentNode); },
   refWa: el => {
@@ -5235,6 +5291,22 @@ const actions = {
     s.snooze = addDays(today(), 3); logEvent("report", s);
     save(); render(); toast(`Reporté au ${fmt(s.snooze)}`, snap);
   },
+  ansLater: el => {
+    const s = sale(el.dataset.id), snap = snapshot();
+    s.ansNext = addDays(today(), 3); save(); render();
+    toast(`D'accord, je vous redemande dans 3 jours pour ${firstName((client(s.clientId) || { name: "" }).name)}.`, snap);
+  },
+  winSave: el => {
+    const o = el.dataset.o, n = sale(el.dataset.n), amt = num(document.getElementById("winAmt").value);
+    if (n && amt > 0) {
+      n.price = Math.round(amt / Math.max(1, n.qty || 1) * 100) / 100;
+      const p = S.products.find(x => x.id === n.productId || x.name === n.product); if (p && !p.price) p.price = n.price;
+      const ev = S.events.find(e => e.type === "recommande" && e.newSaleId === n.id); if (ev) ev.amount = amt;
+      save();
+    }
+    closeSheet(); render(); celebrateWin(amt > 0 ? amt : 0); setTimeout(() => openReferral(o), 1600);
+  },
+  winSkip: el => { closeSheet(); render(); celebrateWin(0); setTimeout(() => openReferral(el.dataset.o), 900); },
   noFollow: el => {
     const s = sale(el.dataset.id), snap = snapshot();
     s.status = "sanssuite"; logEvent("sanssuite", s);
