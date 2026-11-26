@@ -3573,7 +3573,7 @@ async function openParrain() {
     <p>Invitez une collègue : quand elle s'abonne, vous gagnez chacune un mois. <b>12 collègues = 1 an de Recharge offert.</b></p>
     <div class="pardots" aria-label="${won} mois gagnés sur 12">${Array.from({ length: 12 }, (_, k) => `<i class="${k < won ? "on" : ""}"></i>`).join("")}</div>
     <span class="parwon">${won ? `${plural(won, "mois gagné", "mois gagnés")} sur 12` : "Votre première collègue vous attend"}</span></div>`;
-  const how = `<details class="parhow"><summary>Comment ça marche</summary><ul class="perks"><li>🎁 <b>1 mois offert pour vous</b> à chaque collègue invitée qui s'abonne</li><li>🤝 <b>1 mois offert pour elle</b>, en plus de ses 7 jours d'essai</li><li>📅 Jusqu'à <b>12 mois offerts par an</b> : une année entière</li></ul>
+  const how = `<details class="parhow"><summary>Comment ça marche</summary><ul class="perks"><li>🎁 <b>1 mois offert pour vous</b> à chaque collègue invitée qui s'abonne</li><li>🤝 <b>1 mois offert pour elle</b>, en plus de ses 7 jours d'essai</li><li>📅 Jusqu'à <b>12 mois offerts par an</b> : une année entière</li><li>👥 <b>Tête de réseau ?</b> Avec l'offre Équipe, chaque membre qui paie sa part vous rapporte aussi 1 mois</li></ul>
     <p class="hint">Les mois sont gagnés quand la personne invitée paie son premier mois, après son essai.</p></details>`;
   if (!session) {
     openSheet(`<div class="shead"><span></span>${closeBtn}</div>${hero()}

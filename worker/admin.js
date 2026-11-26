@@ -87,6 +87,29 @@ export async function adminRoute(p, m, request, env, url, h) {
     return json({ ok: true, created: !t, emailed });
   }
 
+  /* Équipes : la liste avec leur code (en cas de problème) et la création d'une équipe pour une tête de réseau */
+  if (p === "/api/admin/teams" && m === "GET") {
+    const rows = (await env.DB.prepare(
+      "SELECT t.id, t.name, t.code, t.created_at, o.email AS owner, o.plan AS owner_plan, " +
+      "(SELECT COUNT(*) FROM users x WHERE x.team_id = t.id) AS members, (SELECT COUNT(*) FROM users x WHERE x.team_id = t.id AND x.plan IN ('equipe','offert')) AS active " +
+      "FROM teams t LEFT JOIN users o ON o.id = t.owner_id ORDER BY t.created_at DESC LIMIT 300").all()).results || [];
+    const origin = env.APP_ORIGIN || url.origin;
+    return json({ teams: rows.map(r => ({ ...r, link: `${origin}/app/?rejoindre=${r.code}` })) });
+  }
+  if (p === "/api/admin/team" && m === "POST") {
+    needConfirm();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) throw new HttpError(400, "Cette adresse email ne semble pas valide.");
+    const name = String(body.name || "").replace(/[\u0000-\u001f<>]/g, "").trim().slice(0, 60);
+    if (name.length < 2) throw new HttpError(400, "Donnez un nom à l'équipe.");
+    let t = await target();
+    if (!t) { await env.DB.prepare("INSERT INTO users (id, email, plan, created_at, last_seen_at) VALUES (?, ?, 'free', ?, NULL)").bind(crypto.randomUUID(), email, now).run(); t = await target(); }
+    const teamId = await h.createTeam(env, t.id, name);
+    if (body.giftOwner === true && !(t.stripe_sub && t.plan !== "free")) await env.DB.prepare("UPDATE users SET plan = 'offert', gift_note = COALESCE(gift_note, ?) WHERE id = ?").bind("tête de réseau", t.id).run();
+    const team = await env.DB.prepare("SELECT name, code FROM teams WHERE id = ?").bind(teamId).first();
+    await log("équipe", email, `${team.name} · code ${team.code}${body.giftOwner === true ? " · accès offert" : ""}`);
+    return json({ ok: true, name: team.name, code: team.code, link: `${env.APP_ORIGIN || url.origin}/app/?rejoindre=${team.code}` });
+  }
+
   if (p === "/api/admin/ungift" && m === "POST") {
     needConfirm();
     const t = await target();

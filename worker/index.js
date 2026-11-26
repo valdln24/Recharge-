@@ -86,7 +86,7 @@ async function route(request, env, url, ctx) {
   if (p === "/api/playbook" && m === "POST") return playbookSignup(request, env, url, ctx);
   if (p === "/api/playbook/desinscription" && (m === "GET" || m === "POST")) return playbookUnsubscribe(request, env, url);
   if (p === "/api/admin/prospects" && (m === "GET" || m === "DELETE")) return adminProspects(request, env, url, await adminSession(request, env));
-  if (p.startsWith("/api/admin/")) return adminRoute(p, m, request, env, url, { auth, json, HttpError, readJson, requestLink, deleteUserData });
+  if (p.startsWith("/api/admin/")) return adminRoute(p, m, request, env, url, { auth, json, HttpError, readJson, requestLink, deleteUserData, createTeam });
   if (p === "/api/lead" && m === "POST") return saveLead(request, env, url);
   if (p === "/api/stats" && m === "GET") return stats(request, env);
   if (p === "/api/referral" && m === "GET") return referral(request, env, url);
@@ -456,6 +456,15 @@ async function offers(env) {
    L'offre est prévue à partir de 5 personnes : en dessous, la tête de réseau voit combien il en manque (personne n'est bloqué). */
 const TEAM_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
 const teamCode = () => { const b = crypto.getRandomValues(new Uint8Array(8)); return Array.from(b, x => TEAM_ALPHABET[x % TEAM_ALPHABET.length]).join(""); };
+/* Équipe + parrainage, cumulés : la personne qui rejoint une équipe est rattachée à sa tête de réseau comme filleule
+   (si elle n'avait pas déjà une marraine). Au premier vrai paiement de sa part, la tête de réseau gagne 1 mois (plafond 12 par an, billing.js).
+   Le membre garde le prix Équipe, sans mois offert en plus. */
+async function attachTeamOwner(env, userId, teamId) {
+  try {
+    const t = await env.DB.prepare("SELECT owner_id FROM teams WHERE id = ?").bind(teamId).first();
+    if (t && t.owner_id && t.owner_id !== userId) await env.DB.prepare("UPDATE users SET referred_by = ? WHERE id = ? AND referred_by IS NULL").bind(t.owner_id, userId).run();
+  } catch (e) { console.error("équipe/parrainage", e && e.message); }
+}
 async function createTeam(env, ownerId, name) {
   const ex = await env.DB.prepare("SELECT id FROM teams WHERE owner_id = ?").bind(ownerId).first();
   if (ex) { await env.DB.prepare("UPDATE teams SET seats = ?, name = COALESCE(NULLIF(?, ''), name) WHERE id = ?").bind(MAX_SEATS, name, ex.id).run(); return ex.id; }
@@ -488,6 +497,7 @@ async function teamJoin(request, env) {
   if (u.team_id) throw new HttpError(409, "Vous faites déjà partie d'une autre équipe.");
   if (u.stripe_sub && u.plan === "equipe") {
     await env.DB.prepare("UPDATE users SET team_id = ? WHERE id = ?").bind(t.id, u.id).run();
+    await attachTeamOwner(env, u.id, t.id);
     return json({ ok: true, name: t.name });
   }
   if (u.stripe_sub && isPaid(u)) throw new HttpError(409, "Vous avez déjà un abonnement à votre nom : résiliez-le d'abord (Menu › Mon compte), puis rejoignez l'équipe.");
@@ -541,7 +551,7 @@ async function billingConfirm(request, env) {
   let teamId = null;
   if (c.tier === "equipe" && c.teamCode) {
     const t = await env.DB.prepare("SELECT id FROM teams WHERE code = ?").bind(c.teamCode).first();
-    if (t) { teamId = t.id; await env.DB.prepare("UPDATE users SET team_id = ? WHERE id = ?").bind(t.id, user.id).run(); }
+    if (t) { teamId = t.id; await env.DB.prepare("UPDATE users SET team_id = ? WHERE id = ?").bind(t.id, user.id).run(); await attachTeamOwner(env, user.id, t.id); }
   } else if (c.tier === "equipe") teamId = await createTeam(env, user.id, c.teamName);
   user = { ...user, plan: c.tier, stripe_customer: c.customer, founder: c.founder, team_id: teamId };
   if (env.RESEND_API_KEY) {

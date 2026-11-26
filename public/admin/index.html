@@ -67,6 +67,19 @@ td{padding:10px 14px;border-bottom:1px solid #F0EAE2;vertical-align:middle}tr:la
   </div>
 
   <div class="card">
+    <h2>Équipes</h2>
+    <p class="muted" style="margin:-4px 0 12px">Créez une équipe pour une tête de réseau : vous obtenez son code et son lien. Chaque membre paie sa part ; la tête de réseau gagne 1 mois par membre qui paie (parrainage, 12 par an au plus).</p>
+    <form id="fTeam">
+      <div class="gift"><input id="tEmail" type="email" placeholder="Email de la tête de réseau" required aria-label="Email de la tête de réseau">
+        <input id="tName" maxlength="60" placeholder="Nom de l'équipe" required aria-label="Nom de l'équipe"></div>
+      <label class="ck"><input type="checkbox" id="tGift"> Offrir aussi l'accès à la tête de réseau (sans paiement)</label>
+      <div class="row" style="margin-top:12px"><button class="btnx or" type="submit">Créer l'équipe</button></div>
+      <p id="tMsg"></p>
+    </form>
+    <div class="tw" style="margin-top:12px"><table><thead><tr><th>Équipe</th><th>Code</th><th>Tête de réseau</th><th>Membres actifs</th><th>Créée le</th><th>Lien</th></tr></thead><tbody id="tt"></tbody></table></div>
+  </div>
+
+  <div class="card">
     <h2>Comptes</h2>
     <div class="row"><input id="q" type="search" placeholder="Rechercher un email" aria-label="Rechercher un email">
       <select id="f" aria-label="Filtrer"><option value="">Tous</option><option value="trial">En essai</option><option value="paid">Abonnés</option><option value="offert">Accès offerts</option><option value="free">Gratuits</option></select></div>
@@ -110,7 +123,7 @@ td{padding:10px 14px;border-bottom:1px solid #F0EAE2;vertical-align:middle}tr:la
   $("logout").addEventListener("click", function () { setToken(""); location.reload(); });
 
   function start() {
-    api("GET", "admin/me").then(function (j) { $("who").textContent = "Connecté : " + j.email; show("app"); overview(); users(); logs(); })
+    api("GET", "admin/me").then(function (j) { $("who").textContent = "Connecté : " + j.email; show("app"); overview(); users(); teams(); logs(); })
       .catch(function (x) { show("login"); if (token) $("lErr").textContent = x.status === 404 ? "Cet email n'a pas accès au back-office." : x.message; setToken(""); });
   }
 
@@ -145,6 +158,28 @@ td{padding:10px 14px;border-bottom:1px solid #F0EAE2;vertical-align:middle}tr:la
       }).join("") : "<tr><td colspan='6' class='muted'>Aucun compte.</td></tr>";
     }).catch(function (x) { $("uMsg").className = "err"; $("uMsg").textContent = x.message; });
   }
+  function teams() {
+    api("GET", "admin/teams").then(function (j) {
+      var t = j.teams || [];
+      $("tt").innerHTML = t.length ? t.map(function (x) {
+        return "<tr><td><b>" + esc(x.name) + "</b></td><td><code>" + esc(x.code) + "</code></td><td>" + esc(x.owner || "–") + "</td><td>" + n(x.active) + " / " + n(x.members) + "</td><td>" + d(x.created_at) +
+          "</td><td><button class='lk' data-l='" + esc(x.link) + "'>Copier le lien</button></td></tr>";
+      }).join("") : "<tr><td colspan='6' class='muted'>Aucune équipe pour l'instant.</td></tr>";
+    }).catch(function (x) { $("tMsg").className = "err"; $("tMsg").textContent = x.message; });
+  }
+  $("tt").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-l]"); if (!b) return;
+    (navigator.clipboard ? navigator.clipboard.writeText(b.dataset.l) : Promise.reject()).then(function () { b.textContent = "Copié ✓"; }).catch(function () { prompt("Lien de l'équipe :", b.dataset.l); });
+  });
+  $("fTeam").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var email = $("tEmail").value.trim(), name = $("tName").value.trim(), gift = $("tGift").checked;
+    if (!confirm("Créer l'équipe « " + name + " » pour " + email + " ?" + (gift ? "\nL'accès lui sera offert." : ""))) return;
+    api("POST", "admin/team", { email: email, name: name, giftOwner: gift, confirm: true }).then(function (j) {
+      done($("tMsg"), "Équipe « " + j.name + " » prête. Code : " + j.code + " · lien : " + j.link);
+      $("fTeam").reset(); teams();
+    }).catch(function (x) { fail($("tMsg"), x); });
+  });
   $("q").addEventListener("input", function () { clearTimeout(qT); qT = setTimeout(users, 300); });
   $("f").addEventListener("change", users);
 
