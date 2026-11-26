@@ -39,6 +39,8 @@ export default {
       const res = await route(request, env, url, ctx);
       res.headers.set("Cache-Control", "no-store");
       res.headers.set("X-Content-Type-Options", "nosniff");
+      res.headers.set("X-Frame-Options", "DENY");
+      res.headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
       return res;
     } catch (e) {
       if (e instanceof HttpError || e instanceof CoachError || e instanceof ImportError || e instanceof BillingError || e instanceof PlaybookError) return json({ error: e.message }, e.status);

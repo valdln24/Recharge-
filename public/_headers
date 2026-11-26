@@ -1,0 +1,11 @@
+# En-têtes de sécurité pour tout le site et l'appli (Cloudflare les applique aux fichiers de public/)
+# - CSP : seuls les scripts, images et connexions de getrecharge.fr (et l'API des communes) sont autorisés ;
+#   un script glissé quelque part ne peut ni charger du code d'un autre site, ni envoyer des données ailleurs.
+# - frame-ancestors : aucun autre site ne peut afficher Recharge dans un cadre (anti-clic piégé).
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; media-src 'self' blob:; connect-src 'self' https://geo.api.gouv.fr https://cloudflareinsights.com; frame-src 'self'; frame-ancestors 'self'; object-src 'none'; base-uri 'self'; form-action 'self'
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: SAMEORIGIN
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(self), microphone=(self), geolocation=(), payment=(), usb=()

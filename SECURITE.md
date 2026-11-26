@@ -59,3 +59,24 @@ Seul appel externe depuis le navigateur : `geo.api.gouv.fr` (gratuit, public, sa
 | Mettre l'abonnement en pause | Confirmation dans l'appli **et** `confirm: true` exigé par le serveur (abonnement mensuel, une fois tous les 6 mois). |
 | Couper l'email du matin sans être connecté | Lien personnel (jeton aléatoire par compte, comparé en temps constant) ; la page demande un clic de confirmation (POST), pour qu'un antivirus de messagerie ne le coupe pas tout seul. |
 | Remplacer les données (restauration, transfert) | Confirmation dans l'appli, conflit détecté si un autre téléphone a sauvegardé. |
+
+## Les 14 attaques classiques, vérifiées une par une (26/11/2026)
+
+| Attaque | Ce qui se passe chez Recharge |
+|---|---|
+| Taper `/admin` | La page s'affiche mais est vide : chaque appel `/api/admin/...` vérifie la session ET que l'email est dans `ADMIN_EMAILS` (secret Cloudflare). Sinon : « Introuvable ». |
+| Changer un ID dans l'URL | Aucune route ne prend l'id d'un compte venant du navigateur : tout est filtré sur l'utilisateur de la session. Ids en UUID, jamais à la suite. |
+| Trouver une clé API dans le navigateur | Aucune clé dans `public/` ni dans Git (vérifié par recherche). Stripe, Resend et Anthropic ne sont appelés que par le serveur. |
+| Modifier le prix | Le prix est fixé par le serveur (`TIERS` dans `billing.js`) ; le prix fondateur est décidé par le serveur (places restantes). Le navigateur n'envoie que le nom de l'offre. |
+| Commander -1 article | Pas de panier : quantité toujours 1, fixée par le serveur. |
+| Simuler un paiement | Le retour de paiement est revérifié directement chez Stripe (statut « complete », abonnement actif), usage unique, 2 jours maximum. |
+| Utiliser un code promo 100 fois | Codes promo gérés par Stripe : régler « nombre d'utilisations max » et « première commande seulement » sur chaque code. Parrainage plafonné à 12 mois par an. |
+| Se déclarer admin à l'inscription | Aucun champ « rôle » : l'admin vient uniquement du secret `ADMIN_EMAILS`, et l'email est prouvé par un code reçu. |
+| Deviner le code de connexion | 6 chiffres, 5 essais par code, 5 codes par heure et par email, 15 min de validité : environ 25 chances sur 1 million par heure. |
+| Dire à l'IA d'ignorer ses instructions | Le coach n'a ni outils ni accès aux données des autres comptes ni aux clés : au pire il répond hors sujet à la personne elle-même. Réponse affichée en texte (échappée). Quotas par téléphone, par IP et par heure. |
+| Glisser un script dans un nom | Tout texte est échappé (`esc`) dans l'appli, le back-office et les emails. Test : `<img onerror>` et `<svg onload>` dans les noms, rien ne s'exécute. En plus, la CSP (`public/_headers`) interdit tout script ou envoi vers un autre site. |
+| Envoyer un fichier qui n'est pas une photo | Le serveur n'accepte que JPEG, PNG ou WebP (vérifié), 6 images maximum, taille limitée. Rien n'est stocké : l'image est lue puis oubliée. |
+| Trouver un `.env` dans Git | `.dev.vars` est ignoré par Git ; aucun fichier de secrets dans l'historique (vérifié). |
+| Injection SQL | Toutes les requêtes utilisent des paramètres `?` ; aucune valeur venant du navigateur n'est collée dans le SQL. Pas d'accès direct à la base depuis l'extérieur. |
+
+En-têtes ajoutés : `Content-Security-Policy`, `Strict-Transport-Security`, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy` (site) ; `X-Frame-Options: DENY` et HSTS sur l'API.
