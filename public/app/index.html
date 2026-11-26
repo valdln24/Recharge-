@@ -2648,9 +2648,10 @@ function viewToday() {
     <p class="cline hl-line">${left ? (plan.done.length ? planCheer(pct, left) : "Commencez par la première : le message est prêt.") : line}</p>
     ${(() => { const w = worth(today().slice(0, 8) + "01"); return w.total > 0 ? `<button class="cworth" data-act="goto" data-t="results" data-c="">Ce mois-ci, Recharge vous a rapporté <b>${euro(w.total)}</b> ›</button>` : ""; })()}
     </section>`;
-  /* Mise en avant de l'installation : c'est l'icône sur l'écran d'accueil qui fait revenir (une fois masqué, il ne revient pas) */
-  if (!DEMO && !isInstalled() && !S.installHide && S.clients.some(c => !c.example))
-    h += `<div class="notice" style="margin-top:12px"><span>📲 <b>Recharge sur votre écran d'accueil</b> : ouverte en un geste, comme une appli.</span><button class="btn sm orange" data-act="homeHelp">Installer</button><button class="linkbtn" style="margin:0 0 0 4px;width:auto" data-act="installHide" aria-label="Masquer">${I.x}</button></div>`;
+  /* Mise en avant de l'installation : c'est l'icône sur l'écran d'accueil qui fait revenir. Masqué, le bandeau revient 3 jours plus tard
+     (environ deux fois par semaine), jusqu'à ce que Recharge soit installée. */
+  if (!DEMO && !isInstalled() && (!S.installHide || diff(today(), S.installHide) >= 3) && (session || S.clients.some(c => !c.example)))
+    h += `<div class="notice" style="margin-top:12px"><span>📲 <b>Recharge en appli, sans App Store</b> : ajoutez-la à votre écran d'accueil, elle s'ouvre en un geste.</span><button class="btn sm orange" data-act="homeHelp">Installer</button><button class="linkbtn" style="margin:0 0 0 4px;width:auto" data-act="installHide" aria-label="Masquer">${I.x}</button></div>`;
   if (!S.day.asked) h += `<div class="askt"><b>Combien de temps aujourd'hui ?</b>${timeChips(S.day.min, "planTime")}</div>`;
   h += durTipCard();
   if (!SIMPLE_HOME) h += `<div class="dtiles">${Object.entries(DOMAINS).map(([d, [ic, lb]]) => { const n = dn(d); return `<button class="dtile ${n ? "" : "zero"} ${coachF === d ? "on" : ""}" data-act="coachF" data-d="${d}"><span class="di">${ic}</span><b>${n}</b><small>${lb}</small></button>`; }).join("")}</div>`;
@@ -3005,7 +3006,7 @@ function viewSettings() {
     ["💾", "Sauvegarder", "goto", "settings", "Sauvegarder mes clients"], ["📂", "Restaurer", "import", "", ""]];
   const modsHTML = L => `<div class="mods">${L.map(([e, l, a, t2, c2]) => `<button class="mod" data-act="${a}" data-t="${t2}" data-c="${esc(c2)}"><span>${e}</span><b>${l}</b></button>`).join("")}</div>`;
   let h = `<h1 class="title">Menu</h1><p class="lede">Tous les modules de Recharge, et vos réglages.</p>
-    ${DEMO ? "" : `<button class="parcard" data-act="openParrain"><small>Parrainage</small><b>Offrez 1 mois. Gagnez 1 mois.</b><span>12 collègues = 1 an de Recharge offert ›</span></button>`}
+    ${DEMO ? "" : `<button class="parcard" data-act="openParrain"><small>Parrainage</small><b>Offrez 1 mois. Gagnez 1 mois.</b><span>En solo ou en équipe · 12 personnes = 1 an offert ›</span></button>`}
     <div class="section"><h2>L'essentiel</h2></div>${modsHTML(MODS)}
     <div class="section"><h2>Fidéliser et développer</h2></div>${modsHTML(GROW)}
     <details class="mfold"><summary>Plus d'outils</summary>${modsHTML(MORE)}</details>
@@ -3570,7 +3571,7 @@ async function openParrain() {
   rcTrack("parrainage_ouvert");
   /* L'offre, en une phrase : 1 collègue = 1 mois offert pour vous deux. 12 collègues = 1 an. */
   const hero = (won = 0) => `<div class="parhero"><small>Parrainage</small><h3>1 mois offert.<br>Pour vous deux.</h3>
-    <p>Invitez une collègue : quand elle s'abonne, vous gagnez chacune un mois. <b>12 collègues = 1 an de Recharge offert.</b></p>
+    <p>Chaque personne que vous faites venir vous rapporte 1 mois : <b>une collègue invitée ou un membre de votre équipe, ça compte pareil.</b> 12 personnes = 1 an de Recharge offert.</p>
     <div class="pardots" aria-label="${won} mois gagnés sur 12">${Array.from({ length: 12 }, (_, k) => `<i class="${k < won ? "on" : ""}"></i>`).join("")}</div>
     <span class="parwon">${won ? `${plural(won, "mois gagné", "mois gagnés")} sur 12` : "Votre première collègue vous attend"}</span></div>`;
   const how = `<details class="parhow"><summary>Comment ça marche</summary><ul class="perks"><li>🎁 <b>1 mois offert pour vous</b> à chaque collègue invitée qui s'abonne</li><li>🤝 <b>1 mois offert pour elle</b>, en plus de ses 7 jours d'essai</li><li>📅 Jusqu'à <b>12 mois offerts par an</b> : une année entière</li><li>👥 <b>Tête de réseau ?</b> Avec l'offre Équipe, chaque membre qui paie sa part vous rapporte aussi 1 mois</li></ul>
