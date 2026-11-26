@@ -5374,12 +5374,14 @@ document.addEventListener("visibilitychange", () => { if (document.hidden && syn
 if (!DEMO && location.hash === "#equipe") { upTier = "equipe"; history.replaceState(null, "", location.pathname + "#abonnement"); }
 const HASH_GO = DEMO ? "" : location.hash;
 if (HASH_GO === "#connexion" || HASH_GO === "#installer") { history.replaceState(null, "", location.pathname); setTimeout(() => { if (HASH_GO === "#connexion") { if (session) toast("Vous êtes déjà connecté ✅"); else openAccountForm("login"); } else if (isInstalled()) { if (!S.profile && !session) startOnboarding(); } else openHomeScreen(true); }, 400); }
+// Lien « Gérer ou annuler mon abonnement » de l'email de rappel : ouvre l'espace Stripe (après connexion si besoin)
+if (HASH_GO === "#gerer") { history.replaceState(null, "", location.pathname); setTimeout(() => { if (session) actions.accPortal(); else { toast("Connectez-vous avec votre email pour gérer votre abonnement."); openAccountForm("login"); } }, 500); }
 if (!DEMO && location.hash === "#abonnement") { history.replaceState(null, "", location.pathname); setTimeout(() => { if (BILLING_OK || API_OK) openUpgrade(); else setTimeout(openUpgrade, 1200); }, 400); }
 if (!DEMO) {
   rcTrack("app_ouverte");
   if (FROM_ANALYSE) { rcTrack("app_depuis_analyse"); history.replaceState(null, "", location.pathname); const an = readAnalyse(); if (an && !S.analyse) { S.analyse = an; if (an.me && !myName()) S.settings.myName = String(an.me).slice(0, 40); save(); } }
 }
-if (!DEMO && !MOVE_IN && !S.profile && !obSkipFlag && !navigator.webdriver && !teamNotice && !loginParam && !paidParam && !session && location.hash !== "#abonnement" && HASH_GO !== "#connexion" && HASH_GO !== "#installer") setTimeout(() => {
+if (!DEMO && !MOVE_IN && !S.profile && !obSkipFlag && !navigator.webdriver && !teamNotice && !loginParam && !paidParam && !session && location.hash !== "#abonnement" && HASH_GO !== "#connexion" && HASH_GO !== "#gerer" && HASH_GO !== "#installer") setTimeout(() => {
   // Arrivée depuis l'analyse : d'abord ce que Recharge rend, puis le paywall ; l'onboarding 2 suit (payé ou « plus tard »)
   let seen = null; try { seen = localStorage.getItem(PW_KEY); } catch (e) {}
   const an = S.analyse || readAnalyse();

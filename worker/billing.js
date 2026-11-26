@@ -36,7 +36,7 @@ function form(obj, prefix = "", out = new URLSearchParams()) {
   }
   return out;
 }
-async function stripe(env, method, path, params) {
+export async function stripe(env, method, path, params) {
   if (!env.STRIPE_SECRET_KEY) throw new BillingError(503, "Le paiement n'est pas encore activé.");
   const base = env.STRIPE_API_BASE || "https://api.stripe.com";
   const q = method === "GET" && params ? "?" + form(params) : "";

@@ -9,8 +9,9 @@ import m3 from "../migrations/0003_mesure.sql";
 import m4 from "../migrations/0004_parrainage.sql";
 import m5 from "../migrations/0005_offres.sql";
 import m6 from "../migrations/0006_playbook.sql";
+import m7 from "../migrations/0007_rappel_essai.sql";
 
-const MIGRATIONS = [m1, m2, m3, m4, m5, m6];
+const MIGRATIONS = [m1, m2, m3, m4, m5, m6, m7];
 const statements = sql => sql.split("\n").map(l => l.replace(/--.*$/, "")).join("\n").split(";").map(x => x.trim()).filter(Boolean);
 
 export class Store extends DurableObject {

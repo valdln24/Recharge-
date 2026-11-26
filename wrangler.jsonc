@@ -37,5 +37,6 @@
     // Uniquement pour tester sans email : "true" renvoie le lien de connexion dans la réponse. Toujours "false" en ligne.
     "DEV_SHOW_LINK": "false"
   },
+  "triggers": { "crons": ["17 * * * *"] },   // chaque heure : rappel J-1 de fin d'essai (worker/reminders.js)
   "observability": { "enabled": true }
 }

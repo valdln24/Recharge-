@@ -10,6 +10,7 @@ import { importDocs, ImportError } from "./importer.js";
 import { playbookSignup, playbookDownload, playbookUnsubscribe, adminProspects, PlaybookError } from "./playbook.js";
 import { Store, storeDb } from "./store.js";
 import { sameKey } from "./util.js";
+import { trialReminders } from "./reminders.js";
 import { checkout, confirm, portal, refreshPlan, cancelSub, BillingError } from "./billing.js";
 export { Quota, Store };
 
@@ -42,6 +43,11 @@ export default {
       console.error("API", url.pathname, e && e.stack || e);   // visible dans Cloudflare › Observabilité
       return json({ error: "Une erreur est survenue. Réessayez dans un instant." }, 500);
     }
+  },
+  // Chaque heure : email de rappel la veille de la fin de l'essai
+  async scheduled(event, env, ctx) {
+    if (!env.DB && env.STORE) env = { ...env, DB: storeDb(env) };
+    ctx.waitUntil(trialReminders(env).then(r => console.log("rappel J-1", JSON.stringify(r))).catch(e => console.error("rappel J-1", e && e.message)));
   }
 };
 
@@ -495,7 +501,7 @@ async function billingConfirm(request, env) {
     isNew = true;
   }
   await env.DB.batch([
-    env.DB.prepare("UPDATE users SET plan = ?, tier = ?, founder = ?, stripe_customer = ?, stripe_sub = ?, plan_checked_at = ?, ref_pending = MAX(0, ref_pending - ?) WHERE id = ?").bind(c.tier, c.tier, c.founder ? 1 : 0, c.customer, c.sub, now(), c.refMonths || 0, user.id),
+    env.DB.prepare("UPDATE users SET plan = ?, tier = ?, founder = ?, stripe_customer = ?, stripe_sub = ?, plan_checked_at = ?, ref_pending = MAX(0, ref_pending - ?), trial_end = ?, trial_reminded_at = NULL WHERE id = ?").bind(c.tier, c.tier, c.founder ? 1 : 0, c.customer, c.sub, now(), c.refMonths || 0, c.trialEnd || null, user.id),
     env.DB.prepare("INSERT INTO checkout_used (id, used_at) VALUES (?, ?)").bind(id, now())
   ]);
   let teamId = null;
