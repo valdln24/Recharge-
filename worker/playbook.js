@@ -131,8 +131,8 @@ function adminKey(request, env) {
   const key = request.headers.get("X-Stats-Key") || "";
   if (!env.STATS_KEY || key.length < 8 || !sameKey(key, env.STATS_KEY)) throw new PlaybookError(404, "Introuvable.");
 }
-export async function adminProspects(request, env, url) {
-  adminKey(request, env);
+export async function adminProspects(request, env, url, isAdminSession) {
+  if (!isAdminSession) adminKey(request, env);   // clé STATS_KEY, ou session du back-office
   if (request.method === "DELETE") {
     let body = {}; try { body = JSON.parse(await request.text() || "{}"); } catch {}
     const email = cleanEmail(body.email);

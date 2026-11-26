@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow"><title>Prospects · Recharge</title>
+<link rel="stylesheet" href="/assets/site.css?v=11">
+<style>
+body{background:#F4EFE8;color:#1C1A22}main{max-width:1040px;margin:0 auto;padding:36px 20px 80px}
+h1{font-size:2rem;letter-spacing:-.04em;margin:0 0 6px}p.s{color:#4A4652;margin:0 0 22px}
+form.key{display:flex;gap:8px;flex-wrap:wrap}
+input,select{min-height:46px;border:1px solid #E7DFD5;border-radius:14px;padding:0 14px;font:inherit;font-size:16px;background:#fff;color:#1C1A22}
+form.key input{flex:1 1 260px}
+.btnx{min-height:46px;border:0;border-radius:999px;padding:0 20px;font:inherit;font-weight:800;cursor:pointer;background:#1C1A22;color:#fff}
+.btnx.or{background:#FF782E;color:#1C1A22}.btnx.soft{background:#fff;color:#1C1A22;border:1px solid #E7DFD5}
+.kp{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:22px 0}
+.kp div{background:#1C1A22;color:#fff;border-radius:18px;padding:16px}.kp b{display:block;font-size:1.7rem;letter-spacing:-.03em}.kp span{font-size:.8rem;color:#C9C6D0;font-weight:600}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}.bar input{flex:1 1 220px}
+.tw{background:#fff;border:1px solid #E7DFD5;border-radius:20px;overflow:auto}
+table{width:100%;border-collapse:collapse;font-size:.9rem;min-width:760px}
+th{text-align:left;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:#8A8592;padding:12px 14px;border-bottom:1px solid #E7DFD5;white-space:nowrap}
+td{padding:11px 14px;border-bottom:1px solid #F0EAE2;vertical-align:middle}tr:last-child td{border-bottom:0}
+.tag{display:inline-block;font-size:.74rem;font-weight:800;padding:3px 9px;border-radius:99px}.tag.y{background:#FFF1E8;color:#C9541A}.tag.n{background:#F3EFEA;color:#8A8592}
+.del{border:0;background:none;color:#B4321E;font:inherit;font-weight:700;cursor:pointer;padding:6px}
+.err{color:#C2362B;font-weight:700;margin-top:12px}.muted{color:#8A8592}
+@media (max-width:700px){.kp{grid-template-columns:repeat(2,1fr)}}
+</style></head><body><main>
+<h1>Prospects du Playbook</h1>
+<p class="s">Les personnes qui ont demandé « Le Playbook de la vente directe ». Accès réservé : la clé de lecture (STATS_KEY) n'est gardée que dans cet onglet.</p>
+<form class="key" id="kf"><label class="sr" for="key" style="position:absolute;left:-9999px">Clé de lecture</label><input id="key" type="password" placeholder="Clé de lecture (STATS_KEY)" autocomplete="current-password" required><button class="btnx" type="submit">Afficher</button></form>
+<p class="err" id="err" role="alert"></p>
+<section id="out" hidden>
+  <div class="kp"><div><b id="kT">0</b><span>prospects</span></div><div><b id="kM">0</b><span>accord marketing</span></div><div><b id="kD">0</b><span>ont téléchargé</span></div><div><b id="k7">0</b><span>ces 7 derniers jours</span></div></div>
+  <div class="bar"><input id="q" type="search" placeholder="Rechercher un prénom, un email, une provenance" aria-label="Rechercher">
+    <select id="fm" aria-label="Filtrer par accord marketing"><option value="">Tous</option><option value="1">Accord marketing</option><option value="0">Sans accord</option></select>
+    <button class="btnx or" id="csv" type="button">Exporter en CSV</button><button class="btnx soft" id="out1" type="button">Verrouiller</button></div>
+  <div class="tw"><table><thead><tr><th>Prénom</th><th>Email</th><th>Inscription</th><th>Provenance</th><th>Marketing</th><th>Télécharg.</th><th>Email envoyé</th><th></th></tr></thead><tbody id="tb"></tbody></table></div>
+  <p class="muted" style="font-size:.84rem;margin-top:12px">Exporter uniquement les personnes avec l'accord marketing pour une communication commerciale. « Supprimer » efface définitivement la personne (droit à l'effacement).</p>
+</section>
+<script>
+(function () {
+  var K = "recharge.adminKey", key = "", tok = "", rows = [],
+    H = function (x) { var h = x || {}; if (key) h["X-Stats-Key"] = key; if (tok) h.Authorization = "Bearer " + tok; return h; }, $ = function (id) { return document.getElementById(id); };
+  var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); };
+  var d = function (v) { return v ? new Date(v).toLocaleString("fr-FR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "–"; };
+  function load() {
+    $("err").textContent = "";
+    return fetch("/api/admin/prospects", { headers: H() }).then(function (r) { if (!r.ok) throw 0; return r.json(); }).then(function (j) {
+      try { if (key) sessionStorage.setItem(K, key); } catch (e) {}
+      rows = j.prospects || []; $("kT").textContent = j.total; $("kM").textContent = j.marketing; $("kD").textContent = j.downloaded;
+      $("k7").textContent = rows.filter(function (x) { return Date.now() - x.created_at < 7 * 864e5; }).length;
+      $("kf").hidden = true; $("out").hidden = false; draw();
+    }).catch(function () { $("err").textContent = "Clé incorrecte, ou service indisponible."; });
+  }
+  function draw() {
+    var q = $("q").value.trim().toLowerCase(), fm = $("fm").value;
+    var list = rows.filter(function (x) { return (!q || (x.prenom + " " + x.email + " " + (x.source || "")).toLowerCase().indexOf(q) >= 0) && (fm === "" || String(x.marketing) === fm); });
+    $("tb").innerHTML = list.length ? list.map(function (x) { return "<tr><td><b>" + esc(x.prenom) + "</b></td><td>" + esc(x.email) + "</td><td>" + d(x.created_at) + "</td><td>" + esc(x.source || "–") + "</td><td><span class='tag " + (x.marketing ? "y'>oui" : "n'>non") + "</span></td><td>" + x.downloads + "</td><td>" + d(x.emailed_at) + "</td><td><button class='del' data-e='" + esc(x.email) + "'>Supprimer</button></td></tr>"; }).join("")
+      : "<tr><td colspan='8' class='muted'>Aucun prospect pour l'instant.</td></tr>";
+  }
+  $("kf").addEventListener("submit", function (e) { e.preventDefault(); key = $("key").value; load(); });
+  $("q").addEventListener("input", draw); $("fm").addEventListener("change", draw);
+  $("out1").addEventListener("click", function () { try { sessionStorage.removeItem(K); } catch (e) {} location.reload(); });
+  $("csv").addEventListener("click", function () {
+    fetch("/api/admin/prospects?format=csv", { headers: H() }).then(function (r) { if (!r.ok) throw 0; return r.blob(); }).then(function (b) {
+      var a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = "prospects-playbook-" + new Date().toISOString().slice(0, 10) + ".csv"; a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); }, 2000);
+    }).catch(function () { $("err").textContent = "Export impossible."; });
+  });
+  $("tb").addEventListener("click", function (e) {
+    var b = e.target.closest(".del"); if (!b) return;
+    if (!confirm("Supprimer définitivement " + b.dataset.e + " ?")) return;
+    fetch("/api/admin/prospects", { method: "DELETE", headers: H({ "Content-Type": "application/json" }), body: JSON.stringify({ email: b.dataset.e }) }).then(function (r) { if (!r.ok) throw 0; return load(); }).catch(function () { $("err").textContent = "Suppression impossible."; });
+  });
+  try { key = sessionStorage.getItem(K) || ""; tok = sessionStorage.getItem("recharge.admin.token") || ""; } catch (e) {}
+  if (key || tok) load();   // connecté au back-office : pas besoin de la clé
+})();
+</script>
+</main></body></html>

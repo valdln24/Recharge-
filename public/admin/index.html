@@ -1,74 +1,186 @@
 <!doctype html>
 <html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="robots" content="noindex, nofollow"><title>Prospects · Recharge</title>
+<meta name="robots" content="noindex, nofollow"><title>Back-office · Recharge</title>
+<meta name="color-scheme" content="only light">
 <link rel="stylesheet" href="/assets/site.css?v=11">
 <style>
-body{background:#F4EFE8;color:#1C1A22}main{max-width:1040px;margin:0 auto;padding:36px 20px 80px}
-h1{font-size:2rem;letter-spacing:-.04em;margin:0 0 6px}p.s{color:#4A4652;margin:0 0 22px}
-form.key{display:flex;gap:8px;flex-wrap:wrap}
+body{background:#F4EFE8;color:#1C1A22}main{max-width:1080px;margin:0 auto;padding:30px 16px 80px}
+h1{font-size:1.9rem;letter-spacing:-.04em;margin:0}h2{font-size:1.25rem;letter-spacing:-.03em;margin:0 0 12px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+.top small{display:block;color:#8A8592;font-weight:600;margin-top:4px}
+.links{display:flex;gap:8px;flex-wrap:wrap}
+.card{background:#fff;border:1px solid #E7DFD5;border-radius:22px;padding:20px;margin-top:16px}
 input,select{min-height:46px;border:1px solid #E7DFD5;border-radius:14px;padding:0 14px;font:inherit;font-size:16px;background:#fff;color:#1C1A22}
-form.key input{flex:1 1 260px}
-.btnx{min-height:46px;border:0;border-radius:999px;padding:0 20px;font:inherit;font-weight:800;cursor:pointer;background:#1C1A22;color:#fff}
-.btnx.or{background:#FF782E;color:#1C1A22}.btnx.soft{background:#fff;color:#1C1A22;border:1px solid #E7DFD5}
-.kp{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:22px 0}
-.kp div{background:#1C1A22;color:#fff;border-radius:18px;padding:16px}.kp b{display:block;font-size:1.7rem;letter-spacing:-.03em}.kp span{font-size:.8rem;color:#C9C6D0;font-weight:600}
-.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}.bar input{flex:1 1 220px}
-.tw{background:#fff;border:1px solid #E7DFD5;border-radius:20px;overflow:auto}
-table{width:100%;border-collapse:collapse;font-size:.9rem;min-width:760px}
-th{text-align:left;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:#8A8592;padding:12px 14px;border-bottom:1px solid #E7DFD5;white-space:nowrap}
-td{padding:11px 14px;border-bottom:1px solid #F0EAE2;vertical-align:middle}tr:last-child td{border-bottom:0}
-.tag{display:inline-block;font-size:.74rem;font-weight:800;padding:3px 9px;border-radius:99px}.tag.y{background:#FFF1E8;color:#C9541A}.tag.n{background:#F3EFEA;color:#8A8592}
-.del{border:0;background:none;color:#B4321E;font:inherit;font-weight:700;cursor:pointer;padding:6px}
-.err{color:#C2362B;font-weight:700;margin-top:12px}.muted{color:#8A8592}
-@media (max-width:700px){.kp{grid-template-columns:repeat(2,1fr)}}
+input:focus,select:focus{outline:none;border-color:#1C1A22}
+.btnx{min-height:46px;border:0;border-radius:999px;padding:0 20px;font:inherit;font-weight:800;cursor:pointer;background:#1C1A22;color:#fff;text-decoration:none;display:inline-flex;align-items:center}
+.btnx.or{background:#FF782E;color:#1C1A22}.btnx.soft{background:#fff;color:#1C1A22;border:1px solid #E7DFD5}.btnx.sm{min-height:36px;padding:0 14px;font-size:.85rem}
+.btnx[disabled]{opacity:.5;pointer-events:none}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.row input{flex:1 1 200px}
+.kp{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.kp div{background:#1C1A22;color:#fff;border-radius:18px;padding:16px}.kp b{display:block;font-size:1.7rem;letter-spacing:-.03em;font-variant-numeric:tabular-nums}.kp span{font-size:.8rem;color:#C9C6D0;font-weight:600}
+.kp div.l{background:#fff;color:#1C1A22;border:1px solid #E7DFD5}.kp div.l span{color:#8A8592}
+.tw{border:1px solid #E7DFD5;border-radius:18px;overflow:auto;margin-top:12px}
+table{width:100%;border-collapse:collapse;font-size:.9rem;min-width:820px}
+th{text-align:left;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:#8A8592;padding:12px 14px;border-bottom:1px solid #E7DFD5;white-space:nowrap;background:#FBF8F4}
+td{padding:10px 14px;border-bottom:1px solid #F0EAE2;vertical-align:middle}tr:last-child td{border-bottom:0}
+.tag{display:inline-block;font-size:.74rem;font-weight:800;padding:3px 9px;border-radius:99px;white-space:nowrap}
+.t-paid{background:#E3F5EA;color:#1F7A47}.t-trial{background:#FFF1E8;color:#C9541A}.t-gift{background:#ECEBFF;color:#4B4FC8}.t-free{background:#F3EFEA;color:#8A8592}
+.acts{display:flex;gap:4px;flex-wrap:wrap}
+.lk{border:0;background:none;font:inherit;font-weight:700;font-size:.85rem;cursor:pointer;padding:5px 6px;color:#1C1A22;text-decoration:underline}
+.lk.red{color:#B4321E}
+.err{color:#C2362B;font-weight:700;margin:10px 0 0}.ok{color:#1F7A47;font-weight:700;margin:10px 0 0}.muted{color:#8A8592}
+.ev{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:6px;margin-top:8px}
+.ev div{display:flex;justify-content:space-between;gap:10px;padding:8px 12px;border-radius:12px;background:#FBF8F4;font-size:.86rem}.ev b{font-variant-numeric:tabular-nums}
+.gift{display:grid;grid-template-columns:2fr 1fr 1.4fr;gap:8px}
+.ck{display:flex;gap:8px;align-items:center;font-size:.88rem;font-weight:600;color:#4A4652;margin-top:10px}
+.log li{padding:8px 0;border-bottom:1px solid #F0EAE2;font-size:.88rem}.log{list-style:none;padding:0;margin:0}
+.login{max-width:420px;margin:12vh auto 0}
+@media (max-width:760px){.kp{grid-template-columns:repeat(2,1fr)}.gift{grid-template-columns:1fr}}
 </style></head><body><main>
-<h1>Prospects du Playbook</h1>
-<p class="s">Les personnes qui ont demandé « Le Playbook de la vente directe ». Accès réservé : la clé de lecture (STATS_KEY) n'est gardée que dans cet onglet.</p>
-<form class="key" id="kf"><label class="sr" for="key" style="position:absolute;left:-9999px">Clé de lecture</label><input id="key" type="password" placeholder="Clé de lecture (STATS_KEY)" autocomplete="current-password" required><button class="btnx" type="submit">Afficher</button></form>
-<p class="err" id="err" role="alert"></p>
-<section id="out" hidden>
-  <div class="kp"><div><b id="kT">0</b><span>prospects</span></div><div><b id="kM">0</b><span>accord marketing</span></div><div><b id="kD">0</b><span>ont téléchargé</span></div><div><b id="k7">0</b><span>ces 7 derniers jours</span></div></div>
-  <div class="bar"><input id="q" type="search" placeholder="Rechercher un prénom, un email, une provenance" aria-label="Rechercher">
-    <select id="fm" aria-label="Filtrer par accord marketing"><option value="">Tous</option><option value="1">Accord marketing</option><option value="0">Sans accord</option></select>
-    <button class="btnx or" id="csv" type="button">Exporter en CSV</button><button class="btnx soft" id="out1" type="button">Verrouiller</button></div>
-  <div class="tw"><table><thead><tr><th>Prénom</th><th>Email</th><th>Inscription</th><th>Provenance</th><th>Marketing</th><th>Télécharg.</th><th>Email envoyé</th><th></th></tr></thead><tbody id="tb"></tbody></table></div>
-  <p class="muted" style="font-size:.84rem;margin-top:12px">Exporter uniquement les personnes avec l'accord marketing pour une communication commerciale. « Supprimer » efface définitivement la personne (droit à l'effacement).</p>
+
+<section id="vLogin" class="login" hidden>
+  <h1>Back-office</h1><p class="muted">Réservé à l'équipe Recharge. Connectez-vous avec votre email : vous recevez un code à 6 chiffres.</p>
+  <div class="card">
+    <form id="fEmail" class="row"><input id="lEmail" type="email" autocomplete="email" placeholder="votre@email.fr" required aria-label="Email"><button class="btnx" type="submit">Recevoir mon code</button></form>
+    <form id="fCode" class="row" hidden style="margin-top:10px"><input id="lCode" inputmode="numeric" maxlength="6" placeholder="Code à 6 chiffres" aria-label="Code"><button class="btnx or" type="submit">Entrer</button></form>
+    <p class="err" id="lErr" role="alert"></p>
+  </div>
 </section>
+
+<section id="vApp" hidden>
+  <div class="top"><div><h1>Back-office Recharge</h1><small id="who"></small></div>
+    <div class="links"><a class="btnx soft sm" href="/stats/">Tunnel détaillé</a><a class="btnx soft sm" href="/admin/playbook/">Inscrits au Playbook</a><button class="btnx soft sm" id="logout" type="button">Se déconnecter</button></div></div>
+
+  <div class="kp" id="kpis"></div>
+
+  <div class="card">
+    <h2>Offrir un accès gratuit</h2>
+    <p class="muted" style="margin:-4px 0 12px">Pour la famille, un partenaire, un test. Toute l'appli, sans carte bancaire. Le compte est créé s'il n'existe pas.</p>
+    <form id="fGift">
+      <div class="gift"><input id="gEmail" type="email" placeholder="Email de la personne" required aria-label="Email de la personne">
+        <input id="gUntil" type="date" aria-label="Jusqu'au (vide = sans limite)" title="Jusqu'au (vide = sans limite)">
+        <input id="gNote" maxlength="80" placeholder="Note (ex. famille)" aria-label="Note"></div>
+      <label class="ck"><input type="checkbox" id="gMail" checked> Lui envoyer un email pour expliquer comment se connecter</label>
+      <div class="row" style="margin-top:12px"><button class="btnx or" type="submit">Offrir l'accès</button><span class="muted" style="font-size:.84rem">Date vide = sans limite de durée.</span></div>
+      <p id="gMsg"></p>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2>Comptes</h2>
+    <div class="row"><input id="q" type="search" placeholder="Rechercher un email" aria-label="Rechercher un email">
+      <select id="f" aria-label="Filtrer"><option value="">Tous</option><option value="trial">En essai</option><option value="paid">Abonnés</option><option value="offert">Accès offerts</option><option value="free">Gratuits</option></select></div>
+    <div class="tw"><table><thead><tr><th>Email</th><th>Statut</th><th>Inscription</th><th>Dernière visite</th><th>Données</th><th>Actions</th></tr></thead><tbody id="tb"></tbody></table></div>
+    <p id="uMsg"></p>
+  </div>
+
+  <div class="card"><h2>Tunnel · 30 derniers jours</h2><div class="ev" id="ev"></div></div>
+  <div class="card"><h2>Historique des actions</h2><ul class="log" id="log"></ul></div>
+</section>
+
 <script>
 (function () {
-  var K = "recharge.adminKey", key = "", rows = [], $ = function (id) { return document.getElementById(id); };
+  "use strict";
+  var TK = "recharge.admin.token", token = "", $ = function (id) { return document.getElementById(id); };
   var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); };
-  var d = function (v) { return v ? new Date(v).toLocaleString("fr-FR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "–"; };
-  function load() {
-    $("err").textContent = "";
-    return fetch("/api/admin/prospects", { headers: { "X-Stats-Key": key } }).then(function (r) { if (!r.ok) throw 0; return r.json(); }).then(function (j) {
-      try { sessionStorage.setItem(K, key); } catch (e) {}
-      rows = j.prospects || []; $("kT").textContent = j.total; $("kM").textContent = j.marketing; $("kD").textContent = j.downloaded;
-      $("k7").textContent = rows.filter(function (x) { return Date.now() - x.created_at < 7 * 864e5; }).length;
-      $("kf").hidden = true; $("out").hidden = false; draw();
-    }).catch(function () { $("err").textContent = "Clé incorrecte, ou service indisponible."; });
+  var d = function (v, t) { return v ? new Date(v).toLocaleDateString("fr-FR", t ? { day: "2-digit", month: "2-digit", year: "2-digit", hour: "2-digit", minute: "2-digit" } : { day: "2-digit", month: "2-digit", year: "numeric" }) : "–"; };
+  var n = function (x) { return (x || 0).toLocaleString("fr-FR"); };
+  function api(method, path, body) {
+    var h = { "Content-Type": "application/json" }; if (token) h.Authorization = "Bearer " + token;
+    return fetch("/api/" + path, { method: method, headers: h, body: body ? JSON.stringify(body) : undefined }).then(function (r) {
+      return r.json().catch(function () { return {}; }).then(function (j) { if (!r.ok) { var e = new Error(j.error || "Erreur " + r.status); e.status = r.status; throw e; } return j; });
+    });
   }
-  function draw() {
-    var q = $("q").value.trim().toLowerCase(), fm = $("fm").value;
-    var list = rows.filter(function (x) { return (!q || (x.prenom + " " + x.email + " " + (x.source || "")).toLowerCase().indexOf(q) >= 0) && (fm === "" || String(x.marketing) === fm); });
-    $("tb").innerHTML = list.length ? list.map(function (x) { return "<tr><td><b>" + esc(x.prenom) + "</b></td><td>" + esc(x.email) + "</td><td>" + d(x.created_at) + "</td><td>" + esc(x.source || "–") + "</td><td><span class='tag " + (x.marketing ? "y'>oui" : "n'>non") + "</span></td><td>" + x.downloads + "</td><td>" + d(x.emailed_at) + "</td><td><button class='del' data-e='" + esc(x.email) + "'>Supprimer</button></td></tr>"; }).join("")
-      : "<tr><td colspan='8' class='muted'>Aucun prospect pour l'instant.</td></tr>";
-  }
-  $("kf").addEventListener("submit", function (e) { e.preventDefault(); key = $("key").value; load(); });
-  $("q").addEventListener("input", draw); $("fm").addEventListener("change", draw);
-  $("out1").addEventListener("click", function () { try { sessionStorage.removeItem(K); } catch (e) {} location.reload(); });
-  $("csv").addEventListener("click", function () {
-    fetch("/api/admin/prospects?format=csv", { headers: { "X-Stats-Key": key } }).then(function (r) { if (!r.ok) throw 0; return r.blob(); }).then(function (b) {
-      var a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = "prospects-playbook-" + new Date().toISOString().slice(0, 10) + ".csv"; a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); }, 2000);
-    }).catch(function () { $("err").textContent = "Export impossible."; });
+  function show(v) { $("vLogin").hidden = v !== "login"; $("vApp").hidden = v !== "app"; }
+  function setToken(t) { token = t || ""; try { if (t) sessionStorage.setItem(TK, t); else sessionStorage.removeItem(TK); } catch (e) {} }
+
+  /* Connexion : email puis code */
+  $("fEmail").addEventListener("submit", function (e) {
+    e.preventDefault(); $("lErr").textContent = "";
+    api("POST", "auth/request", { email: $("lEmail").value.trim() }).then(function (j) {
+      $("fCode").hidden = false; $("lCode").focus();
+      if (j.devCode) $("lErr").textContent = "Mode test : code " + j.devCode;
+    }).catch(function (x) { $("lErr").textContent = x.message; });
   });
+  $("fCode").addEventListener("submit", function (e) {
+    e.preventDefault(); $("lErr").textContent = "";
+    api("POST", "auth/verify", { email: $("lEmail").value.trim(), code: $("lCode").value.trim() }).then(function (j) { setToken(j.session); start(); })
+      .catch(function (x) { $("lErr").textContent = x.message; });
+  });
+  $("logout").addEventListener("click", function () { setToken(""); location.reload(); });
+
+  function start() {
+    api("GET", "admin/me").then(function (j) { $("who").textContent = "Connecté : " + j.email; show("app"); overview(); users(); logs(); })
+      .catch(function (x) { show("login"); if (token) $("lErr").textContent = x.status === 404 ? "Cet email n'a pas accès au back-office." : x.message; setToken(""); });
+  }
+
+  function overview() {
+    api("GET", "admin/overview").then(function (o) {
+      var K = [["Comptes", o.users], ["En essai", o.trials], ["Abonnés payants", o.paying], ["Accès offerts", o.offered], ["Nouveaux (7 j)", o.new7, 1], ["Actifs (7 j)", o.active7, 1], ["Analyses enregistrées", o.leads, 1], ["Inscrits Playbook", o.prospects, 1]];
+      $("kpis").innerHTML = K.map(function (k) { return "<div" + (k[2] ? " class='l'" : "") + "><b>" + n(k[1]) + "</b><span>" + k[0] + "</span></div>"; }).join("");
+      var E = Object.keys(o.events30 || {}).sort(function (a, b) { return o.events30[b] - o.events30[a]; });
+      $("ev").innerHTML = E.length ? E.map(function (k) { return "<div><span>" + esc(k.replace(/_/g, " ")) + "</span><b>" + n(o.events30[k]) + "</b></div>"; }).join("") : "<p class='muted'>Pas encore de données.</p>";
+    }).catch(function () {});
+  }
+
+  var rows = [], qT = null;
+  function status(u) {
+    var t = Date.now();
+    if (u.plan === "offert") return "<span class='tag t-gift'>Offert" + (u.gift_until ? " · jusqu'au " + d(u.gift_until) : "") + "</span>" + (u.gift_note ? " <span class='muted' style='font-size:.8rem'>" + esc(u.gift_note) + "</span>" : "");
+    if (u.stripe_customer && u.trial_end && u.trial_end > t && u.plan !== "free") return "<span class='tag t-trial'>Essai · fin le " + d(u.trial_end) + "</span>";
+    if (u.stripe_customer && u.plan !== "free") return "<span class='tag t-paid'>Abonné · " + esc(u.tier || u.plan) + (u.founder ? " · fondateur" : "") + "</span>";
+    return "<span class='tag t-free'>Gratuit</span>";
+  }
+  function users() {
+    api("GET", "admin/users?q=" + encodeURIComponent($("q").value.trim()) + "&f=" + $("f").value).then(function (j) {
+      rows = j.users || [];
+      $("tb").innerHTML = rows.length ? rows.map(function (u) {
+        var a = [];
+        if (u.stripe_customer) a.push("<a class='lk' target='_blank' rel='noopener' href='https://dashboard.stripe.com/customers/" + encodeURIComponent(u.stripe_customer) + "'>Stripe</a>");
+        a.push("<button class='lk' data-a='link' data-e='" + esc(u.email) + "'>Renvoyer un code</button>");
+        if (u.plan === "offert") a.push("<button class='lk' data-a='ungift' data-e='" + esc(u.email) + "'>Retirer l'accès offert</button>");
+        a.push("<button class='lk red' data-a='del' data-e='" + esc(u.email) + "'>Supprimer</button>");
+        return "<tr><td><b>" + esc(u.email) + "</b></td><td>" + status(u) + "</td><td>" + d(u.created_at) + "</td><td>" + d(u.last_seen_at) + "</td><td>" +
+          (u.data_size ? Math.max(1, Math.round(u.data_size / 1024)) + " Ko · " + d(u.data_at) : "<span class='muted'>–</span>") + "</td><td><div class='acts'>" + a.join("") + "</div></td></tr>";
+      }).join("") : "<tr><td colspan='6' class='muted'>Aucun compte.</td></tr>";
+    }).catch(function (x) { $("uMsg").className = "err"; $("uMsg").textContent = x.message; });
+  }
+  $("q").addEventListener("input", function () { clearTimeout(qT); qT = setTimeout(users, 300); });
+  $("f").addEventListener("change", users);
+
+  function logs() {
+    api("GET", "admin/log").then(function (j) {
+      var L = j.log || [];
+      $("log").innerHTML = L.length ? L.map(function (x) { return "<li><b>" + d(x.at, 1) + "</b> · " + esc(x.action) + (x.target ? " · " + esc(x.target) : "") + (x.detail ? " <span class='muted'>(" + esc(x.detail) + ")</span>" : "") + " <span class='muted'>par " + esc(x.admin) + "</span></li>"; }).join("") : "<li class='muted'>Aucune action pour l'instant.</li>";
+    }).catch(function () {});
+  }
+  function done(el, msg) { el.className = "ok"; el.textContent = msg; overview(); users(); logs(); }
+  function fail(el, x) { el.className = "err"; el.textContent = x.message; }
+
+  $("fGift").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var email = $("gEmail").value.trim(), until = $("gUntil").value, note = $("gNote").value.trim(), mail = $("gMail").checked;
+    if (!confirm("Offrir l'accès à " + email + (until ? " jusqu'au " + new Date(until).toLocaleDateString("fr-FR") : " sans limite de durée") + " ?" + (mail ? "\nUn email lui sera envoyé." : ""))) return;
+    api("POST", "admin/gift", { email: email, until: until, note: note, notify: mail, confirm: true }).then(function (j) {
+      done($("gMsg"), "C'est fait : accès offert à " + email + (j.created ? " (compte créé)" : "") + (mail ? (j.emailed ? ". Email envoyé." : ". L'email n'a pas pu partir : donnez-lui le lien getrecharge.fr/app et dites-lui de se connecter avec son email.") : "."));
+      $("fGift").reset(); $("gMail").checked = true;
+    }).catch(function (x) { fail($("gMsg"), x); });
+  });
+
   $("tb").addEventListener("click", function (e) {
-    var b = e.target.closest(".del"); if (!b) return;
-    if (!confirm("Supprimer définitivement " + b.dataset.e + " ?")) return;
-    fetch("/api/admin/prospects", { method: "DELETE", headers: { "X-Stats-Key": key, "Content-Type": "application/json" }, body: JSON.stringify({ email: b.dataset.e }) }).then(function (r) { if (!r.ok) throw 0; return load(); }).catch(function () { $("err").textContent = "Suppression impossible."; });
+    var b = e.target.closest("[data-a]"); if (!b) return;
+    var em = b.dataset.e, a = b.dataset.a, m = $("uMsg");
+    if (a === "link") { if (!confirm("Envoyer un code de connexion à " + em + " ?")) return; api("POST", "admin/link", { email: em, confirm: true }).then(function () { done(m, "Code envoyé à " + em + "."); }).catch(function (x) { fail(m, x); }); }
+    if (a === "ungift") { if (!confirm("Retirer l'accès offert de " + em + " ? Le compte repasse en gratuit (ses données sont gardées).")) return; api("POST", "admin/ungift", { email: em, confirm: true }).then(function () { done(m, "Accès offert retiré pour " + em + "."); }).catch(function (x) { fail(m, x); }); }
+    if (a === "del") {
+      var v = prompt("Supprimer définitivement le compte " + em + " et toutes ses données ? Son abonnement Stripe sera arrêté.\nTapez SUPPRIMER pour confirmer.");
+      if (!v) return;
+      api("POST", "admin/delete", { email: em, confirm: v }).then(function () { done(m, "Compte " + em + " supprimé."); }).catch(function (x) { fail(m, x); });
+    }
   });
-  try { key = sessionStorage.getItem(K) || ""; } catch (e) {}
-  if (key) load();
+
+  try { token = sessionStorage.getItem(TK) || ""; } catch (e) {}
+  if (token) start(); else show("login");
 })();
 </script>
 </main></body></html>

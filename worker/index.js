@@ -11,6 +11,7 @@ import { playbookSignup, playbookDownload, playbookUnsubscribe, adminProspects, 
 import { Store, storeDb } from "./store.js";
 import { sameKey } from "./util.js";
 import { trialReminders } from "./reminders.js";
+import { adminRoute, isAdmin } from "./admin.js";
 import { checkout, confirm, portal, refreshPlan, cancelSub, BillingError } from "./billing.js";
 export { Quota, Store };
 
@@ -80,7 +81,8 @@ async function route(request, env, url, ctx) {
   if (p === "/api/event" && m === "POST") return trackEvent(request, env);
   if (p === "/api/playbook" && m === "POST") return playbookSignup(request, env, url, ctx);
   if (p === "/api/playbook/desinscription" && (m === "GET" || m === "POST")) return playbookUnsubscribe(request, env, url);
-  if (p === "/api/admin/prospects" && (m === "GET" || m === "DELETE")) return adminProspects(request, env, url);
+  if (p === "/api/admin/prospects" && (m === "GET" || m === "DELETE")) return adminProspects(request, env, url, await adminSession(request, env));
+  if (p.startsWith("/api/admin/")) return adminRoute(p, m, request, env, url, { auth, json, HttpError, readJson, requestLink, deleteUserData });
   if (p === "/api/lead" && m === "POST") return saveLead(request, env, url);
   if (p === "/api/stats" && m === "GET") return stats(request, env);
   if (p === "/api/referral" && m === "GET") return referral(request, env, url);
@@ -137,7 +139,7 @@ async function auth(request, env) {
   const token = h.startsWith("Bearer ") ? h.slice(7).trim() : "";
   if (!token || token.length > 200) throw new HttpError(401, "Connexion nécessaire.");
   const row = await env.DB.prepare(
-    "SELECT s.token_hash, s.expires_at, u.id, u.email, u.plan, u.created_at, u.stripe_customer, u.stripe_sub, u.plan_checked_at, u.tier, u.founder, u.team_id FROM sessions s JOIN users u ON u.id = s.user_id WHERE s.token_hash = ?"
+    "SELECT s.token_hash, s.expires_at, u.id, u.email, u.plan, u.created_at, u.stripe_customer, u.stripe_sub, u.plan_checked_at, u.tier, u.founder, u.team_id, u.gift_until FROM sessions s JOIN users u ON u.id = s.user_id WHERE s.token_hash = ?"
   ).bind(await sha256(token)).first();
   if (!row || row.expires_at < now()) throw new HttpError(401, "Votre connexion a expiré. Reconnectez-vous.");
   // Prolonge la session et note la dernière activité (au plus une fois par heure)
@@ -147,11 +149,21 @@ async function auth(request, env) {
       env.DB.prepare("UPDATE users SET last_seen_at = ? WHERE id = ?").bind(now(), row.id)
     ]);
   }
+  // Accès offert depuis le back-office : il s'arrête tout seul à sa date de fin
+  if (row.plan === "offert" && row.gift_until && row.gift_until < now()) {
+    await env.DB.prepare("UPDATE users SET plan = 'free' WHERE id = ? AND plan = 'offert'").bind(row.id).run();
+    row.plan = "free";
+  }
   // Équipe : chaque membre a son propre abonnement (sa part). Être dans une équipe ne donne plus accès à lui seul.
   const plan = await refreshPlan(env, env.DB, row);
   return { id: row.id, email: row.email, plan, createdAt: row.created_at, tokenHash: row.token_hash, stripe_customer: row.stripe_customer, stripe_sub: row.stripe_sub, tier: row.tier, founder: !!row.founder, team_id: row.team_id };
 }
-const isPaid = u => ["recharge", "fondatrice", "equipe", "starter", "pro"].includes(u.plan);
+const isPaid = u => ["recharge", "fondatrice", "equipe", "starter", "pro", "offert"].includes(u.plan);
+/* Session d'une personne du back-office (ADMIN_EMAILS), sinon null */
+async function adminSession(request, env) {
+  if (!(request.headers.get("Authorization") || "").startsWith("Bearer ")) return null;
+  try { const u = await auth(request, env); return isAdmin(env, u.email) ? u : null; } catch { return null; }
+}
 
 /* ---------- Connexion par lien ---------- */
 async function requestLink(request, env, url, given) {
@@ -294,7 +306,8 @@ async function referral(request, env, url) {
    Un compteur par jour et par étape. Aucun cookie, aucune adresse IP, aucun identifiant : on sait combien de
    personnes passent chaque étape, jamais qui. Les noms d'étapes sont limités à une liste connue. */
 const EVENTS = new Set(["site_visite", "analyse_cta", "analyse_debut", "analyse_q1", "analyse_q2", "analyse_q3", "analyse_q4", "analyse_equipe", "analyse_resultat", "valeur_vue", "paywall_vu", "paywall_paiement", "paywall_plus_tard",
-  "analyse_reseau", "analyse_coach", "analyse_email", "analyse_essai", "parrain_visite", "parrainage_ouvert", "parrainage_partage", "app_ouverte", "app_depuis_analyse", "onboarding_fin", "premiers_clients", "premiere_relance", "compte_cree", "saisie_phrase", "playbook_vue", "playbook_ouvert", "playbook_ferme", "playbook_inscrit", "playbook_telecharge"]);
+  "analyse_reseau", "analyse_coach", "analyse_email", "analyse_essai", "parrain_visite", "parrainage_ouvert", "parrainage_partage", "app_ouverte", "app_depuis_analyse", "onboarding_fin", "premiers_clients", "premiere_relance", "compte_cree", "saisie_phrase", "playbook_vue", "playbook_ouvert", "playbook_ferme", "playbook_inscrit", "playbook_telecharge",
+  "analyse_prenom", "analyse_reglage", "analyse_plan", "analyse_offre", "analyse_choix_annuel", "analyse_choix_essai", "analyse_essai_cliente", "analyse_essai_envoi", "analyse_essai_reco"]);
 async function trackEvent(request, env) {
   const body = await readJson(request, 1024);
   const name = String(body.e || "");
@@ -308,7 +321,7 @@ async function trackEvent(request, env) {
 /* Tableau de bord du parcours : réservé à la personne qui connaît STATS_KEY (secret Cloudflare). */
 async function stats(request, env) {
   const key = request.headers.get("X-Stats-Key") || "";
-  if (!env.STATS_KEY || key.length < 8 || !sameKey(key, env.STATS_KEY)) throw new HttpError(404, "Introuvable.");
+  if (!(await adminSession(request, env)) && (!env.STATS_KEY || key.length < 8 || !sameKey(key, env.STATS_KEY))) throw new HttpError(404, "Introuvable.");
   const since = new Date(now() - 30 * 24 * 3600 * 1000).toISOString().slice(0, 10);
   const r = await env.DB.prepare("SELECT day, name, n FROM events_daily WHERE day >= ? ORDER BY day").bind(since).all();
   const leads = await env.DB.prepare("SELECT COUNT(*) AS n, SUM(news) AS news FROM leads").first();
@@ -365,6 +378,11 @@ async function deleteAccount(request, env) {
   const u = await auth(request, env);
   const body = await readJson(request);
   if (String(body.confirm || "").trim().toUpperCase() !== "SUPPRIMER") throw new HttpError(400, "Tapez SUPPRIMER pour confirmer.");
+  await deleteUserData(env, u);
+  return json({ ok: true });
+}
+/* Efface un compte et toutes ses données (utilisé aussi par le back-office) */
+async function deleteUserData(env, u) {
   await cancelSub(env, u);
   await env.DB.batch([
     env.DB.prepare("DELETE FROM backups WHERE user_id = ?").bind(u.id),
@@ -374,7 +392,6 @@ async function deleteAccount(request, env) {
     env.DB.prepare("DELETE FROM prospects WHERE email = ?").bind(u.email),
     env.DB.prepare("DELETE FROM users WHERE id = ?").bind(u.id)
   ]);
-  return json({ ok: true });
 }
 
 /* ---------- Abonnement (Stripe) ---------- */

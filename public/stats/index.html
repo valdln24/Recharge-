@@ -16,17 +16,19 @@ form{display:flex;gap:8px;flex-wrap:wrap}input{flex:1 1 240px;min-height:48px;bo
 <div id="out"></div>
 <script>
 (function () {
-  var STEPS = [["site_visite", "Visites de l'accueil"], ["analyse_cta", "Clic « Analyser mon activité »"], ["analyse_debut", "Analyse commencée"], ["analyse_resultat", "Analyse terminée"], ["analyse_email", "Email laissé"], ["analyse_essai", "Clic « Essayer avec mes clients »"], ["app_depuis_analyse", "Appli ouverte depuis l'analyse"], ["onboarding_fin", "Onboarding terminé"], ["premiers_clients", "Premiers clients ajoutés"], ["premiere_relance", "Première relance envoyée"], ["compte_cree", "Comptes créés"]];
+  var STEPS = [["site_visite", "Visites de l'accueil"], ["analyse_cta", "Clic « Analyser mon activité »"], ["analyse_debut", "Analyse commencée"], ["analyse_prenom", "Prénom donné"], ["analyse_q4", "Questions terminées"], ["analyse_reglage", "Réglages du plan"], ["analyse_resultat", "Plan prêt (partiellement caché)"], ["analyse_offre", "Offre vue (« Débloquer mon plan »)"], ["analyse_choix_annuel", "Clic « Débloquer mon plan » (annuel)"], ["analyse_choix_essai", "Clic « Essayer 7 jours »"], ["app_depuis_analyse", "Appli ouverte depuis l'analyse"], ["paywall_vu", "Offre vue dans l'appli"], ["paywall_paiement", "Paiement lancé"], ["onboarding_fin", "Onboarding terminé"], ["premiers_clients", "Premiers clients ajoutés"], ["premiere_relance", "Première relance envoyée"], ["compte_cree", "Comptes créés"]];
   var out = document.getElementById("out"), key = document.getElementById("key");
   try { key.value = sessionStorage.getItem("rcStatsKey") || ""; } catch (e) {}
-  document.getElementById("f").addEventListener("submit", function (e) {
-    e.preventDefault(); try { sessionStorage.setItem("rcStatsKey", key.value); } catch (x) {}
-    fetch("/api/stats", { headers: { "X-Stats-Key": key.value } }).then(function (r) { if (!r.ok) throw 0; return r.json(); }).then(function (d) {
+  var go = function (e) {
+    if (e) e.preventDefault(); try { sessionStorage.setItem("rcStatsKey", key.value); } catch (x) {}
+    fetch("/api/stats", { headers: (function () { var h = { "X-Stats-Key": key.value }, t = ""; try { t = sessionStorage.getItem("recharge.admin.token") || ""; } catch (x) {} if (t) h.Authorization = "Bearer " + t; return h; })() }).then(function (r) { if (!r.ok) throw 0; return r.json(); }).then(function (d) {
       var tot = {}; d.events.forEach(function (x) { tot[x.name] = (tot[x.name] || 0) + x.n; });
       var top = tot.site_visite || 1, prev = null;
       var rows = STEPS.map(function (s) { var n = tot[s[0]] || 0, rate = prev ? (prev ? Math.round(n / prev * 100) : 0) + " %" : ""; prev = n || prev; return '<div class="r"><div>' + s[1] + '<i style="width:' + Math.min(100, Math.round(n / top * 100)) + '%"></i></div><b>' + n + "</b><small>" + rate + "</small></div>"; }).join("");
       out.innerHTML = '<div class="k"><div><b>' + (d.leads.n || 0) + '</b><span>emails laissés au total</span></div><div><b>' + (d.leads.news || 0) + '</b><span>acceptent les conseils</span></div><div><b>' + (d.users || 0) + '</b><span>comptes au total</span></div></div><div class="f">' + rows + '</div><p class="s" style="margin-top:12px">Le pourcentage compare chaque étape à la précédente.</p>';
     }).catch(function () { out.innerHTML = '<p class="err">Clé incorrecte, ou la clé STATS_KEY n\'est pas encore réglée dans Cloudflare.</p>'; });
-  });
+  };
+  document.getElementById("f").addEventListener("submit", go);
+  try { if (sessionStorage.getItem("recharge.admin.token")) { document.getElementById("f").hidden = true; go(); } } catch (e) {}   // connecté au back-office
 })();
 </script></main></body></html>

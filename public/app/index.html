@@ -1180,7 +1180,7 @@ function accountSection() {
     ${API_OK ? `<button class="linkbtn" data-act="accLogin">J'ai déjà un compte : me connecter</button>` : ""}</div>`;
   return section("Mon compte") + `<div class="card pad acc">
     <b style="display:block">☁️ Compte : ${esc(session.email)}</b>
-    <p class="plan-line">${session.paid ? `Offre ${TIER_NAME[session.plan] || "Recharge"} active${session.founder ? " · prix fondateur" : ""}` : "Essai gratuit"}</p>
+    <p class="plan-line">${session.plan === "offert" ? "Accès offert · toute l'appli, sans paiement" : session.paid ? `Offre ${TIER_NAME[session.plan] || "Recharge"} active${session.founder ? " · prix fondateur" : ""}` : "Essai gratuit"}</p>
     ${session.team || session.plan === "equipe" ? `<button class="btn soft" style="margin-bottom:8px" data-act="teamOpen">Mon équipe</button>` : ""}
     ${session.billing ? `<button class="btn soft" style="margin-bottom:8px" data-act="accPortal">💳 Gérer mon abonnement · factures, carte, résiliation</button>` : ""}
     ${!session.paid ? `<button class="btn orange" style="margin-bottom:8px" data-act="accUpgrade">Choisir mon offre · 7 jours gratuits</button>` : session.plan === "starter" ? `<button class="btn soft" style="margin-bottom:8px" data-act="upPro">Passer à Pro</button>` : ""}
