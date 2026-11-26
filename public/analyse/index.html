@@ -151,6 +151,57 @@ body{background:var(--bg)}
 .treco{margin-top:12px;display:flex;flex-wrap:wrap;gap:8px}
 .treco span{display:inline-flex;align-items:center;gap:7px;padding:8px 12px;border-radius:99px;background:#FFF1E8;font-weight:800;font-size:.88rem;animation:afade .4s both}
 .treco span i{width:9px;height:9px;border-radius:50%;background:var(--orange)}
+/* tunnel : prénom, compteur, analyse, réglage, plan flouté, offre */
+.tin{font:inherit;font-size:1.15rem;font-weight:700;padding:16px 18px;border-radius:18px;border:1.5px solid var(--line);background:#fff;color:var(--ink);width:100%}
+.tin:focus{outline:none;border-color:var(--orange);box-shadow:0 0 0 4px rgba(255,120,46,.14)}
+.live{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 22px;padding:12px 16px;border-radius:16px;background:var(--dark);color:#fff}
+.live span{font-size:.8rem;font-weight:700;color:#CFC8D6;line-height:1.3}.live b{font-size:1.35rem;letter-spacing:-.04em;color:var(--orange);white-space:nowrap;font-variant-numeric:tabular-nums}
+.live small{display:block;font-size:.68rem;color:#A69EAE;font-weight:600}
+.scan{text-align:center;padding-top:4vh}
+.scan .ring{width:96px;height:96px;margin:0 auto 22px;position:relative}.scan .ring svg{width:96px;height:96px;transform:rotate(-90deg)}
+.scan .ring b{position:absolute;inset:0;display:grid;place-items:center;font-size:1.3rem;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.scan ul{list-style:none;padding:0;margin:22px auto 0;max-width:380px;display:grid;gap:10px;text-align:left}
+.scan li{display:flex;gap:10px;align-items:center;padding:12px 14px;border-radius:14px;background:#fff;border:1px solid var(--line);font-weight:650;font-size:.94rem;opacity:.35;transition:opacity .3s}
+.scan li.on{opacity:1}.scan li i{flex:none;width:22px;height:22px;border-radius:50%;background:#EDE5DB;display:grid;place-items:center;transition:background .3s}
+.scan li.on i{background:var(--orange)}.scan li i svg{display:block;width:12px;height:12px;color:var(--navy);opacity:0}.scan li.on i svg{opacity:1}
+.tune{background:#fff;border:1px solid var(--line);border-radius:22px;padding:18px}
+.tune label{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-weight:700;color:var(--ink-2)}.tune label b{font-size:1.5rem;color:var(--ink);letter-spacing:-.03em;white-space:nowrap}
+.tune input[type=range]{width:100%;margin:14px 0 6px;accent-color:var(--orange)}
+.tune .out{margin-top:8px;padding:12px 14px;border-radius:14px;background:var(--o-soft);color:#7A3A12;font-weight:650;line-height:1.4}.tune .out b{color:var(--o-text);white-space:nowrap}
+.tune .out .big{display:block;font-size:1.7rem;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+.names{display:grid;gap:8px;margin-top:10px}.names .tin{font-size:1rem;font-weight:650}
+.pday{margin-top:14px;border-radius:22px;padding:18px;background:var(--dark);color:#fff}
+.pday .pk{font-size:.74rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#CFC8D6;margin-bottom:10px}
+.pday ul{list-style:none;padding:0;margin:0;display:grid;gap:8px}
+.pday li{display:flex;gap:10px;align-items:center;padding:12px;border-radius:14px;background:rgba(255,255,255,.07);font-weight:600;font-size:.93rem;line-height:1.35}
+.pday li i{flex:none;width:30px;height:30px;border-radius:50%;background:rgba(255,120,46,.2);color:var(--orange);display:grid;place-items:center;font-style:normal;font-weight:800;font-size:.8rem}
+.pday li b{color:#FFB98F}
+.pln{margin-top:18px;display:grid;gap:10px}
+.mk{background:#fff;border:1px solid var(--line);border-radius:20px;padding:16px}
+.mk h3{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:0 0 10px;font-size:1.02rem;letter-spacing:-.01em}
+.mk h3 span{flex:none;font-size:.68rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:5px 9px;border-radius:99px;background:#EFE8E0;color:var(--ink-2)}
+.mk.hot h3 span{background:#FFE7D9;color:#B44A12}.mk.warm h3 span{background:#FFF3D6;color:#8A6410}.mk.cold h3 span{background:#E6ECFF;color:#3C5BD6}
+.mk ul{list-style:none;padding:0;margin:0;display:grid;gap:9px}
+.mk li{display:flex;gap:10px;align-items:flex-start;font-size:.93rem;line-height:1.4;font-weight:600}
+.mk li i{flex:none;width:20px;height:20px;border-radius:6px;border:2px solid #D9CFC4;margin-top:1px}
+.lockwrap{position:relative;border-radius:22px;overflow:hidden;min-height:300px}
+.lockwrap .blur{filter:blur(5px);user-select:none;pointer-events:none;display:grid;gap:10px}
+.lockwrap .lk{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:20px;text-align:center;background:linear-gradient(rgba(244,239,232,.15),rgba(244,239,232,.88) 50%)}
+.lk p{margin:0;font-weight:750;max-width:320px;line-height:1.35}
+.lk .lic{width:46px;height:46px;border-radius:50%;background:var(--navy);display:grid;place-items:center}.lk .lic svg{display:block;width:22px;height:22px;color:#fff}
+.hid{display:inline-block;filter:blur(7px);user-select:none}
+.peek{background:none;border:0;padding:0;font:inherit;color:var(--o-text);font-weight:800;text-decoration:underline;cursor:pointer}
+.offer{margin-top:18px;border-radius:26px;padding:22px 20px;background:#fff;border:2px solid var(--orange);box-shadow:0 18px 40px -22px rgba(255,120,46,.65)}
+.offer .ok{font-size:.74rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--o-text)}
+.offer .pr{display:flex;align-items:baseline;gap:10px;margin:8px 0 2px}.offer .pr b{font-size:2.9rem;letter-spacing:-.05em;line-height:1}.offer .pr span{font-weight:700;color:var(--ink-2)}
+.offer .pm{margin:0 0 14px;color:var(--ink-2);font-weight:650;font-size:.9rem}
+.offer ul{list-style:none;padding:0;margin:0 0 16px;display:grid;gap:9px}
+.offer li{display:flex;gap:10px;align-items:flex-start;font-size:.95rem;line-height:1.4}
+.offer li i{flex:none;width:22px;height:22px;border-radius:50%;background:var(--orange);display:grid;place-items:center;margin-top:1px}.offer li i svg{display:block;width:12px;height:12px;color:var(--navy)}
+.offer .btn,.otry .btn{width:100%;justify-content:center}
+.offer small,.otry small{display:block;margin-top:10px;font-size:.78rem;line-height:1.45;color:var(--ink-3);font-weight:600;text-align:center}
+.otry{margin-top:12px;border-radius:22px;padding:18px;background:#fff;border:1.5px solid var(--line)}
+.otry h3{margin:0 0 4px;font-size:1.05rem}.otry p{margin:0 0 12px;color:var(--ink-2);font-size:.92rem;line-height:1.45}
 @media (max-width:520px){.rstats{grid-template-columns:1fr 1fr}.rstats .rs.hl{grid-column:1/-1}.rsave .btn{width:100%}}
 @media (max-width:360px){.aopts{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:reduce){.fade{animation:none}}
@@ -190,7 +241,8 @@ body{background:var(--bg)}
   var TONES = [["chaleureux", "😊 Chaleureux"], ["pro", "🤝 Pro"], ["simple", "💬 Simple"]];
   var tr = { name: "", prod: "", ago: 30, tone: "chaleureux", sent: false, reco: 0 };
   var el = document.getElementById("an");
-  var st = { i: 0, clients: null, cat: null, dorm: null, team: null, pains: [] };
+  var st = { i: 0, me: "", clients: null, cat: null, dorm: null, team: null, pains: [], speed: null, names: ["", "", ""] };
+  var lastEst = 0;
   var track = function (e) { try { var b = JSON.stringify({ e: e }); if (navigator.sendBeacon) navigator.sendBeacon("/api/event", new Blob([b], { type: "application/json" })); else fetch("/api/event", { method: "POST", headers: { "Content-Type": "application/json" }, body: b, keepalive: true }); } catch (x) {} };
   var esc = function (s) { return String(s).replace(/[&<>"']/g, function (m) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]; }); };
   var fmt = function (n) { return Math.round(n).toLocaleString("fr-FR"); };
@@ -198,22 +250,51 @@ body{background:var(--bg)}
   fetch("/api/health").then(function (r) { return r.ok ? r.json() : null; }).then(function (j) { accounts = !!(j && j.accounts); var b = document.getElementById("rsave"); if (b) { if (accounts) b.hidden = false; else b.remove(); } }).catch(function () {});
 
   var c0 = new URLSearchParams(location.search).get("c");
-  if (c0 !== null && CLIENTS[+c0]) { st.clients = +c0; st.i = 1; track("analyse_q1"); }
+  if (c0 !== null && CLIENTS[+c0]) { st.clients = +c0; track("analyse_q1"); }   // la réponse du site est gardée, on demande d’abord le prénom
   track("analyse_debut");
 
+  function me() { return st.me.trim().split(/\s+/)[0] || ""; }
+  function meC() { var m = me(); return m ? ", " + m : ""; }
+  // Étape 1 « Fais-le parler de lui » : chaque réponse change la question suivante
   function steps() {
+    var nC = st.clients !== null ? CLIENTS[st.clients][0] : "", cat = st.cat !== null ? CATS[st.cat] : null;
+    return [
+      { k: "me", custom: true },
+      { k: "clients", t: "Combien de clients suivez-vous" + meC() + " ?", s: "Les personnes qui vous achètent régulièrement, même de temps en temps.", o: CLIENTS.map(function (x, n) { return [n, x[0], ""]; }) },
+      { k: "cat", t: (nC ? nC + " clients" + meC() + ", c’est déjà une belle base. " : "") + "Que vendez-vous surtout ?", s: "Recharge connaît la durée habituelle de chaque type de produit : c’est ce qui dit quand relancer.", o: CATS.map(function (x, n) { return [n, x[1], x[2]]; }) },
+      { k: "dorm", t: "Parmi vos " + (nC ? nC + " " : "") + "clients, combien n’ont rien commandé depuis 3 mois ?", s: cat ? "En " + cat[1].toLowerCase() + ", un produit est " + cat[2].replace(/^environ /, "racheté environ ").replace(/^racheté racheté/, "racheté") + ". Passé 3 mois, ces ventes partent ailleurs. Une estimation suffit." : "Une estimation suffit.", o: DORM.map(function (x, n) { return [n, x[0], ""]; }) },
+      { k: "team", t: "Avez-vous des filleuls" + meC() + " ?", s: "Les personnes que vous avez recrutées et que vous accompagnez.", o: [[0, "Non, je vends en solo", ""], [1, "Oui, moins de 5", ""], [2, "Oui, 5 ou plus", "Recharge a une offre pour toute l’équipe"]] },
+      { k: "pains", multi: true, t: "Dernière question" + meC() + " : qu’est-ce qui vous freine aujourd’hui ?", s: "Plusieurs réponses possibles. Votre plan sera construit autour.", o: PAINS.map(function (x) { return [x[0], x[1], x[2]]; }) }
+    ];
+  }
+  function stepsOld() {   // caché : ancien questionnaire, gardé pour mémoire
     return [
       { k: "clients", t: "Combien de clients suivez-vous ?", s: "Les personnes qui vous achètent régulièrement, même de temps en temps.", o: CLIENTS.map(function (x, n) { return [n, x[0], ""]; }) },
       { k: "cat", t: "Que vendez-vous surtout ?", s: "Recharge connaît la durée habituelle de chaque type de produit.", o: CATS.map(function (x, n) { return [n, x[1], x[2]]; }) },
       // { k: "try", custom: true },   // caché : onboarding raccourci à 5 questions
       { k: "dorm", t: "Combien de clients n’ont rien commandé depuis plus de 3 mois ?", s: "Une estimation suffit. Tout le monde en a : ce sont des ventes à récupérer.", o: DORM.map(function (x, n) { return [n, x[0], ""]; }) },
-      { k: "team", t: "Avez-vous des filleuls ?", s: "Les personnes que vous avez recrutées et que vous accompagnez.", o: [[0, "Non, je vends seule", ""], [1, "Oui, moins de 5", ""], [2, "Oui, 5 ou plus", "Recharge a une offre pour toute l’équipe"]] },
+      { k: "team", t: "Avez-vous des filleuls ?", s: "Les personnes que vous avez recrutées et que vous accompagnez.", o: [[0, "Non, je vends en solo", ""], [1, "Oui, moins de 5", ""], [2, "Oui, 5 ou plus", "Recharge a une offre pour toute l’équipe"]] },
       // { k: "reco", custom: true },  // caché
       { k: "pains", multi: true, t: "Qu'est-ce qui vous freine aujourd'hui ?", s: "Plusieurs réponses possibles.", o: PAINS.map(function (x) { return [x[0], x[1], x[2]]; }) }
     ];
   }
   function draw(html) { el.innerHTML = '<div class="fade">' + html + "</div>"; window.scrollTo(0, 0); }
-  function head(S) { return '<div class="abar"><span style="width:' + Math.round((st.i + 1) / (S.length + 1) * 100) + '%"></span></div><div class="astep">Étape ' + (st.i + 1) + " sur " + S.length + "</div>"; }
+  // Compteur en direct : ce que l'activité laisse passer, estimé avec les réponses déjà données
+  function estNow() {
+    if (st.clients === null) return 0;
+    var n = CLIENTS[st.clients][1], c = CATS[st.cat !== null ? st.cat : 5], d = st.dorm !== null ? DORM[st.dorm][1] : -1;
+    var vc = c[4] * 365 / c[3] * 0.6, dorm = d < 0 ? n * .25 : Math.min(d, n);
+    return Math.round((dorm / 3 * vc + n * .5 * vc) / 10) * 10;
+  }
+  function live() {
+    if (!estNow()) return "";
+    return '<div class="live"><span>Ventes que vous laissez passer<small>Estimation par an, affinée à chaque réponse</small></span><b>~<span id="liveV">' + fmt(lastEst) + "</span> €</b></div>";
+  }
+  function liveRun() {
+    var e = document.getElementById("liveV"), to = estNow(), from = lastEst; lastEst = to; if (!e || from === to) return;
+    var t0 = performance.now(); (function f(t) { var k = Math.min(1, (t - t0) / 900), v = from + (to - from) * (1 - Math.pow(1 - k, 3)); e.textContent = fmt(Math.round(v / 10) * 10); if (k < 1) requestAnimationFrame(f); })(t0);
+  }
+  function head(S) { return '<div class="abar"><span style="width:' + Math.round((st.i + 1) / (S.length + 1) * 100) + '%"></span></div>' + live() + '<div class="astep">Question ' + (st.i + 1) + " sur " + S.length + "</div>"; }
   var low = function (x) { return String(x || "").trim().toLowerCase(); };
   function first() { return (tr.name.trim().split(/\s+/)[0] || "Marie"); }
   function prodName() { return tr.prod.trim() || (PRODS[CATS[st.cat || 0][0]] || ["votre produit"])[0]; }
@@ -261,6 +342,7 @@ body{background:var(--bg)}
     var S = steps(), q = S[st.i], val = st[q.k];
     if (q.k === "try") return tryStep(S);
     if (q.k === "reco") return recoStep(S);
+    if (q.k === "me") return meStep(S);
     var opts = q.o.map(function (o) {
       var on = q.multi ? st.pains.indexOf(o[0]) >= 0 : val === o[0];
       return '<button type="button" class="aopt' + (on ? " on" : "") + '" data-v="' + o[0] + '"><b>' + esc(o[1]) + "</b>" + (o[2] ? "<small>" + esc(o[2]) + "</small>" : "") + "</button>";
@@ -269,7 +351,109 @@ body{background:var(--bg)}
       '<h1 class="aq">' + q.t + '</h1><p class="asub">' + q.s + "</p>" +
       '<div class="aopts' + (q.o.length < 5 && !q.multi ? "" : "") + '">' + opts + "</div>" +
       '<div class="anav">' + (st.i > 0 ? '<button type="button" class="back" data-a="back">← Retour</button>' : "<span></span>") +
-      (q.multi ? '<button type="button" class="btn orange" data-a="next"' + (st.pains.length ? "" : " disabled") + ">Voir mon analyse" + ARROW + "</button>" : "") + "</div>");
+      (q.multi ? '<button type="button" class="btn orange" data-a="next"' + (st.pains.length ? "" : " disabled") + ">Lancer mon analyse" + ARROW + "</button>" : "") + "</div>");
+    liveRun();
+  }
+  function meStep(S) {
+    var pre = st.clients !== null ? CLIENTS[st.clients][0] + " clients, c’est noté. " : "";
+    draw(head(S) + '<h1 class="aq">' + pre + "Et vous, quel est votre prénom ?</h1>" +
+      '<p class="asub">Votre analyse et votre plan d’action seront à votre nom. 2 minutes, gratuit, sans compte.</p>' +
+      '<form id="meForm" novalidate><input class="tin" id="meIn" placeholder="Votre prénom" autocomplete="given-name" autocapitalize="words" maxlength="30" value="' + esc(st.me) + '">' +
+      '<div class="anav"><span></span><button type="submit" class="btn orange" id="meGo"' + (st.me.trim() ? "" : " disabled") + ">C’est parti" + ARROW + "</button></div></form>");
+    var i = document.getElementById("meIn"), g = document.getElementById("meGo");
+    i.addEventListener("input", function () { st.me = i.value; g.disabled = !i.value.trim(); });
+    document.getElementById("meForm").addEventListener("submit", function (e) { e.preventDefault(); if (!st.me.trim()) return; track("analyse_prenom"); st.i = st.clients !== null ? 2 : 1; question(); });
+    liveRun();
+    if (window.matchMedia("(min-width:700px)").matches) i.focus();
+  }
+  // « Analyse de votre activité en cours… » : quelques secondes, chaque ligne se coche
+  function scanning() {
+    var m = me(), c = CATS[st.cat], C = 2 * Math.PI * 42;
+    var L = ["Lecture de vos " + CLIENTS[st.clients][0] + " clients", "Rythme de rachat : " + c[1].toLowerCase(), "Clients endormis à réveiller", "Votre micro-marché autour de vous", "Préparation du plan de " + (m || "votre activité")];
+    draw('<div class="abar"><span style="width:92%"></span></div><div class="scan"><div class="ring"><svg viewBox="0 0 96 96"><circle cx="48" cy="48" r="42" fill="none" stroke="#EDE5DB" stroke-width="8"/><circle id="scArc" cx="48" cy="48" r="42" fill="none" stroke="#FF782E" stroke-width="8" stroke-linecap="round" stroke-dasharray="0 ' + C.toFixed(1) + '"/></svg><b id="scP">0 %</b></div>' +
+      '<h1 class="aq">Analyse de votre activité en cours…</h1><p class="asub">' + esc(m ? m + ", on" : "On") + " croise vos réponses avec le rythme de vos produits.</p><ul>" +
+      L.map(function (x) { return "<li><i>" + CHECK + "</i>" + esc(x) + "</li>"; }).join("") + "</ul></div>");
+    var li = el.querySelectorAll(".scan li"), arc = document.getElementById("scArc"), pc = document.getElementById("scP"), D = 3400, t0 = performance.now();
+    (function f(t) {
+      var k = Math.min(1, (t - t0) / D);
+      arc.setAttribute("stroke-dasharray", (C * k).toFixed(1) + " " + C.toFixed(1)); pc.textContent = Math.round(k * 100) + " %";
+      li.forEach(function (x, j) { if (k >= (j + 1) / (L.length + .4)) x.classList.add("on"); });
+      if (k < 1) requestAnimationFrame(f); else setTimeout(tune, 400);
+    })(t0);
+  }
+  // Étape 2 « Mets ses affaires dedans » : son rythme, ses clients, son plan
+  function speedMax() { return Math.max(5, Math.min(30, CLIENTS[st.clients][1])); }
+  function tuneCalc() {
+    // 6 relances sur 10 faites au bon moment deviennent une commande, au panier moyen du type de produit
+    var c = CATS[st.cat], cmd = st.speed * 0.6, an = Math.round(cmd * 52 * c[4] / 10) * 10;
+    return { an: an, mois: Math.round(an / 12 / 10) * 10, cmd: Math.max(1, Math.round(cmd)) };
+  }
+  function planItems(nm) {
+    var c = CATS[st.cat], p = low((PRODS[c[0]] || ["produit"])[0]);
+    if (c[0] === "autre") p = "produit";
+    return [["1", "Relancer <b>" + esc(nm[0] || "un client fidèle") + "</b> : sa réserve de " + esc(p) + " arrive au bout"],
+      ["2", "Demander une recommandation à <b>" + esc(nm[1] || "un client satisfait") + "</b>"],
+      ["3", "Reprendre contact avec <b>" + esc(nm[2] || "un client endormi") + "</b>, message prêt"]];
+  }
+  function tune() {
+    var m = me(), a = compute();
+    if (st.speed === null) st.speed = Math.min(speedMax(), Math.max(3, a.semaine));
+    track("analyse_reglage");
+    draw('<div class="abar"><span style="width:95%"></span></div><div class="astep">Votre plan · réglages</div>' +
+      '<h1 class="aq">' + esc(m ? m + ", réglons" : "Réglons") + ' le plan à votre rythme</h1><p class="asub">Bougez le curseur : l’estimation suit en direct.</p>' +
+      '<div class="tune"><label for="spd">Je relance chaque semaine <b><span id="spdV">' + st.speed + "</span> client" + (st.speed > 1 ? "s" : "") + '</b></label>' +
+      '<input type="range" id="spd" min="1" max="' + speedMax() + '" value="' + st.speed + '" aria-label="Clients relancés par semaine"><div class="out" id="spdOut"></div></div>' +
+      '<p class="tlab" style="margin-top:20px">Écrivez le prénom de 3 de vos clients</p><div class="names">' +
+      [0, 1, 2].map(function (j) { return '<input class="tin" data-nm="' + j + '" placeholder="' + ["Un client qui rachète souvent", "Un client très satisfait", "Un client qui n’a pas commandé depuis longtemps"][j] + '" autocomplete="off" autocapitalize="words" maxlength="30" value="' + esc(st.names[j]) + '">'; }).join("") + "</div>" +
+      '<div class="pday"><div class="pk">Plan du jour de ' + esc(m || "votre activité") + ' · aperçu</div><ul id="pdl"></ul></div>' +
+      '<div class="anav"><span></span><button type="button" class="btn orange" data-a="plan">Générer mon plan' + ARROW + "</button></div>");
+    var r = document.getElementById("spd"), run = function () {
+      st.speed = +r.value; var t = tuneCalc();
+      r.parentNode.querySelector("label b").innerHTML = '<span id="spdV">' + st.speed + "</span> client" + (st.speed > 1 ? "s" : "");
+      document.getElementById("spdOut").innerHTML = '<span class="big">~' + fmt(t.mois) + " € par mois</span>≈ <b>" + t.cmd + " commande" + (t.cmd > 1 ? "s" : "") + "</b> par semaine. Estimation : 6 relances sur 10 au bon moment, panier moyen ~" + CATS[st.cat][4] + " €.";
+    };
+    var pv = function () { document.getElementById("pdl").innerHTML = planItems(st.names).map(function (x) { return "<li><i>" + x[0] + "</i><span>" + x[1] + "</span></li>"; }).join(""); };
+    r.addEventListener("input", run); run(); pv();
+    el.querySelectorAll("[data-nm]").forEach(function (i) { i.addEventListener("input", function () { st.names[+i.dataset.nm] = i.value.trim(); pv(); }); });
+  }
+  // Étape 3 « Fais payer avant le résultat » : le plan existe, on n'en voit qu'une partie
+  var LOCK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
+  function planReady() {
+    var a = compute(), m = me();
+    try { localStorage.setItem(KEY, JSON.stringify(a)); } catch (e) {}
+    track("analyse_resultat");
+    var more = Math.max(0, a.semaine - 1);
+    var items = planItems(st.names).map(function (x) { return "<li><i></i><span>" + x[1] + "</span></li>"; }).join("") +
+      (more ? '<li><i></i><span><b class="hid" aria-hidden="true">' + more + "</b> autres clients arrivent au bout de leur produit cette semaine</span></li>" : "");
+    var hidden = '<div class="mk warm"><h3>Marché tiède <span>5 actions</span></h3><ul><li><i></i><span>Écrire à 3 personnes de votre liste de noms, message prêt</span></li><li><i></i><span>Suivre 5 profils de votre ville et engager la conversation</span></li><li><i></i><span>Relancer les prospects qui ont dit « plus tard »</span></li></ul></div>' +
+      '<div class="mk cold"><h3>Marché froid <span>6 actions</span></h3><ul><li><i></i><span>3 publications à commenter avec les hashtags de votre ville</span></li><li><i></i><span>Un lieu et une date pour votre prochain atelier</span></li><li><i></i><span>Une idée de partenariat avec un commerce près de chez vous</span></li></ul></div>' +
+      '<div class="mk"><h3>Vos ' + a.dorm + ' clients endormis <span>messages prêts</span></h3><ul><li><i></i><span>Un message simple et sans pression pour chacun, à votre ton</span></li><li><i></i><span>Le bon moment pour leur écrire</span></li></ul></div>';
+    draw('<div class="abar"><span style="width:100%"></span></div><div class="rk">Analyse terminée</div>' +
+      '<h1 class="rh">Le plan de ' + esc(m || "votre activité") + " est prêt.</h1>" +
+      '<p class="rsub">' + esc(m ? m + ", il" : "Il") + ' y a jusqu’à <b class="hid" aria-hidden="true">~' + fmt(a.totalAn) + " €</b> par an à aller chercher dans votre activité (estimation). " +
+      '<button type="button" class="peek" data-a="offer">Voir le montant</button></p>' +
+      '<div class="pln"><div class="mk hot"><h3>Marché chaud · cette semaine <span>' + (3 + more) + " actions</span></h3><ul>" + items + "</ul></div>" +
+      '<div class="lockwrap"><div class="blur" aria-hidden="true">' + hidden + '</div><div class="lk"><span class="lic">' + LOCK + "</span><p>Votre marché tiède, votre marché froid, vos " + a.dorm + ' clients endormis et le montant exact.</p><button type="button" class="btn orange" data-a="offer">Débloquer mon plan' + ARROW + "</button></div></div></div>" +
+      '<p class="rhyp">Montants estimés avec vos réponses, pas une promesse. Avec vos vrais clients, Recharge calcule tout précisément.</p>');
+  }
+  function offer() {
+    var a = compute(), m = me(), q7 = Math.max(1, st.speed || a.semaine), c7 = Math.max(1, Math.round(q7 * .6)), e7 = c7 * a.panier;
+    track("analyse_offre");
+    var LI = function (x) { return "<li><i>" + CHECK + "</i><span>" + x + "</span></li>"; };
+    draw('<div class="abar"><span style="width:100%"></span></div><div class="rk">' + esc(m ? "Le plan de " + m : "Votre plan") + "</div>" +
+      '<h1 class="rh">Débloquez votre plan' + esc(m ? ", " + m + "," : "") + ' et allez chercher <em>~<span class="hid" aria-hidden="true">' + fmt(a.totalAn) + "</span> €</em> par an.</h1>" +
+      '<p class="rsub">Le montant exact s’affiche dès que votre plan est débloqué. Ensuite, chaque matin, Recharge vous dit qui relancer, avec le message prêt.</p>' +
+      '<div class="offer"><div class="ok">Recharge Pro · à l’année · prix fondateur</div><div class="pr"><b>119 €</b><span>pour l’année</span></div><p class="pm">Soit 9,92 € par mois. Réservé aux 50 premiers abonnés.</p><ul>' +
+      LI("Votre plan complet : marchés chaud, tiède et froid, plus de 250 idées") + LI("Vos " + a.dorm + " clients endormis, avec un message prêt pour chacun") +
+      LI("Chaque relance au bon moment, selon la durée de chaque produit") + LI("Le coach illimité, la carte fidélité et les recommandations") +
+      '</ul><a class="btn orange" id="rcGo" href="/app/?from=analyse#abonnement">Débloquer mon plan' + ARROW + "</a>" +
+      "<small>7 jours gratuits, puis 119 € pour l’année." + (a.fois >= 2 ? " D’après votre estimation, Recharge peut vous rendre " + a.fois + " fois son prix." : "") +
+      " Carte demandée, aucun prélèvement avant le 7e jour : annulez en 1 clic avant, un email vous prévient la veille.</small></div>" +
+      '<div class="otry"><h3>Envie de tester d’abord ?</h3><p>Essayez 7 jours avec vos vrais clients. Votre objectif : <b>' + q7 + " relances</b>, <b>~" + c7 + " commande" + (c7 > 1 ? "s" : "") + "</b>, <b>~" + fmt(e7) + " €</b> de ventes (estimation).</p>" +
+      '<a class="btn dark" id="rcTry" href="/app/?from=analyse#abonnement">Essayer 7 jours' + ARROW + "</a><small>Carte demandée, aucun prélèvement pendant 7 jours. Annulez en 1 clic avant le 7e jour.</small></div>" +
+      '<button type="button" class="again" data-a="back2">← Revoir mon plan</button>');
+    document.getElementById("rcGo").addEventListener("click", function () { track("analyse_choix_annuel"); });
+    document.getElementById("rcTry").addEventListener("click", function () { track("analyse_choix_essai"); });
   }
   function compute() {
     var n = CLIENTS[st.clients][1], c = CATS[st.cat], d = DORM[st.dorm][1];
@@ -284,7 +468,7 @@ body{background:var(--bg)}
     var prio = n <= 25 ? "croissance" : dorm >= n * .2 ? "reveil" : "rachats";
     return { clients: n, cat: c[0], catLabel: c[1], dorm: dorm, pains: st.pains.slice(), renouv: renouv, panier: c[4], duree: c[3], semaine: semaine,
       valClient: valClient, revenus: revenus, reveilAn: reveilAn, nouveaux: nouveaux, resAn: resAn, totalAn: totalAn, prio: prio,
-      team: st.team, first: tr.name.trim() ? { name: tr.name.trim(), prod: prodName(), ago: tr.ago } : null, tone: tr.tone, fois: Math.floor(totalAn / 119), cmdRemb: Math.max(1, Math.ceil(119 / c[4])), at: new Date().toISOString().slice(0, 10) };
+      team: st.team, first: tr.name.trim() ? { name: tr.name.trim(), prod: prodName(), ago: tr.ago } : null, tone: tr.tone, fois: Math.floor(totalAn / 119), cmdRemb: Math.max(1, Math.ceil(119 / c[4])), at: new Date().toISOString().slice(0, 10), me: me(), names: st.names.filter(Boolean), speed: st.speed };
   }
   function result() {
     var a = compute();
@@ -304,13 +488,13 @@ body{background:var(--bg)}
       '<small>Des rachats oubliés, des clients endormis, des recommandations jamais demandées.</small></div>' +
       '<div class="rc rc-yes"><div class="rc-k">Avec Recharge Pro, à l’année</div><p class="rc-v"><b>119 €</b> maintenant, ' + (a.fois >= 2 ? 'Recharge vous rend <b id="rgFois">' + a.fois + ' fois</b> son prix.' : 'remboursé dès la <b>' + a.cmdRemb + (a.cmdRemb > 1 ? "e" : "re") + ' commande récupérée</b>.') + '</p>' +
       '<a class="btn orange rc-go" id="rcGo" href="/app/?from=analyse#abonnement">Je m’abonne à l’année' + ARROW + '</a>' +
-      '<small>14 jours gratuits, puis 119 € pour l’année (9,92 € par mois). Résiliable à tout moment. Prix fondateur, réservé aux 50 premiers abonnés.</small></div></div>';
-    // 3e case : essayer 14 jours avec ses vrais clients, avec un objectif chiffré pour ces 14 jours (estimation)
+      '<small>7 jours gratuits, puis 119 € pour l’année (9,92 € par mois). Résiliable à tout moment. Prix fondateur, réservé aux 50 premiers abonnés.</small></div></div>';
+    // 3e case : essayer 7 jours avec ses vrais clients, avec un objectif chiffré pour ces 14 jours (estimation)
     var q14 = Math.max(1, a.semaine * 2), c14 = Math.max(1, Math.round(q14 * .6)), e14 = c14 * a.panier;
-    roi += '<div class="rc rc-try"><div class="rc-k">Pas encore décidée ?</div><p class="rc-v">Essayez <b>14 jours</b> avec vos vrais clients.</p>' +
-      '<ul class="rc-goal"><li><b>' + q14 + '</b><span>clients à relancer au bon moment</span></li><li><b>~' + c14 + '</b><span>commandes à récupérer</span></li><li><b>~' + fmt(e14) + ' €</b><span>de ventes en 14 jours</span></li></ul>' +
-      '<a class="btn dark rc-go" id="rcTry" href="/app/?from=analyse">J’essaie 14 jours' + ARROW + '</a>' +
-      '<small>L’objectif de vos 14 jours, estimé avec vos réponses (6 clients sur 10 qui rachètent). Gratuit, sans carte bancaire. Au bout de 14 jours, vous voyez ce que Recharge vous a rapporté et vous décidez.</small></div>';
+    roi += '<div class="rc rc-try"><div class="rc-k">Envie de tester d’abord ?</div><p class="rc-v">Essayez <b>7 jours</b> avec vos vrais clients.</p>' +
+      '<ul class="rc-goal"><li><b>' + q14 + '</b><span>clients à relancer au bon moment</span></li><li><b>~' + c14 + '</b><span>commandes à récupérer</span></li><li><b>~' + fmt(e14) + ' €</b><span>de ventes en 7 jours</span></li></ul>' +
+      '<a class="btn dark rc-go" id="rcTry" href="/app/?from=analyse">J’essaie 7 jours' + ARROW + '</a>' +
+      '<small>L’objectif de vos 7 jours, estimé avec vos réponses (6 clients sur 10 qui rachètent). Carte demandée, aucun prélèvement avant le 7e jour. Au bout de 7 jours, vous voyez ce que Recharge vous a rapporté et vous décidez.</small></div>';
     var stats = '<div class="rstats"><div class="rs"><b>' + a.renouv + '</b><span>renouvellements possibles par mois</span></div>' +
       '<div class="rs"><b>~' + a.dorm + '</b><span>clients endormis depuis 3 mois</span></div>' +
       '<div class="rs hl"><b>~' + fmt(a.valClient) + ' €</b><span>par an pour un client fidèle</span></div></div>';
@@ -424,8 +608,11 @@ body{background:var(--bg)}
     if (a.dataset.a === "send") { tr.sent = true; preview(); track("analyse_essai_envoi"); }
     if (a.dataset.a === "reco") { tr.reco = 3; track("analyse_essai_reco"); var y = window.scrollY; question(); window.scrollTo(0, y); }
     if (a.dataset.a === "tnext") { st.i++; question(); }
-    if (a.dataset.a === "next") { track("analyse_q4"); result(); }
-    if (a.dataset.a === "again") { st = { i: 0, clients: null, cat: null, dorm: null, team: null, pains: [] }; tr = { name: "", prod: "", ago: 30, tone: "chaleureux", sent: false, reco: 0 }; question(); }
+    if (a.dataset.a === "next") { track("analyse_q4"); scanning(); }   // l'ancien result() reste dans le code, caché
+    if (a.dataset.a === "plan") { track("analyse_plan"); planReady(); }
+    if (a.dataset.a === "offer") offer();
+    if (a.dataset.a === "back2") planReady();
+    if (a.dataset.a === "again") { st = { i: 0, me: st.me, clients: null, cat: null, dorm: null, team: null, pains: [], speed: null, names: ["", "", ""] }; lastEst = 0; tr = { name: "", prod: "", ago: 30, tone: "chaleureux", sent: false, reco: 0 }; question(); }
   });
   question();
 })();

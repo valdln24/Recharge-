@@ -279,7 +279,7 @@ window.rcTrack = function (e) {
   try { localStorage.setItem("recharge.parrain", c); } catch (e) {}
   window.rcTrack && window.rcTrack("parrain_visite");
   var b = document.createElement("div"); b.className = "pbanner"; b.setAttribute("role", "status");
-  b.innerHTML = '<span class="pb-i">🎁</span><span><b>Vous êtes invité(e) sur Recharge.</b> Votre premier mois est offert, en plus des 14 jours d’essai.</span><button type="button" aria-label="Fermer">×</button>';
+  b.innerHTML = '<span class="pb-i">🎁</span><span><b>Vous êtes invité(e) sur Recharge.</b> Votre premier mois est offert, en plus des 7 jours d’essai.</span><button type="button" aria-label="Fermer">×</button>';
   b.querySelector("button").addEventListener("click", function () { b.remove(); });
   document.body.appendChild(b);
 })();
@@ -339,7 +339,7 @@ window.rcTrack = function (e) {
           <p class="pbm-okd"></p>
           <a class="pbm-go pbm-dl" href="#" download>Télécharger le Playbook (PDF) <span aria-hidden="true">↓</span></a>
           <p class="pbm-note pbm-okmail"></p>
-          <div class="pbm-next"><b>Envie de l'appliquer tout de suite ?</b><span>Recharge calcule la fin de chaque produit et vous dit qui relancer chaque jour.</span><a href="/app/">Essayer Recharge 14 jours</a></div>
+          <div class="pbm-next"><b>Envie de l'appliquer tout de suite ?</b><span>Recharge calcule la fin de chaque produit et vous dit qui relancer chaque jour.</span><a href="/app/">Essayer Recharge 7 jours</a></div>
         </div>
       </div>
     </div>`;

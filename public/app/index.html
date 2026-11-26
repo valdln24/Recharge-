@@ -1043,7 +1043,7 @@ function openValue() {
     </div>
     <div class="pwvs"><div class="no">Ne rien changer<b class="num">0 €</b>et jusqu'à ~${an.totalAn.toLocaleString("fr-FR")} € de ventes par an qui risquent de partir ailleurs</div><div class="yes">Avec Recharge Pro<b class="num">${eur(pro)} / an</b>soit ${eur(Math.round(pro / 12))} par mois, pour aller les chercher</div></div>
     <p class="hint">Estimation calculée à partir de vos réponses (nombre de clients, panier moyen, fréquence de rachat), pas une promesse : le résultat dépend de vos relances.</p>
-    <button class="btn orange" style="margin-top:10px" data-act="pwGo">Commencer mes 14 jours offerts</button>
+    <button class="btn orange" style="margin-top:10px" data-act="pwGo">Commencer mes 7 jours offerts</button>
     <p class="hint" style="text-align:center;margin-top:6px">On installe d'abord votre espace avec vos clients. Sans engagement.</p>
     <button class="linkbtn" data-act="pwLater">Découvrir l'application d'abord</button></div>`);
   sheetEl.querySelector(".sheet-bg").removeAttribute("data-act");
@@ -1071,16 +1071,16 @@ async function openUpgrade(tier) {
   const join = upTier === "equipe" && upTeam.mode === "join";
   const nC = S.clients.filter(c => !c.example).length, nP = (S.prospects || []).filter(x => !x.example).length;
   const ready = pwFlow && nC + nP ? `<p class="lede" style="margin-top:8px">Votre espace est prêt : <b>${plural(nC, "client", "clients")}</b>${nP ? ` et <b>${plural(nP, "prospect", "prospects")}</b>` : ""}. Activez l'essai pour que Recharge vous prévienne au bon moment, avec le message prêt.</p>` : "";
-  const html = `<div class="shead"><h3>${pwFlow ? "Activez vos 14 jours offerts" : "Choisir mon offre"}</h3>${closeBtn}</div>${ready}
+  const html = `<div class="shead"><h3>${pwFlow ? "Activez vos 7 jours offerts" : "Choisir mon offre"}</h3>${closeBtn}</div>${ready}
     ${(() => { const an = S.analyse || readAnalyse(); return an && an.totalAn && !join ? `<p class="devnet" style="margin-top:8px">${myName() ? esc(myName()) + ", votre" : "Votre"} estimation : jusqu'à <b>~${an.totalAn.toLocaleString("fr-FR")} € par an</b> à aller chercher.${an.team && upTier === "equipe" ? ` Avec vos filleuls : ${eur(founder ? OFFERS.equipe.fm : OFFERS.equipe.m)} par mois chacun.` : ""}</p>` : ""; })()}
-    <p class="lede" style="margin-top:8px"><b>14 jours gratuits</b>, puis sans engagement : vous résiliez en un clic.</p>
+    <p class="lede" style="margin-top:8px"><b>7 jours gratuits</b>, puis sans engagement. Carte demandée, aucun prélèvement avant le 7e jour : vous annulez en 1 clic avant, et un email vous prévient la veille.</p>
     ${founder ? `<div class="ofound"><svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="15" class="trk"/><circle cx="18" cy="18" r="15" class="arc" stroke-dasharray="${left === null ? 0 : (RC * left / total).toFixed(1)} ${RC.toFixed(1)}" transform="rotate(-90 18 18)"/></svg>
       <span><b>Prix fondateur</b>${left === null ? `Réservé aux ${total} premiers abonnés, gardé tant que vous restez abonnée.` : `Encore <span class="num">${left}</span> place${left > 1 ? "s" : ""} sur ${total} · gardé tant que vous restez abonnée.`}</span></div>` : ""}
     <div class="seg oftog"><button type="button" class="${upPeriod === "year" ? "on" : ""}" data-act="upPeriod" data-p="year">À l'année <em>−25 %</em></button><button type="button" class="${upPeriod === "month" ? "on" : ""}" data-act="upPeriod" data-p="month">Au mois</button></div>
     <div class="ofrs">${["starter", "pro", "equipe"].map(card).join("")}</div>
     ${team}
     <label class="legalchk"><input type="checkbox" id="upCgv"><span>J'ai lu et j'accepte les <a href="/cgv/" target="_blank" rel="noopener">conditions de vente</a> et les <a href="/cgu/" target="_blank" rel="noopener">conditions d'utilisation</a>.</span></label>
-    <button class="btn orange" style="margin-top:14px" data-act="upGo">${join ? "Rejoindre l'équipe · 14 jours gratuits" : "Commencer mes 14 jours gratuits"}</button>
+    <button class="btn orange" style="margin-top:14px" data-act="upGo">${join ? "Rejoindre l'équipe · 7 jours gratuits" : "Commencer mes 7 jours gratuits"}</button>
     <div class="pwpay" aria-label="Moyens de paiement"><span>Apple Pay</span><span>Google Pay</span><span>Carte bancaire</span></div>
     <p class="hint" style="text-align:center">Paiement sécurisé par Stripe : Recharge ne voit jamais votre carte. Aucun prélèvement avant la fin de l'essai.${BILLING_OK ? "" : " Le paiement en ligne s'ouvre très bientôt."}</p>
     <ul class="pwtl"><li><b>Aujourd'hui</b>Tout Recharge est débloqué, avec vos clients.</li><li><b>Quelques jours avant la fin</b>Un email vous rappelle que l'essai se termine.</li><li><b>Jour 14</b>Premier paiement. Vous pouvez résilier avant, en un clic.</li></ul>
@@ -1123,7 +1123,7 @@ async function openTeam() {
     <p class="lede" style="margin-top:8px">${t.active ? "Vous faites partie de cette équipe et vous payez votre part : tout Recharge Pro est inclus." : "Vous êtes rattaché à cette équipe, mais votre part n'est pas active. Payez votre part pour retrouver tout Recharge."}</p>
     ${t.active ? "" : `<button class="btn orange" style="margin-top:12px" data-act="teamPay" data-c="${esc(t.code)}">Payer ma part</button>`}
     <button class="linkbtn danger-link" data-act="teamLeave">Quitter l'équipe</button>`);
-  const msgTxt = `Je t'invite dans notre équipe « ${t.name} » sur Recharge. Chacun paie sa part, moins de 10 € par mois, avec 14 jours gratuits pour essayer. Rejoins-nous avec ce lien : ${t.link} (ou le code ${t.code})`;
+  const msgTxt = `Je t'invite dans notre équipe « ${t.name} » sur Recharge. Chacun paie sa part, moins de 10 € par mois, avec 7 jours gratuits pour essayer. Rejoins-nous avec ce lien : ${t.link} (ou le code ${t.code})`;
   openSheet(`<div class="shead"><h3>${esc(t.name)}</h3>${closeBtn}</div>
     <div class="ofound" style="margin-top:10px"><svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="15" class="trk"/><circle cx="18" cy="18" r="15" class="arc" stroke-dasharray="${(RC * Math.min(1, t.used / t.min)).toFixed(1)} ${RC.toFixed(1)}" transform="rotate(-90 18 18)"/></svg>
       <span><b><span class="num">${t.used}</span> membre${t.used > 1 ? "s" : ""} actif${t.used > 1 ? "s" : ""}${t.missing ? ` · encore ${t.missing} pour atteindre ${t.min}` : " ✅"}</b>Code de l'équipe : <span class="num" style="font-weight:800;letter-spacing:.08em">${esc(t.code)}</span></span></div>
@@ -1176,14 +1176,14 @@ function accountSection() {
     <button class="btn soft" data-act="export">${I.down} Exporter mes données</button></div>`;
   if (!session) return section("Mon compte") + `<div class="card pad acc">
     <b style="display:block">📱 Version gratuite</b><p class="hint" style="margin:4px 0 12px">Jusqu'à 10 clients, 3 échanges par mois avec le coach IA, sans compte. Vos données restent uniquement dans ce téléphone.</p>
-    <button class="btn orange" data-act="accUpgrade">Choisir mon offre · 14 jours gratuits</button>
+    <button class="btn orange" data-act="accUpgrade">Choisir mon offre · 7 jours gratuits</button>
     ${API_OK ? `<button class="linkbtn" data-act="accLogin">J'ai déjà un compte : me connecter</button>` : ""}</div>`;
   return section("Mon compte") + `<div class="card pad acc">
     <b style="display:block">☁️ Compte : ${esc(session.email)}</b>
     <p class="plan-line">${session.paid ? `Offre ${TIER_NAME[session.plan] || "Recharge"} active${session.founder ? " · prix fondateur" : ""}` : "Essai gratuit"}</p>
     ${session.team || session.plan === "equipe" ? `<button class="btn soft" style="margin-bottom:8px" data-act="teamOpen">Mon équipe</button>` : ""}
     ${session.billing ? `<button class="btn soft" style="margin-bottom:8px" data-act="accPortal">💳 Gérer mon abonnement · factures, carte, résiliation</button>` : ""}
-    ${!session.paid ? `<button class="btn orange" style="margin-bottom:8px" data-act="accUpgrade">Choisir mon offre · 14 jours gratuits</button>` : session.plan === "starter" ? `<button class="btn soft" style="margin-bottom:8px" data-act="upPro">Passer à Pro</button>` : ""}
+    ${!session.paid ? `<button class="btn orange" style="margin-bottom:8px" data-act="accUpgrade">Choisir mon offre · 7 jours gratuits</button>` : session.plan === "starter" ? `<button class="btn soft" style="margin-bottom:8px" data-act="upPro">Passer à Pro</button>` : ""}
     <p class="hint" id="syncState" style="margin:4px 0 12px">${syncLabel()}</p>
     <button class="btn soft" data-act="accSyncNow">Sauvegarder maintenant</button>
     <button class="btn outline" style="margin-top:8px" data-act="accLogout">Me déconnecter</button>
@@ -3195,7 +3195,7 @@ const toneOf = () => S.tone === "vous" ? "pro" : S.emoji === false ? "simple" : 
 const OB_AGO = [[7, "1 semaine"], [14, "2 semaines"], [21, "3 semaines"], [30, "1 mois"], [60, "2 mois"]];
 let obImporting = false;
 function openOnboarding(step = 0, profileOnly) {
-  if (!ob) { const p = prof(), an = S.analyse || readAnalyse(); ob = { i: 0, profileOnly: !!profileOnly, name: myName(), brand: p.brand || "", cats: cats().length ? cats().slice() : an && an.cat ? [an.cat] : [], tone: p.tone || (an && an.tone) || toneOf(), rows: an && an.first && !profileOnly ? [{ name: an.first.name, prod: an.first.prod, ago: an.first.ago }, {}, {}] : [{}, {}, {}], an: !profileOnly && !S.profile ? an : null }; }
+  if (!ob) { const p = prof(), an = S.analyse || readAnalyse(); ob = { i: 0, profileOnly: !!profileOnly, name: myName(), brand: p.brand || "", cats: cats().length ? cats().slice() : an && an.cat ? [an.cat] : [], tone: p.tone || (an && an.tone) || toneOf(), rows: an && an.first && !profileOnly ? [{ name: an.first.name, prod: an.first.prod, ago: an.first.ago }, {}, {}] : an && an.names && an.names.length && !profileOnly ? [0, 1, 2].map(i => an.names[i] ? { name: an.names[i] } : {}) : [{}, {}, {}], an: !profileOnly && !S.profile ? an : null }; }
   const last = ob.profileOnly ? 1 : 2;
   ob.i = Math.max(0, Math.min(last, step));
   const dots = `<div class="obbar"><span style="width:${Math.round((ob.i + 1) / (last + 1) * 100)}%"></span></div>`;
@@ -3250,7 +3250,7 @@ function obApply() {
    (plafond : 12 mois par an). Le lien et le suivi sont rattachés au compte. */
 async function openParrain() {
   rcTrack("parrainage_ouvert");
-  const rules = `<ul class="perks"><li>🎁 <b>1 mois offert pour vous</b> à chaque personne invitée qui s'abonne</li><li>🤝 <b>1 mois offert pour elle</b> aussi, en plus de ses 14 jours d'essai</li><li>📅 Jusqu'à <b>12 mois offerts par an</b> : une année entière de Recharge</li></ul>`;
+  const rules = `<ul class="perks"><li>🎁 <b>1 mois offert pour vous</b> à chaque personne invitée qui s'abonne</li><li>🤝 <b>1 mois offert pour elle</b> aussi, en plus de ses 7 jours d'essai</li><li>📅 Jusqu'à <b>12 mois offerts par an</b> : une année entière de Recharge</li></ul>`;
   if (!session) {
     openSheet(`<div class="shead"><h3>Parrainez une collègue</h3>${closeBtn}</div>
       <p class="lede" style="margin-top:8px">Vous connaissez d'autres conseillères ou conseillers ? Invitez-les : vous gagnez chacune un mois.</p>${rules}
@@ -3344,7 +3344,7 @@ function obProsDone(m) {
 }
 /* Retour du paiement : l'essai est activé, avec la vraie date du premier prélèvement */
 function openPaidWelcome(r) {
-  const end = r && r.trialEnd ? new Date(r.trialEnd) : null, days = end ? Math.max(1, Math.round((end - Date.now()) / 864e5)) : 14;
+  const end = r && r.trialEnd ? new Date(r.trialEnd) : null, days = end ? Math.max(1, Math.round((end - Date.now()) / 864e5)) : 7;
   const date = end ? end.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" }) : null;
   const tier = TIER_NAME[r && r.user && r.user.plan] || "";
   openSheet(`<div class="shead"><span></span>${closeBtn}</div>
@@ -4914,7 +4914,7 @@ const actions = {
     if (!BILLING_OK) return toast("Le paiement en ligne s'ouvre très bientôt. Votre choix est noté : revenez ici dans quelques jours.");
     el.disabled = true; el.textContent = "Ouverture du paiement sécurisé…"; if (pwFlow) rcTrack("paywall_paiement");
     try { const r = await api("POST", "billing/checkout", { tier: upTier, period: upPeriod, teamName: joining ? "" : upTeam.name, teamCode: joining ? upTeam.code : "", cgv: LEGAL_VERSION }); location.href = r.url; }
-    catch (e) { toast(e.message); el.disabled = false; el.textContent = "Commencer mes 14 jours gratuits"; }
+    catch (e) { toast(e.message); el.disabled = false; el.textContent = "Commencer mes 7 jours gratuits"; }
   },
   teamOpen: () => openTeam(),
   teamPay: el => { closeSheet(); upTier = "equipe"; upTeam = { ...upTeam, mode: "join", code: el.dataset.c }; openUpgrade(); },
@@ -5377,7 +5377,7 @@ if (HASH_GO === "#connexion" || HASH_GO === "#installer") { history.replaceState
 if (!DEMO && location.hash === "#abonnement") { history.replaceState(null, "", location.pathname); setTimeout(() => { if (BILLING_OK || API_OK) openUpgrade(); else setTimeout(openUpgrade, 1200); }, 400); }
 if (!DEMO) {
   rcTrack("app_ouverte");
-  if (FROM_ANALYSE) { rcTrack("app_depuis_analyse"); history.replaceState(null, "", location.pathname); const an = readAnalyse(); if (an && !S.analyse) { S.analyse = an; save(); } }
+  if (FROM_ANALYSE) { rcTrack("app_depuis_analyse"); history.replaceState(null, "", location.pathname); const an = readAnalyse(); if (an && !S.analyse) { S.analyse = an; if (an.me && !myName()) S.settings.myName = String(an.me).slice(0, 40); save(); } }
 }
 if (!DEMO && !MOVE_IN && !S.profile && !obSkipFlag && !navigator.webdriver && !teamNotice && !loginParam && !paidParam && !session && location.hash !== "#abonnement" && HASH_GO !== "#connexion" && HASH_GO !== "#installer") setTimeout(() => {
   // Arrivée depuis l'analyse : d'abord ce que Recharge rend, puis le paywall ; l'onboarding 2 suit (payé ou « plus tard »)

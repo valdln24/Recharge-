@@ -20,7 +20,7 @@ export const EXTRA_SEAT = { month: 790, year: 7100 };
 export const FOUNDER_SLOTS = 50;
 export const MAX_SEATS = 60;
 export const TIER_KEYS = Object.keys(TIERS);
-const TRIAL_DAYS = 14;
+const TRIAL_DAYS = 7;
 const RECHECK = 12 * 3600 * 1000;
 const ACTIVE = ["active", "trialing", "past_due"];
 
