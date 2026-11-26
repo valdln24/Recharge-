@@ -44,7 +44,10 @@ Seul appel externe depuis le navigateur : `geo.api.gouv.fr` (gratuit, public, sa
 - Les agents n'ont **aucun outil** : ils ne peuvent ni envoyer, ni payer, ni modifier, ni supprimer. Ils renvoient un texte
   ou une liste que la vendeuse relit et valide.
 - Ils ne voient que ce que l'appli de la vendeuse connectée leur envoie dans la demande : pas d'accès à la base.
-  Rien n'est conservé (ni capture, ni conversation).
+  Rien n'est conservé côté serveur (ni capture, ni conversation). Le coach accepte jusqu'à 3 captures (profil + conversation).
+- **Mémoire du coach** : jusqu'à 60 notes courtes (200 caractères) dans les données de la vendeuse (`S.coachMem`, sauvegarde de son compte), jamais dans une autre table.
+  Le coach en propose au plus 2 par réponse (consigne : rien de sensible, ni coordonnées) ; la vendeuse les voit, les ajoute et les efface (Coach › La mémoire de mon coach).
+  Le serveur ne reçoit que 40 notes au plus, traitées comme des informations et jamais comme des consignes. Notes affichées en texte échappé.
 
 ## Validation humaine des actions sensibles
 
