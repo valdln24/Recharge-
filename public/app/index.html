@@ -759,6 +759,14 @@ nav.tabs .tab.on svg{background:var(--navy);color:#fff;box-shadow:0 8px 18px -8p
 .obopt.hot{background:var(--ink);color:#fff;border-color:var(--ink);--mk-b:rgba(255,255,255,.2);--mk-c:#fff}.obopt.hot small{color:#C9CBD6}
 .obopt.ghost{grid-template-columns:1fr;background:none;border-style:dashed}
 .obopt.dim{opacity:.4;pointer-events:none}
+/* Premiers pas : la fonction mise en lumière sur le vrai écran */
+.spot-block{position:fixed;inset:0;z-index:90}
+.spot-hole{position:fixed;z-index:91;border-radius:22px;box-shadow:0 0 0 200vmax rgba(16,19,18,.72),0 0 0 3px var(--orange);pointer-events:none;transition:all .35s cubic-bezier(.2,.8,.2,1)}
+.spot-tip{position:fixed;left:16px;right:16px;z-index:92;max-width:420px;margin:0 auto;background:var(--surface);color:var(--ink);border-radius:24px;padding:18px 18px 14px;box-shadow:0 18px 50px rgba(0,0,0,.28);animation:fade .25s}
+.spot-tip small{display:block;font-size:.78rem;font-weight:800;color:var(--orange);text-transform:uppercase;letter-spacing:.03em}
+.spot-tip h4{margin:4px 0 6px;font-size:1.18rem;letter-spacing:-.01em}.spot-tip p{margin:0;font-size:.96rem;line-height:1.45;color:var(--ink-2)}
+.spot-nav{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:14px}.spot-nav .btn{width:auto;padding:12px 20px;margin:0}
+.spot-dots{display:flex;gap:5px}.spot-dots i{width:7px;height:7px;border-radius:50%;background:var(--line-2)}.spot-dots i.on{background:var(--orange);width:18px;border-radius:9px}
 .obnames{margin-top:14px;font-size:1.05rem;line-height:1.5;resize:vertical}
 .obcount{margin:0 0 4px;font-size:.82rem;font-weight:800;color:var(--orange);letter-spacing:.02em;text-transform:uppercase}
 .obread{display:flex;gap:12px;align-items:center;margin-top:14px;padding:14px 16px;border-radius:18px;background:var(--o-soft);font-size:.92rem;font-weight:600;color:var(--ink)}
@@ -1009,6 +1017,7 @@ async function afterLogin(r) {
   closeSheet(); render();
   if (hasRealData(S)) { await pushNow(true); render(); toast("C'est fait ! Vos données sont sauvegardées sur votre compte ✅"); }
   else toast("Compte créé ✅ Vos données seront sauvegardées automatiquement.");
+  if (!S.profile && !hasRealData(S)) setTimeout(startOnboarding, 900);
 }
 let pwFlow = false;   // parcours analyse → valeur → paywall → onboarding 2
 let loginEmail = "", upPeriod = "year", upTier = "pro", upTeam = { mode: "new", name: "", seats: 6, code: "" }, offersInfo = null;
@@ -2734,7 +2743,7 @@ function viewSettings() {
     ["📸", "Importer", "openImport", "", ""], ["💾", "Sauvegarder", "goto", "settings", "Sauvegarder mes clients"], ["📂", "Restaurer", "import", "", ""]];
   /* Plus de fonctionnalités : le coach les propose dans le plan au bon moment, on peut aussi les gérer ici */
   const MORE = [["💳", "Fidélité", "goto", "settings", "Carte fidélité"], ["📣", "Promo", "newPromo", "", ""], ["👥", "Équipe", "goto", "settings", "Mon équipe"],
-    ["🌱", "Développer", "goto", "dev", ""], ["📊", "Bilan du mois", "openBilan", "", ""], ["🗺️", "Carte", "goto", "map", ""], ["🎁", "Parrainage", "openParrain", "", ""]];
+    ["🌱", "Développer", "goto", "dev", ""], ["📊", "Bilan du mois", "openBilan", "", ""], ["🗺️", "Carte", "goto", "map", ""], ["🎁", "Parrainage", "openParrain", "", ""], ["✨", "Revoir le guide", "spotStart", "", ""]];
   let h = `<h1 class="title">Menu</h1><p class="lede">Tous les modules de Recharge, et vos réglages.</p>
     <div class="mods">${MODS.map(([e, l, a, t2, c2]) => `<button class="mod" data-act="${a}" data-t="${t2}" data-c="${esc(c2)}"><span>${e}</span><b>${l}</b></button>`).join("")}</div>
     <div class="section"><h2>Plus de fonctionnalités</h2></div>
@@ -2848,11 +2857,12 @@ function viewSettings() {
 /* ---------- Panneaux ---------- */
 const sheetEl = document.getElementById("sheet");
 function openSheet(html) {
+  try { if (spotI >= 0) { const b = document.getElementById("spot"); if (b) b.remove(); spotI = -1; } } catch (e) {}   // une fenêtre s'ouvre : le guide reprendra après
   sheetEl.innerHTML = `<div class="sheet-bg" data-act="closeBg"><div class="sheet" role="dialog" aria-modal="true"><div class="grab"></div>${html}</div></div>`;
   document.body.style.overflow = "hidden"; document.body.classList.add("sheet-open");
   requestAnimationFrame(() => initScrollers(sheetEl));
 }
-function closeSheet() { stopMic(true); sheetEl.innerHTML = ""; document.body.style.overflow = ""; document.body.classList.remove("sheet-open"); }
+function closeSheet() { stopMic(true); setTimeout(maybeSpot, 700); sheetEl.innerHTML = ""; document.body.style.overflow = ""; document.body.classList.remove("sheet-open"); }
 const closeBtn = `<button class="close" data-act="close" aria-label="Fermer">${I.x}</button>`;
 
 let form = null; // état du formulaire de vente
@@ -3205,7 +3215,8 @@ function openOnboarding(step = 0, profileOnly) {
   let body = "";
   if (ob.i === 0) body = `<h3 class="obq">${ob.profileOnly ? "Mon profil" : "Bienvenue sur Recharge 👋"}</h3><p class="lede">${ob.profileOnly ? "Ces infos rendent vos messages plus personnels." : ob.an && ob.an.totalAn ? `Votre analyse est prête : jusqu'à <b>~${ob.an.totalAn.toLocaleString("fr-FR")} € par an</b> à aller chercher. Créons votre espace : 3 étapes, moins de 2 minutes.` : ob.an && ob.an.renouv ? `Votre analyse est prête : environ <b>${ob.an.renouv} renouvellements</b> possibles chaque mois. Créons votre espace : 3 étapes, moins de 2 minutes.` : "3 étapes, moins de 2 minutes. Ensuite, Recharge vous dit qui relancer aujourd'hui."}</p>
     <label class="field"><span>Votre prénom</span><input class="input" id="obName" value="${esc(ob.name)}" placeholder="ex. : Laura" autocomplete="given-name"></label>
-    <label class="field"><span>Votre marque</span><input class="input" id="obBrand" value="${esc(ob.brand)}" placeholder="Le nom de votre marque" autocomplete="off" autocapitalize="words"></label>`;
+    <label class="field"><span>Votre marque</span><input class="input" id="obBrand" value="${esc(ob.brand)}" placeholder="Le nom de votre marque" autocomplete="off" autocapitalize="words"></label>
+    ${ob.profileOnly || session ? "" : `<button type="button" class="linkbtn" style="margin-top:10px" data-act="accLogin">Déjà un compte ? Me connecter</button>`}`;
   if (ob.i === 1) body = `<h3 class="obq">Vos produits et votre ton</h3><p class="lede">Deux appuis, pour des messages qui vous ressemblent.</p>
     <div class="field"><span>Que vendez-vous ? <i>· plusieurs choix possibles</i></span></div>${chips(OB_CATS.filter(([k]) => k !== "mode" || ob.cats.includes("mode")), "cats", true)}
     <div class="field"><span>Le ton de vos messages</span></div>
@@ -3318,7 +3329,46 @@ function tourMock(k) {
   if (k === "coach") return `<div class="tm-chat"><p class="tm-in">C'est un peu cher pour moi en ce moment…</p><p class="tm-out dk">Je comprends. Il existe un plus petit format pour essayer, tu veux que je te le garde ?</p></div>`;
   return `<div class="tm-stats"><div><b>47</b><small>contactées</small></div><div><b>12</b><small>recommandations</small></div><div><b>9</b><small>nouvelles clientes</small></div></div>`;
 }
-function startOnboarding() { if (DEMO) return; if (!isPaidS()) { S.pwDue = 1; save(); } if (!S.tourDone) return openTour(0); openOnboarding(0); }
+/* La visite avec des écrans d'exemple (openTour) est gardée mais n'est plus lancée : on va droit à l'espace,
+   puis le guide « Premiers pas » montre chaque fonction sur le vrai écran. */
+function startOnboarding() { if (DEMO) return; if (!isPaidS()) { S.pwDue = 1; save(); } openOnboarding(0); }
+const SPOT = [
+  ["#app .enter > *:first-child", "Votre plan du jour", "Chaque matin, Recharge vous dit qui relancer : les clients dont le produit arrive à sa fin. Juste en dessous, chaque relance a son message déjà écrit, à envoyer sur WhatsApp en un appui."],
+  ["#fab", "Ajouter une vente", "Un client a commandé ? Appuyez sur +. S'il est nouveau, sa fiche se crée toute seule, et Recharge calcule quand le relancer."],
+  [".micbtn", "Ou dites-le", "« Julie a pris 2 thés détox hier » : Recharge comprend et remplit tout. Réappuyez sur le micro quand vous avez fini de parler."],
+  ['nav.tabs .tab[data-tab="clients"]', "Vos clients et leur historique", "Touchez un nom : vous voyez tout ce qu'il a acheté, quand son produit sera fini et vos relances. C'est aussi là que vous offrez la carte fidélité et que vous demandez des recommandations."],
+  ["#coachFab", "Votre coach", "Un client hésite ou ne répond pas ? Collez sa réponse : le coach vous propose quoi lui dire. Il vous aide aussi à trouver de nouveaux clients, en commençant par ceux qui vous connaissent."],
+  ['nav.tabs .tab[data-tab="results"]', "Vos résultats", "Mois par mois : vos relances, les commandes récupérées et le chiffre d'affaires que Recharge vous a rapporté."],
+  ['nav.tabs .tab[data-tab="settings"]', "Le Menu", "Carte fidélité, promos, recommandations, parrainage, sauvegarde : tout le reste est ici. Pour revoir ce guide : Menu › Revoir le guide."]
+];
+let spotI = -1;
+const spotOk = () => !DEMO && S.profile && !S.spotDone && spotI < 0 && tab === "today" && !sheetEl.innerHTML.trim();
+function maybeSpot() { if (spotOk()) startSpot(); }
+function startSpot() { if (tab !== "today") { tab = "today"; render(); window.scrollTo(0, 0); } spotI = 0; rcTrack("guide_debut"); showSpot(); }
+function spotEl(i) { for (const sel of SPOT[i][0].split(", ")) { const e = document.querySelector(sel); if (e && e.getBoundingClientRect().width) return e; } return null; }
+function showSpot() {
+  let el = null; while (spotI < SPOT.length && !(el = spotEl(spotI))) spotI++;
+  if (spotI >= SPOT.length) return endSpot(true);
+  if (getComputedStyle(el).position !== "fixed" && !el.closest("nav.tabs")) { window.scrollTo(0, 0); const rr = el.getBoundingClientRect(); if (rr.bottom > innerHeight * .55) el.scrollIntoView({ block: "start" }); }
+  let box = document.getElementById("spot");
+  if (!box) { box = document.createElement("div"); box.id = "spot"; document.body.appendChild(box); }
+  const r = el.getBoundingClientRect(), pad = 6, last = spotI === SPOT.length - 1, [, t, d] = SPOT[spotI];
+  const top = Math.max(8, r.top - pad), h = Math.min(innerHeight - 16, r.height + pad * 2);
+  const below = r.top + r.height / 2 < innerHeight / 2;
+  box.innerHTML = `<div class="spot-block" data-act="spotNext"></div><div class="spot-hole" style="left:${r.left - pad}px;top:${top}px;width:${r.width + pad * 2}px;height:${h}px"></div>
+    <div class="spot-tip" role="dialog" aria-live="polite" style="${below ? `top:${Math.min(innerHeight - 230, top + h + 14)}px` : `bottom:${Math.min(innerHeight - 230, innerHeight - top + 14)}px`}">
+      <small>Premiers pas · ${spotI + 1}/${SPOT.length}</small><h4>${t}</h4><p>${d}</p>
+      <div class="spot-nav"><button class="linkbtn" style="margin:0" data-act="spotEnd">${last ? "" : "Passer"}</button>
+        <span class="spot-dots">${SPOT.map((_, k) => `<i class="${k === spotI ? "on" : ""}"></i>`).join("")}</span>
+        <button class="btn ${last ? "orange" : "primary"}" data-act="spotNext">${last ? "C'est parti" : "Suivant"}</button></div></div>`;
+}
+function endSpot(done) {
+  const box = document.getElementById("spot"); if (box) box.remove();
+  if (spotI >= 0) { S.spotDone = today(); save(); rcTrack(done ? "guide_fin" : "guide_passe"); }
+  spotI = -1; window.scrollTo(0, 0);
+  if (done) toast("À vous de jouer ! Commencez par vos relances du jour");
+}
+addEventListener("resize", () => { if (spotI >= 0) showSpot(); });
 /* Fin de l'onboarding 2 : le paywall, avec l'espace de la vendeuse déjà rempli */
 function obFinish() {
   if (!S.pwDue || isPaidS() || (!BILLING_OK && !API_OK)) return false;
@@ -5043,6 +5093,9 @@ const actions = {
   parrainShare: el => { rcTrack("parrainage_partage"); const t = document.getElementById("msg-parrain"); if (t) el.href = "https://wa.me/?text=" + encodeURIComponent(t.value); return true; },
   parrainCopy: async el => { rcTrack("parrainage_partage"); const ok = await copyText(el.dataset.l); toast(ok ? "Lien copié : collez-le dans votre message." : "Impossible de copier : sélectionnez le lien à la main."); },
   tourGo: el => openTour(+el.dataset.i),
+  spotNext: () => { spotI++; if (spotI >= SPOT.length) return endSpot(true); showSpot(); },
+  spotEnd: () => endSpot(spotI === SPOT.length - 1),
+  spotStart: () => { S.spotDone = null; closeSheet(); startSpot(); },
   tourEnd: () => { S.tourDone = today(); save(); rcTrack("visite_fin"); openOnboarding(0); },
   paidGo: () => { closeSheet(); if (!S.profile) setTimeout(startOnboarding, 250); else if (paidPlan === "equipe") setTimeout(() => openTeam(), 300); },
   obProsSkip: () => obProsDone(0),
