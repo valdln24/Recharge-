@@ -759,6 +759,8 @@ nav.tabs .tab.on svg{background:var(--navy);color:#fff;box-shadow:0 8px 18px -8p
 .obopt.hot{background:var(--ink);color:#fff;border-color:var(--ink);--mk-b:rgba(255,255,255,.2);--mk-c:#fff}.obopt.hot small{color:#C9CBD6}
 .obopt.ghost{grid-template-columns:1fr;background:none;border-style:dashed}
 .obopt.dim{opacity:.4;pointer-events:none}
+.obnames{margin-top:14px;font-size:1.05rem;line-height:1.5;resize:vertical}
+.obcount{margin:0 0 4px;font-size:.82rem;font-weight:800;color:var(--orange);letter-spacing:.02em;text-transform:uppercase}
 .obread{display:flex;gap:12px;align-items:center;margin-top:14px;padding:14px 16px;border-radius:18px;background:var(--o-soft);font-size:.92rem;font-weight:600;color:var(--ink)}
 .obspin{flex:0 0 auto;width:26px;height:26px;border-radius:50%;border:3.5px solid rgba(255,120,46,.22);border-top-color:var(--orange);animation:obspin .9s linear infinite}
 @keyframes obspin{to{transform:rotate(360deg)}}
@@ -2850,7 +2852,7 @@ function openSheet(html) {
   document.body.style.overflow = "hidden"; document.body.classList.add("sheet-open");
   requestAnimationFrame(() => initScrollers(sheetEl));
 }
-function closeSheet() { sheetEl.innerHTML = ""; document.body.style.overflow = ""; document.body.classList.remove("sheet-open"); }
+function closeSheet() { stopMic(true); sheetEl.innerHTML = ""; document.body.style.overflow = ""; document.body.classList.remove("sheet-open"); }
 const closeBtn = `<button class="close" data-act="close" aria-label="Fermer">${I.x}</button>`;
 
 let form = null; // état du formulaire de vente
@@ -3212,20 +3214,28 @@ function openOnboarding(step = 0, profileOnly) {
     <div class="obsrc">
       <label class="obopt hot">${mk("frame")}<span><b>Dans un carnet</b><small>Prenez vos pages en photo : Recharge lit tout, même écrit à la main</small></span><input type="file" accept="image/*" multiple id="obPhotos" hidden></label>
       <label class="obopt">${mk("list")}<span><b>Dans Excel ou chez ma marque</b><small>Une capture d'écran du back-office, ou votre fichier Excel</small></span><input type="file" accept="image/*,.csv,.txt,.tsv,.xlsx,.xls" multiple id="obFiles" hidden></label>
-      <button type="button" class="obopt" data-act="obMode" data-m="type">${mk("plus")}<span><b>Je les tape</b><small>Vos 3 premiers clients en une minute</small></span></button>
+      <button type="button" class="obopt" data-act="obMode" data-m="type">${mk("plus")}<span><b>Je tape juste leurs prénoms</b><small>Puis 2 appuis par client : ce qu'il a pris et quand</small></span></button>
       <button type="button" class="obopt ghost" data-act="obMode" data-m="none"><span><b>Je n'ai pas encore de clients</b><small>Recharge vous aide à trouver les premiers</small></span></button>
     </div>
     <div id="obReadSt" class="obread hidden" role="status"></div>
     <p class="hint" style="margin-top:12px">Vos photos ne sont pas conservées : Recharge en sort la liste, vous vérifiez, puis vous validez.</p>`;
-  if (ob.i === 2 && ob.mode === "type") body = `<h3 class="obq">Vos 3 premiers clients</h3><p class="lede">Juste le nom, le produit et quand ils l'ont acheté. Recharge calcule le bon moment pour les relancer.</p>
-    ${ob.rows.map((r, n) => `<div class="obrow"><b>${n + 1}</b><div>
-      <input class="input" id="obN${n}" value="${esc(r.name || "")}" placeholder="Prénom Nom">
-      <div class="obrow2"><input class="input" id="obP${n}" value="${esc(r.prod || "")}" placeholder="Produit">
-        <select class="input" id="obA${n}">${OB_AGO.map(([d, l]) => `<option value="${d}" ${(r.ago || 30) == d ? "selected" : ""}>il y a ${l}</option>`).join("")}</select></div>
-      <input class="input" id="obT${n}" type="tel" inputmode="tel" value="${esc(r.phone || "")}" placeholder="Téléphone (facultatif)"></div></div>`).join("")}
-    <button type="button" class="linkbtn" style="margin-top:12px" data-act="obMode" data-m="">Plutôt une photo de mon carnet ou une capture</button>`;
+  if (ob.i === 2 && ob.mode === "type" && ob.qi == null) body = `<h3 class="obq">Qui sont vos clients ?</h3><p class="lede">Juste les prénoms pour commencer, un par ligne. Même 2 ou 3, c'est parfait : vous ajouterez les autres au fil des ventes.</p>
+    <textarea class="input obnames" id="obNames" rows="5" placeholder="Marie Dupont&#10;Julie&#10;Karim" aria-label="Les prénoms de vos clients">${esc(ob.rows.filter(r => r.name).map(r => r.name).join("\n"))}</textarea>
+    ${CONTACTS_OK ? `<button type="button" class="btn soft" style="margin-top:10px" data-act="obContacts">${mk("list")} Choisir dans mes contacts</button>` : ""}
+    <p class="hint" style="margin-top:8px">Astuce : appuyez sur le micro de votre clavier pour dicter les prénoms.</p>
+    <button type="button" class="linkbtn" style="margin-top:4px" data-act="obMode" data-m="">Plutôt une photo de mon carnet ou une capture</button>`;
+  if (ob.i === 2 && ob.mode === "type" && ob.qi != null) { const rows = ob.rows.filter(r => r.name), k = Math.min(ob.qi, rows.length - 1), r = rows[k];
+    const known = [...new Set(rows.slice(0, k).map(x => x.prod).filter(Boolean).concat(realProducts().map(p => p.name)))].slice(0, 6);
+    body = `<p class="obcount">Client ${k + 1} sur ${rows.length}</p><h3 class="obq">Qu'a pris ${esc(firstName(r.name))} la dernière fois ?</h3>
+    <input class="input" id="obP" value="${esc(r.prod || "")}" placeholder="ex. : gel aloe vera" autocomplete="off" aria-label="Le produit">
+    ${known.length ? `<div class="pchips obchips">${known.map(p => `<button type="button" class="pchip ${norm(p) === norm(r.prod || "") ? "on" : ""}" data-act="obProd" data-v="${esc(p)}">${esc(p)}</button>`).join("")}</div>` : ""}
+    <div class="field"><span>C'était il y a…</span></div>
+    <div class="pchips obchips">${OB_AGO.map(([d, l]) => `<button type="button" class="pchip ${(r.ago || 0) == d ? "on" : ""}" data-act="obAgo" data-v="${d}">${l}</button>`).join("")}<button type="button" class="pchip ${r.ago === -1 ? "on" : ""}" data-act="obAgo" data-v="-1">Je ne sais plus</button></div>
+    <button type="button" class="linkbtn" style="margin-top:12px" data-act="obSkipOne">${k < rows.length - 1 ? "Passer ce client" : "Passer"}</button>
+    ${k >= 1 && k < rows.length - 1 ? `<button type="button" class="linkbtn" data-act="obDoneNow">J'ai fini pour l'instant, je compléterai plus tard</button>` : ""}`; }
   const cur = sheetEl.querySelector(".sheet.obsheet");
-  const nextLabel = ob.i === last ? (ob.profileOnly ? "Enregistrer" : "Voir mes relances du jour") : "Suivant";
+  const nRows = ob.rows.filter(r => r.name).length, inCards = ob.i === 2 && ob.mode === "type" && ob.qi != null;
+  const nextLabel = ob.i === 2 && ob.mode === "type" && !inCards ? "Suivant" : inCards && ob.qi < nRows - 1 ? "Client suivant" : ob.i === last ? (ob.profileOnly ? "Enregistrer" : "Voir mes relances du jour") : "Suivant";
   const hideNext = ob.i === 2 && !ob.mode && !ob.profileOnly;
   const html = `<div class="shead">${dots}${ob.profileOnly ? closeBtn : `<button class="obskip" data-act="obSkip">Passer</button>`}</div>${body}
     <div class="obnav">${ob.i > 0 ? `<button class="btn soft" data-act="obBack">Retour</button>` : ""}${hideNext ? "" : `<button class="btn ${ob.i === last ? "orange" : "primary"}" data-act="obNext">${nextLabel}</button>`}</div>`;
@@ -3237,7 +3247,15 @@ function openOnboarding(step = 0, profileOnly) {
 function obRead() {
   const n = document.getElementById("obName"), b = document.getElementById("obBrand");
   if (n) ob.name = n.value.trim(); if (b) ob.brand = b.value.trim();
-  ob.rows.forEach((r, k) => { const g = id => document.getElementById(id + k); if (g("obN")) { r.name = g("obN").value.trim(); r.prod = g("obP").value.trim(); r.ago = +g("obA").value; r.phone = g("obT").value.trim(); } });
+  const nm = document.getElementById("obNames"); if (nm) obSetNames(nm.value);
+  const pr = document.getElementById("obP"), rows = ob.rows.filter(r => r.name); if (pr && ob.qi != null && rows[ob.qi]) rows[ob.qi].prod = pr.value.trim();
+}
+const CONTACTS_OK = !!(navigator.contacts && navigator.contacts.select);
+/* Les prénoms tapés (un par ligne ou séparés par des virgules) : on garde ce qui était déjà rempli pour chacun */
+function obSetNames(text) {
+  const seen = new Set(), names = [];
+  for (let x of String(text).split(/\s*(?:\n|,|;)\s*/)) { x = x.replace(/\s+/g, " ").trim().slice(0, 60); if (!x || seen.has(norm(x))) continue; seen.add(norm(x)); names.push(x[0].toUpperCase() + x.slice(1)); }
+  const old = ob.rows.filter(r => r.name); ob.rows = names.slice(0, 60).map(n => old.find(r => norm(r.name) === norm(n)) || { name: n, phone: (ob.phones || {})[norm(n)] || "" });
 }
 function obApply() {
   S.profile = { ...(S.profile || {}), name: ob.name, brand: ob.brand, cats: ob.cats, cat: undefined, tone: ob.tone, done: (S.profile && S.profile.done) || today() };
@@ -3391,10 +3409,11 @@ function obSaveContacts() {
   for (const r of rows) {
     let c = S.clients.find(x => x.name.toLowerCase() === r.name.toLowerCase());
     if (!c) { c = { id: uid(), name: r.name, phone: r.phone || "", example: false, createdAt: today(), status: "direct", statusLog: [{ s: "direct", date: today() }] }; S.clients.push(c); }
-    const pn = r.prod || "Mon produit";
-    let pr = S.products.find(x => x.name.toLowerCase() === pn.toLowerCase());
-    if (!pr) { pr = newProduct(pn); S.products.push(pr); }
-    recordSale(c, pr, 1, addDays(today(), -(r.ago || 30)));
+    if (r.phone && !c.phone) c.phone = r.phone;
+    if (!r.prod || r.skip) continue;   // sans produit : la fiche est créée, la relance viendra à sa prochaine commande
+    let pr = S.products.find(x => x.name.toLowerCase() === r.prod.toLowerCase());
+    if (!pr) { pr = newProduct(r.prod); S.products.push(pr); }
+    recordSale(c, pr, 1, addDays(today(), -(r.ago > 0 ? r.ago : 30)));
   }
   return rows.length;
 }
@@ -4218,16 +4237,26 @@ function openVoice() {
   ta.addEventListener("input", () => saisiePreview(ta.value));
   setTimeout(() => ta.focus(), 120);
 }
+/* Le micro s'arrête quand on réappuie, quand on ferme la fenêtre ou quand on quitte l'appli : jamais laissé ouvert */
+function stopMic(hard) {
+  try {
+    if (!rec) return; const r = rec; rec = null;
+    if (hard) { r.onresult = null; r.onerror = null; r.abort(); } else r.stop();
+    const b = document.getElementById("voiceGo"); if (b) b.classList.remove("listening");
+  } catch (e) {}
+}
+document.addEventListener("visibilitychange", () => { if (document.hidden) stopMic(true); });
+window.addEventListener("pagehide", () => stopMic(true));
 function startListening() {
   if (!SR) return;
-  try { rec && rec.abort(); } catch (e) {}
-  rec = new SR(); rec.lang = "fr-FR"; rec.interimResults = true; rec.continuous = false; rec.maxAlternatives = 1;
+  if (rec) return stopMic(false);   // 2e appui = j'ai fini de parler
+  const r = rec = new SR(); rec.lang = "fr-FR"; rec.interimResults = true; rec.continuous = false; rec.maxAlternatives = 1;
   const btn = document.getElementById("voiceGo"), inp = document.getElementById("voiceText"), before = inp.value ? inp.value.trim() + " ; " : "";
   btn.classList.add("listening");
-  rec.onresult = e => { const txt = [...e.results].map(r => r[0].transcript).join(" "); inp.value = before + txt; saisiePreview(inp.value); };
-  rec.onerror = e => { toast(e.error === "not-allowed" ? "Autorisez le micro pour Recharge dans les réglages du téléphone." : "Je n'ai pas bien entendu. Réessayez, ou écrivez."); };
-  rec.onend = () => { if (btn) { btn.innerHTML = VOXSVG; btn.classList.remove("listening"); } };
-  rec.start();
+  rec.onresult = e => { if (rec !== r) return; const txt = [...e.results].map(r => r[0].transcript).join(" "); inp.value = before + txt; saisiePreview(inp.value); };
+  rec.onerror = e => { if (e.error === "aborted") return; toast(e.error === "not-allowed" ? "Autorisez le micro pour Recharge dans les réglages du téléphone." : "Je n'ai pas bien entendu. Réessayez, ou écrivez."); };
+  rec.onend = () => { if (rec === r) rec = null; if (btn) { btn.innerHTML = VOXSVG; btn.classList.remove("listening"); } };
+  try { rec.start(); } catch (e) { rec = null; btn.classList.remove("listening"); }
 }
 function saveSaisie() {
   const ta = document.getElementById("voiceText"), text = ta ? ta.value : "", r = parseSaisie(text);
@@ -4991,6 +5020,13 @@ const actions = {
   obOpen: () => { ob = null; openOnboarding(0, true); },
   obNext: () => {
     obRead();
+    if (ob.i === 2 && ob.mode === "type") {
+      const rows = ob.rows.filter(r => r.name);
+      if (ob.qi == null) { if (!rows.length) { toast("Tapez au moins un prénom"); document.getElementById("obNames").focus(); return; } ob.qi = 0; rcTrack("onboarding_prenoms"); return openOnboarding(2); }
+      const r = rows[ob.qi]; if (r && !r.prod && !r.skip) { toast(`Qu'a pris ${firstName(r.name)} ? Ou appuyez sur « Passer »`); document.getElementById("obP").focus(); return; }
+      if (r && r.prod && !r.ago) r.ago = -1;
+      if (ob.qi < rows.length - 1) { ob.qi++; return openOnboarding(2); }
+    }
     const last = ob.profileOnly ? 1 : 2;
     if (ob.i === 0 && !ob.brand && !ob.profileOnly) { toast("Indiquez votre marque (vous pourrez la changer)"); document.getElementById("obBrand").focus(); return; }
     if (ob.i < last) { if (ob.i === 1) obApply(); openOnboarding(ob.i + 1); return; }
@@ -5022,13 +5058,28 @@ const actions = {
     obProsDone(m);
   },
   niGo: () => { closeSheet(); tab = "today"; render(); window.scrollTo(0, 0); if (obFinish()) return; toast("Voici vos relances du jour"); },
-  obBack: () => { obRead(); if (ob.i === 2 && ob.mode) { ob.mode = ""; return openOnboarding(2); } openOnboarding(ob.i - 1); },
+  obBack: () => { obRead(); if (ob.i === 2 && ob.mode === "type" && ob.qi != null) { ob.qi = ob.qi > 0 ? ob.qi - 1 : null; return openOnboarding(2); } if (ob.i === 2 && ob.mode) { ob.mode = ""; return openOnboarding(2); } openOnboarding(ob.i - 1); },
   impEdit: el => { const row = el.closest(".improw"), r = importRows[+row.dataset.i];
     if (row.classList.toggle("edit")) return;
     const sel = row.querySelector(".impP"), pid = sel.value, pp = S.products.find(x => x.id === pid);
     const v = { ...r, p: pp && pid !== "rythme" ? pp : null, product: pid === "none" ? "" : pp ? pp.name : pid === "rythme" ? "" : r.product, qty: +row.querySelector(".impQ").value || 1, date: pid === "none" ? "" : row.querySelector(".impD").value };
     el.querySelector("b").textContent = row.querySelector(".impN").value || "Sans nom"; el.querySelector("span").innerHTML = pid === "rythme" ? `Sans produit précis · ${v.date ? fmt(v.date) : ""}` : impSummary(v); },
-  obMode: el => { obRead(); ob.mode = el.dataset.m; if (ob.mode === "none") { ob.rows = [{}, {}, {}]; return actions.obNext(); } openOnboarding(2); },
+  obProd: el => { obRead(); const r = ob.rows.filter(x => x.name)[ob.qi]; r.prod = el.dataset.v; r.skip = false; openOnboarding(2); },
+  obAgo: el => { obRead(); const r = ob.rows.filter(x => x.name)[ob.qi]; r.ago = +el.dataset.v; if (r.prod) return actions.obNext(); openOnboarding(2); setTimeout(() => { const p = document.getElementById("obP"); if (p) p.focus(); }, 60); },
+  obSkipOne: () => { obRead(); const r = ob.rows.filter(x => x.name)[ob.qi]; r.skip = true; r.prod = ""; actions.obNext(); },
+  obDoneNow: () => { obRead(); const rows = ob.rows.filter(x => x.name); rows.slice(ob.qi).forEach(r => { if (!r.prod) r.skip = true; }); ob.qi = rows.length - 1; actions.obNext(); },
+  obContacts: async () => {
+    obRead();
+    try {
+      const list = await navigator.contacts.select(["name", "tel"], { multiple: true }); if (!list || !list.length) return;
+      ob.phones = ob.phones || {}; const add = [];
+      for (const c of list) { const n = (c.name && c.name[0] || "").trim(); if (!n) continue; add.push(n); if (c.tel && c.tel[0]) ob.phones[norm(n)] = c.tel[0]; }
+      obSetNames(ob.rows.filter(r => r.name).map(r => r.name).concat(add).join("\n"));
+      ob.rows.forEach(r => { if (!r.phone && ob.phones[norm(r.name)]) r.phone = ob.phones[norm(r.name)]; });
+      openOnboarding(2); rcTrack("onboarding_contacts");
+    } catch (e) { toast("Impossible d'ouvrir vos contacts : tapez les prénoms."); }
+  },
+  obMode: el => { obRead(); ob.mode = el.dataset.m; ob.qi = null; if (ob.mode === "none") { ob.rows = [{}, {}, {}]; return actions.obNext(); } openOnboarding(2); },
   obSkip: () => { obRead(); if (ob.name || ob.brand) obApply(); else if (!S.profile) S.profile = { skipped: today() }; save(); ob = null; closeSheet(); render(); toast("Vous pourrez compléter votre profil dans Menu › Mon profil"); },
   obPick: el => { obRead(); const k = el.dataset.k, v = el.dataset.v; if (el.dataset.m) ob[k] = ob[k].includes(v) ? ob[k].filter(x => x !== v) : ob[k].concat([v]); else ob[k] = v; openOnboarding(ob.i); },
   obImport: () => { obRead(); obApply(); save(); obImporting = true; ob = null; closeSheet(); openImport(); },
