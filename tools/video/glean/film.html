@@ -14,6 +14,8 @@ html,body{width:960px;height:540px;overflow:hidden;background:#F4EFE8;font-famil
 .H{font-weight:500;letter-spacing:-.045em;line-height:1.02;white-space:nowrap}
 .gt{background:linear-gradient(100deg,#F59A4A,#DB6578 50%,#7C7CF2);-webkit-background-clip:text;background-clip:text;color:transparent}
 .w{display:inline-block;will-change:transform}
+.w.gt{padding:0 .02em .16em;margin:0 -.02em -.16em}   /* garde le bas des lettres (g, p) dans le dégradé */
+.ck{display:flex!important;align-items:center;justify-content:center}.ck>div{width:100%;height:100%}.ck svg,.stp svg{display:block;width:100%;height:100%}
 /* verre liquide */
 .gl{position:absolute;left:0;top:0;overflow:hidden;transform-origin:50% 50%;isolation:isolate}
 .gl .gi{position:absolute;left:0;top:0;width:100%;height:100%}
@@ -408,7 +410,7 @@ const sQ = Scene(9.0, 16.5, "#F4EFE8",
     sc.cols = TEMP.map(([n, c, items]) => Glass(sc, { w: 262, h: 230, r: 22, tint: "linear-gradient(180deg,rgba(255,255,255,.85),rgba(255,255,255,.7))", scale: 28, sh: 22, so: .25,
       html: `<div style="position:absolute;left:0;right:0;top:0;height:5px;background:${c};opacity:.9"></div>
         <div style="position:absolute;left:18px;top:20px;display:flex;align-items:center;gap:8px"><i style="width:30px;height:30px;display:block;border-radius:10px;background:${c}1f;padding:6px">${ico("thermo", c, 2.2)}</i><b style="font-size:16px;font-weight:800;letter-spacing:-.03em;color:${c}">${n}</b></div>
-        ${items.map((it, j) => `<div class="it" style="position:absolute;left:18px;right:16px;top:${72 + j * 74}px;display:flex;gap:9px;align-items:flex-start;padding:10px;border-radius:13px;background:#fff;box-shadow:0 0 0 .5px rgba(28,26,34,.08),0 6px 14px -10px rgba(40,30,60,.35)"><i class="ck" style="flex:none;width:18px;height:18px;border-radius:50%;box-shadow:inset 0 0 0 1.5px ${c};padding:3px;display:block"></i><span style="font-size:11px;font-weight:700;line-height:1.35;letter-spacing:-.01em">${it}</span></div>`).join("")}` }));
+        ${items.map((it, j) => `<div class="it" style="position:absolute;left:18px;right:16px;top:${72 + j * 74}px;display:flex;gap:9px;align-items:flex-start;padding:10px;border-radius:13px;background:#fff;box-shadow:0 0 0 .5px rgba(28,26,34,.08),0 6px 14px -10px rgba(40,30,60,.35)"><i class="ck" style="flex:none;width:18px;height:18px;border-radius:50%;box-shadow:inset 0 0 0 1.5px ${c};padding:3.5px;margin-top:-1px"></i><span style="font-size:11px;font-weight:700;line-height:1.35;letter-spacing:-.01em">${it}</span></div>`).join("")}` }));
     sc.cur = h(`<div class="cur">${CUR}</div>`); sc.fr.appendChild(sc.cur);
   },
   (sc, t) => {
