@@ -1054,6 +1054,9 @@ const rcTrack = e => { if (DEMO || !location.protocol.startsWith("http")) return
 /* L'analyse gratuite du site (réponses aux 4 questions) : elle personnalise l'accueil */
 const readAnalyse = () => { try { return JSON.parse(localStorage.getItem("recharge.analyse") || "null"); } catch (e) { return null; } };
 const FROM_ANALYSE = !DEMO && new URLSearchParams(location.search).get("from") === "analyse";
+const DIRECT_KEY = "recharge.direct";   // arrivée par « S'inscrire » ou « Tarifs » : pas d'onboarding
+const isDirect = () => { if (FROM_ANALYSE) return false; try { return localStorage.getItem(DIRECT_KEY) === "1"; } catch (e) { return false; } };
+if (FROM_ANALYSE) { try { localStorage.removeItem(DIRECT_KEY); } catch (e) {} }
 /* Parrainage : le code de l'invitation (lien « ?parrain=CODE »), gardé dans ce téléphone jusqu'à la création du compte */
 const REF_KEY = "recharge.parrain";
 (() => { const c = DEMO ? "" : (new URLSearchParams(location.search).get("parrain") || "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 12); if (c.length >= 4) try { localStorage.setItem(REF_KEY, c); } catch (e) {} })();
@@ -1136,7 +1139,7 @@ async function afterLogin(r) {
   if (!session.canSync) toast("Compte créé ✅ Vos données restent sur ce téléphone : la sauvegarde démarre avec votre offre.");
   else if (hasRealData(S)) { const ok = await pushNow(true); render(); toast(ok ? "C'est fait ! Vos données sont sauvegardées sur votre compte ✅" : "Compte créé ✅ La sauvegarde se fera dès que la connexion revient."); }
   else toast("Compte créé ✅ Vos données seront sauvegardées automatiquement.");
-  if (!S.profile && !hasRealData(S)) setTimeout(startOnboarding, 900);
+  if (!S.profile && !hasRealData(S) && !isDirect()) setTimeout(startOnboarding, 900);
 }
 let pwFlow = false;   // parcours analyse → valeur → paywall → onboarding 2
 let loginEmail = "", upPeriod = "year", upTier = "pro", upTeam = { mode: "new", name: "", seats: 6, code: "" }, offersInfo = null;
@@ -5289,7 +5292,7 @@ const actions = {
   spotEnd: () => endSpot(spotI === SPOT.length - 1),
   spotStart: () => { S.spotDone = null; closeSheet(); startSpot(); },
   tourEnd: () => { S.tourDone = today(); save(); rcTrack("visite_fin"); openOnboarding(0); },
-  paidGo: () => { closeSheet(); if (!S.profile) setTimeout(startOnboarding, 250); else if (paidPlan === "equipe") setTimeout(() => openTeam(), 300); },
+  paidGo: () => { closeSheet(); if (!S.profile && isDirect()) { S.profile = { skipped: today() }; save(); tab = "today"; render(); window.scrollTo(0, 0); setTimeout(maybeSpot, 400); } else if (!S.profile) setTimeout(startOnboarding, 250); else if (paidPlan === "equipe") setTimeout(() => openTeam(), 300); },
   obProsSkip: () => obProsDone(0),
   obProsSave: () => {
     let m = 0;
@@ -5692,6 +5695,10 @@ addEventListener("online", () => { if (sync.dirty) pushNow(); });
 document.addEventListener("visibilitychange", () => { if (document.hidden && sync.dirty) pushNow(); });
 if (!DEMO && location.hash === "#equipe") { upTier = "equipe"; history.replaceState(null, "", location.pathname + "#abonnement"); }
 const HASH_GO = DEMO ? "" : location.hash;
+/* « S'inscrire » et « Tarifs » vont droit au but : le choix de l'offre, sans onboarding.
+   L'onboarding reste réservé au parcours « Analyser mon activité » (?from=analyse). */
+if (!DEMO && !FROM_ANALYSE && (HASH_GO === "#inscription" || HASH_GO === "#abonnement")) { try { localStorage.setItem(DIRECT_KEY, "1"); } catch (e) {} }
+if (!DEMO && HASH_GO === "#inscription") { history.replaceState(null, "", location.pathname); setTimeout(() => { if (session && session.paid) { toast("Votre abonnement est déjà actif ✅"); return; } if (BILLING_OK || API_OK) openUpgrade(); else setTimeout(openUpgrade, 1200); }, 400); }
 if (HASH_GO === "#connexion" || HASH_GO === "#installer") { history.replaceState(null, "", location.pathname); setTimeout(() => { if (HASH_GO === "#connexion") { if (session) toast("Vous êtes déjà connecté ✅"); else openAccountForm("login"); } else if (isInstalled()) { if (!S.profile && !session) startOnboarding(); } else openHomeScreen(true); }, 400); }
 // Lien « Gérer ou annuler mon abonnement » de l'email de rappel : ouvre l'espace Stripe (après connexion si besoin)
 if (HASH_GO === "#gerer") { history.replaceState(null, "", location.pathname); setTimeout(() => { if (session) actions.accPortal(); else { toast("Connectez-vous avec votre email pour gérer votre abonnement."); openAccountForm("login"); } }, 500); }
@@ -5700,7 +5707,7 @@ if (!DEMO) {
   rcTrack("app_ouverte");
   if (FROM_ANALYSE) { rcTrack("app_depuis_analyse"); history.replaceState(null, "", location.pathname); const an = readAnalyse(); if (an && !S.analyse) { S.analyse = an; if (an.me && !myName()) S.settings.myName = String(an.me).slice(0, 40); save(); } }
 }
-if (!DEMO && !MOVE_IN && !S.profile && !obSkipFlag && !navigator.webdriver && !teamNotice && !loginParam && !paidParam && !session && location.hash !== "#abonnement" && HASH_GO !== "#connexion" && HASH_GO !== "#gerer" && HASH_GO !== "#installer") setTimeout(() => {
+if (!DEMO && !MOVE_IN && !S.profile && !obSkipFlag && !navigator.webdriver && !teamNotice && !loginParam && !paidParam && !session && !isDirect() && HASH_GO !== "#abonnement" && HASH_GO !== "#inscription" && HASH_GO !== "#connexion" && HASH_GO !== "#gerer" && HASH_GO !== "#installer") setTimeout(() => {
   // Arrivée depuis l'analyse : d'abord ce que Recharge rend, puis le paywall ; l'onboarding 2 suit (payé ou « plus tard »)
   let seen = null; try { seen = localStorage.getItem(PW_KEY); } catch (e) {}
   const an = S.analyse || readAnalyse();
