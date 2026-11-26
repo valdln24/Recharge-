@@ -1293,7 +1293,7 @@ async function joinTeam(code) {
   try { localStorage.removeItem(TEAM_KEY); } catch (e) {}
   const pay = () => { upTier = "equipe"; upTeam = { ...upTeam, mode: "join", code }; openUpgrade(); };
   if (!session) return pay();   // le paiement crée le compte avec l'email donné à Stripe
-  try { const r = await api("POST", "team/join", { code });
+  try { const r = await api("POST", "team/join", { code, ref: readRef() });
     if (r.pay) return pay();
     const m = await api("GET", "me"); session = { ...session, plan: m.user.plan, paid: !!m.user.paid, team: !!m.user.team }; writeLS(SESSION_KEY, session);
     closeSheet(); render(); toast(`Bienvenue dans l'équipe « ${r.name} » ✅`); }
@@ -1306,7 +1306,7 @@ async function openTeam() {
   const RC = 2 * Math.PI * 15;
   if (!t.owner) return openSheet(`<div class="shead"><h3>${esc(t.name)}</h3>${closeBtn}</div>
     <p class="lede" style="margin-top:8px">${t.active ? "Vous faites partie de cette équipe et vous payez votre part : tout Recharge Pro est inclus." : "Vous êtes rattaché à cette équipe, mais votre part n'est pas active. Payez votre part pour retrouver tout Recharge."}</p>
-    ${t.active ? "" : `<button class="btn orange" style="margin-top:12px" data-act="teamPay" data-c="${esc(t.code)}">Payer ma part</button>`}
+    ${t.active ? `<p class="hint" style="margin-top:10px">Faites venir du monde dans l'équipe : chaque nouveau membre a 1 mois offert, et vous gagnez 1 mois.</p><button class="btn orange" style="margin-top:8px" data-act="parrainCopy" data-l="${esc(t.link)}">${I.copy} Copier mon lien d'équipe</button>` : `<button class="btn orange" style="margin-top:12px" data-act="teamPay" data-c="${esc(t.code)}">Payer ma part</button>`}
     <button class="linkbtn danger-link" data-act="teamLeave">Quitter l'équipe</button>`);
   const msgTxt = `Je t'invite dans notre équipe « ${t.name} » sur Recharge. Chacun paie sa part, moins de 10 € par mois, avec 7 jours gratuits pour essayer. Rejoins-nous avec ce lien : ${t.link} (ou le code ${t.code})`;
   openSheet(`<div class="shead"><h3>${esc(t.name)}</h3>${closeBtn}</div>
@@ -3574,7 +3574,7 @@ async function openParrain() {
     <p>Chaque personne que vous faites venir vous rapporte 1 mois : <b>une collègue invitée ou un membre de votre équipe, ça compte pareil.</b> 12 personnes = 1 an de Recharge offert.</p>
     <div class="pardots" aria-label="${won} mois gagnés sur 12">${Array.from({ length: 12 }, (_, k) => `<i class="${k < won ? "on" : ""}"></i>`).join("")}</div>
     <span class="parwon">${won ? `${plural(won, "mois gagné", "mois gagnés")} sur 12` : "Votre première collègue vous attend"}</span></div>`;
-  const how = `<details class="parhow"><summary>Comment ça marche</summary><ul class="perks"><li>🎁 <b>1 mois offert pour vous</b> à chaque collègue invitée qui s'abonne</li><li>🤝 <b>1 mois offert pour elle</b>, en plus de ses 7 jours d'essai</li><li>📅 Jusqu'à <b>12 mois offerts par an</b> : une année entière</li><li>👥 <b>Tête de réseau ?</b> Avec l'offre Équipe, chaque membre qui paie sa part vous rapporte aussi 1 mois</li></ul>
+  const how = `<details class="parhow"><summary>Comment ça marche</summary><ul class="perks"><li>🎁 <b>1 mois offert pour vous</b> à chaque collègue invitée qui s'abonne</li><li>🤝 <b>1 mois offert pour elle</b>, en plus de ses 7 jours d'essai</li><li>📅 Jusqu'à <b>12 mois offerts par an</b> : une année entière</li><li>👥 <b>En équipe aussi</b> : chaque nouveau membre a 1 mois offert, et la personne qui l'a fait venir gagne 1 mois. Chaque membre a son lien.</li></ul>
     <p class="hint">Les mois sont gagnés quand la personne invitée paie son premier mois, après son essai.</p></details>`;
   if (!session) {
     openSheet(`<div class="shead"><span></span>${closeBtn}</div>${hero()}

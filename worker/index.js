@@ -292,8 +292,20 @@ async function attachReferrer(env, userId, ref) {
     if (r && r.id !== userId) await env.DB.prepare("UPDATE users SET referred_by = ? WHERE id = ? AND referred_by IS NULL").bind(r.id, userId).run();
   } catch (e) { console.error("parrainage", e && e.message); }
 }
+/* Le code de parrainage d'un compte, créé à la première demande */
+async function ensureRefCode(env, u) {
+  const row = await env.DB.prepare("SELECT ref_code FROM users WHERE id = ?").bind(u.id).first();
+  if (row && row.ref_code) return row.ref_code;
+  const base = (u.email.split("@")[0] || "").toUpperCase().replace(/[^A-Z]/g, "").slice(0, 5) || "RECH";
+  for (let k = 0; k < 6; k++) {
+    const cand = base + [...crypto.getRandomValues(new Uint8Array(Math.max(3, 7 - base.length)))].map(b => REF_ALPHABET[b % REF_ALPHABET.length]).join("");
+    if (!(await env.DB.prepare("SELECT 1 AS x FROM users WHERE ref_code = ?").bind(cand).first())) { await env.DB.prepare("UPDATE users SET ref_code = ? WHERE id = ? AND ref_code IS NULL").bind(cand, u.id).run(); break; }
+  }
+  const r = await env.DB.prepare("SELECT ref_code FROM users WHERE id = ?").bind(u.id).first(); return r && r.ref_code;
+}
 async function referral(request, env, url) {
   const u = await auth(request, env);
+  await ensureRefCode(env, u);
   let row = await env.DB.prepare("SELECT ref_code, ref_pending FROM users WHERE id = ?").bind(u.id).first();
   let code = row && row.ref_code;
   if (!code) {
@@ -439,6 +451,7 @@ async function billingCheckout(request, env, url) {
   if (!u && cleanRef(body.ref).length >= 4) {
     try { const r = await env.DB.prepare("SELECT id FROM users WHERE ref_code = ?").bind(cleanRef(body.ref)).first(); if (r) { refCode = cleanRef(body.ref); invited = true; } } catch { /* pas de parrainage */ }
   }
+  if (!u && tier === "equipe" && teamCode) invited = true;   // nouveau membre d'une équipe : 1 mois offert aussi (sa marraine est rattachée à la création du compte)
   const offer = { tier, period: body.period === "year" ? "year" : "month", teamName, teamCode: tier === "equipe" ? teamCode : "", founder, cgv, refCode };
   return json({ url: await checkout(env, sameOrigin(env, url), offer, u, { invited, refMonths }) });
 }
@@ -485,7 +498,7 @@ async function teamInfo(request, env, url) {
   const list = (members.results || []).map(x => ({ email: x.email, me: x.id === u.id, owner: x.id === t.owner_id, active: x.plan === "equipe" }));
   const paying = list.filter(x => x.active).length;
   return json({ team: { name: t.name, min, used: paying, missing: Math.max(0, min - paying), owner, active: u.plan === "equipe",
-    code: t.code, link: `${env.APP_ORIGIN || url.origin}/app/?rejoindre=${t.code}`, members: owner ? list : undefined } });
+    code: t.code, link: `${env.APP_ORIGIN || url.origin}/app/?rejoindre=${t.code}&parrain=${await ensureRefCode(env, u)}`, members: owner ? list : undefined } });
 }
 /* Rejoindre avec un code : il faut payer sa part. Seul un compte qui a déjà une part Équipe active (sans équipe) est rattaché directement. */
 async function teamJoin(request, env) {
@@ -501,6 +514,8 @@ async function teamJoin(request, env) {
     return json({ ok: true, name: t.name });
   }
   if (u.stripe_sub && isPaid(u)) throw new HttpError(409, "Vous avez déjà un abonnement à votre nom : résiliez-le d'abord (Menu › Mon compte), puis rejoignez l'équipe.");
+  // pas encore abonné : la personne qui l'a fait venir (son lien) ou, à défaut, la tête de réseau devient sa marraine → 1 mois offert pour chacun
+  if (cleanRef(body.ref).length >= 4) await attachReferrer(env, u.id, body.ref); else await attachTeamOwner(env, u.id, t.id);
   return json({ ok: false, pay: true, name: t.name });
 }
 /* Quitter ou être retiré : la part de ce membre s'arrête aussi, pour qu'il ne paie plus rien */

@@ -116,7 +116,7 @@ export async function refreshPlan(env, db, u) {
   } catch (e) { return u.plan; }   // Stripe injoignable : on garde le dernier statut connu
 }
 
-/* Parrainage : au premier vrai paiement d'une invitée, sa marraine gagne 1 mois (plafond : 12 par an).
+/* Parrainage (en solo ou en équipe) : au premier vrai paiement d'une invitée ou d'un nouveau membre, la personne qui l'a fait venir gagne 1 mois (plafond : 12 par an).
    Si la marraine est abonnée, le mois est déduit de sa prochaine facture (crédit Stripe) ;
    sinon il est mis de côté et ajouté à son essai quand elle s'abonnera. */
 async function rewardReferral(env, db, userId) {
