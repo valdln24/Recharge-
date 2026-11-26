@@ -21,14 +21,22 @@ put("whoosh2", 4.15, .4)
 # 3 · Voici Recharge
 put("whoosh", 5.2, .4); [put("pop", 6.1 + j * .12, .18, (j - 2) * .25) for j in range(5)]
 put("whoosh", 7.7, .45)
-# 4 · réseau
-put("whoosh2", 8.84, .45); [put("pop", 9.15 + j * .14, .22, ((j % 3) - 1) * .5) for j in range(8)]
-# 5 · groupes
-put("whoosh2", 12.84, .45); [put("tap", 13.3 + j * .08, .15, ((j % 3) - 1) * .5) for j in range(6)]
-# 6 · coach
+# 4 · coach : « Qu'est-ce que je peux faire aujourd'hui ? » → plan chaud / tiède / froid
+put("whoosh2", 8.84, .45); put("glass", 9.1, .3)
+put("tap", 9.72, .5); put("type", 9.8, .45); put("type", 10.3, .3)
+put("tap", 11.07, .55); put("send", 11.1, .5); put("whoosh", 11.25, .3); put("chime", 11.65, .4)
+for j in range(3): put("pop", 11.75 + j * .22, .3, (j - 1) * .5)
+for i in range(3):
+    for j in range(2): put("tap", 13.2 + i * .9 + j * .35, .3, (i - 1) * .5)
+put("glass", 15.3, .25)
+# 6 · coach : « Elle trouve ça un peu cher… » (version courte)
 put("whoosh2", 16.34, .45); put("glass", 16.6, .3)
-put("tap", 17.85, .5); put("type", 18.1, .45); put("type", 19.1, .3)
-put("tap", 20.2, .55); put("send", 20.25, .5); put("chime", 20.95, .4)
+put("tap", 17.31, .45); put("type", 17.45, .4)
+put("tap", 18.72, .55); put("send", 18.75, .5); put("chime", 19.15, .4)
+# 6bis · opportunités autour de vous
+put("whoosh2", 20.24, .45)
+for j in range(4): put("pop", 20.7 + j * .2, .28, ((j % 2) - .5) * .8)
+put("glass", 21.75, .35); put("pop", 22.0, .3)
 # 7-8 · dégradé + parcours
 put("whoosh2", 22.84, .5); put("hit", 23.0, .25)
 put("whoosh2", 24.44, .45); put("pop", 24.65, .3); put("pop", 24.9, .3)

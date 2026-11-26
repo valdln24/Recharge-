@@ -276,7 +276,8 @@ const TASKS = [
   ["reseau", "Julie vous présente Inès", "Nouvelle recommandation", 330, 205],
   ["coach", "Coach", "Une réponse prête", -360, 225]
 ];
-const s4 = Scene(9.0, 13.0, "#F4EFE8",
+const s4 = Scene(-9, -8,   // caché : remplacé par le coach « aujourd'hui »
+ "#F4EFE8",
   `<div class="ab wedge" style="left:480px;top:270px;width:0;height:0"><div style="position:absolute;left:0;top:-700px;width:1400px;height:1400px;transform-origin:0 50%;clip-path:polygon(0 50%,100% 18%,100% 70%);background:linear-gradient(90deg,rgba(245,154,74,.85),rgba(219,101,120,.75) 45%,rgba(124,124,242,.55))"></div></div>
    <svg class="ab net" width="960" height="540" style="overflow:visible"></svg>
    ${Array.from({ length: 26 }, (_, i) => `<div class="dot dd" style="background:${["#F59A4A", "#DB6578", "#7C7CF2", "#7B83F6"][i % 4]}"></div>`).join("")}`,
@@ -307,7 +308,8 @@ const GROUPS = [
   { n: "Fidélité", x: 500, y: 60, w: 210, h: 120, avs: [["CL", 30, 30], ["AR", 140, 60]], tiles: [["fidelite", 80, 20]] },
   { n: "Prospection", x: 730, y: 110, w: 170, h: 210, avs: [["LM", 30, 40], ["NP", 110, 110]], tiles: [["prospect", 90, 40], ["reseau", 40, 120]] }
 ];
-const s5 = Scene(13.0, 16.5, "linear-gradient(180deg,#E3E8FA,#F4EFE8 60%)",
+const s5 = Scene(-7, -6,   // caché : remplacé par le coach « aujourd'hui »
+ "linear-gradient(180deg,#E3E8FA,#F4EFE8 60%)",
   GROUPS.map((g, i) => `<div class="ab grp g${i}" style="left:${g.x}px;top:${g.y}px;width:${g.w}px;height:${g.h}px;border-radius:16px;background:rgba(28,26,34,.05);box-shadow:inset 0 0 0 .5px rgba(28,26,34,.06)"><span style="position:absolute;left:12px;bottom:10px;font-size:10px;font-weight:700;color:#57515C">${g.n}</span>
     ${g.avs.map(([ini, ax, ay]) => `<div class="ab gav" style="left:${ax}px;top:${ay}px">${av(ini, 26)}</div>`).join("")}</div>`).join("")
   + `<div class="ab H l1" style="left:60px;top:50px;font-size:44px">${words("Chaque cliente")}</div><div class="ab H l2" style="left:560px;top:430px;font-size:44px">${words("au bon moment.")}</div>`,
@@ -329,7 +331,7 @@ const s5 = Scene(13.0, 16.5, "linear-gradient(180deg,#E3E8FA,#F4EFE8 60%)",
 /* ===== 6 · 16,5–23 s : la boîte du coach (prompt) ===== */
 const Q1 = "Elle trouve ça un peu cher…";
 const A1 = "Je comprends. Il dure 2 mois, ça revient à moins de 50 centimes par jour.";
-const s6 = Scene(16.5, 23.0, "#F4EFE8",
+const s6 = Scene(16.5, 20.4, "#F4EFE8",
   `<div class="ab" style="left:180px;top:60px;width:600px;height:420px;border-radius:50%;background:radial-gradient(closest-side,rgba(232,233,253,.9),rgba(232,233,253,0))"></div>
   ${[0, 1, 2].map(i => `<div class="ab ol" style="left:${270 - 30 - i * 32}px;top:${270 - 32 - 26 - i * 30}px;width:${420 + 60 + i * 64}px;height:${64 + 52 + i * 60}px;border-radius:${26 + i * 10}px;box-shadow:inset 0 0 0 .8px rgba(28,26,34,${.13 - i * .03})"></div>`).join("")}
   ${Array.from({ length: 14 }, (_, i) => `<div class="dot od" style="background:${["#F59A4A", "#DB6578", "#7C7CF2", "#7B83F6"][i % 4]}"></div>`).join("")}
@@ -369,7 +371,7 @@ const s6 = Scene(16.5, 23.0, "#F4EFE8",
     // réponse
     const ap = spr(k(t, 4.35, 5.0));
     sc.ans.set(480, 318, ap, 0, cl(ap * 2));
-    sc.ans.ct.querySelector(".at").textContent = typed(A1, k(t, 4.6, 6.0));
+    sc.ans.ct.querySelector(".at").textContent = typed(A1, k(t, 4.4, 5.1));
   },
   (sc, t) => {
     for (const r of sc.roots) {
@@ -382,6 +384,101 @@ const s6 = Scene(16.5, 23.0, "#F4EFE8",
       });
     }
   });
+
+{ const u = s6.upd, bu = s6.bku, f = 6.5 / 3.9; s6.upd = (sc, t) => u(sc, t * f); s6.bku = (sc, t) => bu(sc, t * f); }
+
+/* ===== 4bis · 9–16,5 s : « Qu'est-ce que je peux faire aujourd'hui ? » → plan chaud / tiède / froid ===== */
+const QT = "Qu'est-ce que je peux faire aujourd'hui ?";
+const TEMP = [
+  ["Réseau chaud", "#DB6578", ["Relancer Marie Dupont : sa crème finit dans 2 j", "Proposer la nouveauté à Sophie Martin"]],
+  ["Réseau tiède", "#F59A4A", ["Prendre des nouvelles de Julie Bernard", "Inviter Léa Moreau à essayer un produit"]],
+  ["Réseau froid", "#7C7CF2", ["Recontacter 3 anciens clients", "Partager un conseil en story"]]
+];
+const sQ = Scene(9.0, 16.5, "#F4EFE8",
+  `<div class="ab" style="left:120px;top:-120px;width:720px;height:520px;border-radius:50%;background:radial-gradient(closest-side,rgba(232,233,253,.95),rgba(232,233,253,0))"></div>
+   <div class="ab" style="left:-160px;top:260px;width:620px;height:460px;border-radius:50%;background:radial-gradient(closest-side,rgba(253,232,234,.95),rgba(253,232,234,0))"></div>
+   ${[0, 1, 2].map(i => `<div class="ab ol" style="left:${240 - 30 - i * 32}px;top:${270 - 32 - 26 - i * 30}px;width:${480 + 60 + i * 64}px;height:${64 + 52 + i * 60}px;border-radius:${26 + i * 10}px;box-shadow:inset 0 0 0 .8px rgba(28,26,34,${.13 - i * .03})"></div>`).join("")}
+   ${Array.from({ length: 14 }, (_, i) => `<div class="dot od" style="background:${["#F59A4A", "#DB6578", "#7C7CF2", "#7B83F6"][i % 4]}"></div>`).join("")}`,
+  sc => {
+    sc.box = Glass(sc, { w: 480, h: 64, r: 22, tint: "linear-gradient(180deg,rgba(255,255,255,.62),rgba(240,236,255,.55))", scale: 30, sh: 18, so: .25,
+      html: `<div class="ph" style="position:absolute;left:22px;top:22px;font-size:15px;font-weight:500;color:#8A8390;letter-spacing:-.02em;white-space:nowrap">Demandez au coach…</div>
+             <div class="tx" style="position:absolute;left:22px;top:22px;font-size:15px;font-weight:600;color:#1C1A22;letter-spacing:-.02em;white-space:nowrap"></div>
+             <div class="go" style="position:absolute;right:13px;top:13px;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center"><i style="width:18px;height:18px;display:block"></i></div>` });
+    sc.head = h(`<div class="ab" style="width:960px;text-align:center;font-size:12px;font-weight:800;color:#57515C;letter-spacing:.02em;display:flex;align-items:center;justify-content:center;gap:7px"><i style="width:16px;height:16px;display:block">${MARK()}</i>COACH RECHARGE · AUJOURD'HUI, 30 MIN SUFFISENT</div>`); sc.fr.appendChild(sc.head);
+    sc.cols = TEMP.map(([n, c, items]) => Glass(sc, { w: 262, h: 230, r: 22, tint: "linear-gradient(180deg,rgba(255,255,255,.85),rgba(255,255,255,.7))", scale: 28, sh: 22, so: .25,
+      html: `<div style="position:absolute;left:0;right:0;top:0;height:5px;background:${c};opacity:.9"></div>
+        <div style="position:absolute;left:18px;top:20px;display:flex;align-items:center;gap:8px"><i style="width:30px;height:30px;display:block;border-radius:10px;background:${c}1f;padding:6px">${ico("thermo", c, 2.2)}</i><b style="font-size:16px;font-weight:800;letter-spacing:-.03em;color:${c}">${n}</b></div>
+        ${items.map((it, j) => `<div class="it" style="position:absolute;left:18px;right:16px;top:${72 + j * 74}px;display:flex;gap:9px;align-items:flex-start;padding:10px;border-radius:13px;background:#fff;box-shadow:0 0 0 .5px rgba(28,26,34,.08),0 6px 14px -10px rgba(40,30,60,.35)"><i class="ck" style="flex:none;width:18px;height:18px;border-radius:50%;box-shadow:inset 0 0 0 1.5px ${c};padding:3px;display:block"></i><span style="font-size:11px;font-weight:700;line-height:1.35;letter-spacing:-.01em">${it}</span></div>`).join("")}` }));
+    sc.cur = h(`<div class="cur">${CUR}</div>`); sc.fr.appendChild(sc.cur);
+  },
+  (sc, t) => {
+    // caméra : on approche de la question, puis on parcourt les 3 colonnes
+    const z1 = sm(k(t, .4, 1.4)) * .14 * (1 - sm(k(t, 2.0, 2.7)));
+    camSet(sc, punch(t, .2) * (1.02 + z1 + sm(k(t, 2.8, 7.5)) * .05), 0, -z1 * 60 + sm(k(t, 2.8, 7.5)) * -14);
+    const up = eio(k(t, 2.2, 2.9));
+    sc.box.set(480, L(270, 70, up), spr(k(t, 0, .6)) * L(1, .82, up), 0, 1);
+    const q = typed(QT, k(t, .7, 1.9));
+    sc.box.ct.querySelector(".tx").textContent = q; sc.box.ct.querySelector(".ph").style.opacity = q ? 0 : 1;
+    const go = sc.box.ct.querySelector(".go"), on = t > 1.95;
+    go.style.background = on ? "linear-gradient(135deg,#F59A4A,#DB6578 50%,#7C7CF2)" : "rgba(28,26,34,.06)";
+    go.firstChild.innerHTML = ico("arrow", on ? "#fff" : "#8A8390", 2.4);
+    go.style.transform = `scale(${t > 2.05 && t < 2.2 ? .88 : 1})`;
+    const P = [[1000, 600, 0], [600, 330, .45], [520, 275, .7], [520, 275, 1.9], [702, 275, 2.05], [740, 340, 2.6], [1000, 640, 3.4]];
+    let cx = P[0][0], cy = P[0][1];
+    for (let i = 0; i < P.length - 1; i++) if (t >= P[i][2]) { const x = eio(k(t, P[i][2], P[i + 1][2])); cx = L(P[i][0], P[i + 1][0], x); cy = L(P[i][1], P[i + 1][1], x); }
+    tf(sc.cur, cx, cy, (t > .7 && t < .82) || (t > 2.05 && t < 2.2) ? .85 : 1);
+    const hp = eo5(k(t, 2.6, 3.1)); tf(sc.head, 0, 124 + (1 - hp) * 10, 1, 0, hp);
+    sc.cols.forEach((g, i) => { const t0 = 2.75 + i * .22, p = spr(k(t, t0, t0 + .65));
+      g.set(200 + i * 280, 300 + (1 - eo5(k(t, t0, t0 + .6))) * 60 + Math.sin(t * 1.3 + i) * 3, L(.85, 1, p), 0, cl(p * 2));
+      g.ct.querySelectorAll(".it").forEach((it, j) => { const x = eo5(k(t, t0 + .35 + j * .18, t0 + .8 + j * .18)); it.style.opacity = x; it.style.transform = `translateY(${(1 - x) * 10}px)`; });
+      g.ct.querySelectorAll(".ck").forEach((c, j) => { const tc = 4.2 + i * .9 + j * .35, on = t > tc; const col = TEMP[i][1];
+        c.style.background = on ? col : "transparent"; c.innerHTML = on ? `<div style="transform:scale(${spr(k(t, tc, tc + .35))})">${ico("check", "#fff", 3.4)}</div>` : ""; }); });
+  },
+  (sc, t) => {
+    for (const r of sc.roots) {
+      const up = eio(k(t, 2.2, 2.9));
+      [...r.querySelectorAll(".ol")].forEach((o, i) => { const p = eo5(k(t, .1 + i * .1, .8 + i * .1)); o.style.opacity = p * (1 - up); o.style.transform = `scale(${L(.9, 1, p)})`; });
+      [...r.querySelectorAll(".od")].forEach((d, i) => {
+        const ring = i % 3, W = 540 + ring * 64, Hh = 116 + ring * 60, per = 2 * (W + Hh), s = ((rnd(i) * per + t * (60 + ring * 14) * (i % 2 ? 1 : -1)) % per + per) % per;
+        let x, y; if (s < W) { x = s; y = 0; } else if (s < W + Hh) { x = W; y = s - W; } else if (s < 2 * W + Hh) { x = W - (s - W - Hh); y = Hh; } else { x = 0; y = Hh - (s - 2 * W - Hh); }
+        d.style.transform = `translate(${480 - W / 2 + x}px,${270 - Hh / 2 + y}px)`; d.style.opacity = cl(k(t, .3, .8)) * (1 - up);
+      });
+    }
+  });
+
+/* ===== 6bis · 20–23 s : les opportunités autour de vous (prospection) ===== */
+const PINS = [["pin", "Salon bien-être", "samedi · à 1,2 km", 300, 190], ["pin", "Marché de Noël", "à côté de chez vous", 650, 150], ["venn", "Nouvelle salle de sport", "à 800 m", 700, 360], ["hash", "Groupe des mamans du quartier", "à rejoindre", 250, 390]];
+const PROSP = [["LM", "Léa Moreau", "Prospect chaud · à recontacter"], ["IN", "Inès", "Recommandée par Julie"]];
+const sO = Scene(20.4, 23.0, "#F2EEE6",
+  `<svg class="ab" width="960" height="540" viewBox="0 0 960 540" style="opacity:.9">
+     <path d="M-20 140 C200 120 300 220 520 200 S860 120 990 160" stroke="#E4DDD2" stroke-width="18" fill="none"/>
+     <path d="M-20 420 C180 380 420 460 600 400 S880 330 990 360" stroke="#E4DDD2" stroke-width="14" fill="none"/>
+     <path d="M180 -20 C200 160 160 330 220 560" stroke="#E4DDD2" stroke-width="12" fill="none"/>
+     <path d="M560 -20 C520 140 600 300 540 560" stroke="#E4DDD2" stroke-width="16" fill="none"/>
+     <path d="M760 -20 C800 200 720 380 820 560" stroke="#E9E3D9" stroke-width="9" fill="none"/>
+     <rect x="610" y="430" width="170" height="90" rx="30" fill="#DDE9D5" opacity=".8"/><rect x="40" y="200" width="110" height="140" rx="30" fill="#DDE9D5" opacity=".7"/>
+   </svg>
+   <div class="ab rings" style="left:480px;top:270px">${[0, 1, 2].map(i => `<div class="ring2" style="position:absolute;width:120px;height:120px;left:-60px;top:-60px;border-radius:50%;border:1.5px solid rgba(219,101,120,.5)"></div>`).join("")}</div>
+   <svg class="ab lk" width="960" height="540" style="overflow:visible">${PINS.map(() => `<line stroke="rgba(219,101,120,.45)" stroke-width="1.2" stroke-dasharray="4 4"/>`).join("")}</svg>
+   <div class="ab H tt" style="left:0;top:34px;width:960px;text-align:center;font-size:34px">${words("Des opportunités")} <span class="w gt" style="font-weight:600">autour de vous.</span></div>`,
+  sc => {
+    sc.me = h(`<div class="ab" style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#F59A4A,#DB6578 50%,#7C7CF2);box-shadow:0 0 0 4px #fff,0 10px 24px -8px rgba(219,101,120,.8);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:11px">Vous</div>`); sc.fr.appendChild(sc.me);
+    sc.pins = PINS.map(([m, a, b]) => Glass(sc, { w: 220, h: 54, r: 16, tint: "rgba(255,255,255,.8)", scale: 22, sh: 14,
+      html: `<div style="position:absolute;left:9px;top:9px;width:36px;height:36px"><svg viewBox="0 0 32 32" width="36" height="36">${MK[m] || `<rect x="4" y="4" width="24" height="24" rx="7" fill="#DCDDFB"/>`}</svg></div><b style="position:absolute;left:54px;top:12px;font-size:11px;font-weight:800;letter-spacing:-.02em;white-space:nowrap">${a}</b><span style="position:absolute;left:54px;top:29px;font-size:9px;color:#57515C;font-weight:600;white-space:nowrap">${b}</span>` }));
+    sc.pros = PROSP.map(([ini, a, b]) => Glass(sc, { w: 230, h: 58, r: 18, tint: "rgba(255,255,255,.9)", scale: 22, sh: 16,
+      html: `<div style="position:absolute;left:12px;top:13px">${av(ini, 32)}</div><b style="position:absolute;left:56px;top:13px;font-size:12px;font-weight:800;letter-spacing:-.02em">${a}</b><span style="position:absolute;left:56px;top:31px;font-size:9.5px;color:#DB6578;font-weight:700">${b}</span>` }));
+  },
+  (sc, t) => {
+    camSet(sc, punch(t, .2) * (1.06 + t * .03), -t * 6, t * 3, .6 - t * .3);
+    tf(sc.me, 458, 248, spr(k(t, 0, .5)));
+    sc.pins.forEach((g, i) => { const [, , , x, y] = PINS[i]; const p = spr(k(t, .25 + i * .2, .85 + i * .2)); g.set(x, y + Math.sin(t * 1.5 + i) * 3, p, 0, cl(p * 2)); });
+    sc.pros.forEach((g, i) => { const p = spr(k(t, 1.3 + i * .3, 1.9 + i * .3)); g.set(i ? 760 : 200, 478, p, i ? 2 : -2, cl(p * 2)); });
+  },
+  (sc, t) => { for (const r of sc.roots) {
+    wordsIn([...r.querySelectorAll(".tt .w")], t, .05, .08, .5);
+    [...r.querySelectorAll(".ring2")].forEach((g, i) => { const x = ((t * .9 + i / 3) % 1); g.style.transform = `scale(${.3 + x * 2.6})`; g.style.opacity = (1 - x) * cl(t * 3); });
+    [...r.querySelectorAll(".lk line")].forEach((ln, i) => { const [, , , x, y] = PINS[i], p = eo(k(t, .25 + i * .2, .8 + i * .2)); ln.setAttribute("x1", 480); ln.setAttribute("y1", 270); ln.setAttribute("x2", 480 + (x - 480) * p); ln.setAttribute("y2", 270 + (y - 270) * p); ln.setAttribute("stroke-dashoffset", -t * 20); });
+  } });
 
 /* ===== 7 · 23–24,6 s : dégradé + « Pour chaque cliente, le bon message » ===== */
 const GBG = "linear-gradient(115deg,#F7A35C 0%,#E7768A 40%,#9A7CEB 75%,#7C7CF2 100%)";
@@ -607,7 +704,7 @@ const s16 = Scene(56.0, 60.01, "#F4EFE8",
 
 /* ---------- rendu ---------- */
 /* Transitions « fouettées » entre les scènes : on accélère en sortie, on freine en entrée (rythme Glean) */
-const WHIP = { 9.0: [-1, 0], 13.0: [0, -1], 16.5: [1, 0], 23.0: [0, 1], 24.6: [-1, 0], 30.0: [1, 0], 35.0: [0, -1], 39.0: [-1, 0], 42.5: [1, 0], 45.5: [0, 1], 49.0: [-1, 0], 52.5: [0, 0] };
+const WHIP = { 9.0: [-1, 0], 16.5: [1, 0], 20.4: [0, -1], 23.0: [0, 1], 24.6: [-1, 0], 30.0: [1, 0], 35.0: [0, -1], 39.0: [-1, 0], 42.5: [1, 0], 45.5: [0, 1], 49.0: [-1, 0], 52.5: [0, 0] };
 const PAN = p => { const x = cl(p); return x < .5 ? 8 * x ** 4 : 1 - 8 * (1 - x) ** 4; };   // départ et arrivée très rapides
 function whip(sc, t) {
   let x = 0, y = 0, s = 1, b = 0, o = 1;
