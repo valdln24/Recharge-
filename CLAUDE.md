@@ -2,6 +2,7 @@
 
 Recharge (getrecharge.fr) : appli web pour vendeuses et vendeurs à domicile (VDI). Promesse : « Vos clients rachètent. Au bon moment. »
 Fondateur : Valentin. Lancement public le 1er décembre 2026.
+Vision et cap (0,5 % du marché, puis l'IA coach commercial du VDI) : lire VISION.md avant toute nouvelle fonction.
 
 ## Règles permanentes (à respecter sans exception)
 - Réponses en français, courtes, chaleureuses, pensées mobile d'abord. Écriture neutre (vendeuses et vendeurs).
@@ -30,4 +31,5 @@ Fondateur : Valentin. Lancement public le 1er décembre 2026.
 ## Où on en est (26/11/2026)
 - En ligne : jour 1, email du matin, pause d'abonnement, ergonomie simplifiée, sécurité, email de bienvenue après abonnement.
 - Prix en ligne : Pro 14,90 €/mois ; à l'année « 2 mois offerts » (Pro 149 €/an, fondateur 11,90 €/mois ou 119 €/an ; Starter 9,90 / 99, fondateur 5,90 / 59 ; Équipe 9,90 / 99 par personne, fondateur 7,90 / 79).
+- Version gratuite : 10 clients, sans IA (ni coach ni import photo), compte gratuit facultatif qui sauvegarde ces 10 clients. « Créer un compte » et « Tarifs » vont droit au choix de l'offre ; l'onboarding est réservé à « Analyser mon activité ».
 - Côté Valentin : ajout de l'activité Recharge en micro-entreprise sur son SIRET (message à Fiska d'abord), limites des codes promo Stripe, blocage du site par SFR à signaler, publier les 3 posts Instagram et les bannières.

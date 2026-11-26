@@ -1084,11 +1084,11 @@ async function api(method, path, body) {
 let syncTimer = null, syncing = false;
 function syncLater() {
   if (!session || DEMO || !session.canSync) return;
-  sync.dirty = true; saveSync();
+  sync.dirty = true; if (!syncAllowed()) { saveSync(); return; } saveSync();
   clearTimeout(syncTimer); syncTimer = setTimeout(pushNow, 2500);
 }
 async function pushNow(force) {
-  if (!session || syncing || !session.canSync) return false;   // version gratuite : la sauvegarde en ligne n'est pas incluse
+  if (!session || syncing || !syncAllowed()) return false;   // compte gratuit au-delà de 10 clients : la sauvegarde attend l'offre
   if (!hasRealData(S) && !sync.rev) { sync.dirty = false; saveSync(); return false; }   // on n'envoie pas les fiches d'exemple seules
   syncing = true;
   try {
@@ -1108,6 +1108,7 @@ async function pullNow() {
 function syncLabel() {
   if (!session) return "";
   if (!session.canSync) return "La sauvegarde est incluse dans la version complète.";
+  if (!syncAllowed()) return `⚠️ Le compte gratuit sauvegarde jusqu'à ${FREE_MAX} clients : vous en avez ${realClientCount()}. Activez l'essai pour tout sauvegarder.`;
   if (sync.dirty) return "⏳ Sauvegarde en attente…";
   if (!sync.lastAt) return "✅ Prête : la sauvegarde démarre dès votre prochain changement.";
   const m = Math.round((Date.now() - sync.lastAt) / 60000);
@@ -1136,7 +1137,7 @@ async function afterLogin(r) {
   if (serverHas && hasRealData(S)) { closeSheet(); render(); return askConflict(r.backup); }
   if (serverHas) { await pullNow(); closeSheet(); tab = "today"; render(); return toast("Bienvenue ! Vos clients sont de retour sur ce téléphone 🎉"); }
   closeSheet(); render();
-  if (!session.canSync) toast("Compte créé ✅ Vos données restent sur ce téléphone : la sauvegarde démarre avec votre offre.");
+  if (!syncAllowed()) toast(`Compte créé ✅ La sauvegarde gratuite va jusqu'à ${FREE_MAX} clients : activez l'essai pour tout sauvegarder.`);
   else if (hasRealData(S)) { const ok = await pushNow(true); render(); toast(ok ? "C'est fait ! Vos données sont sauvegardées sur votre compte ✅" : "Compte créé ✅ La sauvegarde se fera dès que la connexion revient."); }
   else toast("Compte créé ✅ Vos données seront sauvegardées automatiquement.");
   if (!S.profile && !hasRealData(S) && !isDirect()) setTimeout(startOnboarding, 900);
@@ -1216,8 +1217,8 @@ async function openUpgrade(tier) {
     <button class="btn orange" style="margin-top:14px" data-act="upGo">${join ? "Rejoindre l'équipe · 7 jours gratuits" : "Commencer mes 7 jours gratuits"}</button>
     <div class="pwpay" aria-label="Moyens de paiement"><span>Apple Pay</span><span>Google Pay</span><span>Carte bancaire</span></div>
     <p class="hint" style="text-align:center">Paiement sécurisé par Stripe : Recharge ne voit jamais votre carte. Aucun prélèvement avant la fin de l'essai.${BILLING_OK ? "" : " Le paiement en ligne s'ouvre très bientôt."}</p>
-    <ul class="pwtl"><li><b>Aujourd'hui</b>Tout Recharge est débloqué, avec vos clients.</li><li><b>Quelques jours avant la fin</b>Un email vous rappelle que l'essai se termine.</li><li><b>Jour 14</b>Premier paiement. Vous pouvez résilier avant, en un clic.</li></ul>
-    ${pwFlow ? `<button class="linkbtn" data-act="pwLater">Continuer en version gratuite</button>` : ""}
+    <ul class="pwtl"><li><b>Aujourd'hui</b>Tout Recharge est débloqué, avec vos clients.</li><li><b>La veille de la fin</b>Un email vous rappelle que l'essai se termine.</li><li><b>Après 7 jours</b>Premier paiement. Vous pouvez résilier avant, en un clic.</li></ul>
+    ${pwFlow ? `<button class="linkbtn" data-act="pwLater">Continuer en version gratuite</button>` : !session && API_OK ? `<button class="linkbtn" data-act="accFree">Commencer gratuitement · ${FREE_MAX} clients, sans carte</button>` : ""}
     ${!session && API_OK ? `<button class="linkbtn" data-act="accLogin">J'ai déjà un compte : me connecter</button>` : ""}`;
   const cur = sheetEl.querySelector(".sheet.offsheet");
   if (cur) { const y = cur.scrollTop; cur.innerHTML = `<div class="grab"></div>` + html; cur.scrollTop = y; requestAnimationFrame(() => initScrollers(cur)); }
@@ -1232,7 +1233,16 @@ const TEAM_KEY = "recharge.rejoindre";
 const STARTER_MAX = 50;
 const isStarter = () => !!(session && session.paid && session.plan === "starter");
 const realClientCount = () => S.clients.filter(c => !c.example).length;
-function starterRoom(add = 1) { return !isStarter() || realClientCount() + add <= STARTER_MAX; }
+/* Version gratuite (avec ou sans compte) : 10 clients. Au-delà, l'essai de 7 jours. */
+const FREE_MAX = 10;
+const clientCap = () => DEMO ? Infinity : isStarter() ? STARTER_MAX : isPaidS() ? Infinity : FREE_MAX;
+function starterRoom(add = 1) { return realClientCount() + add <= clientCap(); }
+function capHitMsg() {
+  if (isStarter()) return proOnly(`L'offre Starter va jusqu'à ${STARTER_MAX} clients. Les clients illimités`);
+  toast(`La version gratuite va jusqu'à ${FREE_MAX} clients. Avec l'essai de 7 jours, ajoutez-en autant que vous voulez.`); setTimeout(() => openUpgrade(), 500);
+}
+/* Sauvegarde : comptes payants sans limite, compte gratuit jusqu'à 10 clients */
+const syncAllowed = () => !!(session && session.canSync && (isPaidS() || realClientCount() <= FREE_MAX));
 function proOnly(what) { toast(`${what} : avec l'offre Pro.`); setTimeout(() => openUpgrade("pro"), 500); }
 async function joinTeam(code) {
   try { code = code || localStorage.getItem(TEAM_KEY) || ""; } catch (e) {}
@@ -1267,8 +1277,9 @@ async function openTeam() {
 }
 function openAccountForm(mode) {
   try { if (mode === "parrain" || mode === "equipe") localStorage.setItem("recharge.ensuite", mode); else localStorage.removeItem("recharge.ensuite"); } catch (e) {}
-  openSheet(`<div class="shead"><h3>${mode === "login" ? "Me connecter" : mode === "parrain" ? "Mon lien d'invitation" : mode === "equipe" ? "Rejoindre mon équipe" : "Passer à la version complète"}</h3>${closeBtn}</div>
-    ${mode === "equipe" ? `<p class="lede" style="margin-top:8px">Créez votre compte avec votre email, sans mot de passe : vous rejoignez ensuite votre équipe en payant votre part.</p>` : mode === "parrain" ? `<p class="lede" style="margin-top:8px">Votre email suffit, sans mot de passe. Vous recevez un lien de connexion, puis votre lien d'invitation s'affiche ici.</p>` : mode === "login" ? `<p class="lede" style="margin-top:8px">Indiquez l'email de votre compte : vous recevez un lien et un code pour retrouver vos clients.</p>` : `<p class="lede" style="margin-top:8px">Votre email suffit : pas de mot de passe. Vous recevez un lien et un code pour vous connecter.</p>
+  openSheet(`<div class="shead"><h3>${mode === "login" ? "Me connecter" : mode === "parrain" ? "Mon lien d'invitation" : mode === "equipe" ? "Rejoindre mon équipe" : mode === "gratuit" ? "Créer mon compte gratuit" : "Passer à la version complète"}</h3>${closeBtn}</div>
+    ${mode === "gratuit" ? `<p class="lede" style="margin-top:8px">Votre email suffit : pas de mot de passe, pas de carte bancaire.</p>
+    <ul class="perks"><li>☁️ <b>Sauvegarde automatique</b> de vos ${FREE_MAX} premiers clients</li><li>📱 Vous les retrouvez sur un <b>nouveau téléphone</b></li><li>🌱 Plan du jour, relances, recommandations et réseau</li><li>🔒 Vos données restent les vôtres, jamais revendues</li></ul>` : mode === "equipe" ? `<p class="lede" style="margin-top:8px">Créez votre compte avec votre email, sans mot de passe : vous rejoignez ensuite votre équipe en payant votre part.</p>` : mode === "parrain" ? `<p class="lede" style="margin-top:8px">Votre email suffit, sans mot de passe. Vous recevez un lien de connexion, puis votre lien d'invitation s'affiche ici.</p>` : mode === "login" ? `<p class="lede" style="margin-top:8px">Indiquez l'email de votre compte : vous recevez un lien et un code pour retrouver vos clients.</p>` : `<p class="lede" style="margin-top:8px">Votre email suffit : pas de mot de passe. Vous recevez un lien et un code pour vous connecter.</p>
     <ul class="perks"><li>☁️ <b>Sauvegarde automatique</b> de vos clients, prospects et relances</li><li>📱 Vous les retrouvez sur un <b>nouveau téléphone</b></li><li>♾️ <b>Clients illimités</b> (la version gratuite va jusqu'à 10)</li><li>🔒 Vos données restent les vôtres, jamais revendues</li></ul>
     <p class="hint" style="margin-top:6px">${hasRealData(S) ? "Vos données de ce téléphone seront envoyées sur votre compte, sans rien perdre." : ""}</p>`}
     <form id="accForm" autocomplete="on"><label class="field"><span>Votre email</span><input class="input" id="accEmail" type="email" inputmode="email" autocomplete="email" required placeholder="vous@exemple.fr" value="${esc(loginEmail || "")}"></label>
@@ -1308,17 +1319,18 @@ function accountSection() {
     <b style="display:block">📱 Vos données sont dans ce téléphone</b><p class="hint" style="margin:4px 0 12px">☁️ La sauvegarde en ligne arrive bientôt. En attendant, gardez une copie de vos données dans un fichier, par exemple en vous l'envoyant par email.</p>
     <button class="btn soft" data-act="export">${I.down} Exporter mes données</button></div>`;
   if (!session) return section("Mon compte") + `<div class="card pad acc">
-    <b style="display:block">📱 Version gratuite</b><p class="hint" style="margin:4px 0 12px">Jusqu'à 10 clients, 3 échanges par mois avec le coach IA, sans compte. Vos données restent uniquement dans ce téléphone.</p>
+    <b style="display:block">📱 Version gratuite</b><p class="hint" style="margin:4px 0 12px">Jusqu'à 10 clients, avec votre plan du jour, vos relances, vos recommandations et votre réseau. Pour l'instant, vos données sont uniquement dans ce téléphone : créez votre compte gratuit pour les sauvegarder.</p>
+    ${API_OK ? `<button class="btn soft" style="margin-bottom:8px" data-act="accFree">☁️ Créer mon compte gratuit · sans carte</button>` : ""}
     <button class="btn orange" data-act="accUpgrade">Choisir mon offre · 7 jours gratuits</button>
     ${API_OK ? `<button class="linkbtn" data-act="accLogin">J'ai déjà un compte : me connecter</button>` : ""}</div>`;
   return section("Mon compte") + `<div class="card pad acc">
     <b style="display:block">☁️ Compte : ${esc(session.email)}</b>
-    <p class="plan-line">${session.plan === "offert" ? "Accès offert · toute l'appli, sans paiement" : session.paid ? `Offre ${TIER_NAME[session.plan] || "Recharge"} active${session.founder ? " · prix fondateur" : ""}` : "Version gratuite"}</p>
+    <p class="plan-line">${session.plan === "offert" ? "Accès offert · toute l'appli, sans paiement" : session.paid ? `Offre ${TIER_NAME[session.plan] || "Recharge"} active${session.founder ? " · prix fondateur" : ""}` : `Version gratuite · ${FREE_MAX} clients sauvegardés`}</p>
     ${session.team || session.plan === "equipe" ? `<button class="btn soft" style="margin-bottom:8px" data-act="teamOpen">Mon équipe</button>` : ""}
     ${session.billing ? `<button class="btn soft" style="margin-bottom:8px" data-act="accManage">💳 Gérer mon abonnement · factures, carte, résiliation</button>` : ""}
     ${!session.paid ? `<button class="btn orange" style="margin-bottom:8px" data-act="accUpgrade">Choisir mon offre · 7 jours gratuits</button>` : session.plan === "starter" ? `<button class="btn soft" style="margin-bottom:8px" data-act="upPro">Passer à Pro</button>` : ""}
     <p class="hint" id="syncState" style="margin:4px 0 12px">${syncLabel()}</p>
-    ${session.canSync ? `<button class="btn soft" data-act="accSyncNow">Sauvegarder maintenant</button>` : ""}
+    ${syncAllowed() ? `<button class="btn soft" data-act="accSyncNow">Sauvegarder maintenant</button>` : ""}
     <button class="btn outline" style="margin-top:8px" data-act="accLogout">Me déconnecter</button>
     <button class="linkbtn danger-link" data-act="accDelete">Supprimer mon compte et toutes mes données</button></div>`;
 }
@@ -2927,7 +2939,7 @@ function viewSettings() {
     <div class="durs">${[["relance", "Relance"], ["suivi", "Suivi"], ["prospect", "Prospect"], ["reco", "Recommandation"], ["fid", "Fidélité"]].map(([k, l]) => `<label><span>${l}</span><input class="input num" inputmode="numeric" data-dur="${k}" value="${dur[k]}"></label>`).join("")}</div>
     <p class="hint" style="margin:10px 0 0">Ordre du plan : relances, prospects, recommandations, puis fidélité s'il reste du temps.</p></div>`;
   h += section("Coach IA") + `<div class="card pad">
-    <p style="margin:0;font-weight:650">${isPaidS() ? "✨ Illimité avec votre abonnement" : `🎁 Encore <b>${coachLeft()}</b> échange${coachLeft() > 1 ? "s" : ""} gratuit${coachLeft() > 1 ? "s" : ""} ce mois-ci`}</p>
+    <p style="margin:0;font-weight:650">${isPaidS() ? "✨ Illimité avec votre abonnement" : `🔒 Inclus dans l'essai gratuit de 7 jours`}</p>
     <p class="hint" style="margin:6px 0 12px">Le coach répond à vos questions et analyse les captures de conversations. Rien n'est conservé.</p>
     <button class="btn soft" data-tab="coach">🧭 Ouvrir mon coach</button></div>`;
   const muted = Object.entries(S.mute || {}).filter(([, d]) => d > today()).map(([k, d]) => {
@@ -3096,7 +3108,7 @@ function submitSale() {
   let c = S.clients.find(x => x.name.toLowerCase() === name.toLowerCase());
   const refName = (document.getElementById("fRef") || {}).value?.trim() || "";
   let isNew = false;
-  if (!c && !starterRoom()) return proOnly(`L'offre Starter va jusqu'à ${STARTER_MAX} clients. Les clients illimités`);
+  if (!c && !starterRoom()) return capHitMsg();
   if (!c) { c = { id: uid(), name, phone, example: false, createdAt: today(), status: "direct", statusLog: [{ s: "direct", date: today() }] }; S.clients.push(c); isNew = true; }
   else if (phone) c.phone = phone;
   if (isNew && refName) {
@@ -3881,7 +3893,7 @@ function viewCoach() {
     <form id="chatForm" class="chatin"><label class="chatpic" title="Envoyer une capture">📷<input type="file" id="chatFile" accept="image/*" class="hidden"></label>
       <textarea id="chatQ" rows="1" placeholder="Question ou capture 📷"></textarea>
       <button class="chatgo" type="submit" aria-label="Envoyer" ${chatBusy ? "disabled" : ""}>➤</button></form>
-    ${COACH_OK && !isPaidS() ? `<p class="chatleft">${coachLeft() > 0 ? `🎁 Encore <b>${coachLeft()} échange${coachLeft() > 1 ? "s" : ""} gratuit${coachLeft() > 1 ? "s" : ""}</b> avec le coach ce mois-ci · illimité avec l'abonnement` : `Vos 3 échanges gratuits du mois sont utilisés · <a href="#" data-act="accUpgrade">illimité avec l'abonnement</a>`}</p>` : ""}
+    ${COACH_OK && !isPaidS() && !DEMO ? `<p class="chatleft">🔒 Le coach IA est inclus dans l'essai gratuit de 7 jours · <a href="#" data-act="accUpgrade">l'activer</a></p>` : ""}
     <p class="chatpriv">🔒 La capture sert uniquement à préparer la réponse, puis elle est oubliée : rien n'est enregistré. Évitez les informations sensibles (santé, adresse…).</p>
     ${COACH_OK || DEMO ? "" : `<div class="miss">⏳ Le coach IA sera bientôt activé. En attendant, tout le reste du coach ci-dessous fonctionne déjà.</div>`}
   </div>`;
@@ -3904,13 +3916,13 @@ function shrinkImage(file, max = 1400) {
 }
 /* identifiant aléatoire du téléphone : sert seulement à compter les 3 échanges gratuits du mois */
 function deviceId() { try { let d = localStorage.getItem("recharge.device"); if (!d) { d = (crypto.randomUUID ? crypto.randomUUID() : uid() + uid()); localStorage.setItem("recharge.device", d); } return d; } catch { return "nostore-" + uid(); } }
-const coachLeft = () => S.coachQuota && S.coachQuota.m === today().slice(0, 7) ? S.coachQuota.left : 3;
+const coachLeft = () => 0;   // version gratuite : le coach IA est inclus dès l'essai (les comptes payants ne sont pas comptés ici)
 async function sendChat() {
   const ta = document.getElementById("chatQ"), q = ta ? ta.value.trim() : "", img = chatImg;
   if (!q && !img) return toast("Écrivez une question ou ajoutez une capture 📷");
   if (chatBusy) return;
   if (!COACH_OK) return toast("Le coach IA sera bientôt activé.");
-  if (!isPaidS() && coachLeft() <= 0) return toast("Vos 3 échanges gratuits du mois sont utilisés. Avec l'abonnement, le coach est illimité.");
+  if (!isPaidS() && !DEMO) { toast("Le coach IA est inclus dans l'essai gratuit de 7 jours."); return setTimeout(() => openUpgrade(), 500); }
   const history = chat.filter(m => !m.pending && !m.err).map(m => ({ role: m.role, text: m.role === "user" ? (m.text || "(capture d'écran)") : [m.res.analyse, m.res.message, m.res.conseil].filter(Boolean).join("\n") }));
   chat.push({ role: "user", text: q, img }); const bot = { role: "assistant", pending: true }; chat.push(bot);
   chatImg = null; chatBusy = true; render(); scrollChat();
@@ -4493,7 +4505,7 @@ function saveSaisie() {
   if (r.kind !== "sale") return runVoice(text);
   const segs = r.segs.filter(sg => sg.name && sg.items.length); if (!segs.length) return toast("Dites le nom du client et le produit.");
   const newNames = new Set(segs.filter(sg => !(sg.c && client(sg.c.id)) && !S.clients.some(x => norm(x.name) === norm(sg.name))).map(sg => norm(sg.name)));
-  if (!starterRoom(newNames.size)) return proOnly(`L'offre Starter va jusqu'à ${STARTER_MAX} clients. Les clients illimités`);
+  if (!starterRoom(newNames.size)) return capHitMsg();
   const snap = snapshot(); let nVentes = 0, nNew = 0; const created = [];
   if (!DEMO && S.clients.every(x => x.example)) clearExampleData();
   for (const sg of segs) {
@@ -4833,7 +4845,7 @@ function applyImport() {
   toast(`${plural(added, "commande importée", "commandes importées")}${newC ? ` · ${plural(newC, "nouveau contact", "nouveaux contacts")}` : ""}${skipped ? ` · ${skipped} déjà connue${skipped > 1 ? "s" : ""}` : ""}`, snap);
   if (fromOb) setTimeout(() => openObProspects(newC || added), 1200);
   if (created.length) setTimeout(() => openDurations(created), 450);
-  else if (capHit) setTimeout(() => proOnly(`L'offre Starter va jusqu'à ${STARTER_MAX} clients. Les clients illimités`), 900);
+  else if (capHit) setTimeout(capHitMsg, 900);
 }
 document.addEventListener("change", async ev => {
   const t = ev.target;
@@ -4941,7 +4953,9 @@ const actions = {
   closeBg: (el, ev) => { if (ev.target === el) { closeSheet(); pwAfter(); } },
   pwGo: () => { rcTrack("valeur_cta"); pwFlow = false; closeSheet(); setTimeout(startOnboarding, 250); },
   pwLater: () => { rcTrack(sheetEl.querySelector(".offsheet") ? "paywall_plus_tard" : "valeur_plus_tard"); const end = !!sheetEl.querySelector(".offsheet") && pwFlow; closeSheet();
-    if (end) { pwFlow = false; tab = "today"; render(); window.scrollTo(0, 0); toast("Version gratuite : vous pouvez activer l'essai à tout moment dans Menu"); return; }
+    if (end) { pwFlow = false; tab = "today"; render(); window.scrollTo(0, 0);
+      if (!session && API_OK) { setTimeout(() => openAccountForm("gratuit"), 300); return; }   // version gratuite = compte gratuit, pour sauvegarder ses clients
+      toast("Version gratuite : vous pouvez activer l'essai à tout moment dans Menu"); return; }
     pwFlow = false; if (!S.profile) setTimeout(startOnboarding, 250); },
   fiche: el => openFiche(el.dataset.id),
   pick: el => { form.pid = el.dataset.id; drawChips(); updateEnd(); },
@@ -5159,6 +5173,7 @@ const actions = {
   pfilter: el => { pfilter = el.dataset.f; render(); },
   cfilter: el => { cfilter = el.dataset.f; render(); },
   accUpgrade: () => openUpgrade(),
+  accFree: () => openAccountForm("gratuit"),
   upPeriod: el => { readUpTeam(); upPeriod = el.dataset.p; openUpgrade(); },
   upTier: el => { readUpTeam(); upTier = el.dataset.t; openUpgrade(); },
   upTeamMode: el => { readUpTeam(); upTeam.mode = el.dataset.m; openUpgrade(); },
@@ -5198,7 +5213,7 @@ const actions = {
   accLogin: () => openAccountForm("login"),
   homeDone: () => { closeSheet(); if (!S.profile && !session) setTimeout(startOnboarding, 250); },
   accResend: () => sendLink(),
-  accSyncNow: async () => { if (!session.canSync) return toast("La sauvegarde est incluse dans la version complète."); sync.dirty = true; await pushNow(); render(); toast(sync.dirty ? "Pas de connexion internet : on réessaiera tout seul." : "Sauvegardé ✅"); },
+  accSyncNow: async () => { if (!syncAllowed()) return toast(`Le compte gratuit sauvegarde jusqu'à ${FREE_MAX} clients. Activez l'essai pour tout sauvegarder.`); sync.dirty = true; await pushNow(); render(); toast(sync.dirty ? "Pas de connexion internet : on réessaiera tout seul." : "Sauvegardé ✅"); },
   accLogout: async () => {
     if (!confirm("Se déconnecter ? Vos données restent sur ce téléphone et sur votre compte.")) return;
     if (sync.dirty) await pushNow();
@@ -5688,7 +5703,7 @@ if (paidParam) {
     if (r.analyse && !S.analyse) { S.analyse = r.analyse; save(); }
     const srv = r.backup ? r.backup.rev : 0;
     if (srv > sync.rev) { if (sync.dirty) return askConflict(r.backup); await pullNow(); render(); toast("Données mises à jour depuis votre autre appareil ☁️"); }
-    else if (sync.dirty || (session.canSync && !sync.rev && hasRealData(S))) pushNow();   // y compris un compte qui vient de passer en version complète (offert, abonnement)
+    else if (sync.dirty || (syncAllowed() && !sync.rev && hasRealData(S))) pushNow();   // y compris un compte qui vient de passer en version complète (offert, abonnement)
   }).catch(() => {});
 }
 addEventListener("online", () => { if (sync.dirty) pushNow(); });

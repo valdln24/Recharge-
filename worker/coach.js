@@ -70,7 +70,8 @@ export async function coach(request, env, plan = "free") {
   if (!env.ANTHROPIC_API_KEY) throw new CoachError(503, "Le coach IA n'est pas encore activé.");
   const ip = request.headers.get("CF-Connecting-IP") || "?";
   limit(ip);
-  // Version gratuite : 3 échanges par mois. Abonnement : illimité.
+  // Version gratuite : pas d'IA (le coach est inclus dès l'essai). Starter : 3 échanges par mois. Pro et Équipe : illimité.
+  if (!plan || plan === "free") throw new CoachError(402, "Le coach IA est inclus dans l'essai gratuit de 7 jours et l'offre Pro.");
   const paid = plan && !["free", "starter"].includes(plan), month = new Date().toISOString().slice(0, 7);
   const device = (request.headers.get("X-Recharge-Device") || "").replace(/[^A-Za-z0-9-]/g, "").slice(0, 64);
   let used = 0;

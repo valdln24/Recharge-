@@ -15,7 +15,7 @@ Recharge n'est liée à aucune marque de vente directe. Elle ne demande jamais l
 
 ## Offres (prix au 25 novembre 2026)
 
-- Gratuit : jusqu'à 10 clients, 3 échanges par mois avec le coach, sans compte, données dans le téléphone.
+- Gratuit : jusqu'à 10 clients, sans coach IA ni import photo. Sans compte (données dans le téléphone) ou avec un compte gratuit qui sauvegarde ces 10 clients.
 - Starter : 9,90 € par mois ou 99 € par an. Jusqu'à 50 clients, 3 imports photo par mois.
 - Pro : 14,90 € par mois ou 149 € par an (2 mois offerts à l'année). Clients illimités, imports illimités, coach IA, prospection, promos, recommandations.
 - Équipe : 9,90 € par mois ou 99 € par an et par personne, à partir de 5 personnes. Tout Pro pour chaque membre.

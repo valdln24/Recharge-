@@ -262,7 +262,9 @@ async function openSession(env, user, isNew) {
 async function leadAnalyse(env, email) {
   try { const l = await env.DB.prepare("SELECT analyse FROM leads WHERE email = ?").bind(email).first(); return l && l.analyse ? JSON.parse(l.analyse) : null; } catch { return null; }
 }
-const publicUser = (u, env) => ({ email: u.email, plan: u.plan, paid: isPaid(u), billing: !!u.stripe_customer, founder: !!u.founder, team: !!u.team_id, createdAt: u.created_at ?? u.createdAt, canSync: env.REQUIRE_PAID !== "true" || isPaid(u) });
+const publicUser = (u, env) => ({ email: u.email, plan: u.plan, paid: isPaid(u), billing: !!u.stripe_customer, founder: !!u.founder, team: !!u.team_id, createdAt: u.created_at ?? u.createdAt, canSync: true, freeMax: env.REQUIRE_PAID === "true" && !isPaid(u) ? FREE_MAX : 0 });
+/* Compte gratuit : sauvegarde jusqu'à 10 clients (au-delà, l'offre). Pas d'IA en gratuit (worker/coach.js, worker/importer.js). */
+const FREE_MAX = 10;
 
 async function logout(request, env) {
   const u = await auth(request, env);
@@ -362,10 +364,11 @@ async function getData(request, env) {
 
 async function putData(request, env) {
   const u = await auth(request, env);
-  if (env.REQUIRE_PAID === "true" && !isPaid(u)) throw new HttpError(402, "La sauvegarde est incluse dans la version complète.");
   const body = await readJson(request, MAX_BACKUP + 2048);
   const data = body.data;
   if (!data || typeof data !== "object" || !Array.isArray(data.clients) || !Array.isArray(data.sales)) throw new HttpError(400, "Sauvegarde invalide.");
+  if (env.REQUIRE_PAID === "true" && !isPaid(u) && data.clients.filter(c => c && !c.example).length > FREE_MAX)
+    throw new HttpError(402, `Le compte gratuit sauvegarde jusqu'à ${FREE_MAX} clients. Activez votre essai pour tout sauvegarder.`);
   const baseRev = Number.isInteger(body.baseRev) ? body.baseRev : -1;
   const cur = await env.DB.prepare("SELECT rev FROM backups WHERE user_id = ?").bind(u.id).first();
   // Un autre téléphone a sauvegardé entre-temps : on ne l'écrase pas sans le demander

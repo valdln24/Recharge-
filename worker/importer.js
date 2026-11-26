@@ -78,7 +78,8 @@ export async function importDocs(request, env, plan = "free") {
   if (!env.ANTHROPIC_API_KEY) throw new ImportError(503, "La lecture intelligente n'est pas encore activée.");
   const ip = request.headers.get("CF-Connecting-IP") || "?";
   limit(ip);
-  // Essai : 5 imports par mois · Starter : 3 par mois · Pro et Équipe : illimité
+  // Version gratuite : pas d'IA (import photo inclus dès l'essai) · Starter : 3 par mois · Pro et Équipe : illimité
+  if (!plan || plan === "free") throw new ImportError(402, "L'import photo est inclus dans l'essai gratuit de 7 jours et les offres payantes.");
   const paid = plan && !["free", "starter"].includes(plan), cap = plan === "starter" ? 3 : FREE_PER_MONTH, month = new Date().toISOString().slice(0, 7);
   const device = (request.headers.get("X-Recharge-Device") || "").replace(/[^A-Za-z0-9-]/g, "").slice(0, 64);
   let used = 0;
