@@ -240,6 +240,7 @@ main{max-width:560px;margin:0 auto;padding:6px 16px 24px}
 .cdemo-mk span{width:30px;height:30px;border-radius:50%;background:var(--grad);color:#fff;display:grid;place-items:center;animation:cdPulse 9s ease-in-out infinite}.cdemo-mk svg{width:18px;height:18px}
 .cdemo-r{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:10px 12px;animation:cdOut 9s ease-in-out infinite}
 .cdemo-r small{display:block;font-size:.66rem;font-weight:800;color:var(--o-text);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+.cdemo-x{margin:12px 2px 0;font-size:.86rem;color:var(--ink-2);line-height:1.4}.cdemo-x b{color:var(--o-text)}
 .cdemo-r p{margin:0;font-size:.86rem;line-height:1.4;clip-path:inset(0 0 0 0);animation:cdType 9s steps(28,end) infinite}
 @keyframes cdIn{0%{opacity:0;transform:translateY(10px)}8%,90%{opacity:1;transform:none}100%{opacity:0}}
 @keyframes cdIn2{0%,6%{opacity:0;transform:translateY(10px)}14%,90%{opacity:1;transform:none}100%{opacity:0}}
@@ -3910,17 +3911,18 @@ function memAdd(t, src) {
 function coachDemo() {
   return `<div class="cdemo" aria-hidden="true">
     <p class="cdemo-k">L'IA commerciale de la vente directe</p>
-    <p class="cdemo-t">Vous ne savez pas quoi répondre ? Envoyez son profil et la conversation : le coach vous propose la meilleure réponse.</p>
+    <p class="cdemo-t">Quoi répondre ? Comment l'aborder ? Envoyez son profil, la conversation et quelques infos : le coach vous propose la meilleure réponse.</p>
     <div class="cdemo-st">
       <div class="cdemo-sh"><small>Son profil</small><div class="cdemo-av"></div><div class="cdemo-ln w8"></div><div class="cdemo-ln w6"></div><div class="cdemo-ln o w6"></div></div>
       <div class="cdemo-sh"><small>La conversation</small><div class="cdemo-b">Elle est top ta crème mais c'est un peu cher pour moi…</div><div class="cdemo-b me">Je comprends !</div></div>
     </div>
     <div class="cdemo-mk"><span>${MARK}</span>Le coach lit les deux</div>
     <div class="cdemo-r"><small>Réponse proposée</small><p>Je te comprends ! Comme tu cours beaucoup, le petit format serait parfait pour tester. Je te le mets de côté ?</p></div>
+    <p class="cdemo-x">Et posez-lui n'importe quelle question : il pioche dans <b>plus de 500 idées</b> pour développer votre activité.</p>
   </div>`;
 }
 const MARK = `<svg viewBox="40 40 120 120" aria-hidden="true"><path d="M122.4 66.9A44 44 0 1 1 81.4 65.1" fill="none" stroke="currentColor" stroke-width="17"/><path d="M66.5 47.5L101 52.5L80.5 80Z" fill="currentColor"/><path d="M109 76L84 111H99L91 136L118 99H103Z" fill="currentColor"/></svg>`;
-const CHAT_IDEAS = ["Elle me dit que c'est trop cher, je réponds quoi ?", "Comment relancer un prospect qui ne répond plus ?", "Comment demander une recommandation sans être lourde ?", "Elle ne répond plus depuis une semaine"];
+const CHAT_IDEAS = ["Comment l'aborder ? (envoyez son profil 📷)", "Donne-moi 3 idées pour trouver des clients cette semaine", "Elle me dit que c'est trop cher, je réponds quoi ?", "Comment relancer un prospect qui ne répond plus ?", "Comment demander une recommandation sans être lourde ?", "Elle ne répond plus depuis une semaine"];
 function chatRes(r, i) {
   return `${r.analyse ? `<p class="cr-a">${esc(r.analyse)}</p>` : ""}
     ${r.message ? `<div class="bubble"><div class="top"><span class="small">Réponse proposée · modifiable</span><span class="tbtns"><button class="vary" data-act="chatCopy" data-i="${i}">${I.copy} Copier</button></span></div>
@@ -3936,12 +3938,12 @@ function demoChat() {
 function viewCoach() {
   const full = todayList(), w = worth(today().slice(0, 8) + "01");
   const msgs = chat.length ? chat : DEMO ? demoChat() : [];
-  let h = `<section class="coachhero"><span class="ch-mark">${MARK}</span><div><h1>Mon coach</h1><p>Vous ne savez pas quoi répondre ? Envoyez la photo de son profil et de la conversation : votre coach vous propose la meilleure réponse.</p></div></section>`;
+  let h = `<section class="coachhero"><span class="ch-mark">${MARK}</span><div><h1>Mon coach</h1><p>Vous ne savez pas quoi répondre ou comment aborder quelqu'un ? Envoyez son profil et dites-en un peu plus : plus vous en dites, plus la réponse est personnalisée.</p></div></section>`;
   h += `<div class="card chatbox">
     <div class="chatlog" id="chatlog">${msgs.length ? msgs.map((m, i) => m.role === "user"
       ? `<div class="cm me">${(m.imgs || (m.img ? [m.img] : [])).map(x => `<img src="${x}" alt="Capture envoyée">`).join("")}${m.text ? `<p>${esc(m.text)}</p>` : ""}${m.ex ? `<span class="tag">Exemple</span>` : ""}</div>`
       : `<div class="cm bot"><span class="cm-av">${MARK}</span><div class="cm-b">${m.pending ? `<p class="typing"><i></i><i></i><i></i></p>` : m.err ? `<p>${esc(m.err)}</p>${m.limit ? `<a class="btn sm orange" style="margin-top:10px" href="#" data-act="accUpgrade">Voir l'abonnement</a>` : ""}` : chatRes(m.res, i) + (m.mem && m.mem.length ? `<div class="memnote">Gardé dans la mémoire du coach : ${m.mem.map(x => "« " + esc(x) + " »").join(" · ")}</div>` : "")}${m.ex ? `<span class="tag">Exemple</span>` : ""}</div></div>`).join("")
-      : coachDemo() + `<p class="chat0">👋 Bonjour${myName() ? " " + esc(myName()) : ""} ! Touchez 📷 pour envoyer jusqu'à ${MAX_SHOTS} captures (son profil, la conversation), ou posez votre question.</p>`}</div>
+      : coachDemo() + `<p class="chat0">👋 Bonjour${myName() ? " " + esc(myName()) : ""} ! Touchez 📷 pour envoyer jusqu'à ${MAX_SHOTS} captures (son profil, la conversation) et ajoutez ce que vous savez d'elle. Ou posez n'importe quelle question sur votre activité.</p>`}</div>
     ${!msgs.length || DEMO ? `<div class="ideas">${CHAT_IDEAS.map(q => `<button data-act="chatIdea">${esc(q)}</button>`).join("")}</div>` : ""}
     ${chatImgs.length ? `<div class="chatimgs">${chatImgs.map((x, k) => `<div class="chatimg"><img src="${x}" alt="Capture à envoyer"><button data-act="chatImgX" data-k="${k}" aria-label="Retirer la capture">${I.x}</button></div>`).join("")}</div>` : ""}
     <form id="chatForm" class="chatin"><label class="chatpic" title="Envoyer des captures : son profil, la conversation">📷<input type="file" id="chatFile" accept="image/*" multiple class="hidden"></label>
@@ -5327,7 +5329,9 @@ const actions = {
     closeSheet(); tab = "coach"; render(); window.scrollTo(0, 0);
     const ta = document.getElementById("chatQ"); ta.value = `Améliore ce message (${lab.toLowerCase()}), en gardant un ton naturel et sans pression : « ${t} »`; ta.focus();
   },
-  chatIdea: el => { if (tab !== "coach") { tab = "coach"; render(); window.scrollTo(0, 0); } const ta = document.getElementById("chatQ"); ta.value = el.dataset.q || el.textContent; ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); },
+  chatIdea: el => { if (tab !== "coach") { tab = "coach"; render(); window.scrollTo(0, 0); } const ta = document.getElementById("chatQ"), aborder = /^Comment l'aborder/.test(el.textContent);
+    if (aborder) { const f = document.getElementById("chatFile"); if (f && !chatImgs.length) f.click(); }   // « Comment l'aborder ? » : on ouvre directement les photos pour son profil
+    ta.value = el.dataset.q || (aborder ? "Comment l'aborder ? Voici son profil. Ce que je sais d'elle : " : el.textContent); ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); },
   chatImgX: el => { chatImgs.splice(+el.dataset.k || 0, 1); render(); },
   memDel: el => { S.coachMem = memList().filter(x => x.id !== el.dataset.id); save(); render(); },
   memAddBtn: () => { const i = document.getElementById("memIn"); if (!i || !i.value.trim()) return toast("Écrivez d'abord ce que le coach doit retenir."); if (!memAdd(i.value, "moi")) return toast("Cette note est déjà dans la mémoire."); render(); toast("Votre coach s'en souviendra ✅"); },

@@ -26,7 +26,7 @@ Recharge n'est liée à aucune marque de vente directe. Elle ne demande jamais l
 
 - [Accueil](https://getrecharge.fr/): présentation de Recharge.
 - [Analyse gratuite](https://getrecharge.fr/analyse/): 4 questions pour estimer ce que des relances au bon moment peuvent changer.
-- [Coach](https://getrecharge.fr/coach/): le coach IA de la vente directe.
+- [Coach](https://getrecharge.fr/coach/): le coach IA de la vente directe. Il propose quoi répondre ou comment aborder quelqu'un à partir de captures (profil, conversation), garde une mémoire que la vendeuse contrôle, et pioche dans plus de 500 idées pour développer une activité.
 - [Clients](https://getrecharge.fr/clients/): suivi des clients et relances.
 - [Prospects](https://getrecharge.fr/prospects/): suivi des prospects.
 - [Recommandations](https://getrecharge.fr/recommandations/): contacts recommandés par les clients.

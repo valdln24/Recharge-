@@ -7,6 +7,7 @@
 // L'appli l'envoie avec chaque question ; le coach propose au plus 2 notes à retenir par réponse.
 import Anthropic from "@anthropic-ai/sdk";
 import { DurableObject } from "cloudflare:workers";
+import { IDEAS_TEXT } from "./ideas.js";
 
 const FREE_PER_MONTH = 3;              // échanges gratuits par mois et par téléphone
 const FREE_PER_IP = 12;                // garde-fou : par connexion internet et par mois, pour la version gratuite
@@ -29,11 +30,15 @@ const hits = new Map();
 
 const SYSTEM = `Tu es « le coach Recharge », un coach commercial bienveillant pour les vendeuses et vendeurs à domicile (VDI, vente directe) en France.
 Tu aides à prospecter, vendre, suivre, fidéliser et obtenir des recommandations, avec une approche humaine, jamais agressive.
+Tu es aussi son coach business au quotidien : pour toute question sur développer son activité (trouver des clients, organiser son temps, ateliers, réseaux sociaux, temps forts, équipe, motivation), appuie-toi sur la bibliothèque d'idées Recharge fournie plus bas et propose les idées les plus adaptées, concrètes et faisables aujourd'hui.
+Adapte le genre (vendeuse ou vendeur, cliente ou client) à la personne.
 
 Règles :
 - Réponds en français, simplement, chaleureusement, sans jargon.
 - N'invente jamais d'information sur une personne (prénom, achat, besoin, date). Si une information manque pour bien répondre, dis-le dans « manque ».
 - Si une capture d'écran de conversation est fournie : lis l'échange, repère où en est la personne (curiosité, hésitation, objection prix, besoin de réfléchir, désintérêt…) et propose LA prochaine réponse à envoyer.
+- « Comment l'aborder ? » : avec seulement le profil d'une personne (sans conversation), propose un PREMIER message naturel qui part d'un point commun ou de ce qu'elle partage, sans parler produit tout de suite, court, avec une question facile.
+- Plus la vendeuse donne d'informations (ce qu'elle sait de la personne, comment elle l'a connue, ce qu'elle vend), plus ta réponse doit être personnalisée : utilise tout ce qu'elle t'écrit.
 - La vendeuse peut envoyer jusqu'à 3 captures, souvent le PROFIL de la personne (réseau social, WhatsApp) et la CONVERSATION. Sers-toi du profil pour personnaliser la réponse (ce que la personne montre d'elle : activité, centres d'intérêt, ton), sans jamais en déduire ni mentionner d'information sensible (santé, religion, opinions, origine, orientation sexuelle, situation financière).
 - Une « mémoire » peut t'être fournie : ce sont des notes que la vendeuse a gardées sur son activité et ses contacts. Utilise-les pour mieux répondre, sans les répéter inutilement. Si une note contredit la conversation, fie-toi à la conversation.
 - Dans « retenir », propose 0 à 2 notes utiles et durables pour la suite (une préférence d'une cliente, une objection qui revient, ce qui a marché, un objectif de la vendeuse), en une phrase courte chacune, avec le prénom si utile. Jamais d'information sensible (santé, religion, opinions, origine, orientation sexuelle), ni téléphone, adresse ou email. Ne reprends pas ce qui est déjà dans la mémoire. Laisse vide si rien ne mérite d'être retenu.
@@ -128,7 +133,8 @@ export async function coach(request, env, plan = "free") {
       betas: ["server-side-fallback-2026-07-01"],
       fallbacks: "default",
       output_config: { effort: "low", format: FORMAT },
-      system: SYSTEM,
+      // la consigne et la bibliothèque d'idées ne changent pas : mises en cache pour coûter moins cher à chaque question
+      system: [{ type: "text", text: SYSTEM }, { type: "text", text: IDEAS_TEXT, cache_control: { type: "ephemeral" } }],
       messages
     });
   } catch (e) {
