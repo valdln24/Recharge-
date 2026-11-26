@@ -61,7 +61,10 @@ put("whoosh2", 48.84, .45); put("riser", 49.3, .3); put("chime", 51.2, .4)
 # 15 · mur + promesse
 put("whoosh", 52.25, .5); put("hit", 52.5, .25); put("glass", 53.0, .3); put("glass", 53.75, .35)
 # 16 · logo final
-put("riser", 54.0, .4); put("hit", 56.0, .85); put("glass", 56.25, .4); put("whoosh2", 57.3, .3); put("chime", 58.1, .35)
+put("riser", 54.0, .4); put("hit", 56.0, .85); put("glass", 56.25, .4)
+put("whoosh2", 56.75, .4)
+for j in range(6): put("tap", 57.25 + j * .3, .45 + j * .04, ((j % 2) - .5) * .4); put("whoosh2", 57.2 + j * .3, .12)
+put("hit", 58.75, .35); put("chime", 58.8, .45); put("glass", 59.05, .3)
 # mix : musique en retrait sous les bruitages, petit creux avant le logo
 g = np.ones(N); a, b = int(55.55 * SR), int(56.0 * SR); g[a:b] = np.linspace(1, .25, b - a); c = int(56.0 * SR); g[c:] = .55
 mix = mus * g[:, None] * .55 + fx * .7

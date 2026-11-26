@@ -390,9 +390,9 @@ const s6 = Scene(16.5, 20.4, "#F4EFE8",
 /* ===== 4bis · 9–16,5 s : « Qu'est-ce que je peux faire aujourd'hui ? » → plan chaud / tiède / froid ===== */
 const QT = "Qu'est-ce que je peux faire aujourd'hui ?";
 const TEMP = [
-  ["Réseau chaud", "#DB6578", ["Relancer Marie Dupont : sa crème finit dans 2 j", "Proposer la nouveauté à Sophie Martin"]],
-  ["Réseau tiède", "#F59A4A", ["Prendre des nouvelles de Julie Bernard", "Inviter Léa Moreau à essayer un produit"]],
-  ["Réseau froid", "#7C7CF2", ["Recontacter 3 anciens clients", "Partager un conseil en story"]]
+  ["Marché chaud", "#DB6578", ["Relancer Marie Dupont : sa crème finit dans 2 j", "Demander une recommandation à Julie"]],
+  ["Marché tiède", "#F59A4A", ["Ma liste de noms : écrire à 3 personnes", "Comptes à suivre : 5 profils de ma ville"]],
+  ["Marché froid", "#7C7CF2", ["Hashtags de ma ville : 3 posts à commenter", "Lieux pour un événement : choisir une date"]]
 ];
 const sQ = Scene(9.0, 16.5, "#F4EFE8",
   `<div class="ab" style="left:120px;top:-120px;width:720px;height:520px;border-radius:50%;background:radial-gradient(closest-side,rgba(232,233,253,.95),rgba(232,233,253,0))"></div>
@@ -404,7 +404,7 @@ const sQ = Scene(9.0, 16.5, "#F4EFE8",
       html: `<div class="ph" style="position:absolute;left:22px;top:22px;font-size:15px;font-weight:500;color:#8A8390;letter-spacing:-.02em;white-space:nowrap">Demandez au coach…</div>
              <div class="tx" style="position:absolute;left:22px;top:22px;font-size:15px;font-weight:600;color:#1C1A22;letter-spacing:-.02em;white-space:nowrap"></div>
              <div class="go" style="position:absolute;right:13px;top:13px;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center"><i style="width:18px;height:18px;display:block"></i></div>` });
-    sc.head = h(`<div class="ab" style="width:960px;text-align:center;font-size:12px;font-weight:800;color:#57515C;letter-spacing:.02em;display:flex;align-items:center;justify-content:center;gap:7px"><i style="width:16px;height:16px;display:block">${MARK()}</i>COACH RECHARGE · AUJOURD'HUI, 30 MIN SUFFISENT</div>`); sc.fr.appendChild(sc.head);
+    sc.head = h(`<div class="ab" style="width:960px;text-align:center;font-size:12px;font-weight:800;color:#57515C;letter-spacing:.02em;display:flex;align-items:center;justify-content:center;gap:7px"><i style="width:16px;height:16px;display:block">${MARK()}</i>COACH RECHARGE · <span class="gt">PLUS DE 250 IDÉES</span> SUR VOS MARCHÉS CHAUD, TIÈDE ET FROID</div>`); sc.fr.appendChild(sc.head);
     sc.cols = TEMP.map(([n, c, items]) => Glass(sc, { w: 262, h: 230, r: 22, tint: "linear-gradient(180deg,rgba(255,255,255,.85),rgba(255,255,255,.7))", scale: 28, sh: 22, so: .25,
       html: `<div style="position:absolute;left:0;right:0;top:0;height:5px;background:${c};opacity:.9"></div>
         <div style="position:absolute;left:18px;top:20px;display:flex;align-items:center;gap:8px"><i style="width:30px;height:30px;display:block;border-radius:10px;background:${c}1f;padding:6px">${ico("thermo", c, 2.2)}</i><b style="font-size:16px;font-weight:800;letter-spacing:-.03em;color:${c}">${n}</b></div>
@@ -683,24 +683,40 @@ const s15 = Scene(52.5, 56.0, "#F1ECE4",
     [...r.querySelectorAll(".wc")].forEach((c, i) => { const d = rnd(i) * .6; const x = eo5(k(t, d, d + .6)); c.style.opacity = x; c.style.transform = `translateY(${(1 - x) * 30}px) scale(${L(.9, 1, x)})`; });
   } });
 
-/* ===== 16 · 56–60 s : losange + logo ===== */
+/* ===== 16 · 56–60 s : losange + « Recharge » et les mots qui défilent ===== */
+const MOTS = ["tes clients", "tes opportunités", "ta fidélité", "tes recommandations", "tes résultats", "ton activité."];
 const s16 = Scene(56.0, 60.01, "#F4EFE8",
   `<div class="ab" style="left:180px;top:20px;width:600px;height:500px;border-radius:50%;background:radial-gradient(closest-side,rgba(232,233,253,.95),rgba(232,233,253,0))"></div>
-   <div class="ab H tag" style="left:0;top:388px;width:960px;text-align:center;font-size:20px;font-weight:600;color:#57515C;letter-spacing:-.02em">Le coach du VDI <span style="opacity:.5">·</span> <span class="gt" style="font-weight:800">getrecharge.fr</span></div>`,
+   <div class="ab H tag" style="left:0;top:398px;width:960px;text-align:center;font-size:20px;font-weight:600;color:#57515C;letter-spacing:-.02em">Le coach du VDI <span style="opacity:.5">·</span> <span class="gt" style="font-weight:800">getrecharge.fr</span></div>`,
   sc => {
     sc.dia = Glass(sc, { w: 190, h: 190, r: 48, tint: "linear-gradient(135deg,rgba(245,154,74,.92),rgba(219,101,120,.9) 50%,rgba(124,124,242,.92))", scale: 40, band: 34, sh: 34, so: .35, spec: .8 });
     sc.mk = h(`<div class="ab" style="width:120px;height:120px">${MARK("#fff", "#fff", "#fff")}</div>`); sc.fr.appendChild(sc.mk);
-    sc.word = h(`<div class="ab" style="width:330px;height:68px"></div>`); sc.fr.appendChild(sc.word);
+    sc.big = h(`<div class="ab H" style="width:960px;text-align:center;font-size:74px;font-weight:800;letter-spacing:-.055em">Recharge</div>`); sc.fr.appendChild(sc.big);
+    sc.win = h(`<div class="ab" style="width:960px;height:96px;overflow:hidden"></div>`); sc.fr.appendChild(sc.win);
+    sc.mots = MOTS.map(m => { const e = h(`<div class="ab H" style="width:960px;top:8px;text-align:center;font-size:62px;font-weight:600;letter-spacing:-.05em;white-space:nowrap"><span class="gt">${m}</span></div>`); sc.win.appendChild(e); return e; });
   },
   (sc, t) => {
-    camSet(sc, punch(t, .3) * (1 + t * .012));
-    const p = spr(k(t, 0, .9)), mv = eio(k(t, 1.3, 2.0));
-    const dx = L(480, 300, mv), ds = L(1, .62, mv) * p;
-    sc.dia.set(dx, 260, ds, 45 + L(-180, 0, eo5(k(t, 0, 1.1))), 1);
-    tf(sc.mk, dx - 60, 260 - 60, ds * .85 * spr(k(t, .25, .9)), L(-90, 0, eo5(k(t, .25, 1.1))), 1);
-    const w = eo5(k(t, 1.55, 2.3)); tf(sc.word, 375 + (1 - w) * 30, 226, 1, 0, w); sc.word.style.filter = `blur(${(1 - w) * 8}px)`;
+    camSet(sc, punch(t, .3) * (1 + t * .015));
+    // 1) le losange arrive, 2) il file à gauche, « Recharge » apparaît, 3) les mots défilent très vite
+    const p = spr(k(t, 0, .8)), mv = eio(k(t, .85, 1.25));
+    const dx = 480, dy = L(260, 104, mv), ds = L(1, .4, mv) * p;
+    sc.dia.set(dx, dy, ds, 45 + L(-180, 0, eo5(k(t, 0, 1.0))), 1);
+    tf(sc.mk, dx - 60, dy - 60, ds * .85 * spr(k(t, .2, .8)), L(-90, 0, eo5(k(t, .2, 1.0))), 1);
+    const bw = eo5(k(t, 1.0, 1.4)); tf(sc.big, 0, 172 + (1 - bw) * 20, 1, 0, bw); sc.big.style.filter = `blur(${(1 - bw) * 10}px)`;
+    tf(sc.win, 0, 258, 1, 0, 1);
+    const T0 = 1.25, D = .3;             // un mot toutes les 0,3 s
+    sc.mots.forEach((e, i) => {
+      const a = T0 + i * D, last = i === MOTS.length - 1;
+      const inn = eo5(k(t, a, a + .16)), out = last ? 0 : ei(k(t, a + D - .06, a + D + .08));
+      e.style.transform = `translateY(${(1 - inn) * 90 - out * 90}px)`; e.style.opacity = t < a ? 0 : 1 - out;
+      e.style.filter = `blur(${((1 - inn) + out) * 6}px)`;
+    });
+    // le dernier mot reste : léger rebond
+    const lst = sc.mots[MOTS.length - 1], la = T0 + (MOTS.length - 1) * D;
+    if (t > la + .16) lst.style.transform = `scale(${1 + .05 * Math.exp(-(t - la - .16) * 6) * Math.sin((t - la) * 18)})`;
+    lst.style.transformOrigin = "50% 50%";
   },
-  (sc, t) => { for (const r of sc.roots) { const e = r.querySelector(".tag"), x = eo5(k(t, 2.1, 2.7)); e.style.opacity = x; e.style.transform = `translateY(${(1 - x) * 12}px)`; } });
+  (sc, t) => { for (const r of sc.roots) { const e = r.querySelector(".tag"), x = eo5(k(t, 3.0, 3.5)); e.style.opacity = x; e.style.transform = `translateY(${(1 - x) * 12}px)`; } });
 
 /* ---------- rendu ---------- */
 /* Transitions « fouettées » entre les scènes : on accélère en sortie, on freine en entrée (rythme Glean) */
@@ -728,6 +744,6 @@ function render(t) {
 window.render = render; window.warp = t => t;
 fetch("../logo.svg").then(r => r.text()).then(s => {
   const w = s.replace(/<g class="rmark">[\s\S]*?<\/g>/, "").replace(/class="logo-svg" viewBox="10 40 620 125" style="[^"]*"/, 'viewBox="205 55 425 105" style="width:100%;height:100%"').replace(/fill="#111111"/g, 'fill="#1C1A22"');
-  s16.word.innerHTML = w;
+  /* le logo-mot n'est plus utilisé dans la fin */
 }).then(() => document.fonts.ready).then(() => new Promise(r => setTimeout(r, 400))).then(() => { render(0); window.__ready = true; });
 </script></body></html>
