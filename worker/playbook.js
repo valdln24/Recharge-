@@ -5,6 +5,7 @@
 // - GET /api/playbook/desinscription?t=… : retire le consentement marketing en un clic.
 // - GET/DELETE /api/admin/prospects : consultation, export CSV et suppression, réservés à la clé STATS_KEY.
 // Aucun secret ici : RESEND_API_KEY et STATS_KEY sont des secrets Cloudflare (Variables et secrets).
+import { sameKey } from "./util.js";
 
 const PDF_PATH = "/playbook/le-playbook-de-la-vente-directe.pdf";
 const PDF_NAME = "Le-Playbook-de-la-vente-directe-Recharge.pdf";
@@ -128,7 +129,7 @@ export async function playbookUnsubscribe(request, env, url) {
 /* ---------- Administration (clé STATS_KEY, même accès que le tableau de bord du parcours) ---------- */
 function adminKey(request, env) {
   const key = request.headers.get("X-Stats-Key") || "";
-  if (!env.STATS_KEY || key.length < 8 || key !== env.STATS_KEY) throw new PlaybookError(404, "Introuvable.");
+  if (!env.STATS_KEY || key.length < 8 || !sameKey(key, env.STATS_KEY)) throw new PlaybookError(404, "Introuvable.");
 }
 export async function adminProspects(request, env, url) {
   adminKey(request, env);

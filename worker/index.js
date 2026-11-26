@@ -9,6 +9,7 @@ import { TIERS, EXTRA_SEAT, FOUNDER_SLOTS, MAX_SEATS } from "./billing.js";
 import { importDocs, ImportError } from "./importer.js";
 import { playbookSignup, playbookDownload, playbookUnsubscribe, adminProspects, PlaybookError } from "./playbook.js";
 import { Store, storeDb } from "./store.js";
+import { sameKey } from "./util.js";
 import { checkout, confirm, portal, refreshPlan, cancelSub, BillingError } from "./billing.js";
 export { Quota, Store };
 
@@ -301,7 +302,7 @@ async function trackEvent(request, env) {
 /* Tableau de bord du parcours : réservé à la personne qui connaît STATS_KEY (secret Cloudflare). */
 async function stats(request, env) {
   const key = request.headers.get("X-Stats-Key") || "";
-  if (!env.STATS_KEY || key.length < 8 || key !== env.STATS_KEY) throw new HttpError(404, "Introuvable.");
+  if (!env.STATS_KEY || key.length < 8 || !sameKey(key, env.STATS_KEY)) throw new HttpError(404, "Introuvable.");
   const since = new Date(now() - 30 * 24 * 3600 * 1000).toISOString().slice(0, 10);
   const r = await env.DB.prepare("SELECT day, name, n FROM events_daily WHERE day >= ? ORDER BY day").bind(since).all();
   const leads = await env.DB.prepare("SELECT COUNT(*) AS n, SUM(news) AS news FROM leads").first();
@@ -363,6 +364,8 @@ async function deleteAccount(request, env) {
     env.DB.prepare("DELETE FROM backups WHERE user_id = ?").bind(u.id),
     env.DB.prepare("DELETE FROM sessions WHERE user_id = ?").bind(u.id),
     env.DB.prepare("DELETE FROM login_tokens WHERE email = ?").bind(u.email),
+    env.DB.prepare("DELETE FROM leads WHERE email = ?").bind(u.email),
+    env.DB.prepare("DELETE FROM prospects WHERE email = ?").bind(u.email),
     env.DB.prepare("DELETE FROM users WHERE id = ?").bind(u.id)
   ]);
   return json({ ok: true });
@@ -453,7 +456,9 @@ async function teamJoin(request, env) {
 }
 /* Quitter ou être retiré : la part de ce membre s'arrête aussi, pour qu'il ne paie plus rien */
 async function teamLeave(request, env) {
-  const u = await auth(request, env);
+  const u = await auth(request, env), body = await readJson(request);
+  // Action sensible (arrête un abonnement) : validation explicite de la personne exigée
+  if (body.confirm !== true) throw new HttpError(400, "Confirmez d'abord dans l'appli.");
   if (!u.team_id) return json({ ok: true });
   const t = await env.DB.prepare("SELECT owner_id FROM teams WHERE id = ?").bind(u.team_id).first();
   if (t && t.owner_id === u.id) throw new HttpError(400, "Vous gérez cette équipe : pour l'arrêter, résiliez votre abonnement.");
@@ -463,6 +468,7 @@ async function teamLeave(request, env) {
 }
 async function teamRemove(request, env) {
   const u = await auth(request, env), body = await readJson(request);
+  if (body.confirm !== true) throw new HttpError(400, "Confirmez d'abord dans l'appli.");   // arrête l'abonnement du membre
   const t = u.team_id ? await env.DB.prepare("SELECT id, owner_id FROM teams WHERE id = ?").bind(u.team_id).first() : null;
   if (!t || t.owner_id !== u.id) throw new HttpError(403, "Seule la tête de réseau peut retirer un membre.");
   const email = String(body.email || "").trim().toLowerCase();

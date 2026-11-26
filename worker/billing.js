@@ -83,6 +83,8 @@ export async function confirm(env, id) {
   if (!/^cs_(test|live)_[A-Za-z0-9]{10,200}$/.test(String(id || ""))) throw new BillingError(400, "Lien de paiement invalide.");
   const s = await stripe(env, "GET", `checkout/sessions/${id}`, { expand: { 0: "subscription" } });
   const sub = s.subscription;
+  // Un lien de retour de paiement ne sert que dans les 2 jours (en plus d'être à usage unique)
+  if (s.created && Date.now() - s.created * 1000 > 2 * 24 * 3600 * 1000) throw new BillingError(400, "Ce lien de paiement a expiré. Connectez-vous avec votre email.");
   if (s.mode !== "subscription" || s.status !== "complete" || !sub || !ACTIVE.includes(sub.status)) throw new BillingError(402, "Le paiement n'est pas terminé.");
   const email = String((s.customer_details && s.customer_details.email) || s.customer_email || "").trim().toLowerCase();
   if (!email) throw new BillingError(400, "Email introuvable sur ce paiement.");
