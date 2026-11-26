@@ -984,7 +984,7 @@ const I = {
 const DEMO = new URLSearchParams(location.search).has("demo");
 const KEY = DEMO ? "recharge.demo" : "recharge.v1";
 // Version des CGV/CGU affichées (à changer quand les textes changent) : envoyée avec le paiement comme preuve d'acceptation
-const LEGAL_VERSION = "2026-11-25";
+const LEGAL_VERSION = "2026-11-26";
 if (DEMO) { try { localStorage.removeItem(KEY); } catch (e) {} document.documentElement.classList.add("demo"); }
 const DEFAULT_PRODUCTS = [
   { id: "p1", name: "Thé détox", days: 30, price: 25 },
@@ -1140,12 +1140,12 @@ let pwFlow = false;   // parcours analyse → valeur → paywall → onboarding 
 let loginEmail = "", upPeriod = "year", upTier = "pro", upTeam = { mode: "new", name: "", seats: 6, code: "" }, offersInfo = null;
 /* Les offres : les prix affichés ici sont indicatifs, le serveur fixe le vrai prix au paiement */
 const OFFERS = {
-  starter: { n: "Starter", m: 990, y: 8900, fm: 590, fy: 5900, pitch: "Pour bien démarrer", perks: ["Jusqu'à 50 clients", "Relances au bon moment, rythme réel de chaque client", "3 imports photo par mois"] },
-  pro: { n: "Pro", m: 1990, y: 17900, fm: 1190, fy: 11900, pitch: "Pour développer son activité", perks: ["Clients illimités", "Imports photo illimités", "Coach IA illimité", "Prospection, promos et recommandations"] },
-  equipe: { n: "Équipe", m: 990, y: 8900, fm: 790, fy: 7100, pp: true, pitch: "Pour toute une équipe, dès 5 personnes", perks: ["Prix par personne : chacun paie sa part", "Tout Pro pour chaque membre", "Dès 5 personnes : la tête de réseau partage un code", "La tête de réseau voit qui a rejoint"] }
+  starter: { n: "Starter", m: 990, y: 7900, fm: 590, fy: 4700, pitch: "Pour bien démarrer", perks: ["Jusqu'à 50 clients", "Relances au bon moment, rythme réel de chaque client", "3 imports photo par mois"] },
+  pro: { n: "Pro", m: 1490, y: 11900, fm: 1190, fy: 9500, pitch: "Pour développer son activité", perks: ["Clients illimités", "Imports photo illimités", "Coach IA illimité", "Prospection, promos et recommandations"] },
+  equipe: { n: "Équipe", m: 990, y: 7900, fm: 790, fy: 6300, pp: true, pitch: "Pour toute une équipe, dès 5 personnes", perks: ["Prix par personne : chacun paie sa part", "Tout Pro pour chaque membre", "Dès 5 personnes : la tête de réseau partage un code", "La tête de réseau voit qui a rejoint"] }
 };
 const TEAM_MIN = 5;
-const EXTRA = { m: 790, y: 7100 };
+const EXTRA = { m: 790, y: 6300 };
 const eur = c => (c / 100).toLocaleString("fr-FR", { minimumFractionDigits: c % 100 ? 2 : 0, maximumFractionDigits: 2 }) + " €";
 const TIER_NAME = { starter: "Starter", pro: "Pro", equipe: "Équipe", recharge: "Recharge", fondatrice: "Recharge" };
 function offerPrice(k, founder) {
@@ -1204,7 +1204,7 @@ async function openUpgrade(tier) {
     <p class="lede" style="margin-top:8px"><b>7 jours gratuits</b>, puis sans engagement. Carte demandée, aucun prélèvement avant le 7e jour : vous annulez en 1 clic avant, et un email vous prévient la veille.</p>
     ${founder ? `<div class="ofound"><svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="15" class="trk"/><circle cx="18" cy="18" r="15" class="arc" stroke-dasharray="${left === null ? 0 : (RC * left / total).toFixed(1)} ${RC.toFixed(1)}" transform="rotate(-90 18 18)"/></svg>
       <span><b>Prix fondateur</b>${left === null ? `Réservé aux ${total} premiers abonnés, gardé tant que vous restez abonnée.` : `Encore <span class="num">${left}</span> place${left > 1 ? "s" : ""} sur ${total} · gardé tant que vous restez abonnée.`}</span></div>` : ""}
-    <div class="seg oftog"><button type="button" class="${upPeriod === "year" ? "on" : ""}" data-act="upPeriod" data-p="year">À l'année <em>−25 %</em></button><button type="button" class="${upPeriod === "month" ? "on" : ""}" data-act="upPeriod" data-p="month">Au mois</button></div>
+    <div class="seg oftog"><button type="button" class="${upPeriod === "year" ? "on" : ""}" data-act="upPeriod" data-p="year">À l'année <em>4 mois offerts</em></button><button type="button" class="${upPeriod === "month" ? "on" : ""}" data-act="upPeriod" data-p="month">Au mois</button></div>
     <div class="ofrs">${["starter", "pro", "equipe"].map(card).join("")}</div>
     ${team}
     <label class="legalchk"><input type="checkbox" id="upCgv"><span>J'ai lu et j'accepte les <a href="/cgv/" target="_blank" rel="noopener">conditions de vente</a> et les <a href="/cgu/" target="_blank" rel="noopener">conditions d'utilisation</a>.</span></label>
