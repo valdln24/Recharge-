@@ -1085,15 +1085,16 @@ function syncLater() {
   clearTimeout(syncTimer); syncTimer = setTimeout(pushNow, 2500);
 }
 async function pushNow(force) {
-  if (!session || syncing) return;
-  if (!hasRealData(S) && !sync.rev) { sync.dirty = false; saveSync(); return; }   // on n'envoie pas les fiches d'exemple seules
+  if (!session || syncing || !session.canSync) return false;   // version gratuite : la sauvegarde en ligne n'est pas incluse
+  if (!hasRealData(S) && !sync.rev) { sync.dirty = false; saveSync(); return false; }   // on n'envoie pas les fiches d'exemple seules
   syncing = true;
   try {
     const r = await api("PUT", "data", { data: S, baseRev: sync.rev, device: deviceName(), force: !!force });
     if (r.status === 409) return askConflict();
     sync = { rev: r.rev, dirty: false, lastAt: Date.now() }; saveSync();
     const el = document.getElementById("syncState"); if (el) el.innerHTML = syncLabel();
-  } catch (e) { /* hors ligne : on réessaiera au prochain changement ou au retour de la connexion */ }
+    return true;
+  } catch (e) { return false; /* hors ligne : on réessaiera au prochain changement ou au retour de la connexion */ }
   finally { syncing = false; }
 }
 async function pullNow() {
@@ -1132,7 +1133,8 @@ async function afterLogin(r) {
   if (serverHas && hasRealData(S)) { closeSheet(); render(); return askConflict(r.backup); }
   if (serverHas) { await pullNow(); closeSheet(); tab = "today"; render(); return toast("Bienvenue ! Vos clients sont de retour sur ce téléphone 🎉"); }
   closeSheet(); render();
-  if (hasRealData(S)) { await pushNow(true); render(); toast("C'est fait ! Vos données sont sauvegardées sur votre compte ✅"); }
+  if (!session.canSync) toast("Compte créé ✅ Vos données restent sur ce téléphone : la sauvegarde démarre avec votre offre.");
+  else if (hasRealData(S)) { const ok = await pushNow(true); render(); toast(ok ? "C'est fait ! Vos données sont sauvegardées sur votre compte ✅" : "Compte créé ✅ La sauvegarde se fera dès que la connexion revient."); }
   else toast("Compte créé ✅ Vos données seront sauvegardées automatiquement.");
   if (!S.profile && !hasRealData(S)) setTimeout(startOnboarding, 900);
 }
@@ -1203,7 +1205,7 @@ async function openUpgrade(tier) {
     ${(() => { const an = S.analyse || readAnalyse(); return an && an.totalAn && !join ? `<p class="devnet" style="margin-top:8px">${myName() ? esc(myName()) + ", votre" : "Votre"} estimation : jusqu'à <b>~${an.totalAn.toLocaleString("fr-FR")} € par an</b> à aller chercher.${an.team && upTier === "equipe" ? ` Avec vos filleuls : ${eur(founder ? OFFERS.equipe.fm : OFFERS.equipe.m)} par mois chacun.` : ""}</p>` : ""; })()}
     <p class="lede" style="margin-top:8px"><b>7 jours gratuits</b>, puis sans engagement. Carte demandée, aucun prélèvement avant le 7e jour : vous annulez en 1 clic avant, et un email vous prévient la veille.</p>
     ${founder ? `<div class="ofound"><svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="15" class="trk"/><circle cx="18" cy="18" r="15" class="arc" stroke-dasharray="${left === null ? 0 : (RC * left / total).toFixed(1)} ${RC.toFixed(1)}" transform="rotate(-90 18 18)"/></svg>
-      <span><b>Prix fondateur</b>${left === null ? `Réservé aux ${total} premiers abonnés, gardé tant que vous restez abonnée.` : `Encore <span class="num">${left}</span> place${left > 1 ? "s" : ""} sur ${total} · gardé tant que vous restez abonnée.`}</span></div>` : ""}
+      <span><b>Prix fondateur</b>${left === null ? `Réservé aux ${total} premiers abonnés, gardé tant que votre abonnement continue.` : `Encore <span class="num">${left}</span> place${left > 1 ? "s" : ""} sur ${total} · gardé tant que votre abonnement continue.`}</span></div>` : ""}
     <div class="seg oftog"><button type="button" class="${upPeriod === "year" ? "on" : ""}" data-act="upPeriod" data-p="year">À l'année <em>2 mois offerts</em></button><button type="button" class="${upPeriod === "month" ? "on" : ""}" data-act="upPeriod" data-p="month">Au mois</button></div>
     <div class="ofrs">${["starter", "pro", "equipe"].map(card).join("")}</div>
     ${team}
@@ -1308,12 +1310,12 @@ function accountSection() {
     ${API_OK ? `<button class="linkbtn" data-act="accLogin">J'ai déjà un compte : me connecter</button>` : ""}</div>`;
   return section("Mon compte") + `<div class="card pad acc">
     <b style="display:block">☁️ Compte : ${esc(session.email)}</b>
-    <p class="plan-line">${session.plan === "offert" ? "Accès offert · toute l'appli, sans paiement" : session.paid ? `Offre ${TIER_NAME[session.plan] || "Recharge"} active${session.founder ? " · prix fondateur" : ""}` : "Essai gratuit"}</p>
+    <p class="plan-line">${session.plan === "offert" ? "Accès offert · toute l'appli, sans paiement" : session.paid ? `Offre ${TIER_NAME[session.plan] || "Recharge"} active${session.founder ? " · prix fondateur" : ""}` : "Version gratuite"}</p>
     ${session.team || session.plan === "equipe" ? `<button class="btn soft" style="margin-bottom:8px" data-act="teamOpen">Mon équipe</button>` : ""}
     ${session.billing ? `<button class="btn soft" style="margin-bottom:8px" data-act="accManage">💳 Gérer mon abonnement · factures, carte, résiliation</button>` : ""}
     ${!session.paid ? `<button class="btn orange" style="margin-bottom:8px" data-act="accUpgrade">Choisir mon offre · 7 jours gratuits</button>` : session.plan === "starter" ? `<button class="btn soft" style="margin-bottom:8px" data-act="upPro">Passer à Pro</button>` : ""}
     <p class="hint" id="syncState" style="margin:4px 0 12px">${syncLabel()}</p>
-    <button class="btn soft" data-act="accSyncNow">Sauvegarder maintenant</button>
+    ${session.canSync ? `<button class="btn soft" data-act="accSyncNow">Sauvegarder maintenant</button>` : ""}
     <button class="btn outline" style="margin-top:8px" data-act="accLogout">Me déconnecter</button>
     <button class="linkbtn danger-link" data-act="accDelete">Supprimer mon compte et toutes mes données</button></div>`;
 }
@@ -5683,7 +5685,7 @@ if (paidParam) {
     if (r.analyse && !S.analyse) { S.analyse = r.analyse; save(); }
     const srv = r.backup ? r.backup.rev : 0;
     if (srv > sync.rev) { if (sync.dirty) return askConflict(r.backup); await pullNow(); render(); toast("Données mises à jour depuis votre autre appareil ☁️"); }
-    else if (sync.dirty) pushNow();
+    else if (sync.dirty || (session.canSync && !sync.rev && hasRealData(S))) pushNow();   // y compris un compte qui vient de passer en version complète (offert, abonnement)
   }).catch(() => {});
 }
 addEventListener("online", () => { if (sync.dirty) pushNow(); });
