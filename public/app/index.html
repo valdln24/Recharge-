@@ -902,6 +902,7 @@ details.cfields{border-radius:14px}
 /* les libellés des interrupteurs se lisent comme une ligne de réglage iOS */
 label.field[style*="flex"]>span{font-size:16px;color:var(--ink);font-weight:400}
 label.field[style*="flex"]{min-height:44px}
+.sfold{margin-top:14px}.sfold>summary{cursor:pointer;list-style:none;font-size:15px;color:var(--tint);font-weight:500;padding:6px 0}.sfold>summary::-webkit-details-marker{display:none}.sfold>summary::after{content:" ⌄"}.sfold[open]>summary::after{content:" ⌃"}
 /* iPhone : barre d'onglets translucide collée en bas, onglet actif en orange */
 @media (max-width:759px){
   body{padding-bottom:calc(104px + var(--badge) + env(safe-area-inset-bottom))}
@@ -935,11 +936,11 @@ label.field[style*="flex"]{min-height:44px}
   <button class="tab" data-tab="today"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5a8.5 8.5 0 1 1-7.4 4.3"/><path d="M12 8v4l2.5 2"/></svg><span id="tabDot"></span>Aujourd'hui</button>
   <button class="tab" data-tab="clients"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.6 3.2-5.5 6.5-5.5s5.9 1.9 6.5 5.5"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M21.5 20c-.4-2.6-1.8-4.3-3.8-5.1"/></svg>Clients</button>
   <button class="plus" id="fab" data-act="newSale" aria-label="Ajouter une vente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
-  <button class="tab" data-tab="results"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16"/><path d="M6.5 16v-4M11 16V7M15.5 16v-6M20 16V4.5"/></svg>Résultats</button>
+  <button class="tab" data-tab="coach"><svg viewBox="40 40 120 120" fill="none" aria-hidden="true"><path d="M122.4 66.9A44 44 0 1 1 81.4 65.1" stroke="currentColor" stroke-width="13"/><path d="M66.5 47.5L101 52.5L80.5 80Z" fill="currentColor"/><path d="M109 76L84 111H99L91 136L118 99H103Z" fill="currentColor"/></svg>Coach</button>
   <button class="tab" data-tab="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h9M17 7h3M4 12h3M11 12h9M4 17h11M19 17h1"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="17" r="2"/></svg>Menu</button>
 </div></nav>
 
-<button id="coachFab" class="coachfab" data-tab="coach" aria-label="Ouvrir mon coach"><span class="cf-ring"><svg viewBox="40 40 120 120" aria-hidden="true"><path d="M122.4 66.9A44 44 0 1 1 81.4 65.1" fill="none" stroke="currentColor" stroke-width="17"/><path d="M66.5 47.5L101 52.5L80.5 80Z" fill="currentColor"/><path d="M109 76L84 111H99L91 136L118 99H103Z" fill="currentColor"/></svg></span>Coach</button>
+<button id="coachFab" class="coachfab hidden" data-tab="coach" aria-label="Ouvrir mon coach"><span class="cf-ring"><svg viewBox="40 40 120 120" aria-hidden="true"><path d="M122.4 66.9A44 44 0 1 1 81.4 65.1" fill="none" stroke="currentColor" stroke-width="17"/><path d="M66.5 47.5L101 52.5L80.5 80Z" fill="currentColor"/><path d="M109 76L84 111H99L91 136L118 99H103Z" fill="currentColor"/></svg></span>Coach</button>
 <div id="sheet"></div>
 <div id="toast"></div>
 <input type="file" id="importFile" accept="application/json,.json" class="hidden">
@@ -2183,7 +2184,8 @@ function render() {
   document.getElementById("topMeta").textContent = cap(parse(today()).toLocaleDateString("fr-FR", { weekday: "short", day: "numeric", month: "short" }));
   if (tab === "dev" || tab === "map") document.querySelector('nav.tabs .tab[data-tab="settings"]').classList.add("on");
   app.innerHTML = `<div class="enter">${({ today: viewToday, clients: viewClients, results: viewResults, settings: viewSettings, dev: viewDev, map: viewMap, coach: viewCoach })[tab]()}</div>`;
-  document.getElementById("coachFab").classList.toggle("hidden", tab === "coach");
+  document.getElementById("coachFab").classList.add("hidden");   // le coach est dans la barre du bas
+  if (tab === "results") document.querySelector('nav.tabs .tab[data-tab="settings"]').classList.add("on");
   if (tab === "dev") mountDev();
   if (tab === "map") mountMap();
   fitAreas(); initScrollers(app);
@@ -2541,9 +2543,9 @@ function viewToday() {
   const dn = d => full.filter(x => x.type !== "idea" && coachMeta(x).dom === d).length;
   let h = `<section class="coach hello"><div class="ctop"><span class="chi">${hi}${who ? " " + esc(who) : ""}</span><button class="cpill" data-act="planAsk">${fmtMin(S.day.min)} · changer</button></div>
     <div class="cbig"><div class="cring"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="42" class="trk"/><circle cx="50" cy="50" r="42" class="arc" stroke-dasharray="${(RC * Math.max(donePct, .001)).toFixed(1)} ${RC.toFixed(1)}" transform="rotate(-90 50 50)"/></svg><b class="num">${left || (plan.done.length ? "✓" : "0")}</b></div><span>${left > 1 ? "actions dans<br>votre plan du jour" : left ? "action dans<br>votre plan du jour" : plan.done.length ? "plan du jour<br>terminé" : "rien d'urgent<br>aujourd'hui"}</span></div>
-    <p class="cline hl-line">${line}</p>
+    <p class="cline hl-line">${left ? (plan.done.length ? planCheer(pct, left) : "Commencez par la première : le message est prêt.") : line}</p>
     ${(() => { const w = worth(today().slice(0, 8) + "01"); return w.total > 0 ? `<button class="cworth" data-act="goto" data-t="results" data-c="">Ce mois-ci, Recharge vous a rapporté <b>${euro(w.total)}</b> ›</button>` : ""; })()}
-    ${total ? `<div class="hl-count"><span><b class="num">${plan.done.length}</b> / ${total} fait${plan.done.length > 1 ? "s" : ""}</span><span><b class="num">${plan.used}</b> / ${plan.planned} min</span></div><p class="pcheer">${planCheer(pct, left)}</p>` : ""}</section>`;
+    </section>`;
   if (!S.day.asked) h += `<div class="askt"><b>Combien de temps aujourd'hui ?</b>${timeChips(S.day.min, "planTime")}</div>`;
   h += durTipCard();
   if (!SIMPLE_HOME) h += `<div class="dtiles">${Object.entries(DOMAINS).map(([d, [ic, lb]]) => { const n = dn(d); return `<button class="dtile ${n ? "" : "zero"} ${coachF === d ? "on" : ""}" data-act="coachF" data-d="${d}"><span class="di">${ic}</span><b>${n}</b><small>${lb}</small></button>`; }).join("")}</div>`;
@@ -2783,7 +2785,7 @@ function viewClients() {
   }
   h += `<div class="seg"><button class="${ctab === "prospects" ? "on" : ""}" data-act="ctab" data-c="prospects">Prospects · ${openP}</button><button class="${ctab === "clients" ? "on" : ""}" data-act="ctab" data-c="clients">Clients · ${S.clients.length}</button></div>`;
   h += `<label class="search">${I.search}<input id="search" type="search" placeholder="Rechercher un nom, un numéro, une ville" value="${esc(query)}" autocomplete="off"></label>`;
-  h += `<button class="btn outline" style="margin-top:12px" data-act="openImport">${I.up} Importer des commandes</button>`;
+  if (nReal < 3) h += `<button class="btn outline" style="margin-top:12px" data-act="openImport">${I.up} Importer mes clients (photo, Excel)</button>`;
   h += exampleNotice();
   if (ctab === "prospects") return h + viewProspects(q);
   const t = today(), CF = [["all", "Tous", () => true], ["due", "À relancer", c => S.sales.some(sl => sl.clientId === c.id && sl.status === "open" && diff(sl.end, t) <= (S.settings.relanceDays || 5))],
@@ -2804,6 +2806,7 @@ function viewClients() {
     }
     h += `</div>`;
   }
+  if (nReal >= 3) h += `<button class="linkbtn" style="margin-top:16px" data-act="openImport">${I.up} Importer d'autres clients (photo, Excel)</button>`;
   if (!S.clients.length) h += `<p class="empty">Aucun client pour l'instant.<br>Ils apparaissent ici dès votre première vente.</p>`;
   else if (!list.length) h += `<p class="empty">Aucun client ne correspond.</p>`;
   return h;
@@ -2889,10 +2892,10 @@ function viewResults() {
 const tog = (id, label, on) => `<label class="field" style="display:flex;align-items:center;justify-content:space-between;gap:12px"><span style="margin:0">${label}</span><input type="checkbox" id="${id}" ${on ? "checked" : ""} style="width:22px;height:22px;accent-color:var(--o1);flex:none"></label>`;
 const SET_INDEX = ["Mon profil", "Mon plan du jour", "Coach IA", "Mes relances", "Mes produits", "Carte fidélité", "Promo du moment", "Message régulier", "Ton des messages", "Mon équipe", "Mon compte", "Sauvegarder mes clients", "Actions reportées", "Rappels et appli"];
 function viewSettings() {
-  const MODS = [["🛍️", "Clients", "goto", "clients", "clients"], ["👋", "Prospects", "goto", "clients", "prospects"], ["📸", "Importer", "openImport", "", ""], ["🧭", "Mon coach", "goto", "coach", ""]];
+  const MODS = [["🛍️", "Clients", "goto", "clients", "clients"], ["👋", "Prospects", "goto", "clients", "prospects"], ["📸", "Importer", "openImport", "", ""], ["📊", "Résultats", "goto", "results", ""]];
   const GROW = [["💳", "Fidélité", "goto", "settings", "Carte fidélité"], ["📣", "Promo", "newPromo", "", ""], ["🌱", "Développer", "goto", "dev", ""], ["🎁", "Parrainage", "openParrain", "", ""]];
   /* Plus de fonctionnalités : le coach les propose dans le plan au bon moment, on peut aussi les gérer ici */
-  const MORE = [["📊", "Bilan du mois", "openBilan", "", ""], ["👥", "Équipe", "goto", "settings", "Mon équipe"], ["🗺️", "Carte", "goto", "map", ""], ["✨", "Revoir le guide", "spotStart", "", ""],
+  const MORE = [["🗓️", "Bilan du mois", "openBilan", "", ""], ["👥", "Équipe", "goto", "settings", "Mon équipe"], ["🗺️", "Carte", "goto", "map", ""], ["✨", "Revoir le guide", "spotStart", "", ""],
     ["💾", "Sauvegarder", "goto", "settings", "Sauvegarder mes clients"], ["📂", "Restaurer", "import", "", ""]];
   const modsHTML = L => `<div class="mods">${L.map(([e, l, a, t2, c2]) => `<button class="mod" data-act="${a}" data-t="${t2}" data-c="${esc(c2)}"><span>${e}</span><b>${l}</b></button>`).join("")}</div>`;
   let h = `<h1 class="title">Menu</h1><p class="lede">Tous les modules de Recharge, et vos réglages.</p>
@@ -3031,8 +3034,7 @@ function openNewSale(clientId, fromProspect) {
     <form id="saleForm" autocomplete="off">
       <label class="field"><span>Client</span><input class="input" id="fName" list="clientNames" required placeholder="Prénom Nom" value="${c ? esc(c.name) : pr ? esc(pr.name) : ""}" enterkeyhint="next"></label>
       <datalist id="clientNames">${names}</datalist><datalist id="refNames">${refNames}</datalist>
-      <label class="field"><span>Téléphone <i>· facultatif</i></span><input class="input" id="fPhone" type="tel" inputmode="tel" placeholder="06 12 34 56 78" value="${c ? esc(c.phone) : pr ? esc(pr.phone) : ""}"></label>
-      <label class="field ${c ? "hidden" : ""}" id="fRefWrap"><span>Recommandé par <i>· facultatif, si quelqu'un vous l'a amené</i></span><input class="input" id="fRef" list="refNames" placeholder="Client ou prospect qui vous l'a présenté" value="${pr ? esc(refNameOf(pr)) : ""}"></label>
+      <label class="field ${c && c.phone ? "hidden" : ""}" id="fPhoneWrap"><span>Son téléphone <i>· pour lui écrire sur WhatsApp</i></span><input class="input" id="fPhone" type="tel" inputmode="tel" placeholder="06 12 34 56 78" value="${c ? esc(c.phone) : pr ? esc(pr.phone) : ""}"></label>
       <div class="field"><span>Produit</span><div class="pchips" id="chips"></div></div>
       <div id="newProd" class="subform hidden">
         <label class="field"><span>Nom du produit</span><input class="input" id="npName" placeholder="ex. : Crème de jour"></label>
@@ -3041,14 +3043,20 @@ function openNewSale(clientId, fromProspect) {
         <label class="field"><span>Prix (€)</span><input class="input" id="npPrice" inputmode="decimal" placeholder="0"></label>
         <button type="button" class="btn soft" style="margin-top:12px" data-act="saveNewProduct">Ajouter ce produit</button>
       </div>
-      <div class="field"><span>Quantité</span>${qtyScroller('id="fQtyIn" aria-label="Quantité"', 1)}</div>
-      <label class="field"><span>Date d'achat</span><input class="input" id="fDate" type="date" value="${today()}" max="${addDays(today(), 1)}"></label>
+      <div class="field"><span>Quand ?</span><div class="pchips" id="whenChips" style="margin-top:8px"><button type="button" class="pchip on" data-act="saleWhen" data-d="0">Aujourd'hui</button><button type="button" class="pchip" data-act="saleWhen" data-d="-1">Hier</button><button type="button" class="pchip" data-act="saleWhen" data-d="x">Autre date</button></div></div>
+      <label class="field hidden" id="fDateWrap"><span>Date d'achat</span><input class="input" id="fDate" type="date" value="${today()}" max="${addDays(today(), 1)}"></label>
+      <details class="sfold"><summary>Quantité, recommandation…</summary>
+        <div class="field"><span>Quantité</span>${qtyScroller('id="fQtyIn" aria-label="Quantité"', 1)}</div>
+        <label class="field ${c ? "hidden" : ""}" id="fRefWrap"><span>Recommandé par <i>· si quelqu'un vous l'a amené</i></span><input class="input" id="fRef" list="refNames" placeholder="Client ou prospect qui vous l'a présenté" value="${pr ? esc(refNameOf(pr)) : ""}"></label>
+      </details>
       <div class="summary" id="endBox"></div>
       <label class="field hidden" id="fEndWrap"><span>Fin de consommation <i>· vous le savez mieux que le calcul</i></span><input class="input" type="date" id="fEnd"></label>
       <button class="btn primary" style="margin-top:14px" type="submit">Enregistrer la vente</button>
     </form>`);
   drawChips(); updateEnd();
-  if (!c && !pr) setTimeout(() => document.getElementById("fName").focus(), 60);
+  const fn = document.getElementById("fName");
+  fn.addEventListener("input", () => { const k = S.clients.find(x => x.name.toLowerCase() === fn.value.trim().toLowerCase()); document.getElementById("fPhoneWrap").classList.toggle("hidden", !!(k && k.phone)); });
+  if (!c && !pr) setTimeout(() => fn.focus(), 60);
 }
 function drawChips() {
   document.getElementById("chips").innerHTML = realProducts().map(p =>
@@ -3504,8 +3512,8 @@ const SPOT = [
   ["#fab", "Ajouter une vente", "Un client a commandé ? Appuyez sur +. S'il est nouveau, sa fiche se crée toute seule, et Recharge calcule quand le relancer."],
   [".micbtn", "Ou dites-le", "« Julie a pris 2 thés détox hier » : Recharge comprend et remplit tout. Réappuyez sur le micro quand vous avez fini de parler."],
   ['nav.tabs .tab[data-tab="clients"]', "Vos clients et leur historique", "Touchez un nom : vous voyez tout ce qu'il a acheté, quand son produit sera fini et vos relances. C'est aussi là que vous offrez la carte fidélité et que vous demandez des recommandations."],
-  ["#coachFab", "Votre coach", "Un client hésite ou ne répond pas ? Collez sa réponse : le coach vous propose quoi lui dire. Il vous aide aussi à trouver de nouveaux clients, en commençant par ceux qui vous connaissent."],
-  ['nav.tabs .tab[data-tab="results"]', "Vos résultats", "Mois par mois : vos relances, les commandes récupérées et le chiffre d'affaires que Recharge vous a rapporté."],
+  ['nav.tabs .tab[data-tab="coach"]', "Votre coach", "Un client hésite ou ne répond pas ? Collez sa réponse : le coach vous propose quoi lui dire. Il vous aide aussi à trouver de nouveaux clients, en commençant par ceux qui vous connaissent."],
+  [".cworth", "Vos résultats", "Ce que vos relances vous ont rapporté ce mois-ci. Touchez-le pour le détail, mois par mois."],
   ['nav.tabs .tab[data-tab="settings"]', "Le Menu", "Carte fidélité, promos, recommandations, parrainage, sauvegarde : tout le reste est ici. Pour revoir ce guide : Menu › Revoir le guide."]
 ];
 let spotI = -1;
@@ -5416,6 +5424,12 @@ const actions = {
     const s = sale(el.dataset.id), snap = snapshot();
     s.snooze = addDays(today(), 3); logEvent("report", s);
     save(); render(); toast(`Reporté au ${fmt(s.snooze)}`, snap);
+  },
+  saleWhen: el => {
+    document.querySelectorAll("#whenChips .pchip").forEach(b => b.classList.toggle("on", b === el));
+    const d = el.dataset.d, inp = document.getElementById("fDate"), w = document.getElementById("fDateWrap");
+    if (d === "x") { w.classList.remove("hidden"); inp.focus(); return; }
+    w.classList.add("hidden"); inp.value = addDays(today(), +d); updateEnd();
   },
   ansLater: el => {
     const s = sale(el.dataset.id), snap = snapshot();
