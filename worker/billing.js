@@ -8,16 +8,16 @@
 /* Les offres (prix en centimes). Annuel = −25 % par rapport au mensuel.
    Prix fondateur : réservé aux 50 premiers abonnés, gardé tant que l'abonnement continue. */
 export const TIERS = {
-  // À l'année : 8 mois payés, 4 mois offerts. Prix fondateur : -20 % environ, gardé tant que l'abonnement continue.
-  starter: { name: "Starter", month: 990, year: 7900, founderMonth: 590, founderYear: 4700 },
-  pro: { name: "Pro", month: 1490, year: 11900, founderMonth: 1190, founderYear: 9500 },
+  // À l'année : 10 mois payés, 2 mois offerts. Prix fondateur : -20 % environ, gardé tant que l'abonnement continue.
+  starter: { name: "Starter", month: 990, year: 9900, founderMonth: 590, founderYear: 5900 },
+  pro: { name: "Pro", month: 1490, year: 14900, founderMonth: 1190, founderYear: 11900 },
   // Équipe : prix PAR PERSONNE. Une tête de réseau crée l'équipe et paie sa part ; chaque filleul rejoint avec le code
   // de l'équipe et paie la sienne. Prévue à partir de 5 personnes (règle affichée, personne n'est bloqué en dessous).
-  equipe: { name: "Équipe", month: 990, year: 7900, founderMonth: 790, founderYear: 6300, perPerson: true, minSeats: 5 }
+  equipe: { name: "Équipe", month: 990, year: 9900, founderMonth: 790, founderYear: 7900, perPerson: true, minSeats: 5 }
 };
 /* Ancienne offre Équipe (cachée, jamais vendue : le paiement n'était pas encore branché) :
    39,90 €/mois pour 6 personnes payées par une seule, puis 7,90 € par personne. */
-export const EXTRA_SEAT = { month: 790, year: 6300 };
+export const EXTRA_SEAT = { month: 790, year: 7900 };
 export const FOUNDER_SLOTS = 50;
 export const MAX_SEATS = 60;
 export const TIER_KEYS = Object.keys(TIERS);
