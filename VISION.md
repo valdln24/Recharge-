@@ -22,6 +22,7 @@ représenteraient environ 42 000 à 52 000 € par mois. Le vrai chiffre dépend
 - Les logiciels de gestion (ex. Mon VDI Assistant : clients, commandes, réunions, stock, 9 €/mois) **rangent** l'activité.
 - Recharge **fait racheter et fait grandir le réseau** : la relance au bon moment, le message prêt, le plan du jour, les recommandations, le coach.
 - Phrase à retenir : **« Un logiciel range vos clients. Recharge les fait racheter. »**
+- Recharge est le **développeur commercial** de la vendeuse : chaque prospect a une température (chaud, tiède, froid) et un rythme de relance ; Recharge prévoit 7 relances différentes, puis le garde « à réactiver ». Méthode inspirée des coachs de la vente directe (Eric Worre, *Go Pro* : la relance est l'une des 7 compétences ; Ray Higdon : relancer jusqu'à l'achat).
 - On ne se bat pas sur le prix : on se bat sur les ventes que Recharge rapporte (écran « rapportés ce mois-ci »).
 
 ## Les offres et la place de l'IA

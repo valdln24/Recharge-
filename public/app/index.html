@@ -225,7 +225,18 @@ main{max-width:560px;margin:0 auto;padding:6px 16px 24px}
 .memnote{margin-top:8px;font-size:.8rem;font-weight:650;color:var(--b-text);background:var(--b-soft);border-radius:12px;padding:7px 10px;line-height:1.35}
 .memlist{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:6px}.memlist li{display:flex;gap:8px;align-items:flex-start;background:var(--surface-2);border-radius:14px;padding:9px 10px 9px 12px;font-size:.88rem;line-height:1.35}
 .memlist li span{flex:1;min-width:0}.memlist li small{display:block;color:var(--ink-3);font-weight:600;font-size:.72rem;margin-top:2px}.memlist button{flex:none;border:0;background:none;color:var(--ink-3);width:28px;height:28px;border-radius:50%;display:grid;place-items:center;cursor:pointer}.memlist button svg{width:14px;height:14px}
-.memadd{display:flex;gap:8px;margin-top:10px}.memadd .input{flex:1;min-width:0}
+.memadd{display:flex;gap:8px;margin-top:10px}
+.parhero{text-align:center;padding:26px 18px 20px;border-radius:28px;background:var(--grad);color:#fff;box-shadow:0 22px 44px -24px rgba(255,94,31,.8)}
+.parhero small{font-size:.72rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;opacity:.9}
+.parhero h3{margin:8px 0 10px;font-size:2.05rem;line-height:1.02;letter-spacing:-.045em}
+.parhero p{margin:0 auto;max-width:22em;font-size:.92rem;line-height:1.45;opacity:.96}.parhero p b{font-weight:800}
+.pardots{display:flex;justify-content:center;gap:6px;margin:16px 0 6px}.pardots i{width:11px;height:11px;border-radius:50%;background:rgba(255,255,255,.3)}.pardots i.on{background:#fff}
+.parwon{font-size:.78rem;font-weight:750;opacity:.92}
+.parhow{margin-top:14px}.parhow summary{cursor:pointer;font-weight:700;color:var(--ink-2);font-size:.9rem;padding:6px 2px}
+.parcard{display:block;width:100%;text-align:left;border:0;cursor:pointer;margin:14px 0 4px;padding:18px 18px 16px;border-radius:24px;background:var(--grad);color:#fff;font:inherit;box-shadow:0 18px 36px -22px rgba(255,94,31,.75)}
+.parcard small{display:block;font-size:.7rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;opacity:.9}
+.parcard b{display:block;font-size:1.35rem;letter-spacing:-.03em;line-height:1.15;margin:4px 0 4px}.parcard span{font-size:.86rem;font-weight:650;opacity:.95}
+.pzone{margin-top:14px;padding:12px 14px 14px;border-radius:18px;background:var(--o-soft)}.pzone .field>span{font-weight:750}.memadd .input{flex:1;min-width:0}
 .cdemo{margin:2px 0 4px}.cdemo-k{margin:0 2px 10px;font-size:.72rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--o-text)}
 .cdemo-t{margin:0 2px 12px;font-size:1.02rem;font-weight:750;line-height:1.35;letter-spacing:-.01em}
 .cdemo-st{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -1088,6 +1099,7 @@ if (FROM_ANALYSE) { try { localStorage.removeItem(DIRECT_KEY); } catch (e) {} }
 /* Parrainage : le code de l'invitation (lien « ?parrain=CODE »), gardé dans ce téléphone jusqu'à la création du compte */
 const REF_KEY = "recharge.parrain";
 (() => { const c = DEMO ? "" : (new URLSearchParams(location.search).get("parrain") || "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 12); if (c.length >= 4) try { localStorage.setItem(REF_KEY, c); } catch (e) {} })();
+const REF_LANDED = !DEMO && (new URLSearchParams(location.search).get("parrain") || "").length >= 4;   // arrivée par un lien d'invitation
 const readRef = () => { try { return localStorage.getItem(REF_KEY) || undefined; } catch (e) { return undefined; } };
 const isPaidS = () => !!(session && session.paid);
 if (!DEMO && location.protocol.startsWith("http")) fetch(new URL("../api/health", location.href)).then(r => r.ok ? r.json() : null).then(j => { if (!j) return; API_OK = !!j.accounts; COACH_OK = !!j.coach; BILLING_OK = !!j.billing; if ((API_OK || COACH_OK || BILLING_OK) && typeof render === "function" && S) render(); }).catch(() => {});
@@ -1762,7 +1774,39 @@ const MSG = {
     "{{Hello|Bonjour}} {p} ! Si le moment n'est pas idéal, aucun souci : {{dis-moi|dites-moi}} quand {{tu veux|vous voulez}} qu'on en reparle 🌿",
     "{{Coucou|Bonjour}} {p} ✨ Je {{te|vous}} renvoie un petit mot pour {sujet}. {{Tu préfères|Préférez-vous}} un appel ou un message ?",
     "{{Hello|Bonjour}} {p} 😊 Je pensais à {{toi|vous}} : {{tu veux|voulez-vous}} toujours découvrir {sujet} ? Je peux passer {{te|vous}} montrer.",
-    "{{Coucou|Bonjour}} {p} ! Dernier petit rappel de ma part pour {sujet} 🌸 Ensuite, je {{te|vous}} laisse tranquille, promis !"
+    "{{Coucou|Bonjour}} {p} ! Je {{te|vous}} fais un petit signe pour {sujet} 🌸 {{Tu me dis|Vous me dites}} si c'est toujours d'actualité ?"
+  ],
+  /* La suite de relances d'un prospect (méthode Recharge, inspirée des coachs de la vente directe) :
+     chaque relance apporte quelque chose de nouveau (une astuce, une facilité, une nouveauté, une invitation, des avis), jamais « alors ? ». */
+  fv: [
+    "{{Coucou|Bonjour}} {p} 😊 Je pensais à {{toi|vous}} : une petite astuce sur {sujet}, ça {{t'intéresse|vous intéresse}} ? Je {{te|vous}} l'envoie en deux lignes.",
+    "{{Hello|Bonjour}} {p} 🌿 J'ai un conseil tout simple pour {sujet}, que mes clientes adorent. Je {{te|vous}} le partage ?",
+    "{{Coucou|Bonjour}} {p} ! Sans rien {{te|vous}} vendre : {{tu veux|voulez-vous}} que je {{t'explique|vous explique}} comment bien choisir pour {sujet} ? ✨"
+  ],
+  fl: [
+    "{{Coucou|Bonjour}} {p} ! Je passe dans {{ton|votre}} coin cette semaine : je {{te|vous}} dépose un échantillon pour {sujet} ? 😊",
+    "{{Hello|Bonjour}} {p} 🌸 Pour {{te|vous}} simplifier la vie : je peux {{te|vous}} faire tester {sujet} chez {{toi|vous}}, en 10 minutes. Ça {{te|vous}} dit ?",
+    "{{Coucou|Bonjour}} {p} ✨ Si c'est plus simple, on peut en parler 5 minutes au téléphone, quand {{tu veux|vous voulez}}. {{Tu préfères|Vous préférez}} quel jour ?"
+  ],
+  fn: [
+    "{{Hello|Bonjour}} {p} ! Il y a du nouveau côté {univers} en ce moment 😊 Je {{te|vous}} montre ce qui pourrait {{te|vous}} plaire ?",
+    "{{Coucou|Bonjour}} {p} 🌿 Petite nouveauté qui m'a fait penser à {{toi|vous}} pour {sujet}. Je {{t'envoie|vous envoie}} une photo ?",
+    "{{Hello|Bonjour}} {p} ✨ J'ai reçu de belles choses pour {sujet}. {{Tu veux|Voulez-vous}} un aperçu, sans engagement ?"
+  ],
+  fi: [
+    "{{Coucou|Bonjour}} {p} 😊 J'organise un petit moment découverte bientôt : {{tu aimerais|aimeriez-vous}} venir tester {sujet}, avec une amie si {{tu veux|vous voulez}} ?",
+    "{{Hello|Bonjour}} {p} 🌸 Je fais une découverte en visio de 20 minutes cette semaine. Je {{te|vous}} garde une place ?",
+    "{{Coucou|Bonjour}} {p} ! Un atelier tout simple, entre nous, pour découvrir {sujet} : ça {{te|vous}} tente ? ✨"
+  ],
+  fp: [
+    "{{Hello|Bonjour}} {p} 😊 {{Tu veux|Voulez-vous}} que je {{te|vous}} montre des avis de clientes sur {sujet} ? Parfois, ça aide à se décider.",
+    "{{Coucou|Bonjour}} {p} 🌿 Beaucoup de personnes commencent par un petit format pour {sujet}, pour se faire leur propre avis. {{Tu veux|Voulez-vous}} essayer comme ça ?",
+    "{{Hello|Bonjour}} {p} ! {{Qu'est-ce qui te ferait|Qu'est-ce qui vous ferait}} plaisir, ou {{te|vous}} manque, pour {sujet} ? Je {{t'aide|vous aide}} à trouver ✨"
+  ],
+  fo: [
+    "{{Coucou|Bonjour}} {p} 🌸 Je ne veux pas {{t'embêter|vous embêter}} : je {{te|vous}} laisse tranquille pour {sujet}, et je reste là si l'envie {{te|vous}} prend. Belle journée !",
+    "{{Hello|Bonjour}} {p} 😊 Je {{te|vous}} laisse respirer ! Si un jour {{tu as|vous avez}} envie de découvrir {sujet}, {{tu as|vous avez}} mon numéro. À bientôt !",
+    "{{Coucou|Bonjour}} {p} ! Pas de souci si ce n'est pas le moment 🌿 Je {{te|vous}} fais un petit signe dans quelques mois, avec des nouveautés."
   ],
   quarter: [
     "{{Coucou|Bonjour}} {p} ! {{J'espère que tu vas bien|J'espère que vous allez bien}} 😊 Il y a des nouveautés en ce moment : {{tu veux|voulez-vous}} que je {{t'en|vous en}} parle ?",
@@ -1874,9 +1918,19 @@ const WHERE = [["reunion", "Réunion"], ["salon", "Salon"], ["marche", "Marché"
 const LIEU = { reunion: "à la réunion", salon: "au salon", marche: "au marché" };
 const whereLabel = w => (WHERE.find(x => x[0] === w) || [])[1] || "";
 const refNameOf = x => x.referredBy ? (person(x.referredBy) || {}).name || x.referredByName || "" : x.referredByName || "";
+/* Recharge, développeur commercial : chaque prospect a une température (son envie d'acheter) et un rythme de relance.
+   Les coachs de la vente directe le répètent : on achète rarement au premier message. Recharge prévoit donc une suite
+   de 7 relances, chacune différente, au rythme choisi ; ensuite, le prospect passe « à réactiver » tous les 3 mois. */
+const HEAT = { chaud: ["🔥", "Chaud", "Veut acheter, pose des questions", 3], tiede: ["🌤️", "Tiède", "Intéressé, hésite encore", 7], froid: ["❄️", "Froid", "Pas maintenant, à réactiver", 30] };
+const EVERY = [[3, "Plusieurs fois par semaine"], [7, "Chaque semaine"], [14, "Toutes les 2 semaines"], [30, "Chaque mois"], [90, "Tous les 3 mois"]];
+const P_GOAL = 7, P_STAGES = ["follow", "fv", "fl", "fn", "fi", "fp", "fo"];
+const pHeat = x => HEAT[x.heat] ? x.heat : "tiede";
+const pEvery = x => x.every || HEAT[pHeat(x)][3];
+const everyLabel = d => (EVERY.find(e => e[0] === d) || [d, `Tous les ${d} jours`])[1].toLowerCase();
 function prospectMessage(pr) {
   const ref = refNameOf(pr), lieu = LIEU[pr.where] || "", it = (pr.interest || "").trim().toLowerCase();
-  const key = pr.status === "lost" || (pr.contacts || 0) >= 3 ? "quarter" : pr.contacts ? "follow" : ref ? "ref" : lieu ? "met" : "first";
+  const n = pr.contacts || 0;
+  const key = pr.status === "lost" || n >= P_GOAL || pEvery(pr) >= 90 && n ? "quarter" : n ? P_STAGES[n - 1] : ref ? "ref" : lieu ? "met" : "first";
   return msg(key, pr.name, pr.msg || 0, { lieu, ref: firstName(ref), sujet: it ? `ce dont on avait parlé (${it})` : univers() });
 }
 /* Promo du moment : envoyée aux prospects et aux clients fidélité */
@@ -2058,7 +2112,7 @@ function coachMeta(it) {
 function todayList() {
   const t = today(), items = [];
   for (const sl of dueSales()) { const left = diff(sl.end, t); items.push({ k: "s:" + sl.id, type: "sale", s: sl, who: sl.clientId, score: left <= 0 ? 100 - left * 2 : 80 - left * 5 }); }
-  for (const x of dueProspects()) items.push({ k: "p:" + x.id, type: "prospect", x, who: x.id, score: 62 + diff(t, x.next) * 2 });
+  for (const x of dueProspects()) items.push({ k: "p:" + x.id, type: "prospect", x, who: x.id, score: 62 + diff(t, x.next) * 2 + ({ chaud: 30, tiede: 0, froid: -12 })[pHeat(x)] });
   for (const c of dueGifts()) items.push({ k: "g:" + c.id, type: "gift", c, who: c.id, score: 70 });
   for (const sl of dueSuivis()) items.push({ k: "su:" + sl.id, type: "suivi", s: sl, who: sl.clientId, score: 55 });
   for (const sl of dueAnswers()) items.push({ k: "an:" + sl.id, type: "answer", s: sl, who: sl.clientId, score: 120 });
@@ -2295,7 +2349,7 @@ const durOf = it => { if (it.type === "idea") return it.idea.d; const k = DUR_KE
 const fmtMin = m => m > 240 ? "4 h et +" : m >= 60 ? (m % 60 ? `${Math.floor(m / 60)} h ${String(m % 60).padStart(2, "0")}` : `${m / 60} h`) : `${m} min`;
 function planSort(list) {
   return list.slice().sort((a, b) => catOf(a)[0] - catOf(b)[0]
-    || (a.type === "prospect" && b.type === "prospect" ? ((a.x.contacts || 0) > 0) - ((b.x.contacts || 0) > 0) : 0)
+    || (a.type === "prospect" && b.type === "prospect" ? (pHeat(a.x) === "chaud" ? 0 : 1) - (pHeat(b.x) === "chaud" ? 0 : 1) || ((a.x.contacts || 0) > 0) - ((b.x.contacts || 0) > 0) : 0)
     || b.score - a.score);
 }
 /* Le plan de la journée : créé au premier affichage, complété si du temps se libère */
@@ -2568,6 +2622,7 @@ function goFurther(extra) {
     : `<button class="gf" data-act="newProspect">${mk("venn")}<b>Trouver un nouveau prospect</b><small>Noter une personne de votre entourage</small></button>`;
   if (rc) h += `<button class="gf" data-act="genOpen" data-t="reco" data-id="${rc.id}">${mk("venn")}<b>Demander une recommandation à ${esc(firstName(rc.name))}</b><small>${ordersOf(rc) > 1 ? plural(ordersOf(rc), "commande", "commandes") + " : une relation de confiance" : "Quelqu'un qui vous connaît déjà"}</small></button>`;
   h += `<button class="gf" data-act="newPromo">${mk("wave")}<b>Préparer une promo</b><small>Le conseil du jour : ${esc(tt)}</small></button>`;
+  if (!DEMO) h += `<button class="gf" data-act="openParrain">${mk("venn")}<b>Inviter une collègue</b><small>1 mois offert pour vous deux</small></button>`;
   if (!realC.length) h += `<button class="gf" data-act="newSale">${mk("plus")}<b>Ajouter mes vrais clients</b><small>Pour un plan fait pour vous</small></button>`;
   return h + `</div>`;
 }
@@ -2694,7 +2749,8 @@ function todayCard(it) {
   if (it.type === "prospect") {
     const pr = it.x, ref = refNameOf(pr);
     const since = diff(today(), pr.lastContact || pr.createdAt || today());
-    const why = pr.status === "lost" || (pr.contacts || 0) >= 3 ? `Relance trimestrielle · dernier contact il y a ${since} j` : pr.contacts ? `Dernier contact il y a ${since} j` : pr.where && pr.where !== "bao" ? `${whereLabel(pr.where)} il y a ${since} j` : ref ? `Contact donné par ${esc(firstName(ref))}` : "Premier contact";
+    const hz = HEAT[pHeat(pr)], stage = Math.min(P_GOAL, (pr.contacts || 0) + 1);
+    const why = pr.status === "lost" || (pr.contacts || 0) >= P_GOAL ? `À réactiver · dernier contact il y a ${since} j` : pr.contacts ? `${hz[0]} ${hz[1]} · relance ${stage}/${P_GOAL} · dernier contact il y a ${since} j` : pr.contacts ? `Dernier contact il y a ${since} j` : pr.where && pr.where !== "bao" ? `${whereLabel(pr.where)} il y a ${since} j` : ref ? `Contact donné par ${esc(firstName(ref))}` : "Premier contact";
     return cardShell({ k: it.k, id: pr.id, phone: pr.phone, msgId: "pmsg-" + pr.id, msg: prospectMessage(pr), vary: "nextPMsg", waAct: "pWa", copyAct: "pCopy",
       head: `<span class="avatar blue" style="width:52px;height:52px;font-size:.98rem">${esc(initials(pr.name))}</span>
         <div class="who"><button class="name" data-act="pfiche" data-id="${pr.id}">${esc(pr.name)}</button>${exTag(pr)}
@@ -2702,7 +2758,7 @@ function todayCard(it) {
           <div class="meta2">${typeTag("Prospect")}${pr.interest ? " · " + esc(pr.interest) : ""}</div></div>`,
       extra: pr.note ? `<div class="more"><div class="alt pnote2" style="text-align:left;margin-top:10px">${esc(pr.note)}</div></div>` : "",
       second: `<button class="btn soft second" data-act="pDone" data-id="${pr.id}">${I.check} Déjà fait</button>`,
-      links: `<button data-act="pConvert" data-id="${pr.id}">A acheté</button> · <button data-act="pLost" data-id="${pr.id}">Pas intéressé</button>` });
+      links: `<button data-act="pConvert" data-id="${pr.id}">A acheté</button> · <button data-act="pHeatNext" data-id="${pr.id}">${hz[0]} ${hz[1]}</button> · <button data-act="pLost" data-id="${pr.id}">Pas intéressé</button>` });
   }
   if (it.type === "sat") {
     const sl = it.s, c = client(sl.clientId), m = coachMeta(it);
@@ -2788,7 +2844,7 @@ function todayCard(it) {
 let pfilter = "all", cfilter = "all";
 function viewProspects(q) {
   const t = today(), open = x => x.status === "open" || x.status === "lost";
-  const F = [["all", "Tous", () => true], ["due", "À relancer", x => open(x) && x.next && x.next <= t], ["new", "Nouveaux", x => open(x) && diff(t, x.createdAt || t) <= 30],
+  const F = [["all", "Tous", () => true], ["due", "À relancer", x => open(x) && x.next && x.next <= t], ["hot", "🔥 Chauds", x => x.status === "open" && pHeat(x) === "chaud"], ["new", "Nouveaux", x => open(x) && diff(t, x.createdAt || t) <= 30],
     ["reco", "Recommandation", x => open(x) && diff(t, x.createdAt || t) >= 90], ["won", "Devenus clients", x => x.status === "client"]];
   const f = (F.find(z => z[0] === pfilter) || F[0])[2];
   const list = S.prospects.filter(x => (!q || x.name.toLowerCase().includes(q) || (x.phone || "").replace(/\s/g, "").includes(q.replace(/\s/g, "")) || (x.interest || "").toLowerCase().includes(q) || (x.city && x.city.n.toLowerCase().includes(q))) && f(x))
@@ -2800,7 +2856,7 @@ function viewProspects(q) {
     for (const x of list) {
       const due = open(x) && x.next && x.next <= t, since = diff(t, x.createdAt || t);
       const chip = x.status === "client" ? `<span class="chip done">Client</span>` : due ? `<span class="chip soon">À relancer</span>` : since >= 90 ? `<span class="chip ok">🤝 Reco</span>` : `<span class="chip ok num">${x.next ? fmt(x.next) : "–"}</span>`;
-      const line1 = [x.city ? "🏠 " + esc(x.city.n) : "", x.where ? "📍 " + whereLabel(x.where) : refNameOf(x) ? "🤝 De la part de " + esc(firstName(refNameOf(x))) : "", `depuis ${duration(x.createdAt || t)}`].filter(Boolean).join(" · ");
+      const line1 = [x.status !== "client" ? `${HEAT[pHeat(x)][0]} ${HEAT[pHeat(x)][1]}${x.contacts ? ` · relance ${Math.min(x.contacts, P_GOAL)}/${P_GOAL}` : ""}` : "", x.city ? "🏠 " + esc(x.city.n) : "", x.where ? "📍 " + whereLabel(x.where) : refNameOf(x) ? "🤝 De la part de " + esc(firstName(refNameOf(x))) : "", `depuis ${duration(x.createdAt || t)}`].filter(Boolean).join(" · ");
       h += `<button class="crow" data-act="pfiche" data-id="${x.id}"><span class="avatar ${due ? "" : "blue"}">${esc(initials(x.name))}</span>
         <span class="grow"><b>${esc(x.name)}</b>${exTag(x)}<div class="meta2">${line1}</div>${x.interest ? `<div class="meta3">💡 ${esc(x.interest)}</div>` : ""}</span>
         <span class="rside">${chip}<small class="cic">${contactIcons(x)}</small></span></button>`;
@@ -2947,6 +3003,7 @@ function viewSettings() {
     ["💾", "Sauvegarder", "goto", "settings", "Sauvegarder mes clients"], ["📂", "Restaurer", "import", "", ""]];
   const modsHTML = L => `<div class="mods">${L.map(([e, l, a, t2, c2]) => `<button class="mod" data-act="${a}" data-t="${t2}" data-c="${esc(c2)}"><span>${e}</span><b>${l}</b></button>`).join("")}</div>`;
   let h = `<h1 class="title">Menu</h1><p class="lede">Tous les modules de Recharge, et vos réglages.</p>
+    ${DEMO ? "" : `<button class="parcard" data-act="openParrain"><small>Parrainage</small><b>Offrez 1 mois. Gagnez 1 mois.</b><span>12 collègues = 1 an de Recharge offert ›</span></button>`}
     <div class="section"><h2>L'essentiel</h2></div>${modsHTML(MODS)}
     <div class="section"><h2>Fidéliser et développer</h2></div>${modsHTML(GROW)}
     <details class="mfold"><summary>Plus d'outils</summary>${modsHTML(MORE)}</details>
@@ -3328,13 +3385,16 @@ function openReferral(saleId) {
 let pform = { where: "", touched: false, kind: "client" };
 const MKT_CHIPS = [["w", "🔥 Oui, un proche"], ["t", "🌤️ Par quelqu'un ou en ligne"], ["f", "❄️ Non, inconnu"]];
 function drawWhere() {
+  const hc = document.getElementById("heatChips"); if (hc) hc.innerHTML = Object.entries(HEAT).map(([k, [ic, l]]) => `<button type="button" class="pchip ${pform.heat === k ? "on" : ""}" data-act="pickHeat" data-h="${k}">${ic} ${l}</button>`).join("");
+  const hd = document.getElementById("heatHint"); if (hd) hd.textContent = HEAT[pform.heat][2];
+  const ec = document.getElementById("everyChips"); if (ec) ec.innerHTML = EVERY.map(([d, l]) => `<button type="button" class="pchip ${pform.every === d ? "on" : ""}" data-act="pickEvery" data-e="${d}">${l}</button>`).join("");
   const mk = document.getElementById("mktChips"); if (mk) mk.innerHTML = MKT_CHIPS.map(([k, l]) => `<button type="button" class="pchip ${pform.mkt === k ? "on" : ""}" data-act="pickMkt" data-m="${k}">${l}</button>`).join("");
   const el = document.getElementById("whereChips"); if (!el) return;
   el.innerHTML = WHERE.map(([k, l]) => `<button type="button" class="pchip ${pform.where === k ? "on" : ""}" data-act="pickWhere" data-w="${k}">${l}</button>`).join("");
 }
 function openProspectForm(id, opts = {}) {
   const x = id ? prospect(id) : null;
-  pform = { where: x ? x.where || "" : opts.where || (opts.refId ? "bao" : ""), mkt: x ? x.mkt || "" : opts.refId ? "t" : "", touched: !!x, kind: "client" };
+  pform = { where: x ? x.where || "" : opts.where || (opts.refId ? "bao" : ""), mkt: x ? x.mkt || "" : opts.refId ? "t" : "", touched: !!x, kind: "client", heat: x ? pHeat(x) : "tiede", every: x ? pEvery(x) : HEAT.tiede[3] };
   const ref = x ? refNameOf(x) : opts.refId ? (person(opts.refId) || {}).name || "" : "";
   const names = S.clients.concat(S.prospects.filter(y => !x || y.id !== x.id)).map(c => `<option value="${esc(c.name)}">`).join("");
   const prods = realProducts().map(pp => `<option value="${esc(pp.name)}">`).join("");
@@ -3354,6 +3414,9 @@ function openProspectForm(id, opts = {}) {
         <div class="two" style="grid-template-columns:1fr 1fr"><label class="field"><span>Instagram</span><input class="input" id="pInsta" value="${x ? esc(x.insta || "") : esc(opts.insta || "")}" placeholder="@pseudo"></label>
           <label class="field"><span>Facebook</span><input class="input" id="pFb" value="${x ? esc(x.fb || "") : ""}" placeholder="nom ou lien"></label></div></details>
       <label class="field"><span>Ville <i>· lieu de vie, facultatif</i></span><input class="input" id="pCity" list="cityList-p" data-city="1" value="${x ? esc(cityLabel(x.city)) : esc(opts.city || "")}" placeholder="ex. : Lyon" autocomplete="off"></label><datalist id="cityList-p"></datalist>
+      <div class="pzone"><div class="field" style="margin-top:0"><span>Son envie d'acheter</span><div class="pchips" id="heatChips"></div><p class="hint" id="heatHint" style="margin:6px 0 0"></p></div>
+        <div class="field"><span>Rythme des relances</span><div class="pchips" id="everyChips"></div></div>
+        <p class="hint" style="margin:8px 0 0">${x && x.status !== "client" ? `Relance ${Math.min(P_GOAL, (x.contacts || 0) + (x.contacts >= P_GOAL ? 0 : 1))}/${P_GOAL} · ` : ""}On achète rarement au premier message : Recharge prévoit ${P_GOAL} relances, chacune différente, à ce rythme.</p></div>
       <div class="field"><span>Vous connaissez cette personne ? <i>· pour vos statistiques</i></span><div class="pchips" id="mktChips"></div></div>
       <div class="field"><span>Lieu de la rencontre <i>· facultatif</i></span><div class="pchips" id="whereChips"></div></div>
       <label class="field"><span>Intéressé par <i>· facultatif, sert aux promos ciblées</i></span><input class="input" id="pInterest" list="prodNames" placeholder="ex. : Crème de jour" value="${x ? esc(x.interest) : esc(opts.interest || "")}"></label>
@@ -3392,6 +3455,7 @@ function submitProspect(formEl) {
   x.note = document.getElementById("pNote").value.trim();
   x.next = document.getElementById("pNext").value || today();
   x.where = pform.where; x.kind = pform.kind; if (pform.mkt) x.mkt = pform.mkt;
+  x.heat = pform.heat; x.every = pform.every;
   const refName = document.getElementById("pRef").value.trim();
   let r = refName ? findPerson(refName) : null; if (r === x) r = null;
   x.referredBy = r ? r.id : null; x.referredByName = r ? "" : refName;
@@ -3502,26 +3566,30 @@ function obApply() {
    (plafond : 12 mois par an). Le lien et le suivi sont rattachés au compte. */
 async function openParrain() {
   rcTrack("parrainage_ouvert");
-  const rules = `<ul class="perks"><li>🎁 <b>1 mois offert pour vous</b> à chaque personne invitée qui s'abonne</li><li>🤝 <b>1 mois offert pour elle</b> aussi, en plus de ses 7 jours d'essai</li><li>📅 Jusqu'à <b>12 mois offerts par an</b> : une année entière de Recharge</li></ul>`;
+  /* L'offre, en une phrase : 1 collègue = 1 mois offert pour vous deux. 12 collègues = 1 an. */
+  const hero = (won = 0) => `<div class="parhero"><small>Parrainage</small><h3>1 mois offert.<br>Pour vous deux.</h3>
+    <p>Invitez une collègue : quand elle s'abonne, vous gagnez chacune un mois. <b>12 collègues = 1 an de Recharge offert.</b></p>
+    <div class="pardots" aria-label="${won} mois gagnés sur 12">${Array.from({ length: 12 }, (_, k) => `<i class="${k < won ? "on" : ""}"></i>`).join("")}</div>
+    <span class="parwon">${won ? `${plural(won, "mois gagné", "mois gagnés")} sur 12` : "Votre première collègue vous attend"}</span></div>`;
+  const how = `<details class="parhow"><summary>Comment ça marche</summary><ul class="perks"><li>🎁 <b>1 mois offert pour vous</b> à chaque collègue invitée qui s'abonne</li><li>🤝 <b>1 mois offert pour elle</b>, en plus de ses 7 jours d'essai</li><li>📅 Jusqu'à <b>12 mois offerts par an</b> : une année entière</li></ul>
+    <p class="hint">Les mois sont gagnés quand la personne invitée paie son premier mois, après son essai.</p></details>`;
   if (!session) {
-    openSheet(`<div class="shead"><h3>Parrainez une collègue</h3>${closeBtn}</div>
-      <p class="lede" style="margin-top:8px">Vous connaissez d'autres conseillères ou conseillers ? Invitez-les : vous gagnez chacune un mois.</p>${rules}
-      ${API_OK ? `<button class="btn primary" style="margin-top:14px" data-act="parrainAccount">Créer mon lien d'invitation</button><p class="hint" style="text-align:center">Votre email suffit, sans mot de passe : votre lien est rattaché à votre compte.</p>`
-        : `<p class="hint" style="margin-top:12px">Le parrainage arrive très bientôt 🙂</p>`}`);
+    openSheet(`<div class="shead"><span></span>${closeBtn}</div>${hero()}
+      ${API_OK ? `<button class="btn orange" style="margin-top:16px" data-act="parrainAccount">Créer mon lien d'invitation</button><p class="hint" style="text-align:center">Votre email suffit, sans mot de passe ni carte.</p>`
+        : `<p class="hint" style="margin-top:12px">Le parrainage arrive très bientôt 🙂</p>`}${how}`);
     return;
   }
-  openSheet(`<div class="shead"><h3>Parrainez une collègue</h3>${closeBtn}</div><p class="lede" style="margin-top:8px">Chargement de votre lien…</p>`);
+  openSheet(`<div class="shead"><span></span>${closeBtn}</div>${hero()}<p class="lede" style="margin-top:8px;text-align:center">Chargement de votre lien…</p>`);
   let r; try { r = await api("GET", "referral"); } catch (e) { return openSheet(`<div class="shead"><h3>Parrainage</h3>${closeBtn}</div><p class="lede" style="margin-top:8px">${esc(e.message)}</p>`); }
   const msgTxt = `Coucou ! J'utilise Recharge pour savoir quand relancer mes clientes, avec le message déjà prêt (fini le carnet 😅). Si tu veux essayer, avec mon lien tu as 1 mois offert : ${r.link}`;
-  openSheet(`<div class="shead"><h3>Parrainez une collègue</h3>${closeBtn}</div>
-    <p class="lede" style="margin-top:8px">Invitez les conseillères et conseillers que vous connaissez : vous gagnez chacune un mois.</p>
-    <div class="kstats"><div><b class="num">${r.invited}</b><span>invitées inscrites</span></div><div><b class="num">${r.paid}</b><span>abonnées</span></div><div><b class="num">${Math.min(r.paid, r.cap)}</b><span>mois gagnés</span></div></div>
-    <div class="bubble"><div class="top"><span class="small">Votre message</span><span class="ttag new">${esc(r.code)}</span></div><textarea class="msg" id="msg-parrain" rows="4" aria-label="Message d'invitation">${esc(msgTxt)}</textarea></div>
-    <a class="btn primary send" href="https://wa.me/?text=${encodeURIComponent(msgTxt)}" target="_blank" rel="noopener" data-act="parrainShare">${I.wa} Envoyer sur WhatsApp</a>
+  openSheet(`<div class="shead"><span></span>${closeBtn}</div>${hero(Math.min(r.paid, 12))}
+    <a class="btn orange send" style="margin-top:16px" href="https://wa.me/?text=${encodeURIComponent(msgTxt)}" target="_blank" rel="noopener" data-act="parrainShare">${I.wa} Inviter sur WhatsApp</a>
     <button class="btn soft" style="margin-top:8px" data-act="parrainCopy" data-l="${esc(r.link)}">${I.copy} Copier mon lien</button>
-    ${rules}
+    ${r.invited ? `<p class="hint" style="text-align:center;margin-top:10px">${plural(r.invited, "collègue inscrite", "collègues inscrites")} avec votre lien · ${plural(r.paid, "abonnée", "abonnées")}</p>` : ""}
+    <details class="parhow"><summary>Modifier mon message</summary><div class="bubble"><div class="top"><span class="small">Votre message</span><span class="ttag new">${esc(r.code)}</span></div><textarea class="msg" id="msg-parrain" rows="4" aria-label="Message d'invitation">${esc(msgTxt)}</textarea></div></details>
     ${r.pending ? `<p class="notice" style="margin-top:12px"><span>🎁 ${plural(r.pending, "mois offert vous attend", "mois offerts vous attendent")} : ils s'ajoutent automatiquement quand vous vous abonnez.</span></p>` : ""}
-    <p class="hint">Les mois sont gagnés quand la personne invitée paie son premier mois, après son essai. ${BILLING_OK ? "" : "Le paiement en ligne arrive bientôt : vos mois offerts s'appliqueront automatiquement."}</p>`);
+    ${how}
+    ${BILLING_OK ? "" : `<p class="hint">Le paiement en ligne arrive bientôt : vos mois offerts s'appliqueront automatiquement.</p>`}`);
   fitAreas(sheetEl);
 }
 /* Fin du 2e onboarding : le réseau que ces premiers clients ouvrent, et le plan du coach */
@@ -5253,7 +5321,7 @@ const actions = {
     if (cgvBox && !cgvBox.checked) { toast("Cochez la case pour accepter les conditions de vente."); cgvBox.focus(); return; }
     if (!BILLING_OK) return toast("Le paiement en ligne s'ouvre très bientôt. Votre choix est noté : revenez ici dans quelques jours.");
     el.disabled = true; el.textContent = "Ouverture du paiement sécurisé…"; if (pwFlow) rcTrack("paywall_paiement");
-    try { const r = await api("POST", "billing/checkout", { tier: upTier, period: upPeriod, teamName: joining ? "" : upTeam.name, teamCode: joining ? upTeam.code : "", cgv: LEGAL_VERSION }); location.href = r.url; }
+    try { const r = await api("POST", "billing/checkout", { tier: upTier, period: upPeriod, teamName: joining ? "" : upTeam.name, teamCode: joining ? upTeam.code : "", cgv: LEGAL_VERSION, ref: session ? undefined : readRef() }); location.href = r.url; }
     catch (e) { toast(e.message); el.disabled = false; el.textContent = "Commencer mes 7 jours gratuits"; }
   },
   teamOpen: () => openTeam(),
@@ -5483,9 +5551,19 @@ const actions = {
   pCopy: async el => { const ok = await copyText(currentPMsg(el.dataset.id)); toast(ok ? "Message copié. Collez-le dans votre messagerie." : "Impossible de copier : sélectionnez le texte à la main."); },
   pDone: el => {
     const x = prospect(el.dataset.id), snap = snapshot();
-    x.contacts = (x.contacts || 0) + 1; x.lastContact = today(); x.next = addDays(today(), x.status === "lost" || x.contacts >= 3 ? 90 : x.contacts === 2 ? 14 : 4); pEvent("pcontact", x);
-    save(); render(); toast(`Bravo ! On le recontactera le ${fmt(x.next)}${cheer()}`, snap);
+    x.contacts = (x.contacts || 0) + 1; x.lastContact = today(); pEvent("pcontact", x);
+    if (x.status === "lost") x.next = addDays(today(), 90);
+    else if (x.contacts >= P_GOAL) { x.heat = "froid"; x.every = 90; x.next = addDays(today(), 90); save(); render(); return toast(`${P_GOAL} relances faites, bravo ! ${firstName(x.name)} passe « à réactiver » : prochain petit signe le ${fmt(x.next)}`, snap); }
+    else x.next = addDays(today(), pEvery(x));
+    save(); render(); toast(`Relance ${x.contacts}/${P_GOAL} faite ! Prochaine le ${fmt(x.next)}${cheer()}`, snap);
   },
+  pHeatNext: el => {
+    const x = prospect(el.dataset.id), snap = snapshot(), order = ["froid", "tiede", "chaud"];   // un appui réchauffe : froid → tiède → chaud, puis retour à froid
+    x.heat = order[(order.indexOf(pHeat(x)) + 1) % 3]; x.every = HEAT[x.heat][3];
+    save(); render(); toast(`${HEAT[x.heat][0]} ${firstName(x.name)} : prospect ${HEAT[x.heat][1].toLowerCase()}, relances ${everyLabel(x.every)}`, snap);
+  },
+  pickHeat: el => { pform.heat = el.dataset.h; pform.every = HEAT[pform.heat][3]; drawWhere(); },
+  pickEvery: el => { pform.every = +el.dataset.e; drawWhere(); },
   pLater: el => {
     const x = prospect(el.dataset.id), snap = snapshot();
     x.next = addDays(today(), 3); pEvent("plater", x);
@@ -5788,13 +5866,15 @@ if (!DEMO && !FROM_ANALYSE && (HASH_GO === "#inscription" || HASH_GO === "#abonn
 if (!DEMO && HASH_GO === "#inscription") { history.replaceState(null, "", location.pathname); setTimeout(() => { if (session && session.paid) { toast("Votre abonnement est déjà actif ✅"); return; } if (BILLING_OK || API_OK) openUpgrade(); else setTimeout(openUpgrade, 1200); }, 400); }
 if (HASH_GO === "#connexion" || HASH_GO === "#installer") { history.replaceState(null, "", location.pathname); setTimeout(() => { if (HASH_GO === "#connexion") { if (session) toast("Vous êtes déjà connecté ✅"); else openAccountForm("login"); } else if (isInstalled()) { if (!S.profile && !session) startOnboarding(); } else openHomeScreen(true); }, 400); }
 // Lien « Gérer ou annuler mon abonnement » de l'email de rappel : ouvre l'espace Stripe (après connexion si besoin)
+if (HASH_GO === "#parrain") { history.replaceState(null, "", location.pathname); setTimeout(() => openParrain(), 600); }
+if (!DEMO && REF_LANDED && !session) setTimeout(() => toast("🎁 Invitation reçue : 1 mois offert en plus de vos 7 jours d'essai"), 1400);
 if (HASH_GO === "#gerer") { history.replaceState(null, "", location.pathname); setTimeout(() => { if (session) actions.accPortal(); else { toast("Connectez-vous avec votre email pour gérer votre abonnement."); openAccountForm("login"); } }, 500); }
 if (!DEMO && location.hash === "#abonnement") { history.replaceState(null, "", location.pathname); setTimeout(() => { if (BILLING_OK || API_OK) openUpgrade(); else setTimeout(openUpgrade, 1200); }, 400); }
 if (!DEMO) {
   rcTrack("app_ouverte");
   if (FROM_ANALYSE) { rcTrack("app_depuis_analyse"); history.replaceState(null, "", location.pathname); const an = readAnalyse(); if (an && !S.analyse) { S.analyse = an; if (an.me && !myName()) S.settings.myName = String(an.me).slice(0, 40); save(); } }
 }
-if (!DEMO && !MOVE_IN && !S.profile && !obSkipFlag && !navigator.webdriver && !teamNotice && !loginParam && !paidParam && !session && !isDirect() && HASH_GO !== "#abonnement" && HASH_GO !== "#inscription" && HASH_GO !== "#connexion" && HASH_GO !== "#gerer" && HASH_GO !== "#installer") setTimeout(() => {
+if (!DEMO && !MOVE_IN && !S.profile && !obSkipFlag && !navigator.webdriver && !teamNotice && !loginParam && !paidParam && !session && !isDirect() && HASH_GO !== "#abonnement" && HASH_GO !== "#inscription" && HASH_GO !== "#parrain" && HASH_GO !== "#connexion" && HASH_GO !== "#gerer" && HASH_GO !== "#installer") setTimeout(() => {
   // Arrivée depuis l'analyse : d'abord ce que Recharge rend, puis le paywall ; l'onboarding 2 suit (payé ou « plus tard »)
   let seen = null; try { seen = localStorage.getItem(PW_KEY); } catch (e) {}
   const an = S.analyse || readAnalyse();

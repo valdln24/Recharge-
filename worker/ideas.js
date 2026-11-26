@@ -4,6 +4,30 @@
 // IDEAS_COUNT est calculé : c'est lui qui justifie la mention « plus de 500 idées ».
 
 export const IDEAS = {
+  "Méthode de suivi des prospects (inspirée des grands coachs de la vente directe)": [
+    "Eric Worre (« Go Pro ») fait de la relance l'une des 7 compétences du métier : trouver, inviter, présenter, relancer, conclure, bien faire démarrer les nouveaux, faire venir aux événements.",
+    "Relancer, c'est d'abord tenir ses promesses : rappeler à l'heure dite, envoyer l'information promise (Eric Worre).",
+    "Ray Higdon tient deux listes : les personnes relancées 3 fois, et celles relancées jusqu'à ce qu'elles achètent. On ne retire quelqu'un que s'il devient désagréable.",
+    "Classer chaque prospect : chaud (veut acheter, pose des questions), tiède (intéressé, hésite), froid (pas maintenant).",
+    "Prospect chaud : relancer plusieurs fois par semaine tant que la décision est proche.",
+    "Prospect tiède : une relance par semaine, avec chaque fois quelque chose de nouveau.",
+    "Prospect froid : un petit signe par mois, puis tous les 3 mois.",
+    "On achète rarement au premier message : prévoir une suite de relances (Recharge en prévoit 7), chacune différente.",
+    "Chaque relance apporte quelque chose : une astuce, une facilité (échantillon déposé), une nouveauté, une invitation, des avis.",
+    "Ne jamais écrire « alors ? » : poser une question facile à laquelle répondre.",
+    "Finir chaque échange en fixant le prochain contact : « Je te rappelle jeudi ? »",
+    "Proposer une date précise plutôt que « je te recontacte ».",
+    "Changer de canal au fil des relances : message écrit, vocal, appel, rencontre.",
+    "Faire intervenir une tierce personne de confiance (sa marraine, une cliente contente, avec accord) quand le prospect hésite.",
+    "Après 7 relances sans réponse, passer la personne « à réactiver » plutôt que l'oublier.",
+    "Remonter un prospect froid en chaud dès qu'il pose une question ou réagit à une story.",
+    "Relancer d'abord les chauds, puis les tièdes, puis les froids.",
+    "Faire ses relances chaque jour au même moment : la régularité compte plus que le volume.",
+    "Noter après chaque contact la température du prospect et la date du prochain.",
+    "Trier plutôt que convaincre : chercher les personnes intéressées, sans forcer les autres.",
+    "Respecter un non clair : remercier et proposer de garder le lien.",
+    "Adapter la relance à la réponse : une question appelle une réponse précise, une hésitation un essai, un silence une nouvelle idée utile."
+  ],
   "Marché chaud : les gens que vous connaissez déjà": [
     "Écrire la liste de 50 prénoms sans trier : famille, amis, collègues, voisins, parents de l'école, sport, commerçants.",
     "Parcourir son répertoire de téléphone de A à Z en 3 fois et noter chaque personne qui pourrait aimer les produits.",

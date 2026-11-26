@@ -433,7 +433,13 @@ async function billingCheckout(request, env, url) {
   const founder = (await founderLeft(env)) > 0;
   // Version des CGV/CGU acceptée (case cochée dans l'appli juste avant le paiement), gardée comme preuve dans Stripe
   const cgv = String(body.cgv || "").replace(/[^0-9a-z.-]/gi, "").slice(0, 20);
-  const offer = { tier, period: body.period === "year" ? "year" : "month", teamName, teamCode: tier === "equipe" ? teamCode : "", founder, cgv };
+  /* Invitée qui s'abonne sans compte (parcours « Créer un compte ») : son code d'invitation voyage avec le paiement,
+     elle a son mois offert, et sa marraine est rattachée à la création du compte (billingConfirm). */
+  let refCode = "";
+  if (!u && cleanRef(body.ref).length >= 4) {
+    try { const r = await env.DB.prepare("SELECT id FROM users WHERE ref_code = ?").bind(cleanRef(body.ref)).first(); if (r) { refCode = cleanRef(body.ref); invited = true; } } catch { /* pas de parrainage */ }
+  }
+  const offer = { tier, period: body.period === "year" ? "year" : "month", teamName, teamCode: tier === "equipe" ? teamCode : "", founder, cgv, refCode };
   return json({ url: await checkout(env, sameOrigin(env, url), offer, u, { invited, refMonths }) });
 }
 /* Prix fondateur : les 50 premiers comptes abonnés (un abonnement arrêté libère la place) */
@@ -526,6 +532,7 @@ async function billingConfirm(request, env) {
     user = { id: crypto.randomUUID(), email: c.email, created_at: now() };
     await env.DB.prepare("INSERT INTO users (id, email, plan, created_at, last_seen_at) VALUES (?, ?, 'recharge', ?, ?)").bind(user.id, user.email, user.created_at, now()).run();
     isNew = true;
+    if (c.refCode) await attachReferrer(env, user.id, c.refCode);   // invitée venue avec un lien de parrainage
   }
   await env.DB.batch([
     env.DB.prepare("UPDATE users SET plan = ?, tier = ?, founder = ?, stripe_customer = ?, stripe_sub = ?, plan_checked_at = ?, ref_pending = MAX(0, ref_pending - ?), trial_end = ?, trial_reminded_at = NULL WHERE id = ?").bind(c.tier, c.tier, c.founder ? 1 : 0, c.customer, c.sub, now(), c.refMonths || 0, c.trialEnd || null, user.id),

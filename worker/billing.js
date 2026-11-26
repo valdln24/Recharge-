@@ -60,7 +60,7 @@ export async function checkout(env, origin, offer, user, ref = {}) {
   const label = `Recharge ${t.name}${team}${offer.founder ? " · prix fondateur" : ""}`;
   const items = { 0: { quantity: 1, price_data: { currency: "eur", unit_amount: amount, recurring: { interval: period }, product_data: { name: label } } } };
   // team_code : l'équipe à rejoindre (filleul) ; team_name seul : l'équipe à créer (tête de réseau)
-  const meta = { tier: offer.tier, founder: offer.founder ? 1 : 0, team_name: offer.teamName || "", team_code: offer.teamCode || "", cgv_version: offer.cgv || "", cgv_accepted_at: offer.cgv ? new Date().toISOString() : "" };
+  const meta = { tier: offer.tier, founder: offer.founder ? 1 : 0, team_name: offer.teamName || "", team_code: offer.teamCode || "", cgv_version: offer.cgv || "", cgv_accepted_at: offer.cgv ? new Date().toISOString() : "", ref_code: offer.refCode || "" };
   // Parrainage : +30 jours d'essai pour une invitée, +30 jours par mois gagné en tant que marraine
   const bonus = (ref.invited ? 30 : 0) + 30 * (ref.refMonths || 0);
   const s = await stripe(env, "POST", "checkout/sessions", {
@@ -93,7 +93,7 @@ export async function confirm(env, id) {
   const it = sub.items && sub.items.data && sub.items.data[0], pr = it && it.price;
   const amount = pr && pr.unit_amount || 0, interval = pr && pr.recurring && pr.recurring.interval || "month";
   return { amount, interval, email, customer: typeof s.customer === "string" ? s.customer : s.customer && s.customer.id, sub: sub.id, userId: s.client_reference_id || null, refMonths: Math.max(0, +(md.ref_months || 0)),
-    trialEnd: sub.trial_end ? sub.trial_end * 1000 : null, tier, founder: md.founder === "1" || md.founder === 1, teamName: String(md.team_name || "").slice(0, 60), teamCode: String(md.team_code || "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 12) };
+    trialEnd: sub.trial_end ? sub.trial_end * 1000 : null, tier, founder: md.founder === "1" || md.founder === 1, teamName: String(md.team_name || "").slice(0, 60), teamCode: String(md.team_code || "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 12), refCode: String(md.ref_code || "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 12) };
 }
 
 /* 3. L'espace client Stripe : carte, factures, résiliation */
