@@ -1231,7 +1231,7 @@ async function afterLogin(r) {
   if (!S.profile && !hasRealData(S) && !isDirect()) setTimeout(startOnboarding, 900);
 }
 let pwFlow = false;   // parcours analyse → valeur → paywall → onboarding 2
-let loginEmail = "", upPeriod = "year", upTier = "pro", upTeam = { mode: "new", name: "", seats: 6, code: "" }, offersInfo = null;
+let loginEmail = "", upPeriod = (() => { try { const q = new URLSearchParams(location.search); if (q.get("mois") === "1") localStorage.setItem("recharge.periode", "month"); else if (q.get("from") === "analyse") localStorage.removeItem("recharge.periode"); return localStorage.getItem("recharge.periode") === "month" ? "month" : "year"; } catch (e) { return "year"; } })(), /* choix « au mois » venu de l'analyse */ upTier = "pro", upTeam = { mode: "new", name: "", seats: 6, code: "" }, offersInfo = null;
 /* Les offres : les prix affichés ici sont indicatifs, le serveur fixe le vrai prix au paiement */
 const OFFERS = {
   starter: { n: "Starter", m: 990, y: 9900, fm: 590, fy: 5900, pitch: "Pour bien démarrer", perks: ["Jusqu'à 50 clients", "Relances au bon moment, rythme réel de chaque client", "3 imports photo par mois"] },
@@ -3722,7 +3722,7 @@ addEventListener("resize", () => { if (spotI >= 0) showSpot(); });
 function obFinish() {
   if (!S.pwDue || isPaidS() || (!BILLING_OK && !API_OK)) return false;
   S.pwDue = 0; save();
-  const an = S.analyse || readAnalyse(); upTier = an && an.team === 2 ? "equipe" : "pro"; upPeriod = "year"; pwFlow = true; rcTrack("paywall_vu");
+  const an = S.analyse || readAnalyse(); upTier = an && an.team === 2 ? "equipe" : "pro"; upPeriod = (() => { try { return localStorage.getItem("recharge.periode") === "month" ? "month" : "year"; } catch (e) { return "year"; } })(); pwFlow = true; rcTrack("paywall_vu");
   setTimeout(() => openUpgrade(), 400); return true;
 }
 function openTour(i = 0) {

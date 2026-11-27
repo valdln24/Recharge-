@@ -195,6 +195,9 @@ body{background:var(--bg)}
 .offer .ok{font-size:.74rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--o-text)}
 .offer .pr{display:flex;align-items:baseline;gap:10px;margin:8px 0 2px}.offer .pr b{font-size:2.9rem;letter-spacing:-.05em;line-height:1}.offer .pr span{font-weight:700;color:var(--ink-2)}
 .offer .pm{margin:0 0 14px;color:var(--ink-2);font-weight:650;font-size:.9rem}
+.omon{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;margin:-4px 0 14px;padding:10px 12px;border-radius:14px;background:#f6f2ee;font-weight:700;font-size:.9rem;cursor:pointer}
+.omon input{width:20px;height:20px;accent-color:var(--orange)}.omon span{flex-basis:100%;padding-left:30px;font-weight:600;font-size:.8rem;color:var(--ink-3)}
+.calc{margin-top:14px;font-size:.86rem;color:var(--ink-2)}.calc summary{cursor:pointer;font-weight:700}.calc ul{margin:8px 0 0;padding-left:18px;line-height:1.5}
 .offer ul{list-style:none;padding:0;margin:0 0 16px;display:grid;gap:9px}
 .offer li{display:flex;gap:10px;align-items:flex-start;font-size:.95rem;line-height:1.4}
 .offer li i{flex:none;width:22px;height:22px;border-radius:50%;background:var(--orange);display:grid;place-items:center;margin-top:1px}.offer li i svg{display:block;width:12px;height:12px;color:var(--navy)}
@@ -434,7 +437,13 @@ body{background:var(--bg)}
       '<button type="button" class="peek" data-a="offer">Voir le montant</button></p>' +
       '<div class="pln"><div class="mk hot"><h3>Marché chaud · cette semaine <span>' + (3 + more) + " actions</span></h3><ul>" + items + "</ul></div>" +
       '<div class="lockwrap"><div class="blur" aria-hidden="true">' + hidden + '</div><div class="lk"><span class="lic">' + LOCK + "</span><p>Votre marché tiède, votre marché froid, vos " + a.dorm + ' clients endormis et le montant exact.</p><button type="button" class="btn orange" data-a="offer">Débloquer mon plan' + ARROW + "</button></div></div></div>" +
-      '<p class="rhyp">Montants estimés avec vos réponses, pas une promesse. Avec vos vrais clients, Recharge calcule tout précisément.</p>');
+      '<p class="rhyp">Montants estimés avec vos réponses, pas une promesse. Avec vos vrais clients, Recharge calcule tout précisément.</p>' +
+      '<details class="calc"><summary>Comment c’est calculé ?</summary><ul>' +
+      '<li>Vos réponses : ' + a.clients + ' clients, ' + esc(a.catLabel.toLowerCase()) + ', panier moyen d’environ ' + a.panier + ' €, produit racheté environ tous les ' + a.duree + ' jours.</li>' +
+      '<li><b>Clients endormis</b> : 1 sur 3 revient après un message simple (hypothèse).</li>' +
+      '<li><b>Recommandations</b> : chaque client peut vous présenter environ 5 personnes, 1 sur 10 achète, au fil de l’année (hypothèse).</li>' +
+      '<li><b>Un client qui revient</b> rachète au rythme de son produit, avec 6 relances sur 10 faites au bon moment qui aboutissent (hypothèse).</li>' +
+      '<li>Ce sont des <b>ventes</b> (chiffre d’affaires), pas votre bénéfice : votre gain dépend de la marge de votre marque.</li></ul></details>');
   }
   function offer() {
     var a = compute(), m = me(), q7 = Math.max(1, st.speed || a.semaine), c7 = Math.max(1, Math.round(q7 * .6)), e7 = c7 * a.panier;
@@ -443,15 +452,26 @@ body{background:var(--bg)}
     draw('<div class="abar"><span style="width:100%"></span></div><div class="rk">' + esc(m ? "Le plan de " + m : "Votre plan") + "</div>" +
       '<h1 class="rh">Débloquez votre plan' + esc(m ? ", " + m + "," : "") + ' et allez chercher <em>~<span class="hid" aria-hidden="true">' + fmt(a.totalAn) + "</span> €</em> par an.</h1>" +
       '<p class="rsub">Le montant exact s’affiche dès que votre plan est débloqué. Ensuite, chaque matin, Recharge vous dit qui relancer, avec le message prêt.</p>' +
-      '<div class="offer"><div class="ok">Recharge Pro · à l’année · prix fondateur</div><div class="pr"><b>119 €</b><span>pour l’année</span></div><p class="pm">Soit 9,92 € par mois, 2 mois offerts. Réservé aux 50 premiers abonnés.</p><ul>' +
+      '<div class="offer"><div class="ok" id="oK">Recharge Pro · à l’année · prix fondateur</div><div class="pr"><b id="oP">119 €</b><span id="oU">pour l’année</span></div><p class="pm" id="oM">Soit 9,92 € par mois, 2 mois offerts. Réservé aux 50 premiers abonnés.</p>' +
+      '<label class="omon"><input type="checkbox" id="oMon"> Je préfère payer au mois <span>11,90 € par mois, sans engagement</span></label><ul>' +
       LI("Votre plan complet : marchés chaud, tiède et froid, plus de 250 idées") + LI("Vos " + a.dorm + " clients endormis, avec un message prêt pour chacun") +
       LI("Chaque relance au bon moment, selon la durée de chaque produit") + LI("Le coach illimité, la carte fidélité et les recommandations") +
       '</ul><a class="btn orange" id="rcGo" href="/app/?from=analyse#abonnement">Débloquer mon plan' + ARROW + "</a>" +
-      "<small>7 jours gratuits, puis 119 € pour l’année." + (a.fois >= 2 ? " D’après votre estimation, Recharge peut vous rendre " + a.fois + " fois son prix." : "") +
+      "<small><span id=\"oS\">7 jours gratuits, puis 119 € pour l’année.</span>" + (a.fois >= 2 ? " D’après votre estimation, Recharge peut vous rendre " + a.fois + " fois son prix." : "") +
       " Carte demandée, aucun prélèvement avant le 7e jour : annulez en 1 clic avant, un email vous prévient la veille.</small></div>" +
       '<div class="otry"><h3>Envie de tester d’abord ?</h3><p>Essayez 7 jours avec vos vrais clients. Votre objectif : <b>' + q7 + " relances</b>, <b>~" + c7 + " commande" + (c7 > 1 ? "s" : "") + "</b>, <b>~" + fmt(e7) + " €</b> de ventes (estimation).</p>" +
       '<a class="btn dark" id="rcTry" href="/app/?from=analyse#abonnement">Essayer 7 jours' + ARROW + "</a><small>Carte demandée, aucun prélèvement pendant 7 jours. Annulez en 1 clic avant le 7e jour.</small></div>" +
       '<button type="button" class="again" data-a="back2">← Revoir mon plan</button>');
+    /* Au mois : même offre, prix mensuel ; l'appli ouvre directement le choix « au mois » (?mois=1) */
+    document.getElementById("oMon").addEventListener("change", function () {
+      var mo = this.checked, set = function (id, t) { document.getElementById(id).textContent = t; };
+      set("oK", mo ? "Recharge Pro · au mois · prix fondateur" : "Recharge Pro · à l’année · prix fondateur");
+      set("oP", mo ? "11,90 €" : "119 €"); set("oU", mo ? "par mois" : "pour l’année");
+      set("oM", mo ? "Sans engagement, résiliable en 1 clic. Réservé aux 50 premiers abonnés." : "Soit 9,92 € par mois, 2 mois offerts. Réservé aux 50 premiers abonnés.");
+      set("oS", mo ? "7 jours gratuits, puis 11,90 € par mois." : "7 jours gratuits, puis 119 € pour l’année.");
+      ["rcGo", "rcTry"].forEach(function (id) { document.getElementById(id).href = mo ? "/app/?from=analyse&mois=1#abonnement" : "/app/?from=analyse#abonnement"; });
+      track(mo ? "analyse_choix_mois" : "analyse_choix_annee");
+    });
     document.getElementById("rcGo").addEventListener("click", function () { track("analyse_choix_annuel"); });
     document.getElementById("rcTry").addEventListener("click", function () { track("analyse_choix_essai"); });
   }
