@@ -244,6 +244,16 @@ main{max-width:560px;margin:0 auto;padding:6px 16px 24px}
 .cx-tip{flex:1;min-width:0;font-size:.8rem;color:var(--ink-3);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .cx-send{width:40px;height:40px;display:grid;place-items:center}.cx-send svg{width:20px;height:20px}
 .cx-ideas{margin-top:14px}
+/* Tablette et ordinateur : le coach prend toute la largeur, comme une vraie appli d'IA (le reste de l'appli garde sa largeur de téléphone) */
+@media (min-width:700px){
+  body[data-view="coach"] main{max-width:880px}
+  body[data-view="coach"] .cx-first .cx-hero h1{font-size:3.6rem}
+  body[data-view="coach"] .cx-first .cx-rot{font-size:1.2rem;max-width:30em}
+  body[data-view="coach"] .cx-box,body[data-view="coach"] .chatimgs{width:100%;max-width:760px;margin-left:auto;margin-right:auto}
+  body[data-view="coach"] .cx-box textarea{font-size:1.15rem}
+  body[data-view="coach"] .cx-ideas,body[data-view="coach"] .cx-feats,body[data-view="coach"] .cscope,body[data-view="coach"] .cx-how,body[data-view="coach"] .chatbox,body[data-view="coach"] .cx-top,body[data-view="coach"] .chatpriv,body[data-view="coach"] .chatleft,body[data-view="coach"] .coachmore{max-width:760px;margin-left:auto;margin-right:auto}
+  body[data-view="coach"] .cx-feats{grid-template-columns:1fr 1fr;column-gap:24px}
+}
 /* Règles de simplicité (une action principale par écran) : ce qui n'aide pas à agir est caché, pas supprimé */
 #topMeta{display:none}
 .coach .cworth{background:none;padding:6px 0 0;margin-top:6px;font-size:.84rem;opacity:.85}
@@ -1356,8 +1366,11 @@ async function openTeam() {
     <div class="card list" style="margin-top:14px">${t.members.map(x => `<div class="row"><span style="min-width:0"><b style="font-weight:650">${esc(x.email)}</b>${x.owner ? `<br><small>vous gérez l'équipe</small>` : `<br><small>${x.trial ? "en essai" : x.active ? "part active" : "part pas encore payée"}${x.byMe ? " · venu grâce à vous" : ""}${x.week ? " · actif cette semaine" : ""}</small>`}</span>${x.owner ? "" : `<button class="x" data-act="teamRemove" data-e="${esc(x.email)}" aria-label="Retirer ${esc(x.email)}">${I.x}</button>`}</div>`).join("")}</div>
     <p class="hint">Pas de limite de taille : chaque filleul qui rejoint paie sa propre part. Retirer un membre arrête aussi sa part.</p>`);
 }
+let accMode = "";
 function openAccountForm(mode) {
+  accMode = mode || "";
   try { if (mode === "parrain" || mode === "equipe") localStorage.setItem("recharge.ensuite", mode); else localStorage.removeItem("recharge.ensuite"); } catch (e) {}
+  const lockLogin = mode === "login" && !session;   // « Se connecter » : pas de croix vers la version gratuite
   openSheet(`<div class="shead"><h3>${mode === "login" ? "Me connecter" : mode === "parrain" ? "Mon lien d'invitation" : mode === "equipe" ? "Rejoindre mon équipe" : mode === "gratuit" ? "Créer mon compte gratuit" : "Passer à la version complète"}</h3>${closeBtn}</div>
     ${mode === "gratuit" ? `<p class="lede" style="margin-top:8px">Votre email suffit : pas de mot de passe, pas de carte bancaire.</p>
     <ul class="perks"><li>☁️ <b>Sauvegarde automatique</b> de vos ${FREE_MAX} premiers clients</li><li>📱 Vous les retrouvez sur un <b>nouveau téléphone</b></li><li>🌱 Plan du jour, relances, recommandations et réseau</li><li>🔒 Vos données restent les vôtres, jamais revendues</li></ul>` : mode === "equipe" ? `<p class="lede" style="margin-top:8px">Créez votre compte avec votre email, sans mot de passe : vous rejoignez ensuite votre équipe en payant votre part.</p>` : mode === "parrain" ? `<p class="lede" style="margin-top:8px">Votre email suffit, sans mot de passe. Vous recevez un lien de connexion, puis votre lien d'invitation s'affiche ici.</p>` : mode === "login" ? `<p class="lede" style="margin-top:8px">Indiquez l'email de votre compte : vous recevez un lien et un code pour retrouver vos clients.</p>` : `<p class="lede" style="margin-top:8px">Votre email suffit : pas de mot de passe. Vous recevez un lien et un code pour vous connecter.</p>
@@ -1366,7 +1379,8 @@ function openAccountForm(mode) {
     <form id="accForm" autocomplete="on"><label class="field"><span>Votre email</span><input class="input" id="accEmail" type="email" inputmode="email" autocomplete="email" required placeholder="vous@exemple.fr" value="${esc(loginEmail || "")}"></label>
     ${mode === "login" ? "" : `<label class="legalchk"><input type="checkbox" id="accCgu"><span>J'accepte les <a href="/cgu/" target="_blank" rel="noopener">conditions d'utilisation</a>. Mes données sont traitées comme expliqué dans la <a href="/confidentialite/" target="_blank" rel="noopener">politique de confidentialité</a>.</span></label>`}
     <button class="btn primary" style="margin-top:14px" type="submit">Recevoir mon lien de connexion</button></form>
-    ${mode === "login" ? "" : `<button class="linkbtn" data-act="accLogin">J'ai déjà un compte</button>`}`);
+    ${mode === "login" ? `<button class="linkbtn" data-act="accUpgrade">Pas encore de compte ? Voir les offres</button>` : `<button class="linkbtn" data-act="accLogin">J'ai déjà un compte</button>`}`, lockLogin);
+  if (lockLogin) { const c = sheetEl.querySelector(".shead .close"); if (c) c.remove(); }
 }
 function openCodeForm(devLink, devCode) {
   openSheet(`<div class="shead"><h3>Regardez vos emails 📩</h3>${closeBtn}</div>
@@ -1375,7 +1389,8 @@ function openCodeForm(devLink, devCode) {
     <button class="btn primary" style="margin-top:14px" type="submit">Me connecter</button></form>
     <p class="hint">Ou appuyez sur le bouton « Ouvrir Recharge » dans l'email${/iPhone|iPad|Android/.test(navigator.userAgent) ? " : si l'email s'ouvre dans une autre appli, préférez le code" : ""}.</p>
     ${devLink ? `<div class="notice warn" style="margin-top:10px"><span>Mode test : code <b>${esc(devCode)}</b> · <a href="${esc(devLink)}">ouvrir le lien</a></span></div>` : ""}
-    <button class="linkbtn" data-act="accResend">Je n'ai rien reçu : renvoyer</button>`);
+    <button class="linkbtn" data-act="accResend">Je n'ai rien reçu : renvoyer</button>${accMode === "login" && !session ? `<button class="linkbtn" data-act="accLogin">Changer d'adresse email</button>` : ""}`, accMode === "login" && !session);
+  if (accMode === "login" && !session) { const c = sheetEl.querySelector(".shead .close"); if (c) c.remove(); }
   setTimeout(() => { const c = document.getElementById("accCode"); if (c) c.focus(); }, 80);
 }
 async function sendLink() {
@@ -2318,6 +2333,7 @@ let query = "";
 const app = document.getElementById("app");
 
 function render() {
+  document.body.dataset.view = tab;   // pour adapter la mise en page (coach plein écran sur tablette). Surtout pas data-tab : le clic global le prendrait pour un bouton d'onglet
   document.querySelectorAll("nav.tabs .tab").forEach(b => b.classList.toggle("on", b.dataset.tab === tab));
   const n = Math.min(MAX_TODAY, todayList().length);
   document.getElementById("tabDot").innerHTML = n ? `<span class="dot num">${n}</span>` : "";
@@ -3158,9 +3174,9 @@ function viewSettings() {
 
 /* ---------- Panneaux ---------- */
 const sheetEl = document.getElementById("sheet");
-function openSheet(html) {
+function openSheet(html, locked) {
   try { if (spotI >= 0) { const b = document.getElementById("spot"); if (b) b.remove(); spotI = -1; } } catch (e) {}   // une fenêtre s'ouvre : le guide reprendra après
-  sheetEl.innerHTML = `<div class="sheet-bg" data-act="closeBg"><div class="sheet" role="dialog" aria-modal="true"><div class="grab"></div>${html}</div></div>`;
+  sheetEl.innerHTML = `<div class="sheet-bg" ${locked ? "" : `data-act="closeBg"`}><div class="sheet" role="dialog" aria-modal="true">${locked ? "" : `<div class="grab"></div>`}${html}</div></div>`;
   document.body.style.overflow = "hidden"; document.body.classList.add("sheet-open");
   requestAnimationFrame(() => initScrollers(sheetEl));
 }
