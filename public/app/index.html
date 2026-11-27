@@ -244,6 +244,10 @@ main{max-width:560px;margin:0 auto;padding:6px 16px 24px}
 .cx-tip{flex:1;min-width:0;font-size:.8rem;color:var(--ink-3);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .cx-send{width:40px;height:40px;display:grid;place-items:center}.cx-send svg{width:20px;height:20px}
 .cx-ideas{margin-top:14px}
+/* Règles de simplicité (une action principale par écran) : ce qui n'aide pas à agir est caché, pas supprimé */
+#topMeta{display:none}
+.coach .cworth{background:none;padding:6px 0 0;margin-top:6px;font-size:.84rem;opacity:.85}
+.notice .btn.sm[data-act="clearExamples"]{background:var(--surface);color:var(--ink);box-shadow:none}
 /* Disposition « Lovable » : premier écran centré, dégradé qui remplit le bas, logo du haut caché (gardé dans le code) */
 .cx-first{min-height:calc(100svh - 200px);display:flex;flex-direction:column;justify-content:center;padding-bottom:28px}
 .cx-first .cx-hero{padding:8px 4px 26px}.cx-first .cx-mark{display:none}
