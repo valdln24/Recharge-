@@ -320,7 +320,7 @@ async function referral(request, env, url) {
   }
   const inv = await env.DB.prepare("SELECT COUNT(*) AS n, SUM(CASE WHEN ref_rewarded_at IS NOT NULL THEN 1 ELSE 0 END) AS paid FROM users WHERE referred_by = ?").bind(u.id).first();
   const origin = env.APP_ORIGIN || url.origin;
-  return json({ code, link: `${origin}/?parrain=${code}`, invited: (inv && inv.n) || 0, paid: (inv && inv.paid) || 0, pending: (row && row.ref_pending) || 0, cap: 12 });
+  return json({ code, link: `${origin}/?parrain=${code}`, invited: (inv && inv.n) || 0, paid: (inv && inv.paid) || 0, pending: (row && row.ref_pending) || 0, cap: null });
 }
 
 /* ---------- Mesure anonyme du parcours ----------
@@ -428,7 +428,7 @@ async function billingCheckout(request, env, url) {
   // Parrainage : 1 mois de plus d'essai pour une invitée, et les mois gagnés par une marraine qui s'abonne
   let refMonths = 0, invited = false;
   if (u && !u.stripe_sub) {
-    try { const r = await env.DB.prepare("SELECT referred_by, ref_pending FROM users WHERE id = ?").bind(u.id).first(); invited = !!(r && r.referred_by); refMonths = Math.min(12, (r && r.ref_pending) || 0); } catch { /* colonnes absentes : pas de parrainage */ }
+    try { const r = await env.DB.prepare("SELECT referred_by, ref_pending FROM users WHERE id = ?").bind(u.id).first(); invited = !!(r && r.referred_by); refMonths = Math.min(23, (r && r.ref_pending) || 0); } catch { /* colonnes absentes : pas de parrainage */ }
   }
   const tier = TIERS[body.tier] ? body.tier : "pro";
   let teamName = String(body.teamName || "").replace(/[\u0000-\u001f<>]/g, "").trim().slice(0, 60);
@@ -470,7 +470,7 @@ async function offers(env) {
 const TEAM_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
 const teamCode = () => { const b = crypto.getRandomValues(new Uint8Array(8)); return Array.from(b, x => TEAM_ALPHABET[x % TEAM_ALPHABET.length]).join(""); };
 /* Équipe + parrainage, cumulés : la personne qui rejoint une équipe est rattachée à sa tête de réseau comme filleule
-   (si elle n'avait pas déjà une marraine). Au premier vrai paiement de sa part, la tête de réseau gagne 1 mois (plafond 12 par an, billing.js).
+   (si elle n'avait pas déjà une marraine). Au premier vrai paiement de sa part, la tête de réseau gagne 1 mois (au mérite, sans plafond : billing.js).
    Le membre garde le prix Équipe, sans mois offert en plus. */
 async function attachTeamOwner(env, userId, teamId) {
   try {
@@ -494,11 +494,20 @@ async function teamInfo(request, env, url) {
   const t = await env.DB.prepare("SELECT id, name, owner_id, code FROM teams WHERE id = ?").bind(u.team_id).first();
   if (!t) return json({ team: null });
   const owner = t.owner_id === u.id, min = TIERS.equipe.minSeats;
-  const members = await env.DB.prepare("SELECT id, email, plan FROM users WHERE team_id = ? ORDER BY created_at").bind(t.id).all();
-  const list = (members.results || []).map(x => ({ email: x.email, me: x.id === u.id, owner: x.id === t.owner_id, active: x.plan === "equipe" }));
+  const members = await env.DB.prepare("SELECT id, email, plan, created_at, last_seen_at, trial_end, referred_by FROM users WHERE team_id = ? ORDER BY created_at").bind(t.id).all();
+  const T = Date.now();
+  const list = (members.results || []).map(x => ({ email: x.email, me: x.id === u.id, owner: x.id === t.owner_id, active: x.plan === "equipe",
+    trial: !!(x.trial_end && x.trial_end > T), week: !!(x.last_seen_at && T - x.last_seen_at < 7 * 864e5), byMe: x.referred_by === u.id, joined: x.created_at }));
+  // Tableau de bord du chef de réseau : réservé au propriétaire de l'équipe
+  let kpi;
+  if (owner) {
+    const m30 = T - 30 * 864e5, rew = await env.DB.prepare("SELECT COUNT(*) AS n FROM users WHERE referred_by = ? AND ref_rewarded_at IS NOT NULL").bind(u.id).first();
+    kpi = { members: list.length, active: list.filter(x => x.active).length, trial: list.filter(x => x.trial).length, week: list.filter(x => x.week).length,
+      new30: list.filter(x => x.joined && x.joined > m30).length, byMe: list.filter(x => x.byMe).length, months: (rew && rew.n) || 0 };
+  }
   const paying = list.filter(x => x.active).length;
   return json({ team: { name: t.name, min, used: paying, missing: Math.max(0, min - paying), owner, active: u.plan === "equipe",
-    code: t.code, link: `${env.APP_ORIGIN || url.origin}/app/?rejoindre=${t.code}&parrain=${await ensureRefCode(env, u)}`, members: owner ? list : undefined } });
+    code: t.code, link: `${env.APP_ORIGIN || url.origin}/app/?rejoindre=${t.code}&parrain=${await ensureRefCode(env, u)}`, members: owner ? list : undefined, kpi } });
 }
 /* Rejoindre avec un code : il faut payer sa part. Seul un compte qui a déjà une part Équipe active (sans équipe) est rattaché directement. */
 async function teamJoin(request, env) {

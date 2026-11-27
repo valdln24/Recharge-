@@ -116,17 +116,15 @@ export async function refreshPlan(env, db, u) {
   } catch (e) { return u.plan; }   // Stripe injoignable : on garde le dernier statut connu
 }
 
-/* Parrainage (en solo ou en équipe) : au premier vrai paiement d'une invitée ou d'un nouveau membre, la personne qui l'a fait venir gagne 1 mois (plafond : 12 par an).
+/* Parrainage (en solo ou en équipe) : au premier vrai paiement d'une invitée ou d'un nouveau membre, la personne qui l'a fait venir gagne 1 mois. Au mérite : sans plafond.
    Si la marraine est abonnée, le mois est déduit de sa prochaine facture (crédit Stripe) ;
    sinon il est mis de côté et ajouté à son essai quand elle s'abonnera. */
 async function rewardReferral(env, db, userId) {
   try {
     const me = await db.prepare("SELECT referred_by, ref_rewarded_at FROM users WHERE id = ?").bind(userId).first();
     if (!me || !me.referred_by || me.ref_rewarded_at) return;
-    const done = await db.prepare("SELECT COUNT(*) AS n FROM users WHERE referred_by = ? AND ref_rewarded_at > ?").bind(me.referred_by, Date.now() - 365 * 864e5).first();
     const upd = await db.prepare("UPDATE users SET ref_rewarded_at = ? WHERE id = ? AND ref_rewarded_at IS NULL").bind(Date.now(), userId).run();
     if (!upd.meta || !upd.meta.changes) return;                 // déjà récompensée (deux vérifications en même temps)
-    if (done && done.n >= 12) return;                           // plafond annuel atteint pour la marraine
     const sp = await db.prepare("SELECT stripe_customer, stripe_sub FROM users WHERE id = ?").bind(me.referred_by).first();
     if (sp && sp.stripe_customer && sp.stripe_sub) {
       try {

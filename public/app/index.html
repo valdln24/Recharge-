@@ -1239,10 +1239,10 @@ async function openUpgrade(tier) {
       <small>${upPeriod === "year" ? `Soit ${eur(pr.perMonth)} par mois${founder ? " · prix fondateur" : ""}` : `Sans engagement${founder ? " · prix fondateur" : ""}`}</small>
       ${on ? `<ul class="ofl">${o.perks.map(x => `<li>${x}</li>`).join("")}</ul>` : `<small class="ofpitch">${o.pitch}</small>`}</button>`; };
   const team = upTier !== "equipe" ? "" : `<div class="ofteam">
-      <div class="seg" style="margin:0"><button type="button" class="${upTeam.mode === "new" ? "on" : ""}" data-act="upTeamMode" data-m="new">Je crée mon équipe</button><button type="button" class="${upTeam.mode === "join" ? "on" : ""}" data-act="upTeamMode" data-m="join">J'ai déjà une équipe</button></div>
+      <div class="seg" style="margin:0"><button type="button" class="${upTeam.mode === "new" ? "on" : ""}" data-act="upTeamMode" data-m="new">Je crée mon réseau</button><button type="button" class="${upTeam.mode === "join" ? "on" : ""}" data-act="upTeamMode" data-m="join">J'ai un code d'équipe</button></div>
       ${upTeam.mode === "new" ? `<label class="field"><span>Le nom de votre équipe</span><input class="input" id="upTeamName" value="${esc(upTeam.name)}" placeholder="ex. : Les Étoiles de Laura" maxlength="60"></label>
         <p class="hint" style="margin:10px 0 0">Vous payez votre part. Vous recevez ensuite un code à partager : chaque filleul rejoint l'équipe avec ce code et paie la sienne. L'offre est prévue à partir de ${TEAM_MIN} personnes, vous comprise.</p>`
-      : `<p class="hint" style="margin:12px 0 0">Votre tête de réseau vous a donné un code ou un lien. Vous payez votre part, et Recharge vous rattache à son équipe.</p>
+      : `<p class="hint" style="margin:12px 0 0">Tapez le code que votre chef de réseau ou votre marraine vous a donné : vous avez <b>1 mois offert</b>, puis le prix Équipe, moins cher.</p>
         <label class="field"><span>Code de l'équipe</span><input class="input" id="upTeamCode" value="${esc(upTeam.code)}" placeholder="ex. : K7M2QX9A" autocapitalize="characters" maxlength="12"></label>`}</div>`;
   const join = upTier === "equipe" && upTeam.mode === "join";
   const nC = S.clients.filter(c => !c.example).length, nP = (S.prospects || []).filter(x => !x.example).length;
@@ -1312,9 +1312,12 @@ async function openTeam() {
   openSheet(`<div class="shead"><h3>${esc(t.name)}</h3>${closeBtn}</div>
     <div class="ofound" style="margin-top:10px"><svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="15" class="trk"/><circle cx="18" cy="18" r="15" class="arc" stroke-dasharray="${(RC * Math.min(1, t.used / t.min)).toFixed(1)} ${RC.toFixed(1)}" transform="rotate(-90 18 18)"/></svg>
       <span><b><span class="num">${t.used}</span> membre${t.used > 1 ? "s" : ""} actif${t.used > 1 ? "s" : ""}${t.missing ? ` · encore ${t.missing} pour atteindre ${t.min}` : " ✅"}</b>Code de l'équipe : <span class="num" style="font-weight:800;letter-spacing:.08em">${esc(t.code)}</span></span></div>
+    ${t.kpi ? `<div class="kstats" style="grid-template-columns:repeat(2,1fr)"><div><b class="num">${t.kpi.active}</b><span>parts payées</span></div><div><b class="num">${t.kpi.trial}</b><span>en essai</span></div>
+      <div><b class="num">${t.kpi.week}</b><span>actifs cette semaine</span></div><div><b class="num">${t.kpi.new30}</b><span>arrivés ce mois-ci</span></div>
+      <div><b class="num">${t.kpi.byMe}</b><span>venus grâce à vous</span></div><div><b class="num">${t.kpi.months}</b><span>mois gagnés</span></div></div>` : ""}
     <a class="btn primary send" style="margin-top:12px" href="https://wa.me/?text=${encodeURIComponent(msgTxt)}" target="_blank" rel="noopener">${I.wa}<span class="sl">Inviter sur WhatsApp</span></a>
     <button class="btn soft" style="margin-top:8px" data-act="parrainCopy" data-l="${esc(t.link)}">${I.copy} Copier le lien d'invitation</button>
-    <div class="card list" style="margin-top:14px">${t.members.map(x => `<div class="row"><span style="min-width:0"><b style="font-weight:650">${esc(x.email)}</b>${x.owner ? `<br><small>vous gérez l'équipe</small>` : `<br><small>${x.active ? "part active" : "part pas encore payée"}</small>`}</span>${x.owner ? "" : `<button class="x" data-act="teamRemove" data-e="${esc(x.email)}" aria-label="Retirer ${esc(x.email)}">${I.x}</button>`}</div>`).join("")}</div>
+    <div class="card list" style="margin-top:14px">${t.members.map(x => `<div class="row"><span style="min-width:0"><b style="font-weight:650">${esc(x.email)}</b>${x.owner ? `<br><small>vous gérez l'équipe</small>` : `<br><small>${x.trial ? "en essai" : x.active ? "part active" : "part pas encore payée"}${x.byMe ? " · venu grâce à vous" : ""}${x.week ? " · actif cette semaine" : ""}</small>`}</span>${x.owner ? "" : `<button class="x" data-act="teamRemove" data-e="${esc(x.email)}" aria-label="Retirer ${esc(x.email)}">${I.x}</button>`}</div>`).join("")}</div>
     <p class="hint">Pas de limite de taille : chaque filleul qui rejoint paie sa propre part. Retirer un membre arrête aussi sa part.</p>`);
 }
 function openAccountForm(mode) {
@@ -3566,7 +3569,7 @@ function obApply() {
 }
 /* ---------- Parrainage ----------
    Règle simple : quand une personne invitée s'abonne et paie son premier mois, vous gagnez chacune 1 mois offert
-   (plafond : 12 mois par an). Le lien et le suivi sont rattachés au compte. */
+   (au mérite, sans plafond). Le lien et le suivi sont rattachés au compte. */
 async function openParrain() {
   rcTrack("parrainage_ouvert");
   /* L'offre, en une phrase : 1 collègue = 1 mois offert pour vous deux. 12 collègues = 1 an. */
@@ -3574,7 +3577,7 @@ async function openParrain() {
     <p>Chaque personne que vous faites venir vous rapporte 1 mois : <b>une collègue invitée ou un membre de votre équipe, ça compte pareil.</b> 12 personnes = 1 an de Recharge offert.</p>
     <div class="pardots" aria-label="${won} mois gagnés sur 12">${Array.from({ length: 12 }, (_, k) => `<i class="${k < won ? "on" : ""}"></i>`).join("")}</div>
     <span class="parwon">${won ? `${plural(won, "mois gagné", "mois gagnés")} sur 12` : "Votre première collègue vous attend"}</span></div>`;
-  const how = `<details class="parhow"><summary>Comment ça marche</summary><ul class="perks"><li>🎁 <b>1 mois offert pour vous</b> à chaque collègue invitée qui s'abonne</li><li>🤝 <b>1 mois offert pour elle</b>, en plus de ses 7 jours d'essai</li><li>📅 Jusqu'à <b>12 mois offerts par an</b> : une année entière</li><li>👥 <b>En équipe aussi</b> : chaque nouveau membre a 1 mois offert, et la personne qui l'a fait venir gagne 1 mois. Chaque membre a son lien.</li></ul>
+  const how = `<details class="parhow"><summary>Comment ça marche</summary><ul class="perks"><li>🎁 <b>1 mois offert pour vous</b> à chaque collègue invitée qui s'abonne</li><li>🤝 <b>1 mois offert pour elle</b>, en plus de ses 7 jours d'essai</li><li>🏆 <b>Au mérite, sans plafond</b> : plus vous faites venir de monde, moins vous êtes débité</li><li>👥 <b>En équipe aussi</b> : chaque nouveau membre a 1 mois offert, et la personne qui l'a fait venir gagne 1 mois. Chaque membre a son lien.</li></ul>
     <p class="hint">Les mois sont gagnés quand la personne invitée paie son premier mois, après son essai.</p></details>`;
   if (!session) {
     openSheet(`<div class="shead"><span></span>${closeBtn}</div>${hero()}
