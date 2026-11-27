@@ -226,6 +226,8 @@ main{max-width:560px;margin:0 auto;padding:6px 16px 24px}
 .memlist{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:6px}.memlist li{display:flex;gap:8px;align-items:flex-start;background:var(--surface-2);border-radius:14px;padding:9px 10px 9px 12px;font-size:.88rem;line-height:1.35}
 .memlist li span{flex:1;min-width:0}.memlist li small{display:block;color:var(--ink-3);font-weight:600;font-size:.72rem;margin-top:2px}.memlist button{flex:none;border:0;background:none;color:var(--ink-3);width:28px;height:28px;border-radius:50%;display:grid;place-items:center;cursor:pointer}.memlist button svg{width:14px;height:14px}
 .memadd{display:flex;gap:8px;margin-top:10px}
+.ccan{list-style:none;margin:16px 0 0;padding:0;display:grid;gap:8px}.ccan li{display:flex;gap:10px;align-items:flex-start;font-size:.9rem;line-height:1.4;color:var(--ink-2)}.ccan li span{flex:none;width:30px;height:30px;border-radius:10px;background:var(--surface-2);display:grid;place-items:center}.ccan b{color:var(--ink)}
+.cscope{margin:14px 2px 0;font-size:.78rem;color:var(--ink-3);font-weight:600;line-height:1.4}.coachmore{margin-top:18px}.ccan li p{margin:0;flex:1;min-width:0}
 .cr-local{white-space:pre-line;font-size:.92rem;line-height:1.5}
 .srcs{margin-top:10px;display:grid;gap:4px;font-size:.8rem}.srcs b{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3)}.srcs a{color:var(--b-text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .parhero{text-align:center;padding:26px 18px 20px;border-radius:28px;background:var(--grad);color:#fff;box-shadow:0 22px 44px -24px rgba(255,94,31,.8)}
@@ -3969,7 +3971,8 @@ function openTheme(th) {
     ${others.length ? `<details class="cfields"><summary>Autres conseils <i>· pour d'autres niveaux</i></summary>${others.map(tipBlock).join("")}</details>` : ""}`);
 }
 /* ---------- La page « Mon coach » : le chat IA + tout le coach au même endroit ---------- */
-let chat = [], chatImgs = [], chatBusy = false;
+let chat = [], chatImgs = [], chatBusy = false, coachMoreOpen = false;
+const IDEAS_N = 568;   // nombre d'idées de la bibliothèque du coach (worker/ideas.js, IDEAS_COUNT) : à garder à jour
 const MAX_SHOTS = 3;   // profil + conversation (et une de plus)
 /* La mémoire du coach : des notes courtes, dans les données de la vendeuse (téléphone + sauvegarde du compte).
    Elle les voit, les ajoute, les efface. Le coach les reçoit avec chaque question, et en propose au plus 2 par réponse. */
@@ -3992,7 +3995,7 @@ function coachDemo() {
     </div>
     <div class="cdemo-mk"><span>${MARK}</span>Le coach lit les deux</div>
     <div class="cdemo-r"><small>Réponse proposée</small><p>Je te comprends ! Comme tu cours beaucoup, le petit format serait parfait pour tester. Je te le mets de côté ?</p></div>
-    <p class="cdemo-x">Et posez-lui n'importe quelle question : il pioche dans <b>plus de 500 idées</b> pour développer votre activité.</p>
+    
   </div>`;
 }
 const MARK = `<svg viewBox="40 40 120 120" aria-hidden="true"><path d="M122.4 66.9A44 44 0 1 1 81.4 65.1" fill="none" stroke="currentColor" stroke-width="17"/><path d="M66.5 47.5L101 52.5L80.5 80Z" fill="currentColor"/><path d="M109 76L84 111H99L91 136L118 99H103Z" fill="currentColor"/></svg>`;
@@ -4018,22 +4021,31 @@ function demoChat() {
 function viewCoach() {
   const full = todayList(), w = worth(today().slice(0, 8) + "01");
   const msgs = chat.length ? chat : DEMO ? demoChat() : [];
-  let h = `<section class="coachhero"><span class="ch-mark">${MARK}</span><div><h1>Mon coach</h1><p>Vous ne savez pas quoi répondre ou comment aborder quelqu'un ? Envoyez son profil et dites-en un peu plus : plus vous en dites, plus la réponse est personnalisée.</p></div></section>`;
+  /* Un vrai chatbot, épuré : ce qu'il est en haut, la conversation, la zone pour écrire. Le reste est replié dessous. */
+  let h = `<section class="coachhero"><span class="ch-mark">${MARK}</span><div><h1>Mon coach IA</h1><p>L'IA commerciale de la vente directe. Elle vous aide à vendre, relancer et développer votre activité.</p></div></section>`;
   h += `<div class="card chatbox">
     <div class="chatlog" id="chatlog">${msgs.length ? msgs.map((m, i) => m.role === "user"
       ? `<div class="cm me">${(m.imgs || (m.img ? [m.img] : [])).map(x => `<img src="${x}" alt="Capture envoyée">`).join("")}${m.text ? `<p>${esc(m.text)}</p>` : ""}${m.ex ? `<span class="tag">Exemple</span>` : ""}</div>`
       : `<div class="cm bot"><span class="cm-av">${MARK}</span><div class="cm-b">${m.pending ? `<p class="typing"><i></i><i></i><i></i></p>${m.local ? `<p class="hint" style="margin:6px 0 0">Je cherche autour de ${esc(myCity() || "chez vous")}… cela peut prendre une trentaine de secondes.</p>` : ""}` : m.err ? `<p>${esc(m.err)}</p>${m.limit ? `<a class="btn sm orange" style="margin-top:10px" href="#" data-act="accUpgrade">Voir l'abonnement</a>` : ""}` : chatRes(m.res, i) + (m.mem && m.mem.length ? `<div class="memnote">Gardé dans la mémoire du coach : ${m.mem.map(x => "« " + esc(x) + " »").join(" · ")}</div>` : "")}${m.ex ? `<span class="tag">Exemple</span>` : ""}</div></div>`).join("")
-      : coachDemo() + `<p class="chat0">👋 Bonjour${myName() ? " " + esc(myName()) : ""} ! Touchez 📷 pour envoyer jusqu'à ${MAX_SHOTS} captures (son profil, la conversation) et ajoutez ce que vous savez d'elle. Ou posez n'importe quelle question sur votre activité.</p>`}</div>
+      : coachDemo() + `<ul class="ccan">
+        <li><span>📷</span><p><b>Son profil et la conversation en photo</b> : la meilleure réponse, personnalisée</p></li>
+        <li><span>👋</span><p><b>Quoi répondre, comment l'aborder</b>, comment lever une objection</p></li>
+        <li><span>🌱</span><p><b>${IDEAS_N} idées</b> pour trouver des clients, fidéliser, recruter, animer votre équipe</p></li>
+        <li><span>📍</span><p><b>Près de chez vous</b> : événements, salons, partenaires (offre Pro)</p></li>
+        <li><span>💡</span><p><b>Il retient ce qui compte</b>, et vous gardez la main sur sa mémoire</p></li></ul>
+        <p class="cscope">Il ne parle que de votre activité commerciale, et ne traite jamais d'informations confidentielles (mots de passe, carte, codes, identifiants de votre marque).</p>`}</div>
     ${!msgs.length || DEMO ? `<div class="ideas">${CHAT_IDEAS.map(q => `<button data-act="chatIdea">${esc(q)}</button>`).join("")}</div>` : ""}
     ${chatImgs.length ? `<div class="chatimgs">${chatImgs.map((x, k) => `<div class="chatimg"><img src="${x}" alt="Capture à envoyer"><button data-act="chatImgX" data-k="${k}" aria-label="Retirer la capture">${I.x}</button></div>`).join("")}</div>` : ""}
     <form id="chatForm" class="chatin"><label class="chatpic" title="Envoyer des captures : son profil, la conversation">📷<input type="file" id="chatFile" accept="image/*" multiple class="hidden"></label>
-      <textarea id="chatQ" rows="1" placeholder="Question ou capture 📷"></textarea>
+      <textarea id="chatQ" rows="1" placeholder="Posez votre question ou envoyez une capture"></textarea>
       <button class="chatgo" type="submit" aria-label="Envoyer" ${chatBusy ? "disabled" : ""}>➤</button></form>
     ${COACH_OK && !isPaidS() && !DEMO ? `<p class="chatleft">🔒 Le coach IA est inclus dans l'essai gratuit de 7 jours · <a href="#" data-act="accUpgrade">l'activer</a></p>` : ""}
-    <p class="chatpriv">🔒 Les captures servent uniquement à préparer la réponse, puis elles sont oubliées. Le coach garde seulement les notes de sa mémoire, visibles plus bas. Évitez les informations sensibles (santé, adresse…).</p>
-    ${COACH_OK || DEMO ? "" : `<div class="miss">⏳ Le coach IA sera bientôt activé. En attendant, tout le reste du coach ci-dessous fonctionne déjà.</div>`}
+    <p class="chatpriv">🔒 Les captures sont oubliées après la réponse. Évitez les informations sensibles (santé, adresse…).</p>
+    ${COACH_OK || DEMO ? "" : `<div class="miss">⏳ Le coach IA sera bientôt activé.</div>`}
   </div>`;
   const mem = memList();
+  /* Plus d'outils : la mémoire, les raccourcis et le développement, repliés pour garder le chat épuré (rien n'est supprimé) */
+  h += `<details class="mfold coachmore" ${coachMoreOpen ? "open" : ""}><summary>Plus d'outils du coach</summary>`;
   h += section("La mémoire de mon coach", mem.length || null) + `<div class="card pad">
     <p class="hint" style="margin:0">Votre coach n'oublie pas : ce qu'il retient de vos échanges, et ce que vous lui apprenez, reste ici, dans vos données${session ? ", sauvegardées avec votre compte" : ""}. Vous gardez la main : modifiez ou effacez quand vous voulez.</p>
     ${mem.length ? `<ul class="memlist">${mem.slice().reverse().map(x => `<li><span>${esc(x.t)}<small>${x.src === "coach" ? "Retenu par le coach" : "Ajouté par vous"} · ${fmt(x.d)}</small></span><button data-act="memDel" data-id="${x.id}" aria-label="Effacer cette note">${I.x}</button></li>`).join("")}</ul>` : ""}
@@ -4046,7 +4058,7 @@ function viewCoach() {
     <button class="ctile" data-act="newPromo"><span>📣</span><b>Promo</b><small>prévenir les bonnes personnes</small></button>
     <button class="ctile" data-act="goto" data-t="dev" data-c=""><span>🌱</span><b>Développer</b><small>réseau, temps forts, idées</small></button>
     <button class="ctile" data-act="newProspect"><span>👋</span><b>Prospect</b><small>noter une rencontre</small></button></div>`;
-  h += section("Mon développement") + devCoach();
+  h += section("Mon développement") + devCoach() + `</details>`;
   return h;
 }
 function shrinkImage(file, max = 1400) {
@@ -5870,6 +5882,8 @@ if (paidParam) {
   }).catch(() => {});
 }
 addEventListener("online", () => { if (sync.dirty) pushNow(); });
+/* « Plus d'outils du coach » reste ouvert après un ajout ou un effacement dans la mémoire */
+document.addEventListener("toggle", e => { if (e.target.classList && e.target.classList.contains("coachmore")) coachMoreOpen = e.target.open; }, true);
 document.addEventListener("visibilitychange", () => { if (document.hidden && sync.dirty) pushNow(); });
 if (!DEMO && location.hash === "#equipe") { upTier = "equipe"; history.replaceState(null, "", location.pathname + "#abonnement"); }
 const HASH_GO = DEMO ? "" : location.hash;
